@@ -143,7 +143,7 @@
 <main class="flex-grow pt-[52px] md:pt-[64px]">
 
     <div id="page-beranda" class="page-section active">
-        <section class="relative w-full min-h-[90vh] md:min-h-[600px] flex items-center justify-center overflow-hidden">
+        <section class="relative w-full min-h-[105vh] md:min-h-[750px] flex items-center justify-center overflow-hidden">
             <div id="hero-slider" class="absolute inset-0 z-0 bg-primary-container">
                 <img src="https://i.ibb.co.com/93ZHq3DY/1000018244.jpg" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-100" alt="Slide 1"/>
                 <img src="https://i.ibb.co.com/JWYdvBVX/1000018245.jpg" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-0" alt="Slide 2"/>
@@ -152,26 +152,80 @@
             
             <div class="absolute inset-0 bg-gradient-to-tr from-primary/95 via-primary/80 to-transparent mix-blend-multiply z-10 pointer-events-none"></div>
             
-            <div class="relative z-30 text-center px-6 max-w-5xl mx-auto text-white mt-16 md:mt-20 pb-24 md:pb-32">
-                <div class="block text-xl md:text-4xl font-extrabold text-secondary-container tracking-wide mb-6 animate-pulse" dir="rtl">
+            <div class="relative z-30 text-center px-6 max-w-xl mx-auto text-white mt-12 md:mt-16 pb-20 md:pb-28">
+                <div class="block text-xl md:text-4xl font-extrabold text-secondary-container tracking-wide mb-4 animate-pulse" dir="rtl">
                     رابطة المعاهد الإسلامية نهضة العلماء
                 </div>
                 
-                <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight drop-shadow-lg">
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-lg">
                     Pusat Peradaban <br/><span class="text-secondary-container">Santri Kota Wali</span>
                 </h1>
                 
-                <p class="text-lg md:text-xl text-white/90 mb-10 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-sm">
+                <p class="text-sm md:text-base text-white/90 mb-6 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-sm">
                     Menyatukan langkah, mengawal tradisi salaf, dan membangun kemandirian ekosistem Pondok Pesantren se-Kabupaten Demak di era digitalisasi modern.
                 </p>
-                
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <button class="spa-link px-8 py-4 bg-secondary-container text-on-secondary-container rounded-xl font-bold hover:-translate-y-1 hover:shadow-xl transition-all duration-300" data-target="profil">
-                        Jelajahi Profil
+
+                <!-- ========================================== -->
+                <!-- 4 MENU UTAMA VERTIKAL SEJAJAR (ANTI-BOX)  -->
+                <!-- ========================================== -->
+                <div class="flex flex-col gap-3 max-w-md mx-auto w-full px-2">
+                    
+                    <!-- 1. Profil RMI -->
+                    <button class="spa-link w-full flex items-center justify-between p-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 rounded-2xl transition-all duration-300 group" data-target="profil">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">account_balance</span>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-xs md:text-sm text-white">Profil RMI NU Demak</p>
+                                <p class="text-[10px] text-white/70 font-light hidden sm:block">Mengenal struktural & visi organisasi</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all text-[18px]">arrow_forward</span>
                     </button>
-                    <button class="spa-link px-8 py-4 bg-transparent border-2 border-white/50 text-white rounded-xl font-bold hover:bg-white/10 backdrop-blur-sm transition-all duration-300" data-target="pesantren">
-                        Direktori Pesantren
+
+                    <!-- 2. Direktori Lembaga -->
+                    <button class="spa-link w-full flex items-center justify-between p-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 rounded-2xl transition-all duration-300 group" data-target="pesantren">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-secondary transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">holiday_village</span>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-xs md:text-sm text-white">Direktori Lembaga</p>
+                                <p class="text-[10px] text-white/70 font-light hidden sm:block">Database Pesantren, Madin & TPQ</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all text-[18px]">arrow_forward</span>
                     </button>
+
+                    <!-- 3. Layanan Digital -->
+                    <button class="spa-link w-full flex items-center justify-between p-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 rounded-2xl transition-all duration-300 group" data-target="layanan">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary-container transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">apps</span>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-xs md:text-sm text-white">Pusat Layanan Digital</p>
+                                <p class="text-[10px] text-white/70 font-light hidden sm:block">SOP, Berkas, & Lacak Status Proposal</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all text-[18px]">arrow_forward</span>
+                    </button>
+
+                    <!-- 4. Warta & Berita -->
+                    <button class="spa-link w-full flex items-center justify-between p-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 rounded-2xl transition-all duration-300 group" data-target="berita">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white group-hover:bg-white group-hover:text-tertiary transition-colors">
+                                <span class="material-symbols-outlined text-[20px]">newspaper</span>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-xs md:text-sm text-white">Warta & Berita</p>
+                                <p class="text-[10px] text-white/70 font-light hidden sm:block">Kabar & Informasi Santri Kota Wali</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all text-[18px]">arrow_forward</span>
+                    </button>
+
                 </div>
             </div>
 
@@ -179,53 +233,6 @@
                 <svg class="relative block w-full h-[60px] md:h-[120px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
                     <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,119.2,190.61,105.7,235.81,95.53,280.4,79.52,321.39,56.44Z" fill="#f8fafc"></path>
                 </svg>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- GRID MENU UTAMA (SHORTCUTS SPA NAV)       -->
-        <!-- ========================================== -->
-        <section class="relative z-30 max-w-[1280px] mx-auto px-6 md:px-16 -mt-12 md:-mt-16 mb-6">
-            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 glass-card soft-shadow">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                    
-                    <!-- 1. Tombol Menu Profil -->
-                    <button class="spa-link flex flex-col items-center text-center p-4 bg-slate-50 hover:bg-primary/5 rounded-2xl border border-slate-200/60 hover:border-primary/30 transition-all duration-300 group" data-target="profil">
-                        <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm mb-3">
-                            <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">account_balance</span>
-                        </div>
-                        <span class="font-bold text-xs md:text-sm text-on-surface group-hover:text-primary transition-colors">Profil RMI</span>
-                        <span class="text-[10px] text-on-surface-variant mt-1 hidden md:block">Kepengurusan & Visi</span>
-                    </button>
-
-                    <!-- 2. Tombol Menu Direktori -->
-                    <button class="spa-link flex flex-col items-center text-center p-4 bg-slate-50 hover:bg-secondary/5 rounded-2xl border border-slate-200/60 hover:border-secondary/30 transition-all duration-300 group" data-target="pesantren">
-                        <div class="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-white transition-all duration-300 shadow-sm mb-3">
-                            <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">holiday_village</span>
-                        </div>
-                        <span class="font-bold text-xs md:text-sm text-on-surface group-hover:text-secondary transition-colors">Direktori Lembaga</span>
-                        <span class="text-[10px] text-on-surface-variant mt-1 hidden md:block">Data Pesantren & Madin</span>
-                    </button>
-
-                    <!-- 3. Tombol Menu Layanan -->
-                    <button class="spa-link flex flex-col items-center text-center p-4 bg-slate-50 hover:bg-primary-container/5 rounded-2xl border border-slate-200/60 hover:border-primary-container/30 transition-all duration-300 group" data-target="layanan">
-                        <div class="w-14 h-14 rounded-2xl bg-primary-container/10 flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-white transition-all duration-300 shadow-sm mb-3">
-                            <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">apps</span>
-                        </div>
-                        <span class="font-bold text-xs md:text-sm text-on-surface group-hover:text-primary-container transition-colors">Layanan Digital</span>
-                        <span class="text-[10px] text-on-surface-variant mt-1 hidden md:block">SOP, Berkas & Lacak</span>
-                    </button>
-
-                    <!-- 4. Tombol Menu Berita -->
-                    <button class="spa-link flex flex-col items-center text-center p-4 bg-slate-50 hover:bg-tertiary/5 rounded-2xl border border-slate-200/60 hover:border-tertiary/30 transition-all duration-300 group" data-target="berita">
-                        <div class="w-14 h-14 rounded-2xl bg-tertiary/10 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-white transition-all duration-300 shadow-sm mb-3">
-                            <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">newspaper</span>
-                        </div>
-                        <span class="font-bold text-xs md:text-sm text-on-surface group-hover:text-tertiary transition-colors">Warta & Berita</span>
-                        <span class="text-[10px] text-on-surface-variant mt-1 hidden md:block">Kabar Santri Demak</span>
-                    </button>
-
-                </div>
             </div>
         </section>
 
