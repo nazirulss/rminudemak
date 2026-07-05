@@ -122,9 +122,15 @@
             <li><a class="nav-btn spa-link text-sm font-medium text-on-primary/80 hover:text-on-primary transition-colors" data-target="berita" href="#">Berita</a></li>
         </ul>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3.5 md:gap-4">
             <button class="hidden md:flex items-center text-on-primary/80 hover:text-on-primary"><span class="material-symbols-outlined text-[20px]">search</span></button>
             <a class="hidden md:inline-block bg-white text-primary px-4 py-1.5 md:px-5 md:py-2 rounded-lg text-xs md:text-sm font-semibold hover:bg-slate-100 transition-all shadow-sm" href="#">Portal Data</a>
+            
+            <!-- UPDATE: Tombol Beranda Langsung di Header Kanan (Mobile Only) -->
+            <button class="spa-link md:hidden text-on-primary/90 hover:text-on-primary p-1 flex items-center justify-center transition-colors" data-target="beranda" title="Kembali ke Beranda">
+                <span class="material-symbols-outlined text-[24px]">home</span>
+            </button>
+            
             <button id="mobile-menu-btn" class="md:hidden text-on-primary p-1 focus:outline-none"><span class="material-symbols-outlined">menu</span></button>
         </div>
     </nav>
@@ -237,7 +243,7 @@
                 </div>
 
                 <div class="lg:col-span-5 flex flex-col gap-5">
-                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300">
                         <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                             <img src="https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&q=80" alt="Berita 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         </div>
@@ -260,7 +266,7 @@
                         </div>
                     </div>
 
-                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hover:shadow-lg hover:border-secondary/30 transition-all duration-300">
+                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-secondary/30 transition-all duration-300">
                         <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                             <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80" alt="Berita 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         </div>
@@ -283,7 +289,7 @@
                         </div>
                     </div>
 
-                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hover:shadow-lg hover:border-tertiary/30 transition-all duration-300">
+                    <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-tertiary/30 transition-all duration-300">
                         <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                             <img src="https://images.unsplash.com/photo-1601628828688-632f38a5a7d0?auto=format&fit=crop&q=80" alt="Berita 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         </div>
@@ -540,16 +546,10 @@
                 </div>
             </div>
         </section>
-
-        <!-- TOMBOL KEMBALI KE BERANDA (MOBILE ONLY) -->
-        <div class="block md:hidden px-6 pb-12">
-            <button class="spa-link w-full bg-slate-100 hover:bg-slate-200 text-primary font-bold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors border border-slate-200" data-target="beranda">
-                <span class="material-symbols-outlined text-[18px]">home</span> Kembali Ke Beranda
-            </button>
-        </div>
     </div>
 
-    <div id="page-pesantren" class="page-section"> <section class="py-12 px-6 md:px-16 max-w-[1280px] mx-auto">
+    <div id="page-pesantren" class="page-section"> 
+        <section class="py-12 px-6 md:px-16 max-w-[1280px] mx-auto">
             <div class="flex flex-col lg:flex-row justify-between items-center gap-6 mb-10">
                 <div class="text-center lg:text-left">
                     <h1 class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight mb-2">Direktori Lembaga</h1>
@@ -599,7 +599,9 @@
                 </button>
             </div>
         </section>
-    </div> <div id="page-layanan" class="page-section">
+    </div> 
+    
+    <div id="page-layanan" class="page-section">
         <section class="bg-primary-container py-16 px-6 md:px-16 text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-5" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
             <div class="relative z-10 max-w-3xl mx-auto">
@@ -670,7 +672,7 @@
                             </div>
                             <h3 class="text-base font-bold text-on-surface mb-2 group-hover:text-tertiary transition-colors">Kemandirian Ekonomi Pesantren</h3>
                             <p class="text-xs text-on-surface-variant leading-relaxed flex-grow mb-4">
-                                Mendorong kewirausahaan and kemandirian finansial pondok pesantren melalui inkubasi bisnis dan Kopontren.
+                                Mendorong kewirausahaan and kemandirian finansial pondok pesantren melalui inkubasi bisnis and Kopontren.
                             </p>
                             <span class="text-tertiary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Buka Layanan <span class="material-symbols-outlined text-[14px]">chevron_right</span></span>
                         </div>
@@ -758,12 +760,8 @@
                                 Lihat Semua Berkas
                             </button>
                         </div>
-
-                        <!-- TOMBOL KEMBALI KE BERANDA (MOBILE ONLY) -->
-                        <div class="block md:hidden mt-6 w-full">
-                <button class="spa-link w-full bg-slate-100 hover:bg-slate-200 text-primary font-bold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors border border-slate-200" data-target="beranda">
-                    <span class="material-symbols-outlined text-[18px]">home</span> Kembali Ke Beranda
-                </button>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -939,16 +937,10 @@
                         </div>
                         <button class="w-full text-center text-xs font-bold text-primary hover:underline mt-2">Lihat Semua Kajian</button>
                     </div>
-
-                    <!-- TOMBOL KEMBALI KE BERANDA (MOBILE ONLY) -->
-                    <div class="block md:hidden mt-6 w-full">
-                        <button class="spa-link w-full bg-slate-100 hover:bg-slate-200 text-primary font-bold text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors border border-slate-200" data-target="beranda">
-                            <span class="material-symbols-outlined text-[18px]">home</span> Kembali Ke Beranda
-                        </button>
-                    </div>
-                </div>
-
-                <aside class="lg:col-span-4 space-y-10"> <!-- 👈 Awal Sidebar Kanan -->
+                </aside>
+            </div>
+        </section>
+    </div>
 
 </main>
 
