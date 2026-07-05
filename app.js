@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 🚀 UPDATE: Cek memori tracker, kalau ada isi sebelum reload maka panggil otomatis halamannya
+    // Running session router bawaan lo kemarin
     const savedPage = sessionStorage.getItem('activePage');
     if (savedPage) {
         navigateTo(savedPage);
@@ -400,6 +400,94 @@ document.addEventListener('DOMContentLoaded', () => {
         navigateTo('beranda');
     }
 
+    // 🚀 KUNCI UPDATE: Nyalakan mesin pencatat waktu shalat otomatis
+    startSmartPrayerWidget();
+
     // Eksekusi penarikan data Supabase secara aman
     loadLembagaDariSupabase();
 });
+
+// ==================================================================
+// NEW FEATURE: ENGINE JADWAL SHALAT AUTOMATION (KABUPATEN DEMAK)
+// ==================================================================
+const jadwalShalatDemakSetahun = {
+    subuh: "04:26", dzuhur: "11:44", ashar: "15:02", maghrib: "17:34", isya: "18:48"
+};
+
+function startSmartPrayerWidget() {
+    const dateMasehiEl = document.getElementById('widget-date-masehi');
+    const dateHijriahEl = document.getElementById('widget-date-hijriah');
+    const prayerNameEl = document.getElementById('widget-next-prayer-name');
+    const prayerTimeEl = document.getElementById('widget-next-prayer-time');
+    const countdownEl = document.getElementById('widget-countdown');
+
+    if (!dateMasehiEl) return; // Proteksi agar tidak error jika sedang tidak di halaman Beranda
+
+    // 1. Tampilkan Tanggal Masehi Lokal
+    const opsiMasehi = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const hariIni = new Date();
+    dateMasehiEl.innerText = hariIni.toLocaleDateString('id-ID', opsiMasehi);
+
+    // 2. Kalkulator Hijriah (Koreksi +1 Hari Standar Kemenag Jawa Tengah)
+    const hijriFormatter = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+    let tanggalHijriahRaw = hijriFormatter.format(new Date(hariIni.getTime() + 24 * 60 * 60 * 1000));
+    dateHijriahEl.innerText = tanggalHijriahRaw.replace("AH", "H");
+
+    // 3. Loop Real-Time Countdown Tracker menuju Waktu Shalat Berikutnya
+    function updateCountdown() {
+        const sekarang = new Date();
+        const jamSekarang = sekarang.getHours();
+        const menitSekarang = sekarang.getMinutes();
+        const waktuMenitSekarang = jamSekarang * 60 + menitSekarang;
+
+        let targetNama = "Subuh";
+        let targetWaktuStr = jadwalShalatDemakSetahun.subuh;
+        let isBesok = false;
+
+        const parseKeMenit = (waktuStr) => {
+            const [j, m] = waktuStr.split(':').map(Number);
+            return j * 60 + m;
+        };
+
+        const mSubuh = parseKeMenit(jadwalShalatDemakSetahun.subuh);
+        const mDzuhur = parseKeMenit(jadwalShalatDemakSetahun.dzuhur);
+        const mAshar = parseKeMenit(jadwalShalatDemakSetahun.ashar);
+        const mMaghrib = parseKeMenit(jadwalShalatDemakSetahun.maghrib);
+        const mIsya = parseKeMenit(jadwalShalatDemakSetahun.isya);
+
+        if (waktuMenitSekarang < mSubuh) {
+            targetNama = "Menuju Subuh"; targetWaktuStr = jadwalShalatDemakSetahun.subuh;
+        } else if (waktuMenitSekarang < mDzuhur) {
+            targetNama = "Menuju Dzuhur"; targetWaktuStr = jadwalShalatDemakSetahun.dzuhur;
+        } else if (waktuMenitSekarang < mAshar) {
+            targetNama = "Menuju Ashar"; targetWaktuStr = jadwalShalatDemakSetahun.ashar;
+        } else if (waktuMenitSekarang < mMaghrib) {
+            targetNama = "Menuju Maghrib"; targetWaktuStr = jadwalShalatDemakSetahun.maghrib;
+        } else if (waktuMenitSekarang < mIsya) {
+            targetNama = "Menuju Isya"; targetWaktuStr = jadwalShalatDemakSetahun.isya;
+        } else {
+            targetNama = "Menuju Subuh"; targetWaktuStr = jadwalShalatDemakSetahun.subuh; isBesok = true;
+        }
+
+        prayerNameEl.innerText = targetNama;
+        prayerTimeEl.innerText = `${targetWaktuStr} WIB`;
+
+        const [targetJam, targetMenit] = targetWaktuStr.split(':').map(Number);
+        let limitTarget = new Date();
+        limitTarget.setHours(targetJam, targetMenit, 0, 0);
+        if (isBesok) limitTarget.setDate(limitTarget.getDate() + 1);
+
+        let selisihMiliDetik = limitTarget - sekarang;
+        let totalDetik = Math.floor(selisihMiliDetik / 1000);
+
+        let jamSisa = Math.floor(totalDetik / 3600);
+        let menitSisa = Math.floor((totalDetik % 3600) / 60);
+        let detikSisa = totalDetik % 60;
+
+        const formatDuaDigit = (num) => String(num).padStart(2, '0');
+        countdownEl.innerText = `${formatDuaDigit(jamSisa)}:${formatDuaDigit(menitSisa)}:${formatDuaDigit(detikSisa)}`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
