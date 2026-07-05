@@ -4,7 +4,6 @@
 const supabaseUrl = 'https://soqbfdyfkewahvemktmw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvcWJmZHlma2V3YWh2ZW1rdG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMDY3NDUsImV4cCI6MjA5ODc4Mjc0NX0.FQuuav23hkNLKodUgWWWeOYM5SIGmoJl-UyP5oKfrAY';
 
-// SINKRONISASI: Menggunakan nama unik 'supabaseClient' agar tidak bentrok dengan global object CDN
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Menyimpan seluruh data lembaga hasil fetch, supaya bisa difilter tanpa fetch ulang
@@ -165,6 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     
     function navigateTo(targetId) {
+        // 🚀 UPDATE: Simpan status nama halaman aktif ke sessionStorage sebelum dialihkan
+        sessionStorage.setItem('activePage', targetId);
+
         pages.forEach(page => page.classList.remove('active'));
         const targetPage = document.getElementById('page-' + targetId);
         if(targetPage) {
@@ -388,6 +390,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 gridTpq.classList.add('animate-slideFadeIn');
             }
         });
+    }
+
+    // 🚀 UPDATE: Cek memori tracker, kalau ada isi sebelum reload maka panggil otomatis halamannya
+    const savedPage = sessionStorage.getItem('activePage');
+    if (savedPage) {
+        navigateTo(savedPage);
+    } else {
+        navigateTo('beranda');
     }
 
     // Eksekusi penarikan data Supabase secara aman
