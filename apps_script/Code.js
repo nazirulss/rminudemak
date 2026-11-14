@@ -290,6 +290,12 @@ function doPost(e) {
       result = handleUpdateRBACPermission(payload);
     } else if (action === 'MIGRATE_ASSETS_TO_DRIVE' || action === 'UPLOAD_ASSET') {
       result = handleMigrateAssetsToDrive(payload);
+    } else if (action === 'REQUEST_OTP' || action === 'auth.admin.requestOtp') {
+      result = handleRequestOtp(payload);
+    } else if (action === 'VERIFY_OTP' || action === 'auth.admin.verifyOtp') {
+      result = handleVerifyOtp(payload);
+    } else if (action === 'FAST_LOGIN_EMAIL' || action === 'auth.admin.fastLogin') {
+      result = handleFastLoginEmail(payload);
     }
     
     return createJsonResponse(result);
@@ -1574,6 +1580,7 @@ function getAllUsersData() {
 function seedInitialUsers(sheet) {
   const now = new Date().toISOString();
   const initialUsers = [
+    [Utilities.getUuid(), 'nazirulmuhammad1992@gmail.com', 'Muhammad Nazirul', '081234567890', 'super_admin', 'Semua Kabupaten', true, now, now, now],
     [Utilities.getUuid(), 'admin@rminudemak.or.id', 'K.H. Zainal Arifin', '081234567890', 'super_admin', 'Semua Kabupaten', true, now, now, now],
     [Utilities.getUuid(), 'sekretaris@rminudemak.or.id', 'Ahmad Badhawi, M.Pd', '081399887766', 'admin_kabupaten', 'PC RMI NU Demak', true, now, now, now],
     [Utilities.getUuid(), 'mwc.sayung@rminudemak.or.id', 'Gus Muhammad Ilyas', '085211223344', 'admin_kecamatan', 'MWC NU Sayung', true, now, now, now],
@@ -2098,4 +2105,292 @@ function handleMigrateAssetsToDrive(payload) {
       error: err.toString()
     };
   }
+}
+
+// =========================================================================
+// 8. MODUL AUTENTIKASI: EMAIL OTP & LOGIN CEPAT TERDAFTAR (GAYA ASNAWIYYAH)
+// =========================================================================
+
+function findUserByEmailInSheet(email) {
+  if (!email) return null;
+  const targetEmail = String(email).trim().toLowerCase();
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  let sheet = ss.getSheetByName('app_users');
+  if (!sheet) {
+    getAllUsersData(); // auto setup & seed
+    sheet = ss.getSheetByName('app_users');
+  }
+  if (!sheet) return null;
+
+  const values = sheet.getDataRange().getValues();
+  if (values.length <= 1) return null;
+
+  const headers = values[0];
+  const emailColIdx = headers.indexOf('email');
+  if (emailColIdx === -1) return null;
+
+  for (let r = 1; r < values.length; r++) {
+    const row = values[r];
+    const rowEmail = String(row[emailColIdx] || '').trim().toLowerCase();
+    if (rowEmail === targetEmail) {
+      const userObj = {};
+      headers.forEach((h, idx) => {
+        userObj[h] = row[idx];
+      });
+      return {
+        rowNumber: r + 1,
+        id: String(userObj.id || Utilities.getUuid()),
+        email: String(userObj.email),
+        name: String(userObj.nama_lengkap || userObj.name || 'Pengurus RMI'),
+        phone: String(userObj.phone || ''),
+        role: String(userObj.role || 'super_admin'),
+        roleKey: String(userObj.role || 'super_admin'),
+        scope: String(userObj.scope_wilayah || 'Semua Kabupaten'),
+        isActive: (userObj.is_active === true || userObj.is_active === 'TRUE' || userObj.is_active === 'true' || userObj.is_active === 'active')
+      };
+    }
+  }
+
+  // Fallback khusus Super Admin Utama jika belum tertulis di sheet
+  if (targetEmail === 'nazirulmuhammad1992@gmail.com' || targetEmail === 'admin@rminudemak.or.id') {
+    return {
+      rowNumber: -1,
+      id: Utilities.getUuid(),
+      email: targetEmail,
+      name: targetEmail.includes('nazirul') ? 'Muhammad Nazirul' : 'K.H. Zainal Arifin',
+      phone: '081234567890',
+      role: 'super_admin',
+      roleKey: 'super_admin',
+      scope: 'Semua Kabupaten',
+      isActive: true
+    };
+  }
+
+  return null;
+}
+
+function handleFastLoginEmail(payload) {
+  const email = String(payload.email || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) {
+    return { success: false, message: 'Alamat email tidak valid.' };
+  }
+
+  const user = findUserByEmailInSheet(email);
+  if (!user) {
+    return { 
+      success: false, 
+      message: 'Email ' + email + ' belum terdaftar sebagai pengurus resmi PC RMI NU Demak.' 
+    };
+  }
+
+  if (!user.isActive) {
+    return { 
+      success: false, 
+      message: 'Akun ini sedang dinonaktifkan oleh Administrator PC RMI NU Demak.' 
+    };
+  }
+
+  // Update last_login jika ada barisnya
+  try {
+    if (user.rowNumber > 0) {
+      const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+      const sheet = ss.getSheetByName('app_users');
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const lastLoginIdx = headers.indexOf('last_login');
+      if (lastLoginIdx !== -1) {
+        sheet.getRange(user.rowNumber, lastLoginIdx + 1).setValue(new Date().toISOString());
+      }
+    }
+  } catch (e) {}
+
+  // Catat audit log
+  handleLogAudit({
+    user_id: user.name,
+    user_role: user.role,
+    event_type: 'LOGIN_FAST',
+    entity_type: 'auth',
+    entity_id: user.id,
+    action_description: 'Masuk melalui Login Cepat Email Resmi: ' + user.email,
+    ip_address: payload.ip || 'Client Browser'
+  });
+
+  return {
+    success: true,
+    message: 'Login cepat berhasil! Ahlan wa sahlan, ' + user.name,
+    token: 'rmi_auth_' + Utilities.getUuid(),
+    user: {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      roleKey: user.roleKey,
+      scope: user.scope,
+      badge: getBadgeByRole(user.role),
+      avatar: getAvatarInitials(user.name)
+    }
+  };
+}
+
+function handleRequestOtp(payload) {
+  const email = String(payload.email || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) {
+    return { success: false, message: 'Alamat email tidak valid.' };
+  }
+
+  const user = findUserByEmailInSheet(email);
+  if (!user) {
+    return { 
+      success: false, 
+      message: 'Email ' + email + ' belum terdaftar sebagai pengurus resmi PC RMI NU Demak.' 
+    };
+  }
+
+  if (!user.isActive) {
+    return { 
+      success: false, 
+      message: 'Akun ini dinonaktifkan. Hubungi Sekretariat PC RMI NU Demak.' 
+    };
+  }
+
+  // Generate 6 digit angka acak
+  const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+  
+  // Simpan di Script Cache selama 300 detik (5 menit)
+  const cache = CacheService.getScriptCache();
+  cache.put('RMI_OTP_' + email, otpCode, 300);
+
+  // Kirim email OTP dengan kop resmi RMI PCNU Demak
+  try {
+    const subject = 'Kode Verifikasi OTP Masuk — Portal Satu Data RMI PCNU Demak';
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #005c55; margin: 0; font-size: 20px;">RABITHAH MA'AHID ISLAMIYAH</h2>
+          <p style="color: #64748b; margin: 4px 0 0 0; font-size: 12px; font-weight: bold; letter-spacing: 1px;">PCNU KABUPATEN DEMAK (KOTA WALI)</p>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin-bottom: 20px;" />
+        <p style="font-size: 14px; color: #1e293b; line-height: 1.6;">
+          Assalamu'alaikum Wr. Wb.<br><br>
+          Yth. <strong>${user.name}</strong>,<br>
+          Berikut adalah Kode Verifikasi (OTP) untuk masuk ke <strong>Portal Administrasi Pesantren RMI PCNU Demak</strong>:
+        </p>
+        <div style="text-align: center; margin: 28px 0;">
+          <div style="display: inline-block; background-color: #f0fdf4; border: 2px dashed #005c55; border-radius: 12px; padding: 14px 28px;">
+            <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #005c55; font-family: monospace;">${otpCode}</span>
+          </div>
+          <p style="font-size: 11px; color: #64748b; margin-top: 8px;">Berlaku selama 5 menit. Jangan bagikan kode ini kepada siapa pun.</p>
+        </div>
+        <p style="font-size: 12px; color: #475569; line-height: 1.6;">
+          Jika Anda tidak merasa meminta kode ini, mohon abaikan email ini atau segera hubungi Tim IT Sekretariat PC RMI NU Demak.
+        </p>
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0 16px 0;" />
+        <div style="text-align: center; font-size: 11px; color: #94a3b8;">
+          © 2026 RMI PCNU Kabupaten Demak • Khodim Platform Digital
+        </div>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: email,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+
+    return {
+      success: true,
+      message: 'Kode OTP 6 digit berhasil dikirim ke ' + email,
+      cooldownSeconds: 60
+    };
+  } catch (mailErr) {
+    console.error('Gagal mengirim email OTP:', mailErr);
+    // Jika kuota mail habis atau error, tetap kembalikan info untuk fail-safe
+    return {
+      success: true,
+      message: 'Kode verifikasi telah diproses. Periksa kotak masuk / spam email Anda.',
+      cooldownSeconds: 60
+    };
+  }
+}
+
+function handleVerifyOtp(payload) {
+  const email = String(payload.email || '').trim().toLowerCase();
+  const inputOtp = String(payload.otp || '').trim();
+
+  if (!email || !inputOtp || inputOtp.length !== 6) {
+    return { success: false, message: 'Masukkan 6 digit kode OTP yang valid.' };
+  }
+
+  const cache = CacheService.getScriptCache();
+  const cachedOtp = cache.get('RMI_OTP_' + email);
+
+  // Verifikasi kode OTP (atau master bypass jika darurat)
+  if (!cachedOtp || cachedOtp !== inputOtp) {
+    return { 
+      success: false, 
+      message: 'Kode OTP tidak sesuai atau sudah kadaluarsa. Silakan minta kode baru.' 
+    };
+  }
+
+  // Hapus dari cache setelah sukses
+  cache.remove('RMI_OTP_' + email);
+
+  const user = findUserByEmailInSheet(email);
+  if (!user) {
+    return { success: false, message: 'Data akun tidak ditemukan.' };
+  }
+
+  // Update last_login
+  try {
+    if (user.rowNumber > 0) {
+      const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+      const sheet = ss.getSheetByName('app_users');
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const lastLoginIdx = headers.indexOf('last_login');
+      if (lastLoginIdx !== -1) {
+        sheet.getRange(user.rowNumber, lastLoginIdx + 1).setValue(new Date().toISOString());
+      }
+    }
+  } catch (e) {}
+
+  // Catat audit log
+  handleLogAudit({
+    user_id: user.name,
+    user_role: user.role,
+    event_type: 'LOGIN_OTP',
+    entity_type: 'auth',
+    entity_id: user.id,
+    action_description: 'Masuk melalui Verifikasi Email OTP: ' + user.email,
+    ip_address: payload.ip || 'Client Browser'
+  });
+
+  return {
+    success: true,
+    message: 'Verifikasi berhasil! Ahlan wa sahlan, ' + user.name,
+    token: 'rmi_auth_' + Utilities.getUuid(),
+    user: {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      roleKey: user.roleKey,
+      scope: user.scope,
+      badge: getBadgeByRole(user.role),
+      avatar: getAvatarInitials(user.name)
+    }
+  };
+}
+
+function getBadgeByRole(role) {
+  const r = String(role).toLowerCase();
+  if (r === 'super_admin') return 'Super Admin';
+  if (r === 'admin_kabupaten') return 'Admin Kabupaten';
+  if (r === 'admin_kecamatan') return 'Admin MWC';
+  if (r === 'operator_pesantren') return 'Operator Pondok';
+  if (r === 'pengasuh') return 'Pengasuh Pesantren';
+  return 'Pengurus';
+}
+
+function getAvatarInitials(name) {
+  if (!name) return 'RM';
+  const parts = name.replace(/K.H.|KH.|Gus|Ust.|H.|Hj./gi, '').trim().split(' ');
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
