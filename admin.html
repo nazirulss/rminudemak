@@ -226,9 +226,12 @@
             <div class="p-3 bg-[#003d2f] border-t border-emerald-900/60 flex items-center justify-between text-xs text-emerald-200/80">
                 <a href="index.html" target="_blank" class="flex items-center gap-1.5 hover:text-white transition-colors" title="Buka Portal Publik">
                     <span class="material-symbols-outlined text-[16px] text-emerald-400">open_in_new</span>
-                    <span class="sidebar-text text-[11px] font-semibold">rminudemak.or.id</span>
+                    <span class="sidebar-text text-[11px] font-semibold">Web Publik</span>
                 </a>
-                <span class="sidebar-text text-[10px] text-emerald-400/80 font-mono">v1.3</span>
+                <button type="button" onclick="handleLogoutAdmin()" class="flex items-center gap-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer" title="Keluar dari Sesi">
+                    <span class="material-symbols-outlined text-[15px]">logout</span>
+                    <span class="sidebar-text text-[11px] font-bold">Keluar</span>
+                </button>
             </div>
         </aside>
 
@@ -1981,147 +1984,178 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- MODAL AUTENTIKASI: DUA METODE LOGIN (GAYA ASNAWIYYAH)     -->
-    <!-- 1. LOGIN CEPAT EMAIL RESMI TERDAFTAR                      -->
-    <!-- 2. LOGIN DENGAN VERIFIKASI EMAIL OTP (2 LANGKAH)          -->
+    <!-- MODAL AUTENTIKASI ELEGAN (IDENTIK SISTEM ASNAWIYYAH)      -->
     <!-- ======================================================== -->
-    <div id="modal-admin-login" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 z-50 select-none">
-        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden fade-in">
-            <!-- Header Brand Modal -->
-            <div class="p-6 bg-gradient-to-br from-[#004e3c] to-[#003629] text-white text-center relative overflow-hidden">
-                <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-                <div class="w-16 h-16 rounded-2xl bg-white/15 border border-white/20 p-2 mx-auto flex items-center justify-center shadow-md mb-3">
-                    <img src="assets/img/logo_rmi.webp" alt="RMI NU Logo" class="w-full h-full object-contain" onerror="this.src='assets/img/logo_rmi.png'" />
-                </div>
-                <span class="text-[10px] tracking-widest uppercase font-extrabold text-emerald-300 bg-white/10 px-2.5 py-0.5 rounded-full inline-block mb-1">RMI PCNU DEMAK</span>
-                <h3 class="text-lg font-bold text-white leading-tight">Portal Administrasi Pesantren</h3>
-                <p class="text-xs text-emerald-100/80 mt-1">Masuk dengan akun pengurus resmi untuk mengakses data center</p>
+    <div id="modal-admin-login" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50 select-none">
+        <div class="bg-white rounded-[28px] max-w-[420px] w-full shadow-2xl border border-slate-100 overflow-hidden fade-in relative p-6 sm:p-7 text-center">
+            
+            <!-- Tombol Tutup X di Pojok Kanan Atas (Gaya Asnawiyyah) -->
+            <button type="button" onclick="closeAdminLoginModal()" class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 rounded-full transition-colors cursor-pointer" title="Tutup Modal">
+                <span class="material-symbols-outlined text-[17px]">close</span>
+            </button>
+
+            <!-- Ikon Perisai Keamanan di Atas Tengah (Gaya Asnawiyyah) -->
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3.5 border border-blue-100/80 shadow-xs">
+                <span class="material-symbols-outlined text-[26px]">shield</span>
             </div>
 
-            <!-- Segmented Control Tabs (2 Metode Login) -->
-            <div class="p-6 pb-0">
-                <div class="flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
-                    <button type="button" id="tab-auth-fast" onclick="switchAdminAuthTab('fast')"
-                        class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-emerald-800 shadow-sm cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px] text-amber-500">bolt</span>
-                        <span>Login Cepat</span>
-                    </button>
-                    <button type="button" id="tab-auth-otp" onclick="switchAdminAuthTab('otp')"
-                        class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px]">mark_email_read</span>
-                        <span>Email OTP</span>
-                    </button>
-                </div>
+            <h3 class="text-lg font-extrabold text-slate-900 tracking-tight leading-tight">Masuk Pengelola / Admin</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-5">Akses khusus operasional dan data center PC RMI NU Demak</p>
 
-                <!-- Alert Message Container -->
-                <div id="admin-auth-alert" class="hidden mt-3 p-3 bg-rose-50 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 text-left flex items-start gap-2">
-                    <span class="material-symbols-outlined text-[18px] text-rose-600 shrink-0">error</span>
-                    <span id="admin-auth-alert-text">Pesan error autentikasi</span>
-                </div>
+            <!-- Segmented Control Tab Pilihan (1-Klik vs OTP) -->
+            <div class="flex p-1 bg-slate-100 rounded-2xl border border-slate-200/80 mb-4">
+                <button type="button" id="tab-auth-fast" onclick="switchAdminAuthTab('fast')"
+                    class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-blue-700 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px] text-amber-500">bolt</span>
+                    <span>1-Klik Akun</span>
+                </button>
+                <button type="button" id="tab-auth-otp" onclick="switchAdminAuthTab('otp')"
+                    class="flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">mail</span>
+                    <span>Email OTP</span>
+                </button>
             </div>
 
-            <!-- Content Body -->
-            <div class="p-6 pt-4 space-y-4">
-                <!-- ============================================== -->
-                <!-- PANEL 1: LOGIN CEPAT (EMAIL RESMI TERDAFTAR)   -->
-                <!-- ============================================== -->
-                <div id="panel-auth-fast" class="space-y-3.5">
-                    <div class="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-100 text-left space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">verified_user</span> Akses Pengurus Terdaftar
-                            </span>
-                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-700 text-white">INSTAN</span>
+            <!-- Alert Message Box -->
+            <div id="admin-auth-alert" class="hidden mb-4 p-3 bg-rose-50 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 text-left flex items-start gap-2">
+                <span class="material-symbols-outlined text-[18px] text-rose-600 shrink-0">error</span>
+                <span id="admin-auth-alert-text">Pesan error autentikasi</span>
+            </div>
+
+            <!-- PANEL 1: 1-KLIK AKUN TERDAFTAR (GAYA SSO ASNAWIYYAH) -->
+            <div id="panel-auth-fast" class="space-y-3.5">
+                <div class="p-4 bg-blue-50/60 rounded-2xl border border-blue-100 space-y-3 text-left">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[14px]">verified_user</span> Akun Resmi Pengurus
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-600 text-white">INSTAN</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed">
+                        Masuk instan tanpa kata sandi menggunakan Akun Pengurus resmi yang terdaftar sebagai <strong>Administrator, Pengurus Cabang, MWC, atau Operator Pondok</strong>.
+                    </p>
+
+                    <!-- Kartu Akun Cepat Siap Masuk (Persis Kartu Google di Asnawiyyah) -->
+                    <div id="card-ready-account" onclick="executeFastLogin('nazirulmuhammad1992@gmail.com')"
+                        class="p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3 cursor-pointer shadow-xs hover:shadow transition-all group">
+                        <div class="w-9 h-9 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                            MN
                         </div>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">
-                            Masuk instan tanpa OTP khusus untuk Email Pengurus yang telah tervalidasi di database Satu Data PC RMI NU Demak.
-                        </p>
+                        <div class="min-w-0 flex-1 text-left">
+                            <div class="text-[10px] text-slate-400 font-medium">Continue as pengurus</div>
+                            <div class="text-xs font-bold text-slate-800 truncate group-hover:text-blue-700">Muhammad Nazirul</div>
+                            <div class="text-[10px] text-slate-500 truncate">nazirulmuhammad1992@gmail.com</div>
+                        </div>
+                        <div class="shrink-0 w-7 h-7 rounded-full bg-slate-100 group-hover:bg-blue-100 text-slate-500 group-hover:text-blue-700 flex items-center justify-center transition-colors">
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Trigger / Masuk dengan Email Lain -->
+                <button type="button" onclick="toggleCustomEmailInput()"
+                    class="w-full py-2.5 px-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-200 flex items-center justify-center gap-2 shadow-xs cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px] text-slate-500">alternate_email</span>
+                    <span id="btn-toggle-email-text">Buka Pilihan Akun / Masukkan Email Lain</span>
+                </button>
+
+                <!-- Form Input Email Kustom (Tersembunyi jika pakai default) -->
+                <form id="form-custom-email-login" onsubmit="handleAdminFastLogin(event)" class="hidden space-y-2 text-left pt-1">
+                    <label class="block text-[11px] font-bold text-slate-600">Ketik Alamat Email Terdaftar:</label>
+                    <div class="flex gap-1.5">
+                        <input type="email" id="fast-login-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
+                            class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-medium" />
+                        <button type="submit" id="btn-submit-fast-login"
+                            class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer flex items-center gap-1">
+                            <span>Masuk</span>
+                            <span class="material-symbols-outlined text-[15px]">login</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- PANEL 2: EMAIL OTP (GAYA ASNAWIYYAH) -->
+            <div id="panel-auth-otp" class="hidden space-y-3.5">
+                <!-- STEP 1: REQUEST OTP -->
+                <form id="form-admin-request-otp" onsubmit="handleAdminRequestOtp(event)" class="space-y-3">
+                    <div class="text-left">
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Email Resmi Pengelola</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">mail</span>
+                            <input type="email" id="otp-auth-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
+                                class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-medium" />
+                        </div>
                     </div>
 
-                    <form id="form-admin-fast-login" onsubmit="handleAdminFastLogin(event)" class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Email Resmi Pengurus</label>
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">mail</span>
-                                <input type="email" id="fast-login-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
-                                    class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
-                            </div>
-                        </div>
+                    <button type="submit" id="btn-admin-request-otp"
+                        class="w-full py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Kirim Kode OTP</span>
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    </button>
+                </form>
 
-                        <button type="submit" id="btn-submit-fast-login"
-                            class="w-full py-2.5 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-[18px]">login</span>
-                            <span>Masuk ke Sistem Sekarang</span>
+                <!-- STEP 2: VERIFIKASI OTP (6 DIGITS) -->
+                <form id="form-admin-verify-otp" onsubmit="handleAdminVerifyOtp(event)" class="hidden space-y-3">
+                    <div class="p-3 bg-blue-50/70 rounded-xl text-[11px] text-slate-700 border border-blue-100 text-left">
+                        Kode verifikasi telah dikirim ke: <br>
+                        <strong id="admin-otp-target-display" class="text-blue-700 font-bold"></strong>
+                    </div>
+
+                    <div class="text-left">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Masukkan 6 Digit OTP</label>
+                        <input type="text" id="admin-auth-otp-code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="••••••"
+                            class="w-full text-center tracking-[0.5em] font-extrabold text-xl py-2.5 rounded-xl border border-slate-300 text-slate-800 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-mono transition" />
+                    </div>
+
+                    <button type="submit" id="btn-admin-verify-otp"
+                        class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Verifikasi & Masuk</span>
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                    </button>
+
+                    <div class="flex items-center justify-between text-[11px] pt-1 text-slate-500">
+                        <button type="button" onclick="resetAdminOtpStep()" class="text-blue-700 font-semibold hover:underline cursor-pointer">
+                            Ganti Email
                         </button>
-                    </form>
-                </div>
+                        <span id="admin-otp-countdown" class="text-slate-400">Kirim ulang dalam 60s</span>
+                    </div>
+                </form>
+            </div>
 
-                <!-- ============================================== -->
-                <!-- PANEL 2: LOGIN DENGAN EMAIL OTP (2 LANGKAH)    -->
-                <!-- ============================================== -->
-                <div id="panel-auth-otp" class="hidden space-y-3.5">
-                    <!-- STEP 1: REQUEST OTP -->
-                    <form id="form-admin-request-otp" onsubmit="handleAdminRequestOtp(event)" class="space-y-3">
-                        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-left space-y-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-[14px]">lock_reset</span> Verifikasi Dua Langkah
-                            </span>
-                            <p class="text-[11px] text-slate-600 leading-relaxed">
-                                Masukkan email resmi Anda. Sistem akan mengirimkan 6 digit kode OTP verifikasi ke kotak masuk email.
-                            </p>
-                        </div>
+            <!-- Footer Link -->
+            <div class="pt-3 mt-4 border-t border-slate-100 text-center">
+                <a href="index.html" class="text-[11px] text-slate-400 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-[14px]">arrow_back</span>
+                    <span>Kembali ke Halaman Web Publik</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Email Pengurus</label>
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">alternate_email</span>
-                                <input type="email" id="otp-auth-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
-                                    class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
-                            </div>
-                        </div>
-
-                        <button type="submit" id="btn-admin-request-otp"
-                            class="w-full py-2.5 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span>Kirim Kode OTP</span>
-                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-                        </button>
-                    </form>
-
-                    <!-- STEP 2: VERIFY OTP (6 DIGITS) -->
-                    <form id="form-admin-verify-otp" onsubmit="handleAdminVerifyOtp(event)" class="hidden space-y-3">
-                        <div class="p-3 bg-emerald-50 rounded-xl text-[11px] text-slate-700 border border-emerald-100 text-left">
-                            Kode 6 digit OTP telah dikirim ke: <br>
-                            <strong id="admin-otp-target-display" class="text-emerald-800 font-bold"></strong>
-                        </div>
-
-                        <div class="text-left">
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Masukkan 6 Digit OTP</label>
-                            <input type="text" id="admin-auth-otp-code" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" placeholder="••••••"
-                                class="w-full text-center tracking-[0.5em] font-extrabold text-xl py-2.5 rounded-xl border border-slate-300 text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-mono transition" />
-                        </div>
-
-                        <button type="submit" id="btn-admin-verify-otp"
-                            class="w-full py-2.5 bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-800 hover:to-emerald-900 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
-                            <span class="material-symbols-outlined text-[18px]">check_circle</span>
-                            <span>Verifikasi & Masuk</span>
-                        </button>
-
-                        <div class="flex items-center justify-between text-[11px] pt-1 text-slate-500">
-                            <button type="button" onclick="resetAdminOtpStep()" class="text-emerald-700 font-semibold hover:underline cursor-pointer">
-                                ← Ganti Email
-                            </button>
-                            <span id="admin-otp-countdown" class="text-slate-400 font-medium">Kirim ulang dalam 60s</span>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Footer Modal -->
-                <div class="pt-2 text-center border-t border-slate-100">
-                    <a href="index.html" class="text-[11px] text-slate-400 hover:text-emerald-700 font-semibold inline-flex items-center gap-1 transition-colors">
-                        <span class="material-symbols-outlined text-[14px]">arrow_back</span>
-                        <span>Kembali ke Halaman Web Publik</span>
-                    </a>
-                </div>
+    <!-- ======================================================== -->
+    <!-- MODAL DIALOG KONFIRMASI LOGOUT MODERN                    -->
+    <!-- ======================================================== -->
+    <div id="modal-confirm-logout" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50 select-none">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-100 p-6 text-center fade-in space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100 shadow-xs">
+                <span class="material-symbols-outlined text-[26px]">logout</span>
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Konfirmasi Keluar</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Apakah Anda yakin ingin mengakhiri sesi administrasi PC RMI NU Demak saat ini?
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" onclick="closeLogoutModal()"
+                    class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" onclick="confirmExecuteLogout()"
+                    class="py-2.5 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5">
+                    <span class="material-symbols-outlined text-[16px]">check</span>
+                    <span>Ya, Keluar</span>
+                </button>
             </div>
         </div>
     </div>
@@ -3460,7 +3494,7 @@
         }
 
         // =========================================================================
-        // ENGINE AUTENTIKASI REAL (ADAPTASI SISTEM ASNAWIYYAH: FAST LOGIN & EMAIL OTP)
+        // ENGINE AUTENTIKASI REAL (IDENTIK SISTEM ASNAWIYYAH: 1-KLIK & EMAIL OTP)
         // =========================================================================
         let adminOtpCooldownTimer = null;
 
@@ -3486,12 +3520,12 @@
             const panelOtp = document.getElementById('panel-auth-otp');
 
             if (mode === 'fast') {
-                tabFast.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-emerald-800 shadow-sm cursor-pointer';
+                tabFast.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-blue-700 shadow-sm cursor-pointer';
                 tabOtp.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer';
                 panelFast.classList.remove('hidden');
                 panelOtp.classList.add('hidden');
             } else {
-                tabOtp.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-emerald-800 shadow-sm cursor-pointer';
+                tabOtp.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 bg-white text-blue-700 shadow-sm cursor-pointer';
                 tabFast.className = 'flex-1 py-2 px-3 rounded-xl font-bold text-xs transition flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer';
                 panelOtp.classList.remove('hidden');
                 panelFast.classList.add('hidden');
@@ -3499,68 +3533,80 @@
             }
         }
 
-        // METODE 1: LOGIN CEPAT KHUSUS EMAIL TERDAFTAR
-        async function handleAdminFastLogin(event) {
-            if (event) event.preventDefault();
-            hideAuthAlert();
-            const emailInput = document.getElementById('fast-login-email');
-            const btn = document.getElementById('btn-submit-fast-login');
-            const email = (emailInput?.value || '').trim().toLowerCase();
+        function toggleCustomEmailInput() {
+            const form = document.getElementById('form-custom-email-login');
+            const btnText = document.getElementById('btn-toggle-email-text');
+            if (!form) return;
+            if (form.classList.contains('hidden')) {
+                form.classList.remove('hidden');
+                if (btnText) btnText.innerText = 'Sembunyikan Form Email';
+                document.getElementById('fast-login-email')?.focus();
+            } else {
+                form.classList.add('hidden');
+                if (btnText) btnText.innerText = 'Buka Pilihan Akun / Masukkan Email Lain';
+            }
+        }
 
-            if (!email || !email.includes('@')) {
-                showAuthAlert('Masukkan format alamat email yang valid.');
-                return;
+        // 1-KLIK LOGIN CEPAT LANGSUNG
+        async function executeFastLogin(targetEmail) {
+            hideAuthAlert();
+            const card = document.getElementById('card-ready-account');
+            const originalCardHtml = card ? card.innerHTML : '';
+            if (card) {
+                card.innerHTML = `
+                    <div class="w-full flex items-center justify-center py-2 gap-2 text-blue-700 font-bold text-xs">
+                        <span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                        <span>Mengautentikasi Akun ${targetEmail}...</span>
+                    </div>
+                `;
             }
 
-            const originalBtnHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span><span>Memverifikasi Akun...</span>';
-
             try {
-                // 1. Coba verifikasi ke Google Apps Script Backend
-                let authenticatedUser = null;
+                let userObj = null;
                 try {
                     const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
                         method: 'POST',
                         body: JSON.stringify({
                             action: 'FAST_LOGIN_EMAIL',
-                            email: email
+                            email: targetEmail
                         })
                     });
                     const data = await res.json();
                     if (data && data.success && data.user) {
-                        authenticatedUser = data.user;
+                        userObj = data.user;
                     } else if (data && data.message) {
                         throw new Error(data.message);
                     }
                 } catch (netErr) {
-                    console.warn("Koneksi Apps Script login cepat gagal, mencoba offline database fallback:", netErr);
-                    // 2. Fallback offline untuk pengurus terdaftar
-                    if (email === 'nazirulmuhammad1992@gmail.com') {
-                        authenticatedUser = DEMO_CREDENTIALS.super_admin_nazirul;
-                    } else if (email.includes('admin@rminudemak.or.id')) {
-                        authenticatedUser = DEMO_CREDENTIALS.super_admin;
-                    } else if (email.includes('sekretaris') || email.includes('badhawi')) {
-                        authenticatedUser = DEMO_CREDENTIALS.admin_kabupaten;
-                    } else if (email.includes('sayung') || email.includes('mwc')) {
-                        authenticatedUser = DEMO_CREDENTIALS.admin_kecamatan;
-                    } else if (email.includes('operator') || email.includes('fathulhuda')) {
-                        authenticatedUser = DEMO_CREDENTIALS.operator_pesantren;
+                    console.warn("GAS Login Offline Fallback:", netErr);
+                    if (targetEmail === 'nazirulmuhammad1992@gmail.com') {
+                        userObj = DEMO_CREDENTIALS.super_admin_nazirul;
                     } else {
-                        throw new Error(netErr.message || 'Email belum terdaftar di database PC RMI NU Demak.');
+                        throw new Error(netErr.message || 'Email belum terdaftar.');
                     }
                 }
 
-                if (authenticatedUser) {
-                    applyAuthenticatedSession(authenticatedUser, authenticatedUser.roleKey || authenticatedUser.role || 'super_admin');
-                    showToast('success', `Ahlan wa Sahlan, ${authenticatedUser.name}!`);
+                if (userObj) {
+                    applyAuthenticatedSession(userObj, userObj.roleKey || userObj.role || 'super_admin');
+                    showToast('success', `Ahlan wa Sahlan, ${userObj.name}!`);
                 }
             } catch (err) {
-                showAuthAlert(err.message || 'Gagal masuk. Pastikan email Anda sudah terdaftar di sekretariat.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnHtml;
+                showAuthAlert(err.message || 'Gagal masuk. Pastikan email terdaftar.');
+                if (card) card.innerHTML = originalCardHtml;
             }
+        }
+
+        // METODE 1: FORM INPUT EMAIL KUSTOM
+        async function handleAdminFastLogin(event) {
+            if (event) event.preventDefault();
+            hideAuthAlert();
+            const emailInput = document.getElementById('fast-login-email');
+            const email = (emailInput?.value || '').trim().toLowerCase();
+            if (!email || !email.includes('@')) {
+                showAuthAlert('Masukkan format alamat email yang valid.');
+                return;
+            }
+            await executeFastLogin(email);
         }
 
         // METODE 2: REQUEST OTP (STEP 1)
@@ -3578,7 +3624,7 @@
 
             const originalBtnHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span><span>Mengirim OTP...</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[16px]">progress_activity</span><span>Mengirim OTP...</span>';
 
             try {
                 const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
@@ -3602,12 +3648,12 @@
                         setTimeout(() => otpInput.focus(), 150);
                     }
                     startAdminOtpCooldown(data.cooldownSeconds || 60);
-                    showToast('success', 'Kode OTP berhasil dikirim ke email Anda!');
+                    showToast('success', 'Kode OTP 6 digit telah dikirim ke email Anda!');
                 } else {
                     throw new Error(data?.message || 'Gagal mengirimkan kode OTP ke email.');
                 }
             } catch (err) {
-                showAuthAlert(err.message || 'Gagal mengirim kode OTP. Periksa koneksi internet Anda.');
+                showAuthAlert(err.message || 'Gagal meminta OTP. Periksa koneksi internet Anda.');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalBtnHtml;
@@ -3630,7 +3676,7 @@
 
             const originalBtnHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span><span>Memverifikasi...</span>';
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[16px]">progress_activity</span><span>Memverifikasi...</span>';
 
             try {
                 const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
@@ -3679,203 +3725,41 @@
                 remaining--;
                 if (remaining <= 0) {
                     clearInterval(adminOtpCooldownTimer);
-                    countdownEl.innerHTML = `<button type="button" onclick="handleAdminRequestOtp(event)" class="text-emerald-700 font-bold hover:underline cursor-pointer">Kirim Ulang Kode</button>`;
+                    countdownEl.innerHTML = `<button type="button" onclick="handleAdminRequestOtp(event)" class="text-blue-700 font-bold hover:underline cursor-pointer">Kirim Ulang Kode</button>`;
                 } else {
                     countdownEl.innerText = `Kirim ulang dalam ${remaining}s`;
                 }
             }, 1000);
-        } else {
-                input.type = 'password';
-                if (icon) icon.innerText = 'visibility';
-            }
         }
 
-        // ==========================================
-        // ENGINE OMNI-SEARCH & SHORTCUTS (FASE 5)
-        // ==========================================
-        let omniHighlightedIndex = -1;
-
-        function handleOmniSearch(query) {
-            const dropdown = document.getElementById('omni-search-dropdown');
-            if (!dropdown) return;
-            const q = (query || '').trim().toLowerCase();
-            omniHighlightedIndex = -1;
-            if (!q) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-
-            const filtered = SYSTEM_MODULES.filter(m => 
-                m.name.toLowerCase().includes(q) || 
-                m.category.toLowerCase().includes(q) || 
-                m.desc.toLowerCase().includes(q) ||
-                m.key.toLowerCase().includes(q)
-            );
-
-            if (filtered.length === 0) {
-                dropdown.innerHTML = `
-                    <div class="p-4 text-center text-xs text-slate-400">
-                        <span class="material-symbols-outlined text-[24px] text-slate-300 block mb-1">search_off</span>
-                        Tidak ada modul yang cocok dengan "<strong>${escapeHTML(query)}</strong>"
-                    </div>
-                `;
-                dropdown.classList.remove('hidden');
-                return;
-            }
-
-            dropdown.innerHTML = filtered.map((m, idx) => `
-                <button type="button" data-idx="${idx}" data-module="${m.key}" onclick="selectOmniSearchResult('${m.key}')" class="omni-item w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">${m.icon}</span>
-                        </div>
-                        <div class="min-w-0">
-                            <span class="block text-xs font-bold text-slate-800 group-hover:text-emerald-700 truncate">${m.name}</span>
-                            <span class="block text-[10px] text-slate-400 truncate">${m.desc}</span>
-                        </div>
-                    </div>
-                    <span class="text-[9px] font-bold text-slate-400 bg-slate-100 group-hover:bg-emerald-200/60 group-hover:text-emerald-800 px-2 py-0.5 rounded-full uppercase shrink-0">${m.category}</span>
-                </button>
-            `).join('');
-            dropdown.classList.remove('hidden');
-        }
-
-        function highlightOmniItem(items, activeIndex) {
-            items.forEach((item, i) => {
-                if (i === activeIndex) {
-                    item.classList.add('bg-emerald-50', 'ring-1', 'ring-emerald-500/40');
-                    item.scrollIntoView({ block: 'nearest' });
-                } else {
-                    item.classList.remove('bg-emerald-50', 'ring-1', 'ring-emerald-500/40');
-                }
-            });
-        }
-
-        function selectOmniSearchResult(moduleKey) {
-            const dropdown = document.getElementById('omni-search-dropdown');
-            const input = document.getElementById('omni-search-input');
-            if (dropdown) dropdown.classList.add('hidden');
-            if (input) input.value = '';
-            omniHighlightedIndex = -1;
-            navigateTo(moduleKey);
-        }
-
-        // Global shortcuts: Alt+F and Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.altKey && (e.key === 'f' || e.key === 'F')) {
-                e.preventDefault();
-                const input = document.getElementById('omni-search-input');
-                if (input) {
-                    input.focus();
-                    input.select();
-                }
-            } else if (e.key === 'Escape') {
-                const dropdown = document.getElementById('omni-search-dropdown');
-                if (dropdown) dropdown.classList.add('hidden');
-                closeAdminUserDropdown();
-            }
-        });
-
-        // Keydown listener on search input for arrows and enter
-        document.addEventListener('DOMContentLoaded', () => {
-            const omniInput = document.getElementById('omni-search-input');
-            if (omniInput) {
-                omniInput.addEventListener('keydown', (e) => {
-                    const dropdown = document.getElementById('omni-search-dropdown');
-                    if (!dropdown || dropdown.classList.contains('hidden')) return;
-                    const items = dropdown.querySelectorAll('.omni-item');
-                    if (items.length === 0) return;
-
-                    if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        omniHighlightedIndex = (omniHighlightedIndex + 1) % items.length;
-                        highlightOmniItem(items, omniHighlightedIndex);
-                    } else if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        omniHighlightedIndex = (omniHighlightedIndex - 1 + items.length) % items.length;
-                        highlightOmniItem(items, omniHighlightedIndex);
-                    } else if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (omniHighlightedIndex >= 0 && items[omniHighlightedIndex]) {
-                            items[omniHighlightedIndex].click();
-                        }
-                    }
-                });
-            }
-        });
-
-        // Click outside to close Omni-Search dropdown
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('omni-search-dropdown');
-            const input = document.getElementById('omni-search-input');
-            if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        function toggleTheme() {
-            showToast('info', 'Mode pencahayaan disesuaikan otomatis dengan preferensi sistem Anda.');
-        }
-
-        function toggleNotificationPopup(event) {
-            if (event) event.stopPropagation();
-            closeAdminUserDropdown(); // Tutup user dropdown bila terbuka
-            const popup = document.getElementById('notif-dropdown-popup');
-            if (!popup) return;
-            const isHidden = popup.classList.contains('hidden');
-            if (isHidden) {
-                popup.classList.remove('hidden');
-            } else {
-                popup.classList.add('hidden');
-            }
-        }
-
-        function closeNotificationPopup() {
-            const popup = document.getElementById('notif-dropdown-popup');
-            if (popup) popup.classList.add('hidden');
-        }
-
-        // ==========================================
-        // FLOATING USER PROFILE & DROPDOWN (FASE 3)
-        // ==========================================
-        function toggleAdminUserDropdown(event) {
-            if (event) event.stopPropagation();
-            const dropdown = document.getElementById('admin-user-dropdown');
-            const chevron = document.getElementById('admin-topbar-chevron');
-            if (!dropdown) return;
-            const isHidden = dropdown.classList.contains('hidden');
-            if (isHidden) {
-                dropdown.classList.remove('hidden');
-                if (chevron) chevron.classList.add('rotate-180');
-            } else {
-                dropdown.classList.add('hidden');
-                if (chevron) chevron.classList.remove('rotate-180');
-            }
-        }
-
-        function closeAdminUserDropdown() {
-            const dropdown = document.getElementById('admin-user-dropdown');
-            const chevron = document.getElementById('admin-topbar-chevron');
-            if (dropdown) dropdown.classList.add('hidden');
-            if (chevron) chevron.classList.remove('rotate-180');
-        }
-
-        function openAdminProfileModal() {
+        // =========================================================================
+        // ALUR LOGOUT MODERN (MODAL KONFIRMASI & RESET SESI BERSIH)
+        // =========================================================================
+        function handleLogoutAdmin() {
             closeAdminUserDropdown();
-            const modal = document.getElementById('modal-admin-profile');
+            const modal = document.getElementById('modal-confirm-logout');
             if (modal) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             }
         }
 
-        function handleLogoutAdmin() {
-            closeAdminUserDropdown();
-            if (confirm('Apakah Anda yakin ingin keluar dari sesi Portal Administrasi?')) {
-                clearAuthSession();
-                showToast('info', 'Anda telah keluar dari Portal Administrasi.');
-                openAdminLoginModal();
+        function closeLogoutModal() {
+            const modal = document.getElementById('modal-confirm-logout');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
+        }
+
+        function confirmExecuteLogout() {
+            closeLogoutModal();
+            clearAuthSession();
+            showToast('info', 'Sesi Anda telah berhasil diakhiri.');
+            setTimeout(() => {
+                openAdminLoginModal();
+            }, 150);
+        }
         }
 
         // Click outside listener for user dropdown & notification popup
