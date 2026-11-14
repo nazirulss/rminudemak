@@ -1658,3 +1658,17 @@ function tutupModalDetailLembaga() {
         modal.classList.remove('flex');
     }
 }
+
+
+// ==================================================================
+// FITUR SHARE BERITA KE WHATSAPP DENGAN LINK PREVIEW GAMBAR DINAMIS
+// ==================================================================
+function bagikanBeritaKeWA(id, judul, cover, ringkasan) {
+    const shareUrl = "https://rminudemak.org/share?id=" + encodeURIComponent(id) + 
+                     "&t=" + encodeURIComponent(judul) + 
+                     "&img=" + encodeURIComponent(cover) + 
+                     "&desc=" + encodeURIComponent(ringkasan || "");
+    const text = "*" + judul + "*\n\n" + (ringkasan || "") + "\n\nBaca selengkapnya di:\n👉 " + shareUrl;
+    const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+    window.open(waUrl, '_blank');
+}

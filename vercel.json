@@ -25,6 +25,8 @@
     }
   ],
   "rewrites": [
+    { "source": "/share", "destination": "/api/share" },
+    { "source": "/berita/share", "destination": "/api/share" },
     { "source": "/admin", "destination": "/admin.html" }
   ]
 }
