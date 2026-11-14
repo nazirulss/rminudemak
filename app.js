@@ -4,7 +4,9 @@
 const supabaseUrl = 'https://soqbfdyfkewahvemktmw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvcWJmZHlma2V3YWh2ZW1rdG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMDY3NDUsImV4cCI6MjA5ODc4Mjc0NX0.FQuuav23hkNLKodUgWWWeOYM5SIGmoJl-UyP5oKfrAY';
 
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseClient = (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function')
+    ? window.supabase.createClient(supabaseUrl, supabaseKey)
+    : null;
 
 // Menyimpan seluruh data lembaga hasil fetch, supaya bisa difilter tanpa fetch ulang
 
