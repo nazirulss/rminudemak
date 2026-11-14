@@ -228,7 +228,7 @@
                     <span class="material-symbols-outlined text-[16px] text-emerald-400">open_in_new</span>
                     <span class="sidebar-text text-[11px] font-semibold">Web Publik</span>
                 </a>
-                <button type="button" onclick="handleLogoutAdmin()" class="flex items-center gap-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer" title="Keluar dari Sesi">
+                <button type="button" onclick="handleLogoutAdmin(event)" class="flex items-center gap-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 px-2 py-1 rounded-lg transition-colors cursor-pointer" title="Keluar dari Sesi">
                     <span class="material-symbols-outlined text-[15px]">logout</span>
                     <span class="sidebar-text text-[11px] font-bold">Keluar</span>
                 </button>
@@ -369,7 +369,7 @@
                             <div class="border-t border-slate-100 my-1"></div>
 
                             <!-- Tombol Keluar (Logout) -->
-                            <button type="button" onclick="handleLogoutAdmin()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors text-left group">
+                            <button type="button" onclick="handleLogoutAdmin(event)" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors text-left group cursor-pointer">
                                 <span class="material-symbols-outlined text-[18px] text-rose-500 group-hover:text-rose-600">logout</span>
                                 <span class="flex-1">Keluar</span>
                             </button>
@@ -3733,9 +3733,56 @@
         }
 
         // =========================================================================
+        // TOPBAR DROPDOWN CONTROLLERS (USER PROFILE & NOTIFICATIONS)
+        // =========================================================================
+        function toggleAdminUserDropdown(event) {
+            if (event) event.stopPropagation();
+            closeNotificationPopup();
+            const dropdown = document.getElementById('admin-user-dropdown');
+            const chevron = document.getElementById('admin-topbar-chevron');
+            if (!dropdown) return;
+            
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                if (chevron) chevron.classList.add('rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                if (chevron) chevron.classList.remove('rotate-180');
+            }
+        }
+
+        function closeAdminUserDropdown() {
+            const dropdown = document.getElementById('admin-user-dropdown');
+            const chevron = document.getElementById('admin-topbar-chevron');
+            if (dropdown) dropdown.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+        }
+
+        function toggleNotificationPopup(event) {
+            if (event) event.stopPropagation();
+            closeAdminUserDropdown();
+            const notifPopup = document.getElementById('notif-dropdown-popup');
+            if (!notifPopup) return;
+            
+            const isHidden = notifPopup.classList.contains('hidden');
+            if (isHidden) {
+                notifPopup.classList.remove('hidden');
+            } else {
+                notifPopup.classList.add('hidden');
+            }
+        }
+
+        function closeNotificationPopup() {
+            const notifPopup = document.getElementById('notif-dropdown-popup');
+            if (notifPopup) notifPopup.classList.add('hidden');
+        }
+
+        // =========================================================================
         // ALUR LOGOUT MODERN (MODAL KONFIRMASI & RESET SESI BERSIH)
         // =========================================================================
-        function handleLogoutAdmin() {
+        function handleLogoutAdmin(event) {
+            if (event) event.stopPropagation();
             closeAdminUserDropdown();
             const modal = document.getElementById('modal-confirm-logout');
             if (modal) {
