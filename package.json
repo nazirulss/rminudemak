@@ -1,0 +1,13 @@
+{
+  "name": "rmi-demak-web",
+  "version": "1.0.0",
+  "description": "Portal Resmi Satu Data & Sistem Informasi Geospasial RMI PCNU Kabupaten Demak",
+  "scripts": {
+    "build:css": "tailwindcss -i assets/css/input.css -o assets/css/styles.min.css --minify",
+    "compress": "node scratch/compress_images.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.17"
+  }
+}

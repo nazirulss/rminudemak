@@ -9,7 +9,10 @@
     <!-- ========================================== -->
     <!-- 1. Favicon Standar Browser (Tab Ikon) -->
     <link rel="icon" type="image/png" href="assets/img/logo_rmi.png" />
-    <link rel="apple-touch-icon" href="assets/img/logo_rmi.png" />
+    <link rel="apple-touch-icon" href="assets/img/logo_rmi.png" />
+
+    <!-- Preload Critical LCP Hero Image (Sub-300ms Hero Paint) -->
+    <link rel="preload" as="image" href="assets/img/hero_slide_1.webp" type="image/webp" fetchpriority="high" />
 
     <!-- 2. Open Graph Meta Tags (Preview WhatsApp, Facebook, Telegram, dll) -->
     <meta property="og:type" content="website" />
@@ -18,8 +21,8 @@
     <meta property="og:title" content="RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali" />
     <meta property="og:description" content="Portal Resmi Satu Data & Sistem Informasi Geospasial Pondok Pesantren, Madrasah Diniyah, dan TPQ se-Kabupaten Demak." />
     <!-- Thumbnail Overview Beranda Utama (Rasio 1.91:1 / 1200x630 Mutlak untuk WhatsApp) -->
-    <meta property="og:image" content="https://lh3.googleusercontent.com/d/11T-G4tRAy1jR1_peHE8_pAaOoozDCCq2" />
-    <meta property="og:image:secure_url" content="https://lh3.googleusercontent.com/d/11T-G4tRAy1jR1_peHE8_pAaOoozDCCq2" />
+    <meta property="og:image" content="https://rminudemak.org/assets/img/og_beranda_overview.jpg" />
+    <meta property="og:image:secure_url" content="https://rminudemak.org/assets/img/og_beranda_overview.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -30,12 +33,16 @@
     <meta name="twitter:url" content="https://rminudemak.org/" />
     <meta name="twitter:title" content="RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali" />
     <meta name="twitter:description" content="Portal Resmi Satu Data & Sistem Informasi Geospasial Pondok Pesantren, Madrasah Diniyah, dan TPQ se-Kabupaten Demak." />
-    <meta name="twitter:image" content="https://lh3.googleusercontent.com/d/11T-G4tRAy1jR1_peHE8_pAaOoozDCCq2" />
+    <meta name="twitter:image" content="https://rminudemak.org/assets/img/og_beranda_overview.jpg" />
 
     <!-- 3. Tambahan untuk Chat Apps Metadata -->
     <meta name="description" content="Menyatukan langkah, mengawal tradisi salaf, dan membangun kemandirian ekosistem Pondok Pesantren se-Kabupaten Demak." />
     <!-- ========================================== -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Preconnect Fonts & CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Compiled Production CSS (Sub-30ms load, Zero CDN blocking) -->
+    <link rel="stylesheet" href="assets/css/styles.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
@@ -131,31 +138,7 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#005c55",
-                        "primary-container": "#0f766e",
-                        "on-primary": "#ffffff",
-                        "secondary": "#1f6c3a",
-                        "secondary-container": "#a4f1b2",
-                        "on-secondary-container": "#24703e",
-                        "tertiary": "#7f4025",
-                        "background": "#f8fafc",
-                        "surface": "#ffffff",
-                        "on-surface": "#0f172a",
-                        "on-surface-variant": "#475569",
-                        "outline-variant": "#e2e8f0",
-                        "surface-container-low": "#f1f5f9"
-                    }
-                }
-            }
-        }
-    </script>
-</head>
+    </head>
 <body class="bg-background text-on-surface flex flex-col min-h-screen overflow-x-hidden">
 
 <header class="fixed top-0 w-full z-50 bg-[#005c55] border-b border-white/15 shadow-md transition-all duration-300 ease-in-out" style="background-color: #005c55;" id="main-header">
@@ -222,9 +205,9 @@
         <section class="relative w-full min-h-[84vh] md:min-h-[700px] flex items-start justify-center overflow-hidden bg-[#022c22] pt-4 sm:pt-6 md:pt-10 pb-12 sm:pb-16 md:pb-20">
             <!-- Slider Foto Latar Belakang -->
             <div id="hero-slider" class="absolute inset-0 z-0 bg-primary-container">
-                <img src="https://lh3.googleusercontent.com/d/11T-G4tRAy1jR1_peHE8_pAaOoozDCCq2" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-100" alt="Slide 1"/>
-                <img src="https://lh3.googleusercontent.com/d/1ArYG-wLb_WblviGQ8xTGCKaCjpcIs4tT" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-0" alt="Slide 2"/>
-                <img src="https://lh3.googleusercontent.com/d/1z16oXPibG5pQMQ2mShW6t76D2rAbXGmn" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-0" alt="Slide 3"/>
+                <img src="assets/img/hero_slide_1.webp" fetchpriority="high" decoding="async" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-100" alt="Pusat Peradaban Santri Kota Wali - Slide 1"/>
+                <img src="assets/img/hero_slide_2.webp" loading="lazy" decoding="async" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-0" alt="Pusat Peradaban Santri Kota Wali - Slide 2"/>
+                <img src="assets/img/hero_slide_3.webp" loading="lazy" decoding="async" class="slide-img absolute inset-0 w-full h-full object-cover object-center transform scale-105 transition-opacity duration-1000 ease-in-out opacity-0" alt="Pusat Peradaban Santri Kota Wali - Slide 3"/>
             </div>
             
             <!-- Asymmetric Scrim: Lapisan Gelap Pekat di Sisi Kiri (Penjamin Keterbacaan Teks), Lembut di Kanan -->
