@@ -46,14 +46,18 @@ function getAllUsersData() {
       obj[h] = row[idx];
     });
 
+    const isActiveBool = (obj.is_active === true || obj.is_active === 'TRUE' || obj.is_active === 'true' || obj.is_active === 'active');
     list.push({
       id: String(obj.id),
       name: String(obj.nama_lengkap),
+      nama_lengkap: String(obj.nama_lengkap),
       email: String(obj.email),
       phone: String(obj.phone || ''),
       role: String(obj.role),
       scope: String(obj.scope_wilayah || 'Semua Kabupaten'),
-      status: (obj.is_active === true || obj.is_active === 'TRUE' || obj.is_active === 'true' || obj.is_active === 'active') ? 'active' : 'inactive',
+      scope_wilayah: String(obj.scope_wilayah || 'Semua Kabupaten'),
+      status: isActiveBool ? 'active' : 'inactive',
+      is_active: isActiveBool,
       lastActive: 'Aktif'
     });
   }
@@ -262,7 +266,8 @@ function getRBACMatrixData() {
     grouped[item.module_key].permissions[item.role_key] = item.permission_level;
   });
 
-  return { success: true, total: list.length, raw: list, grouped: Object.values(grouped) };
+  const groupedList = Object.values(grouped);
+  return { success: true, total: list.length, data: groupedList, raw: list, grouped: groupedList };
 }
 
 function seedInitialRBACPermissions(sheet) {

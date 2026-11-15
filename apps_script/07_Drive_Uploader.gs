@@ -9,12 +9,30 @@
 // 5. HELPER UPLOAD FILE KE GOOGLE DRIVE
 // =========================================================================
 function uploadBase64FileToDrive(fileObj, subfolderName) {
-  if (!fileObj || !fileObj.base64 || !fileObj.filename) return null;
+  if (!fileObj || !fileObj.base64) return null;
+  const filename = fileObj.filename || fileObj.name || ('dokumen_' + Date.now());
   
   try {
-    const rootFolder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+    let rootFolder;
+    try {
+      if (CONFIG.DRIVE_FOLDER_ID) {
+        rootFolder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+      }
+    } catch (fErr) {
+      Logger.log('Drive folder ID tidak ditemukan, fallback ke folder default: ' + fErr.message);
+    }
+
+    if (!rootFolder) {
+      const folderName = "RMINU_DEMAK_WEB_ASSETS";
+      const folders = DriveApp.getFoldersByName(folderName);
+      if (folders.hasNext()) {
+        rootFolder = folders.next();
+      } else {
+        rootFolder = DriveApp.createFolder(folderName);
+      }
+    }
+
     let targetFolder = rootFolder;
-    
     if (subfolderName) {
       const subFolders = rootFolder.getFoldersByName(subfolderName);
       if (subFolders.hasNext()) {
@@ -25,14 +43,16 @@ function uploadBase64FileToDrive(fileObj, subfolderName) {
     }
     
     const bytes = Utilities.base64Decode(fileObj.base64);
-    const blob = Utilities.newBlob(bytes, fileObj.mimeType || 'application/octet-stream', fileObj.filename);
+    const blob = Utilities.newBlob(bytes, fileObj.mimeType || 'application/octet-stream', filename);
     const uploadedFile = targetFolder.createFile(blob);
     uploadedFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
+    const fileId = uploadedFile.getId();
     return {
-      fileId: uploadedFile.getId(),
+      fileId: fileId,
       url: uploadedFile.getUrl(),
-      filename: fileObj.filename
+      directUrl: "https://lh3.googleusercontent.com/d/" + fileId,
+      filename: filename
     };
   } catch (err) {
     Logger.log('Gagal upload file ke Drive: ' + err.message);
