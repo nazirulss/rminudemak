@@ -1637,6 +1637,70 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- MANAJEMEN JAJARAN PENGURUS & GARIS KOMANDO -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-[20px]">account_tree</span>
+                                    <span>Struktur Pengurus & Garis Komando</span>
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Kelola jajaran pelindung, dewan pimpinan, ketua bidang, dan relasi garis komando resmi.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="loadCmsPengurusData()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">refresh</span> Refresh
+                                </button>
+                                <button type="button" onclick="bukaModalTambahPengurus()" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">add</span> Tambah Pengurus
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filter & Pencarian Pengurus -->
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="relative w-full sm:w-72">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[16px]">search</span>
+                                <input type="text" id="cari-pengurus-input" onkeyup="filterCmsPengurusTable()" placeholder="Cari nama atau jabatan..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:border-primary">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[11px] text-slate-500 font-medium">Tingkat:</span>
+                                <select id="filter-tingkat-pengurus" onchange="filterCmsPengurusTable()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-primary">
+                                    <option value="all">Semua Tingkat</option>
+                                    <option value="pelindung">Pelindung / Penasihat</option>
+                                    <option value="ketua">Pucuk Pimpinan (Ketua)</option>
+                                    <option value="wakil_ketua">Wakil Ketua</option>
+                                    <option value="sekretaris">Sekretaris</option>
+                                    <option value="wakil_sekretaris">Wakil Sekretaris</option>
+                                    <option value="bendahara">Bendahara Umum</option>
+                                    <option value="wakil_bendahara">Wakil Bendahara</option>
+                                    <option value="bidang">Ketua Bidang</option>
+                                    <option value="mwc">Koordinator MWC</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tabel Pengurus -->
+                        <div class="overflow-x-auto rounded-xl border border-slate-100">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 border-b border-slate-200/80 text-[10px] uppercase font-bold text-slate-600">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">Urut</th>
+                                        <th class="p-3">Pengurus</th>
+                                        <th class="p-3">Jabatan Resmi</th>
+                                        <th class="p-3">Tingkat Hirarki</th>
+                                        <th class="p-3">Garis Komando (Atasan)</th>
+                                        <th class="p-3">Tipe Garis</th>
+                                        <th class="p-3 text-center w-28">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-cms-pengurus" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- ======================================================== -->
@@ -2548,6 +2612,107 @@
                     <button type="button" onclick="closeModal('modal-tambah-user')" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 font-semibold hover:bg-slate-100">Batal</button>
                     <button type="submit" class="px-5 py-2 bg-emerald-700 text-white rounded-xl font-bold shadow hover:bg-emerald-800 flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-[16px]">save</span> Simpan Akun
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form Editor Pengurus & Garis Komando -->
+    <div id="modal-pengurus-editor" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 my-8 animate-slideFadeIn">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div>
+                    <h3 class="text-base font-black text-slate-800" id="modal-pengurus-title">Tambah Pengurus & Garis Komando</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Konfigurasi biodata kepengurusan, posisi hirarki, dan jalur komando resmi.</p>
+                </div>
+                <button type="button" onclick="tutupModalPengurus()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="form-pengurus-editor" onsubmit="handleSavePengurus(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="pengurus-id" value="">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Gelar Depan</label>
+                        <input type="text" id="pengurus-gelar-depan" placeholder="KH. / Gus / Dr." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-emerald-700 focus:border-emerald-700">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-700 mb-1">Nama Lengkap <span class="text-rose-500">*</span></label>
+                        <input type="text" id="pengurus-nama" required placeholder="Nama lengkap pengurus" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-emerald-700 focus:border-emerald-700">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-700 mb-1">Jabatan Resmi <span class="text-rose-500">*</span></label>
+                        <input type="text" id="pengurus-jabatan" required placeholder="Contoh: Ketua PC RMI NU Demak" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-emerald-700 focus:border-emerald-700">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Gelar Belakang</label>
+                        <input type="text" id="pengurus-gelar-belakang" placeholder="S.Pd.I. / M.Si." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-emerald-700 focus:border-emerald-700">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tingkat Hirarki <span class="text-rose-500">*</span></label>
+                        <select id="pengurus-tingkat" required onchange="updateParentOptions()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-emerald-700">
+                            <option value="pelindung">Pelindung / Penasihat (PCNU)</option>
+                            <option value="ketua">Pucuk Pimpinan Cabang (Ketua)</option>
+                            <option value="wakil_ketua">Wakil Ketua Cabang</option>
+                            <option value="sekretaris">Sekretaris Cabang</option>
+                            <option value="wakil_sekretaris">Wakil Sekretaris</option>
+                            <option value="bendahara">Bendahara Umum</option>
+                            <option value="wakil_bendahara">Wakil Bendahara</option>
+                            <option value="bidang">Ketua Bidang / Departemen</option>
+                            <option value="mwc">Koordinator MWC Kecamatan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Garis Komando (Atasan Langsung)</label>
+                        <select id="pengurus-parent" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-emerald-700">
+                            <option value="">-- Pucuk Pimpinan (Tanpa Atasan) --</option>
+                            <!-- Dinamis via JS -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tipe Hubungan Garis</label>
+                        <select id="pengurus-tipe-garis" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs bg-white focus:ring-emerald-700">
+                            <option value="komando">Garis Komando (Instruksi Tegas Solid)</option>
+                            <option value="koordinasi">Garis Koordinasi (Konsultatif Putus-putus)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Urutan Prioritas Tampilan</label>
+                        <input type="number" id="pengurus-urutan" min="1" max="99" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-emerald-700 focus:border-emerald-700">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">URL Foto (Google Drive CDN)</label>
+                    <input type="url" id="pengurus-foto" placeholder="https://lh3.googleusercontent.com/d/..." value="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs font-mono focus:ring-emerald-700 focus:border-emerald-700">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Tupoksi & Wewenang Ringkas</label>
+                    <textarea id="pengurus-tupoksi" rows="3" placeholder="Uraian tanggung jawab utama, bidang tugas, atau ruang lingkup wewenang organisasi..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-emerald-700 focus:border-emerald-700 leading-relaxed"></textarea>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="pengurus-status" checked class="rounded text-emerald-700 focus:ring-emerald-700">
+                    <label for="pengurus-status" class="text-xs font-bold text-slate-700 cursor-pointer">Status Aktif dalam Kepengurusan</label>
+                </div>
+
+                <div class="pt-3 flex justify-end gap-2 border-t border-slate-200">
+                    <button type="button" onclick="tutupModalPengurus()" class="px-4 py-2 border border-slate-300 rounded-xl text-slate-700 font-semibold hover:bg-slate-100 transition cursor-pointer">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-bold shadow flex items-center gap-1.5 transition cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">save</span> Simpan Pengurus
                     </button>
                 </div>
             </form>
@@ -7122,6 +7287,262 @@ function previewUploadFoto(inputId, previewImgId) {
         reader.readAsDataURL(fileInput.files[0]);
     }
 }
+
+// ========================================================
+// MANAJEMEN JAJARAN PENGURUS & GARIS KOMANDO (CMS PROFIL)
+// ========================================================
+let cmsPengurusData = [
+    { id: 'PGR-01', tingkat_hirarki: 'pelindung', jabatan: 'Rais Syuriyah PCNU Kabupaten Demak', nama_lengkap: "KH. M. Zainal Arifin Ma'shum", gelar_depan: 'KH.', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G', parent_id: '', tipe_garis: 'koordinasi', tupoksi: 'Pelindung, penasihat spiritual dan pengarah kebijakan umum keagamaan serta sanad keilmuan turots Aswaja.', urutan: 1, is_active: true },
+    { id: 'PGR-02', tingkat_hirarki: 'pelindung', jabatan: 'Ketua Tanfidziyah PCNU Kabupaten Demak', nama_lengkap: 'KH. M. Aminuddin, M.Si.', gelar_depan: 'KH.', gelar_belakang: 'M.Si.', foto_drive_url: 'https://lh3.googleusercontent.com/d/1uNBAgynTrwyyyxhQL9edxhw-2IozYBuD', parent_id: '', tipe_garis: 'koordinasi', tupoksi: "Pembina kelembagaan jam'iyyah, pengarah sinergi program kerja cabang dengan badan otonom dan lembaga NU.", urutan: 2, is_active: true },
+    { id: 'PGR-03', tingkat_hirarki: 'ketua', jabatan: 'Ketua PC RMI NU Kabupaten Demak', nama_lengkap: 'KH. Ibrahim Cholilullah, S.Pd.I.', gelar_depan: 'KH.', gelar_belakang: 'S.Pd.I.', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-02', tipe_garis: 'komando', tupoksi: 'Pucuk pimpinan eksekutif, penanggung jawab komando tertinggi tata kelola pesantren, madrasah diniyah, dan TPQ se-Kabupaten Demak.', urutan: 3, is_active: true },
+    { id: 'PGR-04', tingkat_hirarki: 'wakil_ketua', jabatan: 'Wakil Ketua Bidang Kepesantrenan & Lembaga', nama_lengkap: 'K. M. Nurul Huda', gelar_depan: 'K.', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Membantu Ketua dalam mengoordinasikan bidang kepesantrenan, pembinaan santri mukim, dan hubungan antar lembaga pondok.', urutan: 4, is_active: true },
+    { id: 'PGR-05', tingkat_hirarki: 'sekretaris', jabatan: 'Sekretaris', nama_lengkap: 'K. Ahmad Badhawi Ali', gelar_depan: 'K.', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Pimpinan biro administrasi, persuratan dinas, tata kelola dokumen legalitas, dan penghubung lintas instansi/kementerian.', urutan: 5, is_active: true },
+    { id: 'PGR-06', tingkat_hirarki: 'wakil_sekretaris', jabatan: 'Wakil Sekretaris', nama_lengkap: 'Ust. M. Choirul Anam, S.Pd.', gelar_depan: 'Ust.', gelar_belakang: 'S.Pd.', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-05', tipe_garis: 'komando', tupoksi: 'Mendampingi sekretaris dalam notulensi rapat berkala, arsip digital, dan registrasi pendaftaran pondok pesantren.', urutan: 6, is_active: true },
+    { id: 'PGR-07', tingkat_hirarki: 'bendahara', jabatan: 'Bendahara Umum', nama_lengkap: 'KH. Farid Ubaidillah, S.Kom', gelar_depan: 'KH.', gelar_belakang: 'S.Kom', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Pengelola kas dan perbendaharaan organisasi, pengawasan transparansi anggaran, dan pendanaan program kerja cabang.', urutan: 7, is_active: true },
+    { id: 'PGR-08', tingkat_hirarki: 'wakil_bendahara', jabatan: 'Wakil Bendahara', nama_lengkap: 'H. Ahmad Zaini', gelar_depan: 'H.', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-07', tipe_garis: 'komando', tupoksi: 'Membantu pembukuan kas harian, operasional kesekretariatan, dan laporan pertanggungjawaban keuangan.', urutan: 8, is_active: true },
+    { id: 'PGR-09', tingkat_hirarki: 'bidang', jabatan: 'Ketua Bidang Pendidikan, Kurikulum & Turots', nama_lengkap: 'Gus Muhammad Ilyas', gelar_depan: 'Gus', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Standardisasi kurikulum kitab kuning (ula, wustha, ulya), fasilitasi pengujian mutu santri, dan penguatan sanad keilmuan.', urutan: 9, is_active: true },
+    { id: 'PGR-10', tingkat_hirarki: 'bidang', jabatan: 'Ketua Bidang Kemandirian Ekonomi & Kopontren', nama_lengkap: 'K. Agus Mubarok', gelar_depan: 'K.', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Pengembangan inkubasi bisnis pesantren, pendirian Koperasi Pondok Pesantren (Kopontren), dan jejaring kemitraan pasar.', urutan: 10, is_active: true },
+    { id: 'PGR-11', tingkat_hirarki: 'bidang', jabatan: 'Ketua Bidang Data, Media & Transformasi Digital', nama_lengkap: 'Ust. Ahmad Nazirul, M.Kom.', gelar_depan: 'Ust.', gelar_belakang: 'M.Kom.', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-03', tipe_garis: 'komando', tupoksi: 'Pengembangan arsitektur portal satu data, pemetaan geospasial pesantren, sistem informasi manajemen, dan publikasi warta.', urutan: 11, is_active: true },
+    { id: 'PGR-12', tingkat_hirarki: 'mwc', jabatan: 'Koordinator Wilayah 14 MWC NU Kecamatan', nama_lengkap: 'Jajaran Tim Korwil MWC Se-Demak', gelar_depan: '', gelar_belakang: '', foto_drive_url: 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ', parent_id: 'PGR-05', tipe_garis: 'koordinasi', tupoksi: 'Menghubungkan cabang dengan pondok pesantren di 14 kecamatan se-Kabupaten Demak.', urutan: 12, is_active: true }
+];
+
+async function loadCmsPengurusData() {
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_PENGURUS_ORGANOGRAM';
+        const res = await fetch(gasUrl);
+        const json = await res.json();
+        if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
+            cmsPengurusData = json.data;
+            showToast('success', `Berhasil memuat ${json.data.length} data pengurus dari Cloud Spreadsheet.`);
+        }
+    } catch (e) {
+        console.log("Load pengurus from cloud fallback to local dataset:", e);
+    }
+    renderCmsPengurusTable();
+}
+
+function getBadgeTingkatPengurus(tingkat) {
+    switch (tingkat) {
+        case 'pelindung': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-purple-100 text-purple-800">PELINDUNG PCNU</span>';
+        case 'ketua': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-100 text-amber-900 border border-amber-300">PUCUK PIMPINAN</span>';
+        case 'wakil_ketua': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800">WAKIL KETUA</span>';
+        case 'sekretaris': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-100 text-blue-800">SEKRETARIS</span>';
+        case 'wakil_sekretaris': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-100 text-sky-800">WAKIL SEKRETARIS</span>';
+        case 'bendahara': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-teal-100 text-teal-800">BENDAHARA UMUM</span>';
+        case 'wakil_bendahara': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-cyan-100 text-cyan-800">WAKIL BENDAHARA</span>';
+        case 'bidang': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">KETUA BIDANG</span>';
+        case 'mwc': return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-slate-100 text-slate-700">KORWIL 14 MWC</span>';
+        default: return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-slate-100 text-slate-600">PENGURUS</span>';
+    }
+}
+
+function renderCmsPengurusTable() {
+    const tbody = document.getElementById('tbody-cms-pengurus');
+    if (!tbody) return;
+
+    const cari = (document.getElementById('cari-pengurus-input')?.value || '').toLowerCase().trim();
+    const filterTingkat = document.getElementById('filter-tingkat-pengurus')?.value || 'all';
+
+    let list = cmsPengurusData.filter(p => {
+        const matchCari = !cari || (p.nama_lengkap || '').toLowerCase().includes(cari) || (p.jabatan || '').toLowerCase().includes(cari);
+        const matchTingkat = (filterTingkat === 'all') || (p.tingkat_hirarki === filterTingkat);
+        return matchCari && matchTingkat;
+    });
+
+    list.sort((a, b) => Number(a.urutan || 99) - Number(b.urutan || 99));
+
+    if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada pengurus yang cocok dengan kriteria pencarian.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = list.map(p => {
+        const atasanObj = cmsPengurusData.find(x => x.id === p.parent_id);
+        const atasanText = atasanObj ? `${atasanObj.nama_lengkap} (${atasanObj.jabatan})` : '<span class="text-slate-400 italic">Pucuk Pimpinan / Mandiri</span>';
+        const isKomando = (p.tipe_garis !== 'koordinasi');
+        const badgeGaris = isKomando 
+            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300"><span class="w-2 h-0.5 bg-emerald-700 inline-block"></span> Komando</span>'
+            : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-dashed border-amber-400"><span class="w-2 h-0.5 border-t border-dashed border-amber-600 inline-block"></span> Koordinasi</span>';
+
+        return `
+            <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-3 text-center font-bold text-slate-500">${p.urutan || '-'}</td>
+                <td class="p-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${p.foto_drive_url || 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ'}" class="w-9 h-9 rounded-full object-cover border border-slate-200 shrink-0 bg-slate-100" onerror="this.src='https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ'">
+                        <div>
+                            <div class="font-bold text-slate-900">${p.gelar_depan ? p.gelar_depan + ' ' : ''}${p.nama_lengkap}${p.gelar_belakang ? ', ' + p.gelar_belakang : ''}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${p.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="p-3 font-semibold text-slate-700">${p.jabatan}</td>
+                <td class="p-3">${getBadgeTingkatPengurus(p.tingkat_hirarki)}</td>
+                <td class="p-3 text-slate-600 text-[11px] max-w-[200px] truncate" title="${atasanObj ? atasanObj.nama_lengkap : 'Tanpa Atasan'}">${atasanText}</td>
+                <td class="p-3">${badgeGaris}</td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        <button type="button" onclick="bukaModalEditPengurus('${p.id}')" title="Edit Pengurus" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition cursor-pointer">
+                            <span class="material-symbols-outlined text-[17px]">edit</span>
+                        </button>
+                        <button type="button" onclick="hapusPengurus('${p.id}')" title="Hapus Pengurus" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer">
+                            <span class="material-symbols-outlined text-[17px]">delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterCmsPengurusTable() {
+    renderCmsPengurusTable();
+}
+
+function updateParentOptions(selectedParentId = '') {
+    const select = document.getElementById('pengurus-parent');
+    if (!select) return;
+    const currentId = document.getElementById('pengurus-id')?.value || '';
+
+    let html = '<option value="">-- Pucuk Pimpinan / Tanpa Atasan --</option>';
+    cmsPengurusData.filter(x => x.id !== currentId).forEach(p => {
+        const isSelected = (p.id === selectedParentId) ? 'selected' : '';
+        html += `<option value="${p.id}" ${isSelected}>${p.nama_lengkap} (${p.jabatan})</option>`;
+    });
+    select.innerHTML = html;
+}
+
+function bukaModalTambahPengurus() {
+    document.getElementById('modal-pengurus-title').innerText = 'Tambah Pengurus & Garis Komando';
+    document.getElementById('pengurus-id').value = '';
+    document.getElementById('pengurus-nama').value = '';
+    document.getElementById('pengurus-gelar-depan').value = '';
+    document.getElementById('pengurus-gelar-belakang').value = '';
+    document.getElementById('pengurus-jabatan').value = '';
+    document.getElementById('pengurus-tingkat').value = 'bidang';
+    document.getElementById('pengurus-tipe-garis').value = 'komando';
+    document.getElementById('pengurus-urutan').value = cmsPengurusData.length + 1;
+    document.getElementById('pengurus-foto').value = 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ';
+    document.getElementById('pengurus-tupoksi').value = '';
+    document.getElementById('pengurus-status').checked = true;
+
+    updateParentOptions('PGR-03');
+    const modal = document.getElementById('modal-pengurus-editor');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function bukaModalEditPengurus(id) {
+    const p = cmsPengurusData.find(x => x.id === id);
+    if (!p) return;
+
+    document.getElementById('modal-pengurus-title').innerText = 'Edit Pengurus: ' + p.nama_lengkap;
+    document.getElementById('pengurus-id').value = p.id;
+    document.getElementById('pengurus-nama').value = p.nama_lengkap || '';
+    document.getElementById('pengurus-gelar-depan').value = p.gelar_depan || '';
+    document.getElementById('pengurus-gelar-belakang').value = p.gelar_belakang || '';
+    document.getElementById('pengurus-jabatan').value = p.jabatan || '';
+    document.getElementById('pengurus-tingkat').value = p.tingkat_hirarki || 'bidang';
+    document.getElementById('pengurus-tipe-garis').value = p.tipe_garis || 'komando';
+    document.getElementById('pengurus-urutan').value = p.urutan || 1;
+    document.getElementById('pengurus-foto').value = p.foto_drive_url || '';
+    document.getElementById('pengurus-tupoksi').value = p.tupoksi || '';
+    document.getElementById('pengurus-status').checked = (p.is_active !== false);
+
+    updateParentOptions(p.parent_id || '');
+    const modal = document.getElementById('modal-pengurus-editor');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function tutupModalPengurus() {
+    const modal = document.getElementById('modal-pengurus-editor');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function handleSavePengurus(event) {
+    event.preventDefault();
+    const id = document.getElementById('pengurus-id').value;
+    const nama_lengkap = document.getElementById('pengurus-nama').value.trim();
+    const gelar_depan = document.getElementById('pengurus-gelar-depan').value.trim();
+    const gelar_belakang = document.getElementById('pengurus-gelar-belakang').value.trim();
+    const jabatan = document.getElementById('pengurus-jabatan').value.trim();
+    const tingkat_hirarki = document.getElementById('pengurus-tingkat').value;
+    const parent_id = document.getElementById('pengurus-parent').value;
+    const tipe_garis = document.getElementById('pengurus-tipe-garis').value;
+    const urutan = Number(document.getElementById('pengurus-urutan').value) || 1;
+    const foto_drive_url = document.getElementById('pengurus-foto').value.trim() || 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ';
+    const tupoksi = document.getElementById('pengurus-tupoksi').value.trim();
+    const is_active = document.getElementById('pengurus-status').checked;
+
+    if (!nama_lengkap || !jabatan) {
+        showToast('error', 'Nama lengkap dan Jabatan wajib diisi!');
+        return;
+    }
+
+    const payload = {
+        action: 'SAVE_PENGURUS_RECORD',
+        id: id || ('PGR-' + String(Date.now()).slice(-4)),
+        nama_lengkap, gelar_depan, gelar_belakang, jabatan,
+        tingkat_hirarki, parent_id, tipe_garis, urutan,
+        foto_drive_url, tupoksi, is_active
+    };
+
+    if (id) {
+        const idx = cmsPengurusData.findIndex(x => x.id === id);
+        if (idx !== -1) cmsPengurusData[idx] = { ...cmsPengurusData[idx], ...payload };
+        showToast('success', `Data pengurus ${nama_lengkap} berhasil diperbarui.`);
+    } else {
+        cmsPengurusData.push(payload);
+        showToast('success', `Pengurus baru ${nama_lengkap} berhasil ditambahkan.`);
+    }
+
+    renderCmsPengurusTable();
+    tutupModalPengurus();
+
+    // Background sync ke Apps Script
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
+        fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(err => console.log('Sync pengurus background error:', err));
+    } catch(e) {}
+}
+
+async function hapusPengurus(id) {
+    const p = cmsPengurusData.find(x => x.id === id);
+    if (!p) return;
+    if (!confirm(`Apakah Anda yakin ingin menghapus "${p.nama_lengkap}" dari susunan pengurus?`)) return;
+
+    cmsPengurusData = cmsPengurusData.filter(x => x.id !== id);
+    renderCmsPengurusTable();
+    showToast('info', `Pengurus ${p.nama_lengkap} telah dihapus.`);
+
+    // Background sync ke Apps Script
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
+        fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'DELETE_PENGURUS_RECORD', id })
+        }).catch(err => console.log('Delete pengurus background error:', err));
+    } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(loadCmsPengurusData, 600);
+});
 </script>
 
     </body>

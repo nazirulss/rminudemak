@@ -45,6 +45,11 @@ function doGet(e) {
     const res = getRBACMatrixData();
     return createJsonResponse(res);
   }
+
+  if (action === 'GET_PENGURUS_ORGANOGRAM' || action === 'GET_ALL_PENGURUS') {
+    const res = getPengurusOrganogram();
+    return createJsonResponse(res);
+  }
   
   return createJsonResponse({
     status: 'ONLINE',
@@ -94,6 +99,10 @@ function doPost(e) {
       result = handleFastLoginEmail(payload);
     } else if (action === 'REGISTER_PESANTREN_SELF' || action === 'auth.pesantren.registerSelf') {
       result = handleSelfRegisterPesantren(payload, lock);
+    } else if (action === 'SAVE_PENGURUS_RECORD' || action === 'SAVE_PENGURUS') {
+      result = handleSavePengurusRecord(payload);
+    } else if (action === 'DELETE_PENGURUS_RECORD' || action === 'DELETE_PENGURUS') {
+      result = handleDeletePengurusRecord(payload);
     }
     
     return createJsonResponse(result);

@@ -1170,62 +1170,319 @@
 
                 </div>
 
-                <div>
-
-                    <h3 class="text-xl font-bold text-center text-on-surface mb-8">Pengurus Harian PC RMI NU Demak</h3>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                        <div class="bg-white rounded-xl border border-slate-100 shadow-sm text-center p-5">
-
-                            <div class="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 overflow-hidden"><img
-                                    src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ"
-                                    class="object-cover w-full h-full" /></div>
-
-                            <h4 class="font-bold text-sm text-primary">KH. Ibrahim Cholilullah, S.Pd.I.</h4>
-
-                            <p class="text-xs text-on-surface-variant mt-1">Ketua Tanfidziyah</p>
-
+                <!-- ======================================================== -->
+                <!-- BAGAN POHON STRUKTUR ORGANISASI & GARIS KOMANDO          -->
+                <!-- ======================================================== -->
+                <div class="pt-8 border-t border-slate-200/80">
+                    <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black tracking-wider uppercase">
+                            <span class="material-symbols-outlined text-[15px]">account_tree</span> Garis Komando & Tata Kelola Jam'iyyah
                         </div>
-
-                        <div class="bg-white rounded-xl border border-slate-100 shadow-sm text-center p-5">
-
-                            <div class="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 overflow-hidden"><img
-                                    src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ"
-                                    class="object-cover w-full h-full" /></div>
-
-                            <h4 class="font-bold text-sm text-primary">K. Ahmad Badhawi Ali</h4>
-
-                            <p class="text-xs text-on-surface-variant mt-1">Sekretaris</p>
-
+                        <h3 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Struktur Kepengurusan & Bagan Komando</h3>
+                        <p class="text-xs md:text-sm text-slate-600">Jalur instruksi resmi, koordinasi administratif, dan pembagian bidang khidmat kepengurusan PC RMI NU Kabupaten Demak masa khidmat aktif.</p>
+                        
+                        <!-- Legenda Garis Komando -->
+                        <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-3 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-0.5 bg-emerald-700 inline-block shadow-xs"></span>
+                                <span class="font-bold text-slate-700 text-[11px]">Garis Komando (Instruksi Resmi)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 border-t-2 border-dashed border-amber-500 inline-block"></span>
+                                <span class="font-bold text-slate-700 text-[11px]">Garis Koordinasi / Konsultatif</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-slate-500 text-[11px]">
+                                <span class="material-symbols-outlined text-[14px] text-primary">touch_app</span>
+                                <span>Klik kartu pengurus untuk detail tupoksi</span>
+                            </div>
                         </div>
-
-                        <div class="bg-white rounded-xl border border-slate-100 shadow-sm text-center p-5">
-
-                            <div class="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 overflow-hidden"><img
-                                    src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ"
-                                    class="object-cover w-full h-full" /></div>
-
-                            <h4 class="font-bold text-sm text-primary">KH. Farid Ubaidillah, S.Kom</h4>
-
-                            <p class="text-xs text-on-surface-variant mt-1">Bendahara Umum</p>
-
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-100 shadow-sm text-center p-5">
-
-                            <div class="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 overflow-hidden"><img
-                                    src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ"
-                                    class="object-cover w-full h-full" /></div>
-
-                            <h4 class="font-bold text-sm text-primary">Gus Muhammad Ilyas</h4>
-
-                            <p class="text-xs text-on-surface-variant mt-1">Ketua Bidang Pendidikan</p>
-
-                        </div>
-
                     </div>
 
+                    <!-- KONTEN BAGAN POHON ORGANOGRAM (TOP-DOWN) -->
+                    <div class="relative max-w-5xl mx-auto overflow-x-auto pb-6">
+                        <div id="organogram-tree-container" class="min-w-[720px] md:min-w-0 space-y-10">
+
+                            <!-- LEVEL 0: DEWAN PELINDUNG & PENASIHAT (PCNU DEMAK) -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-900 text-[10px] font-black uppercase tracking-widest mb-4 shadow-xs">
+                                    Dewan Pelindung & Pengayom Jam'iyyah (PCNU Demak)
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                                    <!-- 1. Rais Syuriyah -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-01')" class="group bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl border-2 border-purple-400/50 shadow-md hover:shadow-xl hover:border-purple-400 transition-all cursor-pointer flex items-center gap-3.5">
+                                        <div class="w-14 h-14 rounded-full border-2 border-amber-400 p-0.5 bg-slate-800 shrink-0 overflow-hidden shadow-inner">
+                                            <img src="https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G" alt="Rais Syuriyah" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform">
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[9px] font-extrabold text-amber-300 uppercase tracking-wider block">Syuriyah PCNU</span>
+                                            <h4 class="font-bold text-xs text-white truncate">KH. M. Zainal Arifin Ma'shum</h4>
+                                            <p class="text-[10px] text-slate-300 mt-0.5">Rais Syuriyah PCNU Demak</p>
+                                        </div>
+                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-amber-400 transition-colors">info</span>
+                                    </div>
+
+                                    <!-- 2. Ketua Tanfidziyah -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-02')" class="group bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 rounded-2xl border-2 border-purple-400/50 shadow-md hover:shadow-xl hover:border-purple-400 transition-all cursor-pointer flex items-center gap-3.5">
+                                        <div class="w-14 h-14 rounded-full border-2 border-amber-400 p-0.5 bg-slate-800 shrink-0 overflow-hidden shadow-inner">
+                                            <img src="https://lh3.googleusercontent.com/d/1uNBAgynTrwyyyxhQL9edxhw-2IozYBuD" alt="Ketua Tanfidziyah" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform">
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[9px] font-extrabold text-amber-300 uppercase tracking-wider block">Tanfidziyah PCNU</span>
+                                            <h4 class="font-bold text-xs text-white truncate">KH. M. Aminuddin, M.Si.</h4>
+                                            <p class="text-[10px] text-slate-300 mt-0.5">Ketua Tanfidziyah PCNU Demak</p>
+                                        </div>
+                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-amber-400 transition-colors">info</span>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Konsultasi Turun ke Ketua -->
+                                <div class="w-0.5 h-8 border-l-2 border-dashed border-amber-500 my-1"></div>
+                                <span class="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-dashed border-amber-300">Garis Konsultasi Moral & Mandat Jam'iyyah</span>
+                                <div class="w-0.5 h-6 border-l-2 border-dashed border-amber-500"></div>
+                            </div>
+
+                            <!-- LEVEL 1: PUCUK PIMPINAN EKSEKUTIF CABANG (KETUA & WAKIL KETUA) -->
+                            <div class="relative flex flex-col items-center">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                                    <!-- KETUA PC RMI NU DEMAK (KARTU UTAMA EMAS ZAMRUD) -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-03')" class="group sm:col-span-2 bg-gradient-to-r from-emerald-950 via-[#005c55] to-emerald-950 text-white p-5 rounded-3xl border-2 border-amber-400 shadow-xl hover:shadow-2xl transition-all cursor-pointer relative overflow-hidden">
+                                        <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-amber-400/10 rounded-full blur-xl pointer-events-none"></div>
+                                        <div class="flex items-center gap-4 relative z-10">
+                                            <div class="w-16 h-16 rounded-2xl border-2 border-amber-300 p-0.5 bg-emerald-900 shrink-0 overflow-hidden shadow-lg">
+                                                <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" alt="Ketua RMI" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-2 mb-0.5">
+                                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-400 text-emerald-950 tracking-wider">PUCUK PIMPINAN</span>
+                                                    <span class="text-[10px] text-emerald-200">Komando Tertinggi</span>
+                                                </div>
+                                                <h4 class="font-extrabold text-base text-white">KH. Ibrahim Cholilullah, S.Pd.I.</h4>
+                                                <p class="text-xs text-amber-200 font-medium">Ketua PC RMI NU Kabupaten Demak</p>
+                                                <p class="text-[10px] text-emerald-100/80 mt-1 line-clamp-1 italic">"Penanggung jawab kebijakan umum dan koordinasi pesantren se-Kabupaten Demak"</p>
+                                            </div>
+                                            <div class="w-8 h-8 rounded-full bg-white/10 group-hover:bg-amber-400 group-hover:text-emerald-950 flex items-center justify-center transition-colors shrink-0">
+                                                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- WAKIL KETUA CABANG -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-04')" class="group sm:col-span-2 max-w-sm mx-auto w-full bg-white p-3.5 rounded-2xl border border-emerald-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all cursor-pointer flex items-center gap-3">
+                                        <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-100 p-0.5 shrink-0 overflow-hidden">
+                                            <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" alt="Wakil Ketua" class="w-full h-full object-cover rounded-lg">
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-[9px] font-bold text-emerald-800 uppercase tracking-wider block">Garis Bantuan Pimpinan</span>
+                                            <h4 class="font-bold text-xs text-slate-800 truncate">K. M. Nurul Huda</h4>
+                                            <p class="text-[10px] text-slate-500">Wakil Ketua Bidang Kepesantrenan & Lembaga</p>
+                                        </div>
+                                        <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-emerald-700">info</span>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Komando Turun ke Sayap BPH -->
+                                <div class="w-0.5 h-8 bg-emerald-700 my-1"></div>
+                            </div>
+
+                            <!-- LEVEL 2: SAYAP DWI-TUNGGAL BPH (SEKRETARIAT & KEBENDAHARAAN) -->
+                            <div class="relative">
+                                <!-- Garis Horizontal Penghubung Sayap Kiri dan Kanan -->
+                                <div class="hidden sm:block absolute top-0 left-1/4 right-1/4 h-0.5 bg-emerald-700"></div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-4 relative">
+                                    <!-- Garis Drop Vertikal Kiri -->
+                                    <div class="hidden sm:block absolute -top-4 left-1/4 -translate-x-1/2 w-0.5 h-8 bg-emerald-700"></div>
+                                    <!-- Garis Drop Vertikal Kanan -->
+                                    <div class="hidden sm:block absolute -top-4 right-1/4 translate-x-1/2 w-0.5 h-8 bg-emerald-700"></div>
+
+                                    <!-- SAYAP KIRI: KESEKRETARIATAN -->
+                                    <div class="space-y-3 bg-slate-50 p-4 rounded-3xl border border-slate-200/80 shadow-xs relative">
+                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                                            <span class="text-[10px] font-black uppercase text-blue-800 tracking-wider flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">history_edu</span> Biro Kesekretariatan
+                                            </span>
+                                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900">ADMINISTRASI</span>
+                                        </div>
+
+                                        <!-- Sekretaris -->
+                                        <div onclick="bukaModalDetailPengurus('PGR-05')" class="group bg-white p-3.5 rounded-2xl border border-slate-200 hover:border-blue-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 p-0.5 shrink-0 overflow-hidden">
+                                                <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <h4 class="font-bold text-xs text-slate-800">K. Ahmad Badhawi Ali</h4>
+                                                <p class="text-[10px] text-blue-700 font-semibold">Sekretaris</p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-1">Tata kelola dokumen, persuratan & legalitas</p>
+                                            </div>
+                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-blue-600">arrow_forward</span>
+                                        </div>
+
+                                        <!-- Wakil Sekretaris -->
+                                        <div onclick="bukaModalDetailPengurus('PGR-06')" class="group bg-white/80 p-3 rounded-2xl border border-dashed border-slate-200 hover:border-blue-400 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-lg bg-slate-100 p-0.5 shrink-0 overflow-hidden">
+                                                <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-md">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <h4 class="font-bold text-[11px] text-slate-800">Ust. M. Choirul Anam, S.Pd.</h4>
+                                                <p class="text-[10px] text-slate-500">Wakil Sekretaris</p>
+                                            </div>
+                                            <span class="material-symbols-outlined text-[13px] text-slate-400">info</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- SAYAP KANAN: KEBENDAHARAAN -->
+                                    <div class="space-y-3 bg-slate-50 p-4 rounded-3xl border border-slate-200/80 shadow-xs relative">
+                                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                                            <span class="text-[10px] font-black uppercase text-teal-800 tracking-wider flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">payments</span> Biro Kebendaharaan
+                                            </span>
+                                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900">KEUANGAN</span>
+                                        </div>
+
+                                        <!-- Bendahara Umum -->
+                                        <div onclick="bukaModalDetailPengurus('PGR-07')" class="group bg-white p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3">
+                                            <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 p-0.5 shrink-0 overflow-hidden">
+                                                <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <h4 class="font-bold text-xs text-slate-800">KH. Farid Ubaidillah, S.Kom</h4>
+                                                <p class="text-[10px] text-teal-700 font-semibold">Bendahara Umum</p>
+                                                <p class="text-[9px] text-slate-400 mt-0.5 line-clamp-1">Pengawasan kas, anggaran & akuntabilitas</p>
+                                            </div>
+                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-teal-600">arrow_forward</span>
+                                        </div>
+
+                                        <!-- Wakil Bendahara -->
+                                        <div onclick="bukaModalDetailPengurus('PGR-08')" class="group bg-white/80 p-3 rounded-2xl border border-dashed border-slate-200 hover:border-teal-400 shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-lg bg-slate-100 p-0.5 shrink-0 overflow-hidden">
+                                                <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-md">
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <h4 class="font-bold text-[11px] text-slate-800">H. Ahmad Zaini</h4>
+                                                <p class="text-[10px] text-slate-500">Wakil Bendahara</p>
+                                            </div>
+                                            <span class="material-symbols-outlined text-[13px] text-slate-400">info</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Koordinasi Horizontal Antara Sekretaris & Bendahara -->
+                                <div class="flex items-center justify-center my-4">
+                                    <div class="px-3 py-0.5 rounded-full bg-slate-100 border border-dashed border-slate-300 text-[9px] font-bold text-slate-500 flex items-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[12px]">sync_alt</span> Garis Koordinasi Administratif & Keuangan
+                                    </div>
+                                </div>
+
+                                <!-- Garis Komando Turun ke Jajaran Bidang -->
+                                <div class="w-0.5 h-8 bg-emerald-700 mx-auto"></div>
+                            </div>
+
+                            <!-- LEVEL 3: JAJARAN KETUA BIDANG & DEPARTEMEN KERJA -->
+                            <div class="relative">
+                                <!-- Garis Horizontal Menghubungkan 3 Bidang -->
+                                <div class="hidden md:block absolute top-0 left-[16.6%] right-[16.6%] h-0.5 bg-emerald-700"></div>
+
+                                <div class="text-center mb-4 pt-4">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                                        Jajaran Bidang & Departemen Kerja Mandat
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 relative">
+                                    <!-- Garis Drop Vertikal 1 -->
+                                    <div class="hidden md:block absolute -top-8 left-[16.6%] -translate-x-1/2 w-0.5 h-8 bg-emerald-700"></div>
+                                    <!-- Garis Drop Vertikal 2 -->
+                                    <div class="hidden md:block absolute -top-8 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-emerald-700"></div>
+                                    <!-- Garis Drop Vertikal 3 -->
+                                    <div class="hidden md:block absolute -top-8 right-[16.6%] translate-x-1/2 w-0.5 h-8 bg-emerald-700"></div>
+
+                                    <!-- BIDANG 1: PENDIDIKAN & TUROTS -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-09')" class="group bg-white p-5 rounded-2xl border-2 border-slate-100 hover:border-emerald-600 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 p-0.5 shrink-0 overflow-hidden">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider block">Bidang I</span>
+                                                    <h4 class="font-bold text-xs text-slate-900 truncate">Gus Muhammad Ilyas</h4>
+                                                    <p class="text-[10px] text-slate-500">Pendidikan, Kurikulum & Turots</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-2">Standardisasi kurikulum kitab kuning salaf marhalah ula, wustha, dan ulya santri se-Demak.</p>
+                                        </div>
+                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-emerald-700">
+                                            <span>Lihat Mandat Kerja</span>
+                                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- BIDANG 2: KEMANDIRIAN EKONOMI & KOPONTREN -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-10')" class="group bg-white p-5 rounded-2xl border-2 border-slate-100 hover:border-emerald-600 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 p-0.5 shrink-0 overflow-hidden">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider block">Bidang II</span>
+                                                    <h4 class="font-bold text-xs text-slate-900 truncate">K. Agus Mubarok</h4>
+                                                    <p class="text-[10px] text-slate-500">Kemandirian Ekonomi & Kopontren</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-2">Inkubasi usaha pesantren, badan usaha mandiri, dan penguatan jejaring Koperasi Pondok Pesantren.</p>
+                                        </div>
+                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-emerald-700">
+                                            <span>Lihat Mandat Kerja</span>
+                                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- BIDANG 3: DATA, MEDIA & TRANSFORMASI DIGITAL -->
+                                    <div onclick="bukaModalDetailPengurus('PGR-11')" class="group bg-white p-5 rounded-2xl border-2 border-slate-100 hover:border-emerald-600 shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 p-0.5 shrink-0 overflow-hidden">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <span class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-wider block">Bidang III</span>
+                                                    <h4 class="font-bold text-xs text-slate-900 truncate">Ust. Ahmad Nazirul, M.Kom.</h4>
+                                                    <p class="text-[10px] text-slate-500">Data, Media & Transformasi Digital</p>
+                                                </div>
+                                            </div>
+                                            <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-2">Arsitektur portal satu data, geospasial, keandalan sistem cloud, dan publikasi warta cabang.</p>
+                                        </div>
+                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-emerald-700">
+                                            <span>Lihat Mandat Kerja</span>
+                                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Garis Koordinasi Turun ke MWC -->
+                                <div class="w-0.5 h-8 border-l-2 border-dashed border-slate-300 mx-auto my-2"></div>
+                            </div>
+
+                            <!-- LEVEL 4: GARIS TERITORIAL WILAYAH (14 MWC KECAMATAN) -->
+                            <div class="max-w-2xl mx-auto">
+                                <div onclick="bukaModalDetailPengurus('PGR-12')" class="group bg-slate-50 hover:bg-emerald-50/50 p-4 rounded-2xl border border-dashed border-slate-300 hover:border-emerald-400 transition-all cursor-pointer flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3.5">
+                                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold shrink-0">
+                                            <span class="material-symbols-outlined text-[22px]">map</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">Garis Wilayah Lapangan</span>
+                                            <h4 class="font-bold text-xs text-slate-800">Koordinator Wilayah 14 MWC NU Kecamatan</h4>
+                                            <p class="text-[10px] text-slate-500 mt-0.5">Mranggen, Sayung, Karangtengah, Bonang, Demak Kota, Wedung, Wonosalam, Dempet, Gajah, Karanganyar, Mijen, Guntur, Karangawen, Kebonagung</p>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-emerald-700 transition-colors shrink-0">arrow_forward</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
             </section>
@@ -3229,6 +3486,213 @@
 
     </div>
 
+    <!-- ======================================================== -->
+    <!-- MODAL DETAIL PENGURUS & TUPOKSI RESMI                    -->
+    <!-- ======================================================== -->
+    <div id="modal-pengurus-detail" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto animate-slideFadeIn">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-7 shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto border border-slate-100">
+            <div class="flex justify-between items-start border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3.5">
+                    <img id="modal-pgr-foto" src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-600/30 p-0.5 shrink-0 bg-slate-100 shadow-sm">
+                    <div>
+                        <div id="modal-pgr-badge" class="mb-1"></div>
+                        <h3 id="modal-pgr-nama" class="text-base font-extrabold text-slate-900 leading-tight">Nama Pengurus</h3>
+                        <p id="modal-pgr-jabatan" class="text-xs text-emerald-800 font-bold mt-0.5">Jabatan Resmi</p>
+                    </div>
+                </div>
+                <button onclick="tutupModalDetailPengurus()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <!-- Detail Relasi Komando & Atasan -->
+            <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Garis Atasan Langsung:</span>
+                    <p id="modal-pgr-atasan" class="font-bold text-slate-800 mt-0.5">Ketua PC RMI NU Demak</p>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sifat Hubungan:</span>
+                    <p id="modal-pgr-tipe-garis" class="font-bold text-emerald-700 mt-0.5">Garis Komando (Instruksi)</p>
+                </div>
+            </div>
+
+            <!-- Tupoksi & Tanggung Jawab -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-emerald-700 text-[16px]">task_alt</span>
+                    <span>Tugas Pokok & Wewenang Jabatan (Tupoksi)</span>
+                </h4>
+                <div class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/80 text-xs text-slate-700 leading-relaxed" id="modal-pgr-tupoksi">
+                    Uraian tupoksi...
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-[11px] text-slate-400 italic">SK Pengurus PC RMI NU Demak</span>
+                <button onclick="tutupModalDetailPengurus()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl transition-colors cursor-pointer">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Script for Pengurus Organogram Modal & Live Sync -->
+    <script>
+        const PENGURUS_LOCAL_REGISTRY = {
+            'PGR-01': {
+                nama: "KH. M. Zainal Arifin Ma'shum",
+                jabatan: "Rais Syuriyah PCNU Kabupaten Demak",
+                tingkat: "Pelindung PCNU",
+                badgeClass: "bg-purple-100 text-purple-900",
+                foto: "https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G",
+                atasan: "Pucuk Pimpinan Tertinggi Jam'iyyah NU",
+                tipeGaris: "Garis Bimbingan Spiritual & Konsultasi Moral",
+                tupoksi: "Memberikan bimbingan spiritual, penjagaan sanad keilmuan turots Aswaja An-Nahdliyah, serta pengarahan kebijakan tertinggi atas seluruh langkah khidmat PC RMI NU di Kabupaten Demak."
+            },
+            'PGR-02': {
+                nama: "KH. M. Aminuddin, M.Si.",
+                jabatan: "Ketua Tanfidziyah PCNU Kabupaten Demak",
+                tingkat: "Pelindung PCNU",
+                badgeClass: "bg-purple-100 text-purple-900",
+                foto: "https://lh3.googleusercontent.com/d/1uNBAgynTrwyyyxhQL9edxhw-2IozYBuD",
+                atasan: "Pengurus Cabang Nahdlatul Ulama Demak",
+                tipeGaris: "Garis Mandat Kelembagaan & Kebijakan Umum",
+                tupoksi: "Mengayomi dan memayungi seluruh operasional kelembagaan RMI-NU sebagai badan otonom/lembaga pesantren PCNU, memastikan sinkronisasi program kerja dengan agenda strategis ke-NU-an daerah."
+            },
+            'PGR-03': {
+                nama: "KH. Ibrahim Cholilullah, S.Pd.I.",
+                jabatan: "Ketua PC RMI NU Kabupaten Demak",
+                tingkat: "Pucuk Pimpinan Cabang",
+                badgeClass: "bg-amber-100 text-amber-900 border border-amber-300",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Mandat Konfercab PCNU Demak",
+                tipeGaris: "Garis Komando Tertinggi Eksekutif RMI",
+                tupoksi: "Memimpin seluruh koordinasi kebijakan, perumusan program kerja, tata kelola pesantren, madrasah diniyah, dan TPQ di 14 kecamatan, serta mewakili organisasi dalam hubungan eksternal kedinasan dan kepesantrenan."
+            },
+            'PGR-04': {
+                nama: "K. M. Nurul Huda",
+                jabatan: "Wakil Ketua Bidang Kepesantrenan & Lembaga",
+                tingkat: "Wakil Ketua Cabang",
+                badgeClass: "bg-emerald-100 text-emerald-800",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Membantu Ketua)",
+                tupoksi: "Membantu Ketua Cabang dalam mengoordinasikan bidang kepesantrenan, pembinaan santri mukim/non-mukim, pendampingan akreditasi ma'had, dan supervisi kemitraan lembaga pondok."
+            },
+            'PGR-05': {
+                nama: "K. Ahmad Badhawi Ali",
+                jabatan: "Sekretaris",
+                tingkat: "Biro Kesekretariatan",
+                badgeClass: "bg-blue-100 text-blue-900",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando & Administrasi Umum",
+                tupoksi: "Memimpin biro administrasi umum, persuratan resmi, perizinan operasional (NSPP), tata kelola basis data arsip organisasi, dan penghubung komunikasi lintas kementerian/instansi."
+            },
+            'PGR-06': {
+                nama: "Ust. M. Choirul Anam, S.Pd.",
+                jabatan: "Wakil Sekretaris",
+                tingkat: "Biro Kesekretariatan",
+                badgeClass: "bg-sky-100 text-sky-800",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Sekretaris PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Membantu Sekretaris)",
+                tupoksi: "Mendampingi sekretaris dalam notulensi musyawarah berkala, dokumentasi arsip digital, verifikasi berkas pendaftaran mandiri pesantren, dan layanan helpdesk kesekretariatan."
+            },
+            'PGR-07': {
+                nama: "KH. Farid Ubaidillah, S.Kom",
+                jabatan: "Bendahara Umum",
+                tingkat: "Biro Kebendaharaan",
+                badgeClass: "bg-teal-100 text-teal-900",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando & Otoritas Anggaran",
+                tupoksi: "Mengelola seluruh kas dan perbendaharaan organisasi, pengawasan transparansi sirkulasi keuangan, penganggaran program kerja cabang, dan penyusunan laporan pertanggungjawaban fiskal."
+            },
+            'PGR-08': {
+                nama: "H. Ahmad Zaini",
+                jabatan: "Wakil Bendahara",
+                tingkat: "Biro Kebendaharaan",
+                badgeClass: "bg-cyan-100 text-cyan-800",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Bendahara Umum PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Membantu Bendahara)",
+                tupoksi: "Membantu pencatatan buku kas operasional harian, verifikasi kwitansi belanja kegiatan dinas, dan inventarisasi aset sarana prasarana kesekretariatan."
+            },
+            'PGR-09': {
+                nama: "Gus Muhammad Ilyas",
+                jabatan: "Ketua Bidang Pendidikan, Kurikulum & Turots",
+                tingkat: "Ketua Bidang I",
+                badgeClass: "bg-emerald-50 text-emerald-800 border border-emerald-200",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Mandat Bidang)",
+                tupoksi: "Standardisasi kurikulum kitab kuning salafiyah marhalah ula, wustha, dan ulya, fasilitasi imtihan musabaqah turots, serta penguatan tradisi sanad keilmuan pesantren Aswaja."
+            },
+            'PGR-10': {
+                nama: "K. Agus Mubarok",
+                jabatan: "Ketua Bidang Kemandirian Ekonomi & Kopontren",
+                tingkat: "Ketua Bidang II",
+                badgeClass: "bg-emerald-50 text-emerald-800 border border-emerald-200",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Mandat Bidang)",
+                tupoksi: "Pemberdayaan kemandirian finansial pondok pesantren, fasilitasi badan usaha produktif, pendampingan legalitas Koperasi Pondok Pesantren (Kopontren), dan pembukaan akses permodalan halal."
+            },
+            'PGR-11': {
+                nama: "Ust. Ahmad Nazirul, M.Kom.",
+                jabatan: "Ketua Bidang Data, Media & Transformasi Digital",
+                tingkat: "Ketua Bidang III",
+                badgeClass: "bg-emerald-50 text-emerald-800 border border-emerald-200",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Komando (Mandat Bidang)",
+                tupoksi: "Arsitektur basis data relasional portal satu data rminudemak.org, pemetaan geospasial lembaga, pengembangan otomasi digital, publikasi jurnalistik warta pesantren, dan keamanan sistem informasi."
+            },
+            'PGR-12': {
+                nama: "Jajaran Tim Korwil 14 MWC NU",
+                jabatan: "Koordinator Wilayah 14 MWC NU Kecamatan",
+                tingkat: "Garis Wilayah Teritorial",
+                badgeClass: "bg-slate-100 text-slate-800",
+                foto: "https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ",
+                atasan: "Sekretaris & Ketua PC RMI NU Demak",
+                tipeGaris: "Garis Koordinasi Lapangan Teritorial",
+                tupoksi: "Melakukan koordinasi langsung di tingkat kecamatan mencakup: Sayung, Mranggen, Karangawen, Guntur, Demak Kota, Bonang, Wedung, Wonosalam, Dempet, Gajah, Karanganyar, Mijen, Kebonagung, dan Karangtengah, memfasilitasi verifikasi faktual lapangan dan penyerapan aspirasi masyayikh pondok."
+            }
+        };
+
+        function bukaModalDetailPengurus(id) {
+            const data = PENGURUS_LOCAL_REGISTRY[id];
+            if (!data) return;
+
+            document.getElementById('modal-pgr-nama').innerText = data.nama;
+            document.getElementById('modal-pgr-jabatan').innerText = data.jabatan;
+            document.getElementById('modal-pgr-foto').src = data.foto || 'https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ';
+            document.getElementById('modal-pgr-atasan').innerText = data.atasan;
+            document.getElementById('modal-pgr-tipe-garis').innerText = data.tipeGaris;
+            document.getElementById('modal-pgr-tupoksi').innerText = data.tupoksi;
+            document.getElementById('modal-pgr-badge').innerHTML = `<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${data.badgeClass}">${data.tingkat}</span>`;
+
+            const modal = document.getElementById('modal-pengurus-detail');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function tutupModalDetailPengurus() {
+            const modal = document.getElementById('modal-pengurus-detail');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Close on backdrop click
+        document.getElementById('modal-pengurus-detail')?.addEventListener('click', (e) => {
+            if (e.target.id === 'modal-pengurus-detail') tutupModalDetailPengurus();
+        });
+    </script>
 </body>
 
 </html>
