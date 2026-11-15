@@ -24,3 +24,54 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* ======================================================== */
+/* MEDIA PRINT KHUSUS DOKUMEN PANDUAN RESMI RMI NU DEMAK    */
+/* ======================================================== */
+@media print {
+  header, footer, nav, #hero-slider, .no-print, #modal-public-detail, #toast-container {
+    display: none !important;
+  }
+
+  .print-header {
+    display: block !important;
+  }
+
+  body, main, #page-layanan, #panduan-portal-layanan {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .page-section:not(#page-layanan) {
+    display: none !important;
+  }
+
+  #page-layanan > section:not(#panduan-portal-layanan) {
+    display: none !important;
+  }
+
+  .card-panduan {
+    display: block !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    background: #ffffff !important;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
+

@@ -1225,6 +1225,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleHashRouting() {
         let currentHash = window.location.hash.replace('#', '').trim().toLowerCase();
         if (currentHash === 'direktori') currentHash = 'pesantren';
+
+        // Deep linking untuk Panduan Masuk 7 Peran di Halaman Layanan
+        if (currentHash.startsWith('panduan') || currentHash === 'panduan-portal') {
+            navigateTo('layanan', false);
+            setTimeout(() => {
+                const el = document.getElementById('panduan-portal-layanan');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                const rolePart = currentHash.replace('panduan-', '').replace('panduan', '');
+                if (rolePart && typeof filterPanduanRole === 'function') {
+                    filterPanduanRole(rolePart);
+                }
+            }, 350);
+            return;
+        }
+
         const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'berita'];
         const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
         navigateTo(targetPage, false);
@@ -1671,6 +1686,74 @@ function bagikanBeritaKeWA(id, judul, cover, ringkasan) {
                      "&img=" + encodeURIComponent(cover) + 
                      "&desc=" + encodeURIComponent(ringkasan || "");
     const text = "*" + judul + "*\n\n" + (ringkasan || "") + "\n\nBaca selengkapnya di:\n👉 " + shareUrl;
+    const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+    window.open(waUrl, '_blank');
+}
+
+
+// ==================================================================
+// PANDUAN RESMI MASUK PORTAL DATA 7 PERAN (PRINT, PDF, SHARE WA)
+// ==================================================================
+const ROLE_DISPLAY_NAMES = {
+    'super_admin': 'Super Admin (PCNU Demak & Core IT)',
+    'admin_kabupaten': 'Admin Kabupaten (Pengurus Harian PC RMI NU Demak)',
+    'admin_kecamatan': 'Admin Kecamatan (Koordinator 14 MWC NU)',
+    'operator_pesantren': 'Operator Pesantren (Sekretariat Pondok)',
+    'pengasuh': 'Dewan Masyayikh / Pengasuh Pesantren',
+    'verifikator': 'Tim Asesor & Verifikator Lapangan',
+    'guest': 'Tamu Terdaftar / Peneliti Eksternal'
+};
+
+function filterPanduanRole(roleKey) {
+    const cards = document.querySelectorAll('.card-panduan');
+    const tabs = document.querySelectorAll('.tab-panduan-btn');
+
+    tabs.forEach(tab => {
+        const id = tab.id;
+        if (id === 'tab-panduan-' + roleKey) {
+            tab.className = 'tab-panduan-btn px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 bg-emerald-700 text-white shadow-sm cursor-pointer whitespace-nowrap';
+        } else {
+            tab.className = 'tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap';
+        }
+    });
+
+    cards.forEach(card => {
+        if (roleKey === 'all' || card.dataset.role === roleKey) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function updatePrintDate() {
+    const el = document.querySelector('.print-date');
+    if (el) {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
+        el.innerText = now.toLocaleDateString('id-ID', options);
+    }
+}
+
+function printPanduanDokumen() {
+    updatePrintDate();
+    window.print();
+}
+
+function savePanduanAsPdf() {
+    updatePrintDate();
+    window.print();
+}
+
+function sharePanduanViaWhatsApp() {
+    const text = "*PANDUAN RESMI MASUK PORTAL DATA PC RMI NU DEMAK*\n(Standar Digdaya Pesantren PBNU)\n\nAssalamu'alaikum Wr. Wb.\nBerikut panduan resmi tata cara pendaftaran akun, alur login tanpa sandi (Email OTP), dan hak akses untuk 7 Peran pengelola pesantren se-Kabupaten Demak:\n\n1. Super Admin (PCNU & Core IT)\n2. Admin Kabupaten (Pengurus Harian PC RMI)\n3. Admin Kecamatan (Koordinator 14 MWC)\n4. Operator Pesantren (Sekretariat Pondok)\n5. Dewan Masyayikh / Pengasuh\n6. Tim Asesor & Verifikator\n7. Tamu / Peneliti\n\nPelajari panduan lengkap & unduh dokumen resmi di:\n👉 https://rminudemak.org/#layanan\n\n_PC RMI NU Kabupaten Demak - Kota Wali_";
+    const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
+    window.open(waUrl, '_blank');
+}
+
+function shareSingleRoleWA(roleKey) {
+    const roleName = ROLE_DISPLAY_NAMES[roleKey] || 'Pengelola Sistem';
+    const text = "*PANDUAN MASUK PORTAL DATA RMI DEMAK*\n*Peran: " + roleName + "*\n\nAssalamu'alaikum Wr. Wb.\nBerikut petunjuk masuk dan hak akses untuk *" + roleName + "* di Portal Satu Data PC RMI NU Kabupaten Demak:\n\n1. Buka https://rminudemak.org/admin\n2. Pilih tab 1-Klik Akun / Email OTP\n3. Masukkan email resmi terdaftar Anda\n4. Masukkan kode 6 digit OTP yang masuk di inbox email Anda\n\nBuka panduan lengkap di:\n👉 https://rminudemak.org/#layanan\n\n_Sekretariat PC RMI NU Demak_";
     const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
     window.open(waUrl, '_blank');
 }
