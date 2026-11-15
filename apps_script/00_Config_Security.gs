@@ -109,7 +109,7 @@ const SCHEMAS = {
     'foto_drive_url', 'parent_id', 'tipe_garis', 'tupoksi', 'urutan', 'is_active', 'updated_at'
   ],
   sambang_delegates: [
-    'delegate_id', 'timestamp', 'kecamatan', 'nama_pesantren', 'kategori_majlis',
+    'delegate_id', 'timestamp', 'kecamatan', 'nama_pesantren', 'kategori_halaqah',
     'nama_peserta', 'no_whatsapp', 'jabatan_peran', 'catatan_khusus', 'status_kehadiran'
   ]
 };

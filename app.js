@@ -1871,7 +1871,7 @@ function filterSambangMajlis(key) {
 function submitSambangRSVP() {
     const kecamatan = document.getElementById('rsvp-kecamatan')?.value;
     const namaPesantren = document.getElementById('rsvp-nama-pesantren')?.value?.trim();
-    const kategoriMajlis = document.getElementById('rsvp-kategori-majlis')?.value;
+    const kategoriHalaqah = document.getElementById('rsvp-kategori-halaqah')?.value || document.getElementById('rsvp-kategori-majlis')?.value;
     const namaPeserta = document.getElementById('rsvp-nama-peserta')?.value?.trim();
     const whatsapp = document.getElementById('rsvp-whatsapp')?.value?.trim();
     const jabatan = document.getElementById('rsvp-jabatan')?.value?.trim() || '-';
@@ -1880,7 +1880,7 @@ function submitSambangRSVP() {
     const alertBox = document.getElementById('rsvp-alert-box');
     const submitBtn = document.getElementById('btn-submit-rsvp');
 
-    if (!kecamatan || !namaPesantren || !kategoriMajlis || !namaPeserta || !whatsapp) {
+    if (!kecamatan || !namaPesantren || !kategoriHalaqah || !namaPeserta || !whatsapp) {
         if (alertBox) {
             alertBox.className = 'p-4 rounded-2xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
             alertBox.textContent = 'Mohon lengkapi seluruh kolom bertanda bintang (*) sebelum mengirim pendaftaran.';
@@ -1898,7 +1898,7 @@ function submitSambangRSVP() {
         action: 'SUBMIT_SAMBANG_DELEGATE',
         kecamatan: kecamatan,
         nama_pesantren: namaPesantren,
-        kategori_majlis: kategoriMajlis,
+        kategori_halaqah: kategoriHalaqah,
         nama_peserta: namaPeserta,
         whatsapp: whatsapp,
         jabatan: jabatan,
@@ -1925,10 +1925,10 @@ function submitSambangRSVP() {
                     <span>Pendaftaran Delegasi Berhasil Terkirim!</span>
                 </div>
                 <p class="text-slate-700 leading-relaxed">
-                    Terima kasih <strong>${namaPesantren}</strong> (${kecamatan}). Delegasi atas nama <strong>${namaPeserta}</strong> telah tercatat untuk <strong>${kategoriMajlis}</strong> pada gelaran Sambang Pesantren PW RMI NU Jateng di PP. Futuhiyyah Mranggen (22 Nov 2026).
+                    Terima kasih <strong>${namaPesantren}</strong> (${kecamatan}). Delegasi atas nama <strong>${namaPeserta}</strong> telah tercatat untuk <strong>${kategoriHalaqah}</strong> pada gelaran Sambang Pesantren PW RMI NU Jateng di PP. Futuhiyyah Mranggen (22 Nov 2026).
                 </p>
                 <div class="pt-2 flex items-center gap-2">
-                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Panitia%20Sambang%20Pesantren%20Demak,%20kami%20telah%20mendaftarkan%20delegasi%20dari%20${encodeURIComponent(namaPesantren)}%20(${encodeURIComponent(kategoriMajlis)}%20-%20${encodeURIComponent(namaPeserta)})" 
+                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Panitia%20Sambang%20Pesantren%20Demak,%20kami%20telah%20mendaftarkan%20delegasi%20dari%20${encodeURIComponent(namaPesantren)}%20(${encodeURIComponent(kategoriHalaqah)}%20-%20${encodeURIComponent(namaPeserta)})" 
                        target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-800 transition">
                         <span class="material-symbols-outlined text-[16px]">chat</span>

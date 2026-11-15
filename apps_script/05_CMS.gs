@@ -229,18 +229,25 @@ function handleSubmitSambangDelegate(payload, lock) {
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
       sheet.setFrozenRows(1);
+    } else {
+      // Pastikan header kolom E selalu 'kategori_halaqah'
+      const curHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+      if (curHeaders[4] !== 'kategori_halaqah') {
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
     }
 
     const timestamp = payload.timestamp || new Date().toISOString();
     const lastRow = sheet.getLastRow();
     const delegateId = 'SBP-2026-' + Utilities.formatString('%03d', Math.max(1, lastRow));
+    const kategoriHalaqah = payload.kategori_halaqah || payload.kategori_majlis || '-';
 
     const rowData = [
       delegateId,
       timestamp,
       payload.kecamatan || '-',
       payload.nama_pesantren || '-',
-      payload.kategori_majlis || '-',
+      kategoriHalaqah,
       payload.nama_peserta || '-',
       payload.whatsapp || payload.no_whatsapp || '-',
       payload.jabatan || payload.jabatan_peran || '-',
@@ -254,7 +261,7 @@ function handleSubmitSambangDelegate(payload, lock) {
       success: true,
       message: 'Delegasi ' + (payload.nama_peserta || '') + ' dari ' + (payload.nama_pesantren || '') + ' berhasil didaftarkan.',
       delegate_id: delegateId,
-      kategori_majlis: payload.kategori_majlis,
+      kategori_halaqah: kategoriHalaqah,
       nama_pesantren: payload.nama_pesantren,
       nama_peserta: payload.nama_peserta
     };
@@ -271,20 +278,33 @@ function getSambangDelegatesData() {
       return { success: true, count: 0, data: [], stats: {} };
     }
 
+    // Auto-migrate header jika masih 'kategori_majlis'
+    const headers = SCHEMAS.sambang_delegates;
+    const curHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+    if (curHeaders[4] !== 'kategori_halaqah') {
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    }
+
     const raw = sheet.getDataRange().getValues();
-    const headers = raw[0];
+    const colHeaders = raw[0];
     const delegates = [];
     const stats = {};
 
     for (let i = 1; i < raw.length; i++) {
       const row = raw[i];
       const item = {};
-      headers.forEach((h, idx) => {
-        item[h] = row[idx];
+      colHeaders.forEach((h, idx) => {
+        let val = row[idx];
+        // Migrasi nilai string dari Majlis ke Halaqah jika ada
+        if (typeof val === 'string' && val.includes('Majlis')) {
+          val = val.replace(/Majlis/g, 'Halaqah');
+          sheet.getRange(i + 1, idx + 1).setValue(val);
+        }
+        item[h] = val;
       });
       delegates.push(item);
 
-      const kat = String(item.kategori_majlis || 'Lainnya');
+      const kat = String(item.kategori_halaqah || item.kategori_majlis || 'Lainnya');
       stats[kat] = (stats[kat] || 0) + 1;
     }
 
