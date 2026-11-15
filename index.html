@@ -1820,17 +1820,28 @@
             <div class="bg-white">
                 <section id="panduan-portal-layanan" class="py-14 px-6 md:px-16 max-w-[1280px] mx-auto border-t border-slate-200/90 mt-8">
                 
-                <!-- Printable Kop Surat Header (Hanya Muncul Saat Print / PDF) -->
-                <div class="print-header hidden pb-6 mb-6 border-b-2 border-emerald-900 text-center">
-                    <div class="flex items-center justify-center gap-4 mb-2">
-                        <img src="assets/img/logo_rmi_demak.webp" alt="Logo RMI PCNU Demak" class="w-16 h-16 object-contain" />
-                        <div>
-                            <h2 class="text-lg font-black text-emerald-900 uppercase tracking-wider">Pengurus Cabang Rabithah Ma'ahid Islamiyah Nahdlatul Ulama</h2>
-                            <h3 class="text-sm font-bold text-slate-800">PC RMI NU KABUPATEN DEMAK (KOTA WALI)</h3>
-                            <p class="text-[11px] text-slate-600">Pusat Data & Koordinasi Pondok Pesantren, Madrasah Diniyah, dan TPQ se-Kabupaten Demak</p>
+                <!-- Printable Kop Surat Header Resmi (Standar Dokumen PC RMI NU Demak) -->
+                <div class="print-header hidden pb-3 mb-5 text-center">
+                    <div class="flex items-center justify-center gap-5 mb-2">
+                        <img src="assets/img/logo_rmi.png" alt="Logo PC RMI NU Demak" class="w-16 h-16 object-contain shrink-0" style="width: 68px; height: 68px; object-fit: contain;" />
+                        <div class="text-center">
+                            <h2 class="text-base sm:text-lg font-black uppercase tracking-wider text-emerald-900 m-0 leading-tight" style="color: #064e3b !important; font-weight: 900;">
+                                PENGURUS CABANG RABITHAH MA'AHID ISLAMIYAH NAHDLATUL ULAMA
+                            </h2>
+                            <h3 class="text-sm sm:text-base font-extrabold uppercase text-slate-900 mt-1 mb-0.5 tracking-wide" style="color: #0f172a !important; font-weight: 800;">
+                                PC RMI NU KABUPATEN DEMAK (KOTA WALI)
+                            </h3>
+                            <p class="text-[11px] text-slate-600 m-0 leading-tight" style="color: #475569 !important;">
+                                Gedung PCNU Demak, Jl. Sultan Fatah No. 63, Kauman, Bintoro, Demak 59511 • Portal: https://rminudemak.org
+                            </p>
                         </div>
                     </div>
-                    <div class="text-[10px] text-slate-500 italic">Dokumen Resmi Panduan Autentikasi & Matriks Wewenang Sistem Digdaya Pesantren • Dicetak pada: <span class="print-date"></span></div>
+                    <!-- Garis Ganda Standar Kop Surat Resmi (Tebal & Tipis) -->
+                    <div class="w-full" style="border-top: 2.5px solid #064e3b; border-bottom: 0.8px solid #064e3b; height: 4px; margin: 8px 0 6px 0;"></div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 italic pt-1 px-1" style="color: #64748b !important;">
+                        <span>Dokumen Resmi SOP Autentikasi & Matriks Wewenang Digdaya Pesantren</span>
+                        <span>Dicetak pada: <strong class="print-date text-slate-800" style="color: #0f172a !important;"></strong></span>
+                    </div>
                 </div>
 
                 <!-- Header Visual Layanan Web -->
