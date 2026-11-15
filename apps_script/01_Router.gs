@@ -50,6 +50,11 @@ function doGet(e) {
     const res = getPengurusOrganogram();
     return createJsonResponse(res);
   }
+
+  if (action === 'GET_SAMBANG_STATS' || action === 'GET_SAMBANG_DELEGATES') {
+    const res = getSambangDelegatesData();
+    return createJsonResponse(res);
+  }
   
   return createJsonResponse({
     status: 'ONLINE',
@@ -103,6 +108,8 @@ function doPost(e) {
       result = handleSavePengurusRecord(payload);
     } else if (action === 'DELETE_PENGURUS_RECORD' || action === 'DELETE_PENGURUS') {
       result = handleDeletePengurusRecord(payload);
+    } else if (action === 'SUBMIT_SAMBANG_DELEGATE') {
+      result = handleSubmitSambangDelegate(payload, lock);
     }
     
     return createJsonResponse(result);

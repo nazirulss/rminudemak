@@ -107,6 +107,10 @@ const SCHEMAS = {
   app_pengurus: [
     'id', 'tingkat_hirarki', 'jabatan', 'nama_lengkap', 'gelar_depan', 'gelar_belakang',
     'foto_drive_url', 'parent_id', 'tipe_garis', 'tupoksi', 'urutan', 'is_active', 'updated_at'
+  ],
+  sambang_delegates: [
+    'delegate_id', 'timestamp', 'kecamatan', 'nama_pesantren', 'kategori_majlis',
+    'nama_peserta', 'no_whatsapp', 'jabatan_peran', 'catatan_khusus', 'status_kehadiran'
   ]
 };
 

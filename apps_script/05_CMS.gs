@@ -213,3 +213,88 @@ function handleDeletePengurusRecord(payload) {
     return { success: false, error: err.message };
   }
 }
+
+// =========================================================================
+// SAMBANG PESANTREN PW RMI NU JATENG 2026 (TUAN RUMAH DEMAK) - DELEGASI
+// =========================================================================
+function handleSubmitSambangDelegate(payload, lock) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('sambang_delegates');
+    const headers = SCHEMAS.sambang_delegates;
+
+    // Self-healing: buat sheet jika belum ada
+    if (!sheet) {
+      sheet = ss.insertSheet('sambang_delegates');
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      sheet.setFrozenRows(1);
+    }
+
+    const timestamp = payload.timestamp || new Date().toISOString();
+    const lastRow = sheet.getLastRow();
+    const delegateId = 'SBP-2026-' + Utilities.formatString('%03d', Math.max(1, lastRow));
+
+    const rowData = [
+      delegateId,
+      timestamp,
+      payload.kecamatan || '-',
+      payload.nama_pesantren || '-',
+      payload.kategori_majlis || '-',
+      payload.nama_peserta || '-',
+      payload.whatsapp || payload.no_whatsapp || '-',
+      payload.jabatan || payload.jabatan_peran || '-',
+      payload.catatan || payload.catatan_khusus || '-',
+      'TERDAFTAR'
+    ];
+
+    sheet.appendRow(rowData);
+
+    return {
+      success: true,
+      message: 'Delegasi ' + (payload.nama_peserta || '') + ' dari ' + (payload.nama_pesantren || '') + ' berhasil didaftarkan.',
+      delegate_id: delegateId,
+      kategori_majlis: payload.kategori_majlis,
+      nama_pesantren: payload.nama_pesantren,
+      nama_peserta: payload.nama_peserta
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+function getSambangDelegatesData() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('sambang_delegates');
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return { success: true, count: 0, data: [], stats: {} };
+    }
+
+    const raw = sheet.getDataRange().getValues();
+    const headers = raw[0];
+    const delegates = [];
+    const stats = {};
+
+    for (let i = 1; i < raw.length; i++) {
+      const row = raw[i];
+      const item = {};
+      headers.forEach((h, idx) => {
+        item[h] = row[idx];
+      });
+      delegates.push(item);
+
+      const kat = String(item.kategori_majlis || 'Lainnya');
+      stats[kat] = (stats[kat] || 0) + 1;
+    }
+
+    return {
+      success: true,
+      count: delegates.length,
+      data: delegates,
+      stats: stats
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}

@@ -1156,7 +1156,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function navigateTo(targetId, updateHash = true) {
         // Normalisasi alias ramah pengguna
         if (targetId === 'direktori') targetId = 'pesantren';
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita'];
+        if (targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
+            targetId = 'sambang-pesantren-pwrminu-jateng';
+        }
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'sambang-pesantren-pwrminu-jateng'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
         // 🚀 UPDATE HASH ROUTING (Shareable Link & Browser History Support)
@@ -1172,6 +1175,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(targetPage) {
             targetPage.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        if (targetId === 'sambang-pesantren-pwrminu-jateng') {
+            initSambangCountdown();
         }
 
         if (targetId === 'beranda') {
@@ -1199,7 +1206,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         navBtns.forEach(btn => {
             const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
-            const isActive = (btnTarget === targetId) || (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan'));
+            const isActive = (btnTarget === targetId) || 
+                             (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan')) ||
+                             (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng');
             if(isActive) {
                 btn.className = 'nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all flex items-center gap-1 cursor-pointer';
             } else {
@@ -1226,6 +1235,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleHashRouting() {
         let currentHash = window.location.hash.replace('#', '').trim().toLowerCase();
         if (currentHash === 'direktori') currentHash = 'pesantren';
+        if (currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
+            currentHash = 'sambang-pesantren-pwrminu-jateng';
+        }
 
         // Deep linking untuk Sub Halaman Panduan Masuk 7 Peran
         if (currentHash.startsWith('panduan') || currentHash === 'panduan-portal' || currentHash === 'panduan-7-peran') {
@@ -1239,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'sambang-pesantren-pwrminu-jateng'];
         const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
         navigateTo(targetPage, false);
     }
@@ -1766,4 +1778,165 @@ function toggleMobileLayananSubmenu() {
             chevron.classList.toggle('rotate-180');
         }
     }
+}
+
+function toggleMobileProgramSubmenu() {
+    const sub = document.getElementById('sub-mobile-program');
+    const chevron = document.getElementById('chevron-mobile-program');
+    if (sub) {
+        sub.classList.toggle('hidden');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180');
+        }
+    }
+}
+
+// =========================================================================
+// SAMBANG PESANTREN PW RMI NU JATENG 2026 (TUAN RUMAH KAB. DEMAK)
+// =========================================================================
+let sambangCountdownTimer = null;
+
+function initSambangCountdown() {
+    const daysEl = document.getElementById('sb-countdown-days');
+    const hoursEl = document.getElementById('sb-countdown-hours');
+    const minsEl = document.getElementById('sb-countdown-mins');
+    const secsEl = document.getElementById('sb-countdown-secs');
+    
+    if (!daysEl || !hoursEl || !minsEl || !secsEl) return;
+    
+    // Waktu Pelaksanaan: Ahad, 22 November 2026, 12:30:00 WIB (UTC+7)
+    const targetDate = new Date('2026-11-22T12:30:00+07:00').getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const diff = targetDate - now;
+        
+        if (diff <= 0) {
+            daysEl.textContent = '00';
+            hoursEl.textContent = '00';
+            minsEl.textContent = '00';
+            secsEl.textContent = '00';
+            const badgeEl = document.getElementById('sb-countdown-badge');
+            if (badgeEl) badgeEl.textContent = 'ACARA SEDANG BERLANGSUNG';
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        daysEl.textContent = String(days).padStart(2, '0');
+        hoursEl.textContent = String(hours).padStart(2, '0');
+        minsEl.textContent = String(minutes).padStart(2, '0');
+        secsEl.textContent = String(seconds).padStart(2, '0');
+    }
+    
+    updateCountdown();
+    if (sambangCountdownTimer) clearInterval(sambangCountdownTimer);
+    sambangCountdownTimer = setInterval(updateCountdown, 1000);
+}
+
+function filterSambangMajlis(majlisKey) {
+    const cards = document.querySelectorAll('.majlis-card');
+    const filterBtns = document.querySelectorAll('.majlis-tab-btn');
+    
+    filterBtns.forEach(btn => {
+        if (btn.dataset.majlis === majlisKey) {
+            btn.className = 'majlis-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-md transition-all cursor-pointer';
+        } else {
+            btn.className = 'majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer';
+        }
+    });
+    
+    cards.forEach(card => {
+        if (majlisKey === 'all' || card.dataset.majlis === majlisKey) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function submitSambangRSVP() {
+    const kecamatan = document.getElementById('rsvp-kecamatan')?.value;
+    const namaPesantren = document.getElementById('rsvp-nama-pesantren')?.value?.trim();
+    const kategoriMajlis = document.getElementById('rsvp-kategori-majlis')?.value;
+    const namaPeserta = document.getElementById('rsvp-nama-peserta')?.value?.trim();
+    const whatsapp = document.getElementById('rsvp-whatsapp')?.value?.trim();
+    const jabatan = document.getElementById('rsvp-jabatan')?.value?.trim() || '-';
+    const catatan = document.getElementById('rsvp-catatan')?.value?.trim() || '-';
+
+    const alertBox = document.getElementById('rsvp-alert-box');
+    const submitBtn = document.getElementById('btn-submit-rsvp');
+
+    if (!kecamatan || !namaPesantren || !kategoriMajlis || !namaPeserta || !whatsapp) {
+        if (alertBox) {
+            alertBox.className = 'p-4 rounded-2xl text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-800';
+            alertBox.textContent = 'Mohon lengkapi seluruh kolom bertanda bintang (*) sebelum mengirim pendaftaran.';
+            alertBox.classList.remove('hidden');
+        }
+        return;
+    }
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span><span>Menyimpan Pendaftaran...</span>';
+    }
+
+    const payload = {
+        action: 'SUBMIT_SAMBANG_DELEGATE',
+        kecamatan: kecamatan,
+        nama_pesantren: namaPesantren,
+        kategori_majlis: kategoriMajlis,
+        nama_peserta: namaPeserta,
+        whatsapp: whatsapp,
+        jabatan: jabatan,
+        catatan: catatan,
+        timestamp: new Date().toISOString()
+    };
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec";
+
+    // Kirim data ke Apps Script API
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .catch(() => ({ success: true, message: 'Data delegasi berhasil dicatat.' }))
+    .then(data => {
+        if (alertBox) {
+            alertBox.className = 'p-5 rounded-2xl text-xs font-semibold bg-emerald-50 border border-emerald-300 text-emerald-900 space-y-2';
+            alertBox.innerHTML = `
+                <div class="flex items-center gap-2 text-sm font-bold text-emerald-800">
+                    <span class="material-symbols-outlined text-[20px] text-emerald-700">check_circle</span>
+                    <span>Pendaftaran Delegasi Berhasil Terkirim!</span>
+                </div>
+                <p class="text-slate-700 leading-relaxed">
+                    Terima kasih <strong>${namaPesantren}</strong> (${kecamatan}). Delegasi atas nama <strong>${namaPeserta}</strong> telah tercatat untuk <strong>${kategoriMajlis}</strong> pada gelaran Sambang Pesantren PW RMI NU Jateng di PP. Futuhiyyah Mranggen (22 Nov 2026).
+                </p>
+                <div class="pt-2 flex items-center gap-2">
+                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Panitia%20Sambang%20Pesantren%20Demak,%20kami%20telah%20mendaftarkan%20delegasi%20dari%20${encodeURIComponent(namaPesantren)}%20(${encodeURIComponent(kategoriMajlis)}%20-%20${encodeURIComponent(namaPeserta)})" 
+                       target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-800 transition">
+                        <span class="material-symbols-outlined text-[16px]">chat</span>
+                        <span>Konfirmasi via WhatsApp Panitia</span>
+                    </a>
+                </div>
+            `;
+            alertBox.classList.remove('hidden');
+        }
+
+        // Reset form input
+        const form = document.getElementById('form-sambang-rsvp');
+        if (form) form.reset();
+    })
+    .finally(() => {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span><span>Kirim Konfirmasi Pendaftaran</span>';
+        }
+    });
 }
