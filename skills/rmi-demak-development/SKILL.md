@@ -1,7 +1,7 @@
 ---
 name: rmi-demak-development
 description: >-
-  Standard Operating Procedure (SOP) dan panduan arsitektur rekayasa perangkat lunak untuk ekosistem portal PC RMI NU Kabupaten Demak (RMINU Demak Web). Mencakup Arsitektur Backend Modular Google Apps Script (00-07), Database Relasional Headless Spreadsheet & Cloud Drive, Kontrol Akses RBAC 7 Peran, Frontend Vanilla SPA + Tailwind CSS, Desain Cetak Dokumen Resmi & Save PDF, serta Protokol Kerja 5-Tahap (Diskusi, Rancangan Implementasi, Eksekusi Modular, Pengujian/Audit Multi-Layer, Deploy & Git Sync). Gunakan skill ini setiap kali berdiskusi, menambah fitur, memperbaiki bug, atau merefaktor kode di proyek ini.
+  Standard Operating Procedure (SOP) dan panduan arsitektur rekayasa perangkat lunak untuk ekosistem portal PC RMI NU Kabupaten Demak (RMINU Demak Web). Mencakup Arsitektur Backend Modular Google Apps Script (00-07), Database Relasional Headless Spreadsheet & Cloud Drive, Kontrol Akses RBAC 7 Peran, Frontend Vanilla SPA + Tailwind CSS, Design System Ar-Rawdhah & Mobile App PWA, Desain Cetak Dokumen Resmi & Save PDF, serta Protokol Kerja 5-Tahap (Diskusi, Rancangan Implementasi, Eksekusi Modular, Pengujian/Audit Multi-Layer, Deploy & Git Sync). Gunakan skill ini setiap kali berdiskusi, menambah fitur, memperbaiki bug, atau merefaktor kode di proyek ini.
 ---
 
 # RMI PCNU Demak Web — Engineering Standards & Development SOP
@@ -163,6 +163,81 @@ Backend Google Apps Script tidak boleh ditulis dalam satu berkas monolitik panja
 - **Apps Script Deployment ID**: `AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU`
 - **Web App Live URL**: `https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec`
 - **Domain Publik**: `https://rminudemak.org`
+
+---
+
+## 9. Frontend Design System & Mobile App PWA Guidelines
+
+### 9.1 Identitas Visual "Ar-Rawdhah" & Tipografi Pesantren
+- **Palet Warna Karakteristik PCNU Demak**:
+  - **Primary**: `#005c55` (Hijau Zamrud Demak / Emerald Deep) — merefleksikan keagungan jam'iyyah dan spiritualitas pesantren.
+  - **Surface & Dark Accent**: `#022c22` (Emerald 950) — fondasi header, kartu informasi penting, dan latar belakang kontras tinggi.
+  - **Secondary & Accent**: `#f59e0b` / `#d97706` (Emas Kota Wali) — aksen bintang 9, badge verifikasi, dan tombol aksi utama.
+  - **Background & Canvas**: `#f8fafc` (Slate 50) dengan aksen panel `#ffffff` dan kartu berbayang halus (`shadow-sm` hingga `shadow-md`).
+- **Prinsip Kontras & Anti-Faded**:
+  - Dilarang keras menampilkan teks abu-abu terang di atas latar putih atau teks putih di atas latar terang.
+  - Komponen kritis (misalnya *Langkah Demi Langkah*) wajib memiliki latar belakang solid gelap `#022c22` dengan inline-style fallback (`style="background-color: #022c22 !important; color: #ffffff !important;"`) untuk mengantisipasi kegagalan render class utilitas.
+- **Tipografi Harmonis**:
+  - Judul / Identitas Arab: `Amiri`, `Scheherazade New`, atau Serif klasik bernuansa khazanah turots pesantren.
+  - Teks Badan & Dashboard Data: `Plus Jakarta Sans`, `Inter`, atau sans-serif modern berdaya baca tinggi (*high legibility*) dengan kalkulasi leading yang lega.
+
+### 9.2 Arsitektur Web Publik & Portal Admin SaaS
+- **Web Publik (`index.html`)**:
+  - Header sticky dengan navigasi dropdown terstruktur (misal: menu *Layanan* yang menampung *Direktori Lembaga*, *Pendaftaran Mandiri*, dan *Panduan 7 Peran*).
+  - Drawer navigasi mobile yang rapi dengan backdrop overlay (`backdrop-blur-sm`).
+  - Animasi transisi halus (`transition-all duration-300`).
+- **Portal Administrasi (`admin.html`)**:
+  - Antarmuka SaaS modern: sidebar collapsible, header dengan indikator jam real-time WIB (`Intl.DateTimeFormat`), dan status koneksi API.
+  - Matriks wewenang RBAC visual dengan badge warna per level peran.
+  - Fast Login 1-klik akun pengurus resmi dipadu verifikasi Email OTP 6-digit.
+  - Modal Wizard pendaftaran bertahap dengan progress bar dinamis dan validasi form real-time.
+
+### 9.3 Standar Desain Mobile App PWA (Progressive Web App)
+*(Mengadopsi arsitektur teruji dari ekosistem PPTQ Asnawiyyah)*:
+
+1. **Web App Manifest (`manifest.json`)**:
+   - Memberikan pengalaman *App-Like* tanpa bilah URL browser:
+     ```json
+     {
+       "name": "RMI PCNU Demak - Portal Data Pesantren",
+       "short_name": "RMI Demak",
+       "start_url": "/",
+       "display": "standalone",
+       "orientation": "portrait-primary",
+       "theme_color": "#005c55",
+       "background_color": "#f8fafc",
+       "icons": [
+         { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+         { "src": "assets/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+       ],
+       "shortcuts": [
+         { "name": "Direktori Pesantren", "url": "/#direktori", "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }] },
+         { "name": "Portal Administrasi", "url": "/admin", "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }] },
+         { "name": "Panduan 7 Peran", "url": "/#panduan", "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }] }
+       ]
+     }
+     ```
+
+2. **Mobile Bottom Navigation Bar (`#mobile-bottom-nav`)**:
+   - Diletakkan melayang di dasar layar pada perangkat mobile (`fixed bottom-0 left-0 right-0 z-50 md:hidden`).
+   - Wajib menyertakan bantalan aman: `pb-[env(safe-area-inset-bottom,0px)]` untuk mencegah benturan dengan *Home Bar* iPhone atau bilah navigasi gestur Android.
+   - Target sentuh ergonomis ($\ge 44\text{px}$) dengan ikon 20–24px, label mikro 9–10px bold, dan efek aktif emerald glow.
+
+3. **Smart Floating Install Banner (`#pwa-smart-install-banner`)**:
+   - Menangkap event peramban `beforeinstallprompt`.
+   - Ditampilkan mengambang di atas bottom navbar (`bottom-20 md:bottom-6 left-4 right-4 md:max-w-sm`).
+   - Dilengkapi memori penutupan (*dismissal memory*) selama **7 hari** di `localStorage` (`pwa_install_dismissed`) agar tidak mengganggu kenyamanan pengguna.
+
+4. **Modal Panduan Khusus iOS Safari (`#modal-ios-install-guide`)**:
+   - Karena iOS Safari tidak mendukung event `beforeinstallprompt`, sistem mendeteksi perangkat Apple secara otomatis (`/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream`).
+   - Menampilkan modal ilustrasi 2 langkah:
+     1. Ketuk tombol **Share** (kotak berpanah ke atas) di bilah navigasi Safari.
+     2. Gulir dan pilih **"Tambahkan ke Layar Utama" (Add to Home Screen)**.
+
+5. **Service Worker Caching & Smart Update Manager**:
+   - Cache-first dengan network fallback untuk pemuatan instan halaman web saat sinyal lemah.
+   - Pengecekan versi berkala (`SmartUpdateManager`) dengan memantau `version.json` setiap 20 menit dan saat layar aktif kembali (`visibilitychange: visible`).
+   - Menampilkan toast notifikasi pembaruan non-intrusif: *"Versi Baru Tersedia — Perbarui Sekarang"*.
 
 ---
 *Dokumen ini dirumuskan bersama pada 15 November 2026 sebagai panduan baku pengembangan platform PC RMI NU Kabupaten Demak.*
