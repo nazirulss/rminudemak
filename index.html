@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Compiled Production CSS (Sub-30ms load, Zero CDN blocking) -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261115_2235" />
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261115_2245" />
 
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -1182,146 +1182,151 @@
                         <p class="text-xs md:text-sm text-slate-600">Jalur instruksi resmi, koordinasi administratif, dan pembagian bidang khidmat kepengurusan PC RMI NU Kabupaten Demak masa khidmat aktif.</p>
                         
                         <!-- Legenda Garis Komando -->
-                        <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-3 text-xs">
-                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                                <span style="width: 28px; height: 3px; background-color: #005c55; display: inline-block; border-radius: 2px;"></span>
-                                <span class="font-extrabold text-emerald-950 text-[11px]">Garis Komando (Instruksi Resmi)</span>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-4 pt-3 text-xs max-w-xl mx-auto">
+                            <div class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                                <span style="width: 24px; height: 3px; background-color: #005c55; display: inline-block; border-radius: 2px;"></span>
+                                <span class="font-extrabold text-emerald-950 text-[10px] sm:text-[11px]">Garis Komando (Instruksi Resmi)</span>
                             </div>
-                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200">
-                                <span style="width: 28px; height: 0; border-top: 2.5px dashed #d97706; display: inline-block;"></span>
-                                <span class="font-extrabold text-amber-950 text-[11px]">Garis Koordinasi / Konsultatif</span>
+                            <div class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200">
+                                <span style="width: 24px; height: 0; border-top: 2px dashed #d97706; display: inline-block;"></span>
+                                <span class="font-extrabold text-amber-950 text-[10px] sm:text-[11px]">Garis Koordinasi / Konsultatif</span>
                             </div>
-                            <div class="flex items-center gap-1.5 text-slate-600 text-[11px] px-3 py-1.5 rounded-xl bg-slate-100">
-                                <span class="material-symbols-outlined text-[15px] text-primary">touch_app</span>
-                                <span class="font-medium">Klik kartu pengurus untuk detail tupoksi</span>
+                            <div class="flex items-center justify-center gap-1.5 text-slate-600 text-[10px] sm:text-[11px] px-3 py-1.5 rounded-xl bg-slate-100">
+                                <span class="material-symbols-outlined text-[14px] text-primary">touch_app</span>
+                                <span class="font-medium">Klik kartu untuk detail tupoksi</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- KONTEN BAGAN POHON ORGANOGRAM (TOP-DOWN) -->
-                    <div class="relative max-w-5xl mx-auto overflow-x-auto pb-6">
-                        <div id="organogram-tree-container" class="min-w-[720px] md:min-w-0 space-y-10">
+                    <!-- KONTEN BAGAN POHON ORGANOGRAM (RESPONSIF MOBILE & DESKTOP) -->
+                    <div class="relative w-full max-w-5xl mx-auto pb-6 px-1 sm:px-4">
+                        <div id="organogram-tree-container" class="w-full space-y-6 sm:space-y-10">
 
                             <!-- LEVEL 0: DEWAN PELINDUNG & PENASIHAT (PCNU DEMAK) -->
                             <div class="relative flex flex-col items-center">
-                                <div class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 shadow-xs" style="background-color: #f3e8ff; color: #581c87; border: 1.5px solid #d8b4fe;">
+                                <div class="px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest mb-3 sm:mb-4 shadow-xs text-center" style="background-color: #f3e8ff; color: #581c87; border: 1.5px solid #d8b4fe;">
                                     Dewan Pelindung & Pengayom Jam'iyyah (PCNU Demak)
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl w-full">
                                     <!-- 1. Rais Syuriyah -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-01')" class="group p-4 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5" style="background-color: #ffffff !important; border: 2px solid #cbd5e1 !important;">
-                                        <div class="w-14 h-14 rounded-full p-0.5 shrink-0 overflow-hidden shadow-inner" style="background-color: #f1f5f9; border: 2px solid #f59e0b;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-01')" class="group p-3.5 sm:p-4 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3 sm:gap-3.5" style="background-color: #ffffff !important; border: 2px solid #cbd5e1 !important;">
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0.5 shrink-0 overflow-hidden shadow-inner" style="background-color: #f1f5f9; border: 2px solid #f59e0b;">
                                             <img src="https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G" alt="Rais Syuriyah" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform">
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider inline-block mb-1" style="background-color: #f3e8ff; color: #6b21a8;">Syuriyah PCNU</span>
-                                            <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">KH. M. Zainal Arifin Ma'shum</h4>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #f3e8ff; color: #6b21a8;">Syuriyah PCNU</span>
+                                            <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">KH. M. Zainal Arifin Ma'shum</h4>
                                             <p class="text-[10px] font-semibold mt-0.5" style="color: #475569 !important;">Rais Syuriyah PCNU Demak</p>
                                         </div>
-                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-purple-700 transition-colors">info</span>
+                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-purple-700 transition-colors shrink-0">info</span>
                                     </div>
 
                                     <!-- 2. Ketua Tanfidziyah -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-02')" class="group p-4 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5" style="background-color: #ffffff !important; border: 2px solid #cbd5e1 !important;">
-                                        <div class="w-14 h-14 rounded-full p-0.5 shrink-0 overflow-hidden shadow-inner" style="background-color: #f1f5f9; border: 2px solid #f59e0b;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-02')" class="group p-3.5 sm:p-4 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3 sm:gap-3.5" style="background-color: #ffffff !important; border: 2px solid #cbd5e1 !important;">
+                                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0.5 shrink-0 overflow-hidden shadow-inner" style="background-color: #f1f5f9; border: 2px solid #f59e0b;">
                                             <img src="https://lh3.googleusercontent.com/d/1uNBAgynTrwyyyxhQL9edxhw-2IozYBuD" alt="Ketua Tanfidziyah" class="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform">
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider inline-block mb-1" style="background-color: #f3e8ff; color: #6b21a8;">Tanfidziyah PCNU</span>
-                                            <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">KH. M. Aminuddin, M.Si.</h4>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #f3e8ff; color: #6b21a8;">Tanfidziyah PCNU</span>
+                                            <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">KH. M. Aminuddin, M.Si.</h4>
                                             <p class="text-[10px] font-semibold mt-0.5" style="color: #475569 !important;">Ketua Tanfidziyah PCNU Demak</p>
                                         </div>
-                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-purple-700 transition-colors">info</span>
+                                        <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-purple-700 transition-colors shrink-0">info</span>
                                     </div>
                                 </div>
 
                                 <!-- Garis Konsultasi Turun ke Ketua (Dashed Gold dengan Badge) -->
-                                <div class="flex flex-col items-center my-3">
-                                    <div style="width: 2px; height: 24px; border-left: 2px dashed #d97706;"></div>
-                                    <div class="px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-xs" style="background-color: #fef3c7; color: #92400e; border: 1px dashed #f59e0b;">
-                                        <span class="material-symbols-outlined text-[14px]">arrow_downward</span> Garis Bimbingan Moral & Mandat Jam'iyyah
+                                <div class="flex flex-col items-center my-2 sm:my-3">
+                                    <div style="width: 2px; height: 20px; border-left: 2px dashed #d97706;"></div>
+                                    <div class="px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold flex items-center gap-1.5 shadow-xs text-center" style="background-color: #fef3c7; color: #92400e; border: 1px dashed #f59e0b;">
+                                        <span class="material-symbols-outlined text-[13px]">arrow_downward</span> Garis Bimbingan Moral & Mandat Jam'iyyah
                                     </div>
-                                    <div style="width: 2px; height: 24px; border-left: 2px dashed #d97706;"></div>
+                                    <div style="width: 2px; height: 20px; border-left: 2px dashed #d97706;"></div>
                                 </div>
                             </div>
 
                             <!-- LEVEL 1: PUCUK PIMPINAN EKSEKUTIF CABANG (KETUA & WAKIL KETUA) -->
                             <div class="relative flex flex-col items-center">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl w-full">
+                                <div class="w-full max-w-xl space-y-3 sm:space-y-4">
                                     <!-- KETUA PC RMI NU DEMAK (KARTU UTAMA EMAS ZAMRUD SOLID) -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-03')" class="group sm:col-span-2 p-5 rounded-3xl transition-all cursor-pointer relative overflow-hidden" style="background-color: #022c22 !important; border: 3px solid #f59e0b !important; color: #ffffff !important; box-shadow: 0 10px 25px -5px rgba(0, 92, 85, 0.4) !important;">
-                                        <div class="flex items-center gap-4 relative z-10">
-                                            <div class="w-16 h-16 rounded-2xl p-0.5 shrink-0 overflow-hidden shadow-lg" style="background-color: #005c55; border: 2px solid #f59e0b;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-03')" class="group p-4 sm:p-5 rounded-2xl sm:rounded-3xl transition-all cursor-pointer relative overflow-hidden" style="background-color: #022c22 !important; border: 3px solid #f59e0b !important; color: #ffffff !important; box-shadow: 0 10px 25px -5px rgba(0, 92, 85, 0.4) !important;">
+                                        <div class="flex items-center gap-3 sm:gap-4 relative z-10">
+                                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl p-0.5 shrink-0 overflow-hidden shadow-lg" style="background-color: #005c55; border: 2px solid #f59e0b;">
                                                 <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" alt="Ketua RMI" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
                                             </div>
                                             <div class="min-w-0 flex-1">
-                                                <div class="flex items-center gap-2 mb-1">
-                                                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wider" style="background-color: #f59e0b !important; color: #022c22 !important;">PUCUK PIMPINAN</span>
-                                                    <span class="text-[10px] font-semibold" style="color: #a7f3d0 !important;">Komando Tertinggi</span>
+                                                <div class="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                                                    <span class="px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black tracking-wider" style="background-color: #f59e0b !important; color: #022c22 !important;">PUCUK PIMPINAN</span>
+                                                    <span class="text-[9px] sm:text-[10px] font-semibold" style="color: #a7f3d0 !important;">Komando Tertinggi</span>
                                                 </div>
-                                                <h4 class="font-black text-base sm:text-lg leading-tight" style="color: #ffffff !important;">KH. Ibrahim Cholilullah, S.Pd.I.</h4>
-                                                <p class="text-xs font-bold mt-0.5" style="color: #fef08a !important;">Ketua PC RMI NU Kabupaten Demak</p>
-                                                <p class="text-[10px] italic mt-1 line-clamp-1" style="color: #d1fae5 !important;">"Penanggung jawab kebijakan umum dan koordinasi pesantren se-Kabupaten Demak"</p>
+                                                <h4 class="font-black text-sm sm:text-base leading-tight" style="color: #ffffff !important;">KH. Ibrahim Cholilullah, S.Pd.I.</h4>
+                                                <p class="text-[11px] sm:text-xs font-bold mt-0.5" style="color: #fef08a !important;">Ketua PC RMI NU Kabupaten Demak</p>
+                                                <p class="text-[9px] sm:text-[10px] italic mt-1 line-clamp-1" style="color: #d1fae5 !important;">"Penanggung jawab kebijakan umum dan koordinasi pesantren se-Kabupaten Demak"</p>
                                             </div>
-                                            <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors shrink-0" style="background-color: rgba(255,255,255,0.15); color: #fef08a;">
-                                                <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors shrink-0" style="background-color: rgba(255,255,255,0.15); color: #fef08a;">
+                                                <span class="material-symbols-outlined text-[16px] sm:text-[18px]">visibility</span>
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Connector Garis Turun ke Wakil Ketua -->
+                                    <div class="flex justify-center">
+                                        <div style="width: 3px; height: 16px; background-color: #005c55; border-radius: 2px;"></div>
+                                    </div>
+
                                     <!-- WAKIL KETUA CABANG -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-04')" class="group sm:col-span-2 max-w-sm mx-auto w-full p-3.5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff !important; border: 2px solid #a7f3d0 !important;">
-                                        <div class="w-11 h-11 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-04')" class="group w-full max-w-sm mx-auto p-3 sm:p-3.5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff !important; border: 2px solid #a7f3d0 !important;">
+                                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
                                             <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" alt="Wakil Ketua" class="w-full h-full object-cover rounded-lg">
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <span class="text-[9px] font-extrabold uppercase tracking-wider block" style="color: #047857 !important;">Garis Bantuan Pimpinan</span>
+                                            <span class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider block" style="color: #047857 !important;">Garis Bantuan Pimpinan</span>
                                             <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">K. M. Nurul Huda</h4>
-                                            <p class="text-[10px] font-medium" style="color: #64748b !important;">Wakil Ketua Bidang Kepesantrenan & Lembaga</p>
+                                            <p class="text-[9px] sm:text-[10px] font-medium" style="color: #64748b !important;">Wakil Ketua Bidang Kepesantrenan & Lembaga</p>
                                         </div>
-                                        <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-emerald-700">info</span>
+                                        <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-emerald-700 shrink-0">info</span>
                                     </div>
                                 </div>
 
                                 <!-- Garis Komando Turun ke Sayap BPH (Solid Hijau Zamrud Tebal) -->
-                                <div class="flex flex-col items-center my-3">
-                                    <div style="width: 4px; height: 24px; background-color: #005c55; border-radius: 2px;"></div>
-                                    <div class="px-3.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1.5 shadow-sm" style="background-color: #005c55; color: #ffffff;">
-                                        <span class="material-symbols-outlined text-[14px]">arrow_downward</span> Garis Komando Eksekutif BPH
-                                    </div>
+                                <div class="flex flex-col items-center my-2 sm:my-3">
                                     <div style="width: 4px; height: 20px; background-color: #005c55; border-radius: 2px;"></div>
+                                    <div class="px-3.5 py-1 rounded-full text-[9px] sm:text-[10px] font-black flex items-center gap-1.5 shadow-sm text-center" style="background-color: #005c55; color: #ffffff;">
+                                        <span class="material-symbols-outlined text-[13px]">arrow_downward</span> Garis Komando Eksekutif BPH
+                                    </div>
+                                    <div style="width: 4px; height: 18px; background-color: #005c55; border-radius: 2px;"></div>
                                 </div>
                             </div>
 
                             <!-- LEVEL 2: SAYAP DWI-TUNGGAL BPH (SEKRETARIAT & KEBENDAHARAAN) -->
-                            <div class="relative">
-                                <!-- Tree Branch Connector Bar ke 2 Sayap BPH -->
-                                <div class="hidden sm:block relative w-full max-w-2xl mx-auto" style="height: 28px;">
+                            <div class="relative w-full max-w-3xl mx-auto">
+                                <!-- Tree Branch Connector Bar ke 2 Sayap BPH (Hanya di layar sm/desktop) -->
+                                <div class="hidden sm:block relative w-full mx-auto" style="height: 24px;">
                                     <!-- Horizontal Bar -->
                                     <div style="position: absolute; top: 0; left: 25%; right: 25%; height: 3px; background-color: #005c55; border-radius: 2px;"></div>
                                     <!-- Left Drop to Kesekretariatan -->
-                                    <div style="position: absolute; top: 0; left: 25%; width: 3px; height: 24px; background-color: #005c55;">
+                                    <div style="position: absolute; top: 0; left: 25%; width: 3px; height: 22px; background-color: #005c55;">
                                         <div style="position: absolute; bottom: -5px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #005c55;"></div>
                                     </div>
                                     <!-- Right Drop to Kebendaharaan -->
-                                    <div style="position: absolute; top: 0; right: 25%; width: 3px; height: 24px; background-color: #005c55;">
+                                    <div style="position: absolute; top: 0; right: 25%; width: 3px; height: 22px; background-color: #005c55;">
                                         <div style="position: absolute; bottom: -5px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #005c55;"></div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto pt-2 relative">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1 sm:pt-2">
                                     <!-- SAYAP KIRI: KESEKRETARIATAN -->
-                                    <div class="space-y-3 p-4 rounded-3xl shadow-xs relative" style="background-color: #f8fafc; border: 2px solid #e2e8f0;">
+                                    <div class="space-y-2.5 sm:space-y-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl shadow-xs relative" style="background-color: #f8fafc; border: 2px solid #e2e8f0;">
                                         <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                                            <span class="text-[10px] font-black uppercase tracking-wider flex items-center gap-1" style="color: #1e40af;">
+                                            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1" style="color: #1e40af;">
                                                 <span class="material-symbols-outlined text-[14px]">history_edu</span> Biro Kesekretariatan
                                             </span>
-                                            <span class="text-[9px] font-bold px-2.5 py-0.5 rounded-full" style="background-color: #dbeafe; color: #1e3a8a;">ADMINISTRASI</span>
+                                            <span class="text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full" style="background-color: #dbeafe; color: #1e3a8a;">ADMINISTRASI</span>
                                         </div>
 
                                         <!-- Sekretaris -->
-                                        <div onclick="bukaModalDetailPengurus('PGR-05')" class="group p-3.5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1.5px solid #bfdbfe;">
-                                            <div class="w-12 h-12 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #eff6ff; border: 1px solid #93c5fd;">
+                                        <div onclick="bukaModalDetailPengurus('PGR-05')" class="group p-3 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1.5px solid #bfdbfe;">
+                                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #eff6ff; border: 1px solid #93c5fd;">
                                                 <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform">
                                             </div>
                                             <div class="min-w-0 flex-1">
@@ -1329,11 +1334,11 @@
                                                 <p class="text-[10px] font-bold mt-0.5" style="color: #2563eb !important;">Sekretaris</p>
                                                 <p class="text-[9px] mt-0.5 line-clamp-1" style="color: #64748b !important;">Tata kelola dokumen, persuratan & legalitas</p>
                                             </div>
-                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-blue-600">arrow_forward</span>
+                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-blue-600 shrink-0">arrow_forward</span>
                                         </div>
 
                                         <!-- Wakil Sekretaris -->
-                                        <div onclick="bukaModalDetailPengurus('PGR-06')" class="group p-3 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1px dashed #93c5fd;">
+                                        <div onclick="bukaModalDetailPengurus('PGR-06')" class="group p-2.5 sm:p-3 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1px dashed #93c5fd;">
                                             <div class="w-9 h-9 rounded-lg p-0.5 shrink-0 overflow-hidden" style="background-color: #eff6ff;">
                                                 <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-md">
                                             </div>
@@ -1341,22 +1346,31 @@
                                                 <h4 class="font-bold text-[11px]" style="color: #0f172a !important;">Ust. M. Choirul Anam, S.Pd.</h4>
                                                 <p class="text-[10px] font-medium" style="color: #64748b !important;">Wakil Sekretaris</p>
                                             </div>
-                                            <span class="material-symbols-outlined text-[13px] text-slate-400">info</span>
+                                            <span class="material-symbols-outlined text-[13px] text-slate-400 shrink-0">info</span>
                                         </div>
                                     </div>
 
+                                    <!-- Garis Koordinasi Khusus Mobile Antara 2 Sayap -->
+                                    <div class="sm:hidden flex flex-col items-center my-1">
+                                        <div style="width: 2px; height: 12px; border-left: 2px dashed #0284c7;"></div>
+                                        <div class="px-3 py-1 rounded-full text-[9px] font-bold flex items-center gap-1.5 shadow-xs" style="background-color: #f0fdf4; color: #166534; border: 1px dashed #22c55e;">
+                                            <span class="material-symbols-outlined text-[13px] text-emerald-600">sync_alt</span> Garis Koordinasi Antar-Biro
+                                        </div>
+                                        <div style="width: 2px; height: 12px; border-left: 2px dashed #0284c7;"></div>
+                                    </div>
+
                                     <!-- SAYAP KANAN: KEBENDAHARAAN -->
-                                    <div class="space-y-3 p-4 rounded-3xl shadow-xs relative" style="background-color: #f8fafc; border: 2px solid #e2e8f0;">
+                                    <div class="space-y-2.5 sm:space-y-3 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl shadow-xs relative" style="background-color: #f8fafc; border: 2px solid #e2e8f0;">
                                         <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                                            <span class="text-[10px] font-black uppercase tracking-wider flex items-center gap-1" style="color: #115e59;">
+                                            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-wider flex items-center gap-1" style="color: #115e59;">
                                                 <span class="material-symbols-outlined text-[14px]">payments</span> Biro Kebendaharaan
                                             </span>
-                                            <span class="text-[9px] font-bold px-2.5 py-0.5 rounded-full" style="background-color: #ccfbf1; color: #134e4a;">KEUANGAN</span>
+                                            <span class="text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full" style="background-color: #ccfbf1; color: #134e4a;">KEUANGAN</span>
                                         </div>
 
                                         <!-- Bendahara Umum -->
-                                        <div onclick="bukaModalDetailPengurus('PGR-07')" class="group p-3.5 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1.5px solid #99f6e4;">
-                                            <div class="w-12 h-12 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #f0fdfa; border: 1px solid #5eead4;">
+                                        <div onclick="bukaModalDetailPengurus('PGR-07')" class="group p-3 sm:p-3.5 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1.5px solid #99f6e4;">
+                                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl p-0.5 shrink-0 overflow-hidden" style="background-color: #f0fdfa; border: 1px solid #5eead4;">
                                                 <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform">
                                             </div>
                                             <div class="min-w-0 flex-1">
@@ -1364,11 +1378,11 @@
                                                 <p class="text-[10px] font-bold mt-0.5" style="color: #0d9488 !important;">Bendahara Umum</p>
                                                 <p class="text-[9px] mt-0.5 line-clamp-1" style="color: #64748b !important;">Pengawasan kas, anggaran & akuntabilitas</p>
                                             </div>
-                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-teal-600">arrow_forward</span>
+                                            <span class="material-symbols-outlined text-[15px] text-slate-400 group-hover:text-teal-600 shrink-0">arrow_forward</span>
                                         </div>
 
                                         <!-- Wakil Bendahara -->
-                                        <div onclick="bukaModalDetailPengurus('PGR-08')" class="group p-3 rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1px dashed #5eead4;">
+                                        <div onclick="bukaModalDetailPengurus('PGR-08')" class="group p-2.5 sm:p-3 rounded-xl sm:rounded-2xl shadow-xs hover:shadow-md transition-all cursor-pointer flex items-center gap-3" style="background-color: #ffffff; border: 1px dashed #5eead4;">
                                             <div class="w-9 h-9 rounded-lg p-0.5 shrink-0 overflow-hidden" style="background-color: #f0fdfa;">
                                                 <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-md">
                                             </div>
@@ -1376,13 +1390,13 @@
                                                 <h4 class="font-bold text-[11px]" style="color: #0f172a !important;">H. Ahmad Zaini</h4>
                                                 <p class="text-[10px] font-medium" style="color: #64748b !important;">Wakil Bendahara</p>
                                             </div>
-                                            <span class="material-symbols-outlined text-[13px] text-slate-400">info</span>
+                                            <span class="material-symbols-outlined text-[13px] text-slate-400 shrink-0">info</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Garis Koordinasi Horizontal Antara Sekretaris & Bendahara -->
-                                <div class="flex items-center justify-center my-4">
+                                <!-- Garis Koordinasi Horizontal Antara Sekretaris & Bendahara (Layar Desktop) -->
+                                <div class="hidden sm:flex items-center justify-center my-4">
                                     <div class="px-4 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2 shadow-xs" style="background-color: #f0fdf4; color: #166534; border: 1.5px dashed #22c55e;">
                                         <span class="material-symbols-outlined text-[15px] text-emerald-600">sync_alt</span>
                                         <span>Garis Koordinasi Administratif & Keuangan</span>
@@ -1390,94 +1404,104 @@
                                 </div>
 
                                 <!-- Garis Komando Turun ke Jajaran Bidang -->
-                                <div class="flex flex-col items-center my-3">
-                                    <div style="width: 4px; height: 24px; background-color: #005c55; border-radius: 2px;"></div>
-                                    <div class="px-3.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1.5 shadow-sm" style="background-color: #ecfdf5; color: #065f46; border: 1.5px solid #10b981;">
-                                        <span class="material-symbols-outlined text-[14px]">arrow_downward</span> Garis Mandat Pelaksanaan Bidang
-                                    </div>
+                                <div class="flex flex-col items-center my-2 sm:my-3">
                                     <div style="width: 4px; height: 20px; background-color: #005c55; border-radius: 2px;"></div>
+                                    <div class="px-3.5 py-1 rounded-full text-[9px] sm:text-[10px] font-black flex items-center gap-1.5 shadow-sm text-center" style="background-color: #ecfdf5; color: #065f46; border: 1.5px solid #10b981;">
+                                        <span class="material-symbols-outlined text-[13px]">arrow_downward</span> Garis Mandat Pelaksanaan Bidang
+                                    </div>
+                                    <div style="width: 4px; height: 18px; background-color: #005c55; border-radius: 2px;"></div>
                                 </div>
                             </div>
 
                             <!-- LEVEL 3: JAJARAN KETUA BIDANG & DEPARTEMEN KERJA -->
-                            <div class="relative">
-                                <!-- 3-Way Branch Connector Bar -->
-                                <div class="hidden md:block relative w-full max-w-4xl mx-auto mb-2" style="height: 28px;">
+                            <div class="relative w-full max-w-4xl mx-auto">
+                                <!-- 3-Way Branch Connector Bar (Layar Desktop) -->
+                                <div class="hidden md:block relative w-full mx-auto mb-2" style="height: 24px;">
                                     <!-- Horizontal Bar across 3 columns -->
                                     <div style="position: absolute; top: 0; left: 16.6%; right: 16.6%; height: 3px; background-color: #005c55; border-radius: 2px;"></div>
                                     <!-- Left Drop to Bidang 1 -->
-                                    <div style="position: absolute; top: 0; left: 16.6%; width: 3px; height: 24px; background-color: #005c55;">
+                                    <div style="position: absolute; top: 0; left: 16.6%; width: 3px; height: 22px; background-color: #005c55;">
                                         <div style="position: absolute; bottom: -5px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #005c55;"></div>
                                     </div>
                                     <!-- Center Drop to Bidang 2 -->
-                                    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 24px; background-color: #005c55;">
+                                    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 3px; height: 22px; background-color: #005c55;">
                                         <div style="position: absolute; bottom: -5px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #005c55;"></div>
                                     </div>
                                     <!-- Right Drop to Bidang 3 -->
-                                    <div style="position: absolute; top: 0; right: 16.6%; width: 3px; height: 24px; background-color: #005c55;">
+                                    <div style="position: absolute; top: 0; right: 16.6%; width: 3px; height: 22px; background-color: #005c55;">
                                         <div style="position: absolute; bottom: -5px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #005c55;"></div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 relative">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5 relative">
                                     <!-- BIDANG 1: PENDIDIKAN & TUROTS -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-09')" class="group p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-09')" class="group p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
                                         <div>
-                                            <div class="flex items-center gap-3 mb-3">
-                                                <div class="w-12 h-12 rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
-                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                            <div class="flex items-center gap-3 mb-2.5 sm:mb-3">
+                                                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg sm:rounded-xl group-hover:scale-105 transition-transform">
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang I</span>
-                                                    <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">Gus Muhammad Ilyas</h4>
-                                                    <p class="text-[10px] font-semibold" style="color: #64748b !important;">Pendidikan, Kurikulum & Turots</p>
+                                                    <span class="px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang I</span>
+                                                    <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">Gus Muhammad Ilyas</h4>
+                                                    <p class="text-[9px] sm:text-[10px] font-semibold" style="color: #64748b !important;">Pendidikan, Kurikulum & Turots</p>
                                                 </div>
                                             </div>
-                                            <p class="text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Standardisasi kurikulum kitab kuning salaf marhalah ula, wustha, dan ulya santri se-Demak.</p>
+                                            <p class="text-[10px] sm:text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Standardisasi kurikulum kitab kuning salaf marhalah ula, wustha, dan ulya santri se-Demak.</p>
                                         </div>
-                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
+                                        <div class="pt-2.5 sm:pt-3 mt-2.5 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
                                             <span>Lihat Mandat Kerja</span>
                                             <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                                         </div>
+                                    </div>
+
+                                    <!-- Connector Mobile Antar-Bidang 1 ke 2 -->
+                                    <div class="md:hidden flex justify-center py-0.5">
+                                        <div style="width: 2px; height: 12px; background-color: #10b981;"></div>
                                     </div>
 
                                     <!-- BIDANG 2: KEMANDIRIAN EKONOMI & KOPONTREN -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-10')" class="group p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-10')" class="group p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
                                         <div>
-                                            <div class="flex items-center gap-3 mb-3">
-                                                <div class="w-12 h-12 rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
-                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                            <div class="flex items-center gap-3 mb-2.5 sm:mb-3">
+                                                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg sm:rounded-xl group-hover:scale-105 transition-transform">
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang II</span>
-                                                    <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">K. Agus Mubarok</h4>
-                                                    <p class="text-[10px] font-semibold" style="color: #64748b !important;">Kemandirian Ekonomi & Kopontren</p>
+                                                    <span class="px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang II</span>
+                                                    <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">K. Agus Mubarok</h4>
+                                                    <p class="text-[9px] sm:text-[10px] font-semibold" style="color: #64748b !important;">Kemandirian Ekonomi & Kopontren</p>
                                                 </div>
                                             </div>
-                                            <p class="text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Inkubasi usaha pesantren, badan usaha mandiri, dan penguatan jejaring Koperasi Pondok Pesantren.</p>
+                                            <p class="text-[10px] sm:text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Inkubasi usaha pesantren, badan usaha mandiri, dan penguatan jejaring Koperasi Pondok Pesantren.</p>
                                         </div>
-                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
+                                        <div class="pt-2.5 sm:pt-3 mt-2.5 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
                                             <span>Lihat Mandat Kerja</span>
                                             <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                                         </div>
                                     </div>
 
+                                    <!-- Connector Mobile Antar-Bidang 2 ke 3 -->
+                                    <div class="md:hidden flex justify-center py-0.5">
+                                        <div style="width: 2px; height: 12px; background-color: #10b981;"></div>
+                                    </div>
+
                                     <!-- BIDANG 3: DATA, MEDIA & TRANSFORMASI DIGITAL -->
-                                    <div onclick="bukaModalDetailPengurus('PGR-11')" class="group p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
+                                    <div onclick="bukaModalDetailPengurus('PGR-11')" class="group p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-lg transition-all cursor-pointer flex flex-col justify-between" style="background-color: #ffffff; border: 2px solid #e2e8f0;">
                                         <div>
-                                            <div class="flex items-center gap-3 mb-3">
-                                                <div class="w-12 h-12 rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
-                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform">
+                                            <div class="flex items-center gap-3 mb-2.5 sm:mb-3">
+                                                <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl p-0.5 shrink-0 overflow-hidden" style="background-color: #ecfdf5; border: 1px solid #10b981;">
+                                                    <img src="https://lh3.googleusercontent.com/d/1cWI3Eql8KNgiJ15XnctjWuhujGVMD6YJ" class="w-full h-full object-cover rounded-lg sm:rounded-xl group-hover:scale-105 transition-transform">
                                                 </div>
                                                 <div class="min-w-0">
-                                                    <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang III</span>
-                                                    <h4 class="font-extrabold text-xs truncate" style="color: #0f172a !important;">Ust. Ahmad Nazirul, M.Kom.</h4>
-                                                    <p class="text-[10px] font-semibold" style="color: #64748b !important;">Data, Media & Transformasi Digital</p>
+                                                    <span class="px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-wider inline-block mb-0.5" style="background-color: #ecfdf5; color: #047857;">Bidang III</span>
+                                                    <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">Ust. Ahmad Nazirul, M.Kom.</h4>
+                                                    <p class="text-[9px] sm:text-[10px] font-semibold" style="color: #64748b !important;">Data, Media & Transformasi Digital</p>
                                                 </div>
                                             </div>
-                                            <p class="text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Arsitektur portal satu data, geospasial, keandalan sistem cloud, dan publikasi warta cabang.</p>
+                                            <p class="text-[10px] sm:text-[11px] leading-relaxed line-clamp-2" style="color: #475569 !important;">Arsitektur portal satu data, geospasial, keandalan sistem cloud, dan publikasi warta cabang.</p>
                                         </div>
-                                        <div class="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
+                                        <div class="pt-2.5 sm:pt-3 mt-2.5 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold" style="color: #005c55;">
                                             <span>Lihat Mandat Kerja</span>
                                             <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                                         </div>
@@ -1485,12 +1509,29 @@
                                 </div>
 
                                 <!-- Garis Koordinasi Turun ke MWC -->
-                                <div class="flex flex-col items-center my-4">
-                                    <div style="width: 2px; height: 22px; border-left: 2px dashed #005c55;"></div>
-                                    <div class="px-3.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 shadow-xs" style="background-color: #f8fafc; color: #475569; border: 1px dashed #94a3b8;">
-                                        <span class="material-symbols-outlined text-[14px] text-emerald-700">arrow_downward</span> Garis Wilayah Teritorial Lapangan
-                                    </div>
+                                <div class="flex flex-col items-center my-3 sm:my-4">
                                     <div style="width: 2px; height: 18px; border-left: 2px dashed #005c55;"></div>
+                                    <div class="px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-bold flex items-center gap-1.5 shadow-xs text-center" style="background-color: #f8fafc; color: #475569; border: 1px dashed #94a3b8;">
+                                        <span class="material-symbols-outlined text-[13px] text-emerald-700">arrow_downward</span> Garis Wilayah Teritorial Lapangan
+                                    </div>
+                                    <div style="width: 2px; height: 16px; border-left: 2px dashed #005c55;"></div>
+                                </div>
+                            </div>
+
+                            <!-- LEVEL 4: GARIS TERITORIAL WILAYAH (14 MWC KECAMATAN) -->
+                            <div class="max-w-2xl mx-auto w-full">
+                                <div onclick="bukaModalDetailPengurus('PGR-12')" class="group p-3.5 sm:p-4 rounded-2xl transition-all cursor-pointer flex items-center justify-between gap-3 sm:gap-4" style="background-color: #ffffff; border: 2px dashed #005c55;">
+                                    <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                                        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-bold shrink-0" style="background-color: #ecfdf5; color: #005c55;">
+                                            <span class="material-symbols-outlined text-[20px] sm:text-[22px]">map</span>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider block" style="color: #64748b;">Garis Wilayah Lapangan</span>
+                                            <h4 class="font-extrabold text-xs sm:text-sm truncate" style="color: #0f172a !important;">Koordinator Wilayah 14 MWC NU Kecamatan</h4>
+                                            <p class="text-[9px] sm:text-[10px] mt-0.5 line-clamp-2" style="color: #475569 !important;">Mranggen, Sayung, Karangtengah, Bonang, Demak Kota, Wedung, Wonosalam, Dempet, Gajah, Karanganyar, Mijen, Guntur, Karangawen, Kebonagung</p>
+                                        </div>
+                                    </div>
+                                    <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-emerald-700 transition-colors shrink-0">arrow_forward</span>
                                 </div>
                             </div>
 
