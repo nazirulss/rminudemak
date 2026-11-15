@@ -1580,8 +1580,8 @@ function getAllUsersData() {
 function seedInitialUsers(sheet) {
   const now = new Date().toISOString();
   const initialUsers = [
-    [Utilities.getUuid(), 'nazirulmuhammad1992@gmail.com', 'Muhammad Nazirul', '081234567890', 'super_admin', 'Semua Kabupaten', true, now, now, now],
-    [Utilities.getUuid(), 'admin@rminudemak.or.id', 'K.H. Zainal Arifin', '081234567890', 'super_admin', 'Semua Kabupaten', true, now, now, now],
+    [Utilities.getUuid(), 'nazirulmuhammad1992@gmail.com', 'Nazirul Muhammad', '6289602807020', 'super_admin', 'Semua Kabupaten', true, now, now, now],
+    [Utilities.getUuid(), 'admin@rminudemak.or.id', 'K.H. Ibrahim Cholilullah, S.Pd.', '081234567890', 'super_admin', 'Semua Kabupaten', true, now, now, now],
     [Utilities.getUuid(), 'sekretaris@rminudemak.or.id', 'Ahmad Badhawi, M.Pd', '081399887766', 'admin_kabupaten', 'PC RMI NU Demak', true, now, now, now],
     [Utilities.getUuid(), 'mwc.sayung@rminudemak.or.id', 'Gus Muhammad Ilyas', '085211223344', 'admin_kecamatan', 'MWC NU Sayung', true, now, now, now],
     [Utilities.getUuid(), 'operator.fathulhuda@gmail.com', 'M. Nurul Huda', '087788990011', 'operator_pesantren', 'PP Fathul Huda Sayung', true, now, now, now],
@@ -2157,8 +2157,8 @@ function findUserByEmailInSheet(email) {
       rowNumber: -1,
       id: Utilities.getUuid(),
       email: targetEmail,
-      name: targetEmail.includes('nazirul') ? 'Muhammad Nazirul' : 'K.H. Zainal Arifin',
-      phone: '081234567890',
+      name: targetEmail.includes('nazirul') ? 'Nazirul Muhammad' : 'K.H. Ibrahim Cholilullah, S.Pd.',
+      phone: targetEmail.includes('nazirul') ? '6289602807020' : '081234567890',
       role: 'super_admin',
       roleKey: 'super_admin',
       scope: 'Semua Kabupaten',

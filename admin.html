@@ -328,9 +328,9 @@
                     <!-- User Profile Dropdown Pill (Asnawiyyah Style) -->
                     <div class="flex items-center gap-2 pl-2 md:pl-3 border-l border-slate-200 relative" id="topbar-user-section">
                         <div class="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer select-none" onclick="toggleAdminUserDropdown(event)" id="btn-user-profile-pill">
-                            <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs shrink-0" id="top-user-avatar">ZA</div>
+                            <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs shrink-0" id="top-user-avatar">NM</div>
                             <div class="text-left hidden lg:block min-w-0">
-                                <span class="block text-xs font-bold text-slate-800 truncate" id="top-user-name">K.H. Zainal Arifin</span>
+                                <span class="block text-xs font-bold text-slate-800 truncate" id="top-user-name">Nazirul Muhammad</span>
                                 <span class="block text-[10px] text-slate-400 truncate" id="top-user-role">Super Administrator</span>
                             </div>
                             <span class="material-symbols-outlined text-[18px] text-slate-400 transition-transform duration-200 hidden sm:block" id="admin-topbar-chevron">expand_more</span>
@@ -344,7 +344,7 @@
                                     <span class="material-symbols-outlined text-[16px] text-emerald-600">domain</span>
                                     <span id="dropdown-account-type">Akun PC RMI NU Demak</span>
                                 </div>
-                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5" id="dropdown-account-email">admin@rminudemak.or.id</p>
+                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5" id="dropdown-account-email">nazirulmuhammad1992@gmail.com</p>
                                 <span class="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200" id="dropdown-account-badge">Level 1 • Otoritas Penuh</span>
                             </div>
 
@@ -389,7 +389,7 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                         <div class="flex flex-wrap items-center gap-2.5">
                             <h2 class="text-lg md:text-xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-                                Selamat Bertugas, <span id="dash-greeting-name" class="text-emerald-900">K.H. Zainal Arifin</span>
+                                Selamat Bertugas, <span id="dash-greeting-name" class="text-emerald-900">Nazirul Muhammad</span>
                             </h2>
                             <span id="dash-authority-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200/80 shadow-2xs">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -2174,10 +2174,10 @@
             </div>
             <div class="p-6 space-y-4 text-xs">
                 <div class="flex items-center gap-3.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0" id="modal-profile-avatar">ZA</div>
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0" id="modal-profile-avatar">NM</div>
                     <div class="min-w-0 flex-1">
-                        <h4 class="font-bold text-slate-800 text-sm truncate" id="modal-profile-name">K.H. Zainal Arifin</h4>
-                        <p class="text-slate-500 truncate text-[11px]" id="modal-profile-email">admin@rminudemak.or.id</p>
+                        <h4 class="font-bold text-slate-800 text-sm truncate" id="modal-profile-name">Nazirul Muhammad</h4>
+                        <p class="text-slate-500 truncate text-[11px]" id="modal-profile-email">nazirulmuhammad1992@gmail.com</p>
                         <span class="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800" id="modal-profile-role">Super Administrator</span>
                     </div>
                 </div>
@@ -3373,13 +3373,13 @@
 
         const DEMO_CREDENTIALS = {
             super_admin_nazirul: {
-                name: "Muhammad Nazirul",
+                name: "Nazirul Muhammad",
                 badge: "Super Admin",
                 roleLabel: "Super Administrator",
                 roleKey: "super_admin",
                 email: "nazirulmuhammad1992@gmail.com",
                 scope: "Cakupan: Seluruh Kabupaten",
-                avatar: "MN",
+                avatar: "NM",
                 type: "Akun PC RMI NU Demak",
                 level: "Level 1 • Otoritas Penuh",
                 authority: "Full Access"
@@ -3465,7 +3465,8 @@
             sessionStorage.setItem(AUTH_STORAGE_KEYS.ROLE, role);
             
             closeAdminLoginModal();
-            setSimulationRole(role);
+            updateActiveUserProfile(user, role);
+            applyRbacPermissions(role);
             updateDashboardKPISummary();
         }
 
@@ -3966,78 +3967,125 @@
             if (nsppRatioEl) nsppRatioEl.innerText = `${ratioBerizin}% Berizin`;
         }
 
-        // Helper getter untuk nama admin aktif di header kanan
+        // Helper getter untuk nama admin aktif
         function getActiveAdminName() {
+            if (CURRENT_AUTH_USER && (CURRENT_AUTH_USER.name || CURRENT_AUTH_USER.nama_lengkap)) {
+                return CURRENT_AUTH_USER.name || CURRENT_AUTH_USER.nama_lengkap;
+            }
             const el = document.getElementById('top-user-name') || document.getElementById('dash-greeting-name');
-            return el ? el.innerText : 'K.H. Zainal Arifin';
+            return el ? el.innerText : 'Nazirul Muhammad';
         }
 
         // ==========================================
-        // 5. SIMULASI PERAN RBAC (ROLE SWITCHER)
+        // 5. MANAJEMEN PROFIL AKUN & RBAC DINAMIS
         // ==========================================
-        function setSimulationRole(role) {
-            currentRole = role;
-            
-            // Update Tombol Switcher Banner
-            ['super_admin', 'admin_kabupaten', 'admin_kecamatan', 'operator_pesantren'].forEach(r => {
-                const btn = document.getElementById('btn-role-' + r);
-                if (btn) {
-                    btn.className = (r === role) 
-                        ? 'px-2.5 py-1 rounded text-xs font-semibold bg-emerald-600 text-white transition-all shadow-sm'
-                        : 'px-2.5 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all';
-                }
-            });
+        function computeAvatarInitials(name) {
+            if (!name) return 'RM';
+            const clean = name.replace(/^(K\.H\.|KH\.|Gus|Ust\.|Ustadz|Kyai|H\.|Hj\.)\s+/gi, '').trim();
+            const parts = clean.split(/\s+/).filter(Boolean);
+            if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
 
-            // Update User Card di Sidebar & Topbar (Asnawiyyah Profile Integration)
-            const roleConfigs = {
-                super_admin: { name: "K.H. Zainal Arifin", badge: "Super Admin", roleLabel: "Super Administrator", email: "admin@rminudemak.or.id", scope: "Cakupan: Seluruh Kabupaten", avatar: "ZA", type: "Akun PC RMI NU Demak", level: "Level 1 • Otoritas Penuh", authority: "Full Access" },
-                admin_kabupaten: { name: "Ahmad Badhawi, M.Pd", badge: "Admin Kabupaten", roleLabel: "Pengurus Harian PC RMI", email: "sekretaris@rminudemak.or.id", scope: "Cakupan: PC RMI NU Demak", avatar: "AB", type: "Akun Pengurus Cabang", level: "Level 2 • Otoritas Kabupaten", authority: "Otoritas Kabupaten" },
-                admin_kecamatan: { name: "Gus Muhammad Ilyas", badge: "Admin Kecamatan", roleLabel: "Koordinator MWC Sayung", email: "mwc.sayung@rminudemak.or.id", scope: "Cakupan: MWC Sayung", avatar: "MI", type: "Akun MWC Kecamatan", level: "Level 3 • Otoritas Wilayah", authority: "Wilayah MWC" },
-                operator_pesantren: { name: "M. Nurul Huda", badge: "Operator Pesantren", roleLabel: "Operator PP Fathul Huda", email: "operator.fathulhuda@gmail.com", scope: "Cakupan: PP Fathul Huda", avatar: "NH", type: "Akun Lembaga Pesantren", level: "Level 4 • Mandiri Lembaga", authority: "Operator Lembaga" }
-            };
+        const ROLE_METADATA_CONFIG = {
+            super_admin: {
+                badge: "Super Admin",
+                roleLabel: "Super Administrator",
+                type: "Akun PC RMI NU Demak",
+                level: "Level 1 • Otoritas Penuh",
+                authority: "Full Access",
+                scope: "Cakupan: Seluruh Kabupaten"
+            },
+            admin_kabupaten: {
+                badge: "Admin Kabupaten",
+                roleLabel: "Pengurus Harian PC RMI",
+                type: "Akun Pengurus Cabang",
+                level: "Level 2 • Otoritas Kabupaten",
+                authority: "Otoritas Kabupaten",
+                scope: "Cakupan: PC RMI NU Demak"
+            },
+            admin_kecamatan: {
+                badge: "Admin Kecamatan",
+                roleLabel: "Koordinator MWC",
+                type: "Akun MWC Kecamatan",
+                level: "Level 3 • Otoritas Wilayah",
+                authority: "Wilayah MWC",
+                scope: "Cakupan: MWC Kecamatan"
+            },
+            operator_pesantren: {
+                badge: "Operator Pesantren",
+                roleLabel: "Operator Pondok",
+                type: "Akun Lembaga Pesantren",
+                level: "Level 4 • Mandiri Lembaga",
+                authority: "Operator Lembaga",
+                scope: "Cakupan: Lembaga Pesantren"
+            },
+            pengasuh: {
+                badge: "Pengasuh Pesantren",
+                roleLabel: "Pengasuh Pondok",
+                type: "Akun Khusus Pengasuh",
+                level: "Level 4 • Mandiri Lembaga",
+                authority: "Pengasuh Pondok",
+                scope: "Cakupan: Lembaga Pesantren"
+            }
+        };
 
-            const conf = roleConfigs[role] || roleConfigs['super_admin'];
-            
-            // Helper getter untuk nama admin aktif di header kanan
-            const sideNameEl = document.getElementById('user-name-display');
-            if (sideNameEl) sideNameEl.innerText = conf.name;
-            const sideBadgeEl = document.getElementById('user-role-badge');
-            if (sideBadgeEl) sideBadgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ${conf.badge}`;
-            const sideScopeEl = document.getElementById('user-scope-text');
-            if (sideScopeEl) sideScopeEl.innerText = conf.scope;
-            const sideAvatarEl = document.getElementById('user-avatar-initial');
-            if (sideAvatarEl) sideAvatarEl.innerText = conf.avatar;
-            
-            // Topbar & Dropdown updates
-            document.getElementById('top-user-name').innerText = conf.name;
+        // Mengikat data profil pengguna login secara 100% dinamis ke seluruh komponen UI
+        function updateActiveUserProfile(user, role) {
+            const roleKey = role || user?.roleKey || user?.role || 'super_admin';
+            currentRole = roleKey;
+            const meta = ROLE_METADATA_CONFIG[roleKey] || ROLE_METADATA_CONFIG.super_admin;
+
+            const name = (user && (user.name || user.nama_lengkap)) ? (user.name || user.nama_lengkap) : 'Nazirul Muhammad';
+            const email = (user && user.email) ? user.email : 'nazirulmuhammad1992@gmail.com';
+            const avatar = (user && user.avatar) ? user.avatar : computeAvatarInitials(name);
+            const badge = (user && user.badge) ? user.badge : meta.badge;
+            const roleLabel = (user && user.roleLabel) ? user.roleLabel : meta.roleLabel;
+            const type = (user && user.type) ? user.type : meta.type;
+            const level = (user && user.level) ? user.level : meta.level;
+            const authority = (user && user.authority) ? user.authority : meta.authority;
+            const scope = (user && (user.scope || user.scope_wilayah)) ? (user.scope || user.scope_wilayah) : meta.scope;
+
+            // 1. Topbar Header Pill
+            const topNameEl = document.getElementById('top-user-name');
+            if (topNameEl) topNameEl.innerText = name;
             const topRoleEl = document.getElementById('top-user-role');
-            if (topRoleEl) topRoleEl.innerText = conf.roleLabel;
+            if (topRoleEl) topRoleEl.innerText = roleLabel;
             const topAvatarEl = document.getElementById('top-user-avatar');
-            if (topAvatarEl) topAvatarEl.innerText = conf.avatar;
+            if (topAvatarEl) topAvatarEl.innerText = avatar;
+
+            // 2. Dropdown Profil Akun
             const dropTypeEl = document.getElementById('dropdown-account-type');
-            if (dropTypeEl) dropTypeEl.innerText = conf.type;
+            if (dropTypeEl) dropTypeEl.innerText = type;
             const dropEmailEl = document.getElementById('dropdown-account-email');
-            if (dropEmailEl) dropEmailEl.innerText = conf.email;
+            if (dropEmailEl) dropEmailEl.innerText = email;
             const dropBadgeEl = document.getElementById('dropdown-account-badge');
-            if (dropBadgeEl) dropBadgeEl.innerText = conf.level;
+            if (dropBadgeEl) dropBadgeEl.innerText = level;
 
-            // Greeting Banner & Authority Updates (Fase 6)
+            // 3. Greeting Banner di Dashboard Utama
             const greetNameEl = document.getElementById('dash-greeting-name');
-            if (greetNameEl) greetNameEl.innerText = conf.name;
+            if (greetNameEl) greetNameEl.innerText = name;
             const authTextEl = document.getElementById('dash-authority-text');
-            if (authTextEl) authTextEl.innerText = conf.authority || 'Full Access';
+            if (authTextEl) authTextEl.innerText = authority;
 
-            // Modal updates
+            // 4. Modal Profil Saya (Pop-up Detail Profil)
             const mAvatar = document.getElementById('modal-profile-avatar');
-            if (mAvatar) mAvatar.innerText = conf.avatar;
+            if (mAvatar) mAvatar.innerText = avatar;
             const mName = document.getElementById('modal-profile-name');
-            if (mName) mName.innerText = conf.name;
+            if (mName) mName.innerText = name;
             const mEmail = document.getElementById('modal-profile-email');
-            if (mEmail) mEmail.innerText = conf.email;
+            if (mEmail) mEmail.innerText = email;
             const mRole = document.getElementById('modal-profile-role');
-            if (mRole) mRole.innerText = conf.roleLabel;
+            if (mRole) mRole.innerText = roleLabel;
             const mScope = document.getElementById('modal-profile-scope');
-            if (mScope) mScope.innerText = conf.scope;
+            if (mScope) mScope.innerText = scope;
+            const mAuth = document.getElementById('modal-profile-auth');
+            if (mAuth) mAuth.innerText = authority + (roleKey === 'super_admin' ? ' (11 Modul CRUD)' : '');
+        }
+
+        // Penerapan hak akses modul (RBAC) berdasarkan peran akun yang login
+        function applyRbacPermissions(role) {
+            currentRole = role;
 
             // Sembunyikan atau tampilkan modul sesuai hak akses RBAC (Admin_Dashboard_MVP_Specification_v1.0.md Bab 3)
             const menuTambah = document.querySelector('[data-module="tambah"]');
@@ -4079,8 +4127,13 @@
                     handleDashboardKecamatanFilter('');
                 }
             }
+        }
 
-            showToast('info', `Peran disimulasikan sebagai: ${conf.badge}`);
+        // Wrapper kompatibilitas mundur
+        function setSimulationRole(role, user) {
+            const targetUser = user || CURRENT_AUTH_USER;
+            updateActiveUserProfile(targetUser, role);
+            applyRbacPermissions(role);
         }
 
         // ==========================================
