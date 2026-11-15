@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function navigateTo(targetId, updateHash = true) {
         // Normalisasi alias ramah pengguna
         if (targetId === 'direktori') targetId = 'pesantren';
-        if (targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
+        if (targetId === 'program' || targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
             targetId = 'sambang-pesantren-pwrminu-jateng';
         }
         const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'sambang-pesantren-pwrminu-jateng'];
@@ -1231,11 +1231,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Expose navigateTo secara global agar dapat dipanggil dari inline event handler
+    window.navigateTo = navigateTo;
+
     // 🚀 EVENT LISTENER BROWSER BACK / FORWARD & HASH CHANGE
     function handleHashRouting() {
         let currentHash = window.location.hash.replace('#', '').trim().toLowerCase();
         if (currentHash === 'direktori') currentHash = 'pesantren';
-        if (currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
+        if (currentHash === 'program' || currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
         }
 

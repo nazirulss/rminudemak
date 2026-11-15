@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Compiled Production CSS (Sub-30ms load, Zero CDN blocking) -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261115_2312" />
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_0005" />
 
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -293,7 +293,8 @@
                 <li class="relative group/nav-dropdown">
                     <button type="button" id="btn-dropdown-program"
                         class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer"
-                        data-target="program">
+                        data-target="sambang-pesantren-pwrminu-jateng"
+                        onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}">
                         <span>Program</span>
                         <span class="material-symbols-outlined text-[15px] group-hover/nav-dropdown:rotate-180 transition-transform">expand_more</span>
                     </button>
@@ -307,7 +308,10 @@
                                 <span>Agenda Wilayah (PW RMI NU Jateng)</span>
                             </div>
                             
-                            <a href="#sambang-pesantren-pwrminu-jateng" class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item border border-emerald-100/80 bg-emerald-50/40" data-target="sambang-pesantren-pwrminu-jateng">
+                            <a href="#sambang-pesantren-pwrminu-jateng" 
+                               onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}"
+                               class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item border border-emerald-100/80 bg-emerald-50/40 cursor-pointer" 
+                               data-target="sambang-pesantren-pwrminu-jateng">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                                     <span class="material-symbols-outlined text-[18px]">handshake</span>
                                 </div>
@@ -439,7 +443,8 @@
                     </button>
                     <div id="sub-mobile-program" class="hidden pl-4 pr-1 py-1.5 space-y-1 bg-black/20 rounded-xl">
                         <div class="px-3 pt-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">Agenda PW RMI NU Jateng</div>
-                        <a class="spa-link mobile-nav-btn text-xs font-semibold text-white hover:text-emerald-300 hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                        <a class="spa-link mobile-nav-btn text-xs font-semibold text-white hover:text-emerald-300 hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2 cursor-pointer"
+                            onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}"
                             data-target="sambang-pesantren-pwrminu-jateng" href="#sambang-pesantren-pwrminu-jateng">
                             <span class="material-symbols-outlined text-[16px] text-emerald-400">handshake</span>
                             <span>Sambang Pesantren 2026 (PP Futuhiyyah)</span>
@@ -4202,7 +4207,7 @@
 
     </footer>
 
-    <script src="app.js?v=1794712226098"></script>
+    <script src="app.js?v=20261116_0005"></script>
 
     <!-- ======================================================== -->
 
