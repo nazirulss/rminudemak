@@ -175,6 +175,249 @@ function handleCreatePesantren(payload, lock) {
   };
 }
 
+// =========================================================================
+// PENDAFTARAN MANDIRI PESANTREN BARU (VERIFIKASI BERJENJANG)
+// =========================================================================
+function handleSelfRegisterPesantren(payload, lock) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const data = (payload && payload.payload) ? payload.payload : (payload || {});
+  const operator = data.operator || {};
+  const pesantren = data.pesantren || {};
+  const files = data.files || {};
+  const now = new Date().toISOString();
+
+  const operatorEmail = String(operator.email || '').trim().toLowerCase();
+  const operatorNama = String(operator.nama_lengkap || '').trim();
+  const operatorPhone = String(operator.phone || '').trim();
+  const namaPesantren = String(pesantren.nama_resmi || '').trim();
+
+  if (!operatorEmail || !operatorEmail.includes('@')) {
+    return { success: false, message: 'Alamat email resmi operator wajib diisi.' };
+  }
+  if (!operatorNama) {
+    return { success: false, message: 'Nama lengkap operator pemohon wajib diisi.' };
+  }
+  if (!namaPesantren) {
+    return { success: false, message: 'Nama resmi pondok pesantren wajib diisi.' };
+  }
+
+  // 1. Cek apakah email operator sudah pernah terdaftar di app_users
+  const existingUser = findUserByEmailInSheet(operatorEmail);
+  if (existingUser && existingUser.isActive) {
+    return { 
+      success: false, 
+      message: 'Email ' + operatorEmail + ' sudah terdaftar dan aktif. Silakan langsung masuk via menu Login Admin.' 
+    };
+  }
+
+  // 2. Cek apakah nama pesantren / NSPP sudah ada di pangkalan data
+  const sheetPesantren = ss.getSheetByName('pesantren');
+  if (sheetPesantren) {
+    const pValues = sheetPesantren.getDataRange().getValues();
+    for (let r = 1; r < pValues.length; r++) {
+      const rowNama = String(pValues[r][2] || '').trim().toLowerCase();
+      const rowNspp = String(pValues[r][4] || '').trim();
+      if (pesantren.nspp && rowNspp && rowNspp === String(pesantren.nspp).trim()) {
+        return { success: false, message: 'NSPP ' + pesantren.nspp + ' sudah terdaftar di sistem untuk: ' + pValues[r][2] };
+      }
+      if (rowNama === namaPesantren.toLowerCase()) {
+        return { success: false, message: 'Pesantren dengan nama "' + namaPesantren + '" sudah tercatat di pangkalan data.' };
+      }
+    }
+  }
+
+  // 3. Penerbitan ID Pesantren & Kode Registrasi Sementara (Format: REG-DMK-XXXXXX)
+  const regSeq = Math.floor(100000 + Math.random() * 900000);
+  const regCode = 'REG-DMK-' + regSeq;
+  const kodePesantren = issueNextPesantrenCode(lock);
+  const pesantrenId = Utilities.getUuid();
+
+  // 4. Upload berkas rekomendasi MWC / izin / foto
+  let izopDrive = null;
+  let rekomendasiDrive = null;
+  let fotoDrive = null;
+  if (files.izop) izopDrive = uploadBase64FileToDrive(files.izop, 'Pendaftaran_Mandiri_Legalitas');
+  if (files.rekomendasi) rekomendasiDrive = uploadBase64FileToDrive(files.rekomendasi, 'Pendaftaran_Mandiri_Rekomendasi_MWC');
+  if (files.foto) fotoDrive = uploadBase64FileToDrive(files.foto, 'Pendaftaran_Mandiri_Foto');
+
+  // 5. Simpan Record Pesantren (Status: under_review, private)
+  sheetPesantren.appendRow([
+    pesantrenId,
+    kodePesantren,
+    namaPesantren,
+    pesantren.nama_populer || '',
+    pesantren.nspp || '',
+    pesantren.tahun_berdiri || '',
+    'active',
+    'member_candidate',
+    'under_review',
+    'not_verified',
+    'private',
+    pesantren.has_komitmen_pesantren_aman ? true : false,
+    'pendaftaran_mandiri_web',
+    'No. Pendaftaran Mandiri: ' + regCode,
+    now,
+    now,
+    operatorNama + ' (Pemohon)',
+    'System'
+  ]);
+
+  // 6. Simpan Lokasi Pesantren
+  const sheetLoc = ss.getSheetByName('pesantren_locations');
+  if (sheetLoc) {
+    sheetLoc.appendRow([
+      Utilities.getUuid(),
+      pesantrenId,
+      pesantren.alamat || '',
+      '', '', '',
+      pesantren.desa || '',
+      pesantren.kecamatan || '',
+      CONFIG.KABUPATEN,
+      CONFIG.PROVINSI,
+      '',
+      pesantren.latitude || -6.8944,
+      pesantren.longitude || 110.6386,
+      0,
+      'self_registration_input',
+      'Diajukan mandiri oleh ' + operatorNama,
+      true,
+      now,
+      now
+    ]);
+  }
+
+  // 7. Simpan Pengasuh Utama
+  if (pesantren.pengasuh_utama) {
+    const sheetLeaders = ss.getSheetByName('pesantren_leaders');
+    if (sheetLeaders) {
+      sheetLeaders.appendRow([
+        Utilities.getUuid(),
+        pesantrenId,
+        pesantren.pengasuh_utama,
+        '', '',
+        'Khadimul Ma\'had / Pengasuh Utama',
+        'ustadz',
+        'Kajian Turots & Agama',
+        'Pesantren Salaf',
+        1,
+        true,
+        true,
+        now,
+        now
+      ]);
+    }
+  }
+
+  // 8. Simpan Kontak Lembaga
+  const sheetContacts = ss.getSheetByName('pesantren_contacts');
+  if (sheetContacts && operatorPhone) {
+    sheetContacts.appendRow([
+      Utilities.getUuid(),
+      pesantrenId,
+      'whatsapp_operator',
+      operatorPhone,
+      'WA Operator: ' + operatorNama,
+      true,
+      false,
+      now,
+      now
+    ]);
+  }
+
+  // 9. Buat Akun Pengguna Operator di sheet app_users (is_active: false sampai disetujui)
+  const sheetUsers = ss.getSheetByName('app_users');
+  let userId = Utilities.getUuid();
+  if (sheetUsers) {
+    sheetUsers.appendRow([
+      userId,
+      operatorEmail,
+      operatorNama,
+      operatorPhone,
+      'operator_pesantren',
+      namaPesantren + ' (' + (pesantren.kecamatan || 'Demak') + ')',
+      false, // Belum aktif, menunggu verifikasi Admin Cabang
+      '',
+      now,
+      now
+    ]);
+  }
+
+  // 10. Catat Antrean Evaluasi di verification_reviews
+  const sheetReviews = ss.getSheetByName('verification_reviews');
+  if (sheetReviews) {
+    sheetReviews.appendRow([
+      Utilities.getUuid(),
+      pesantrenId,
+      'pendaftaran_mandiri_tahap_1',
+      'under_review',
+      'Pendaftaran mandiri baru oleh ' + operatorNama + ' (' + operatorEmail + '). Berkas rekomendasi & NSPP menunggu penelaahan tim asesor.',
+      '',
+      'Lakukan peninjauan dokumen perizinan dan konfirmasi ke MWC ' + (pesantren.kecamatan || ''),
+      '',
+      'System Ingestion',
+      now
+    ]);
+  }
+
+  // 11. Catat Audit Log
+  recordAuditLog(ss, {
+    user_id: operatorEmail,
+    user_role: 'operator_pesantren (candidate)',
+    event_type: 'SELF_REGISTER_PESANTREN',
+    entity_type: 'pesantren',
+    entity_id: kodePesantren,
+    action_description: 'Pendaftaran mandiri diajukan dengan No. Reg ' + regCode + ' untuk lembaga: ' + namaPesantren,
+    status: 'SUCCESS'
+  });
+
+  // 12. Kirim Email Konfirmasi Tanda Terima ke Operator
+  try {
+    MailApp.sendEmail({
+      to: operatorEmail,
+      subject: 'Tanda Terima Pendaftaran Mandiri Pesantren — PC RMI NU Demak (' + regCode + ')',
+      htmlBody: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #005c55; margin: 0;">PC RMI NU KABUPATEN DEMAK</h2>
+            <p style="color: #64748b; font-size: 13px; margin: 4px 0 0 0;">Portal Satu Data Lembaga Pendidikan Pesantren</p>
+          </div>
+          <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <p style="color: #166534; font-size: 14px; font-weight: bold; margin: 0;">Alhamdulillah, Formulir Pendaftaran Mandiri Berhasil Diterima!</p>
+            <p style="color: #15803d; font-size: 12px; margin: 6px 0 0 0;">Nomor Registrasi: <strong>${regCode}</strong> | Kode RMI Sementara: <strong>${kodePesantren}</strong></p>
+          </div>
+          <p style="font-size: 13px; color: #334155; line-height: 1.6;">
+            Yth. <strong>${operatorNama}</strong>,<br>
+            Berkas pendaftaran untuk <strong>${namaPesantren}</strong> (${pesantren.kecamatan || 'Demak'}) telah masuk ke dalam antrean evaluasi verifikasi berjenjang Pengurus Cabang RMI NU Kabupaten Demak.
+          </p>
+          <div style="background-color: #f8fafc; border-radius: 8px; padding: 14px; font-size: 12px; color: #475569; margin: 16px 0;">
+            <strong>Tahapan Verifikasi Berjenjang:</strong>
+            <ol style="margin: 8px 0 0 16px; padding: 0;">
+              <li>Penelaahan Administratif (Kesesuaian NSPP Kemenag & Surat Rekomendasi MWC).</li>
+              <li>Pemeriksaan Lapangan / Konfirmasi Wilayah oleh Pengurus MWC Kecamatan.</li>
+              <li>Aktivasi Akun Operator & Penerbitan Sertifikat Tanda Anggota RMI PCNU Demak.</li>
+            </ol>
+          </div>
+          <p style="font-size: 12px; color: #64748b;">
+            Setelah disetujui oleh Admin Cabang, akun email Anda (<strong>${operatorEmail}</strong>) akan otomatis aktif dan dapat langsung digunakan login ke portal pengelola dengan metode 1-Klik / OTP.
+          </p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+          <p style="font-size: 11px; color: #94a3b8; text-align: center;">Sekretariat PC RMI NU Kabupaten Demak • Khidmah untuk Pesantren Kota Wali</p>
+        </div>
+      `
+    });
+  } catch (emailErr) {
+    Logger.log('Gagal kirim email tanda terima pendaftaran mandiri: ' + emailErr.message);
+  }
+
+  return {
+    success: true,
+    registrationCode: regCode,
+    kodePesantren: kodePesantren,
+    pesantrenId: pesantrenId,
+    message: 'Pendaftaran mandiri berhasil diajukan dengan nomor registrasi ' + regCode + '. Tanda terima resmi telah dikirim ke email Anda.'
+  };
+}
+
 
 function getAllPesantrenData() {
   const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);

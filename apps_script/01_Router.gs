@@ -92,6 +92,8 @@ function doPost(e) {
       result = handleVerifyOtp(payload);
     } else if (action === 'FAST_LOGIN_EMAIL' || action === 'auth.admin.fastLogin') {
       result = handleFastLoginEmail(payload);
+    } else if (action === 'REGISTER_PESANTREN_SELF' || action === 'auth.pesantren.registerSelf') {
+      result = handleSelfRegisterPesantren(payload, lock);
     }
     
     return createJsonResponse(result);

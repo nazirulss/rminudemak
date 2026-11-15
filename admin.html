@@ -2122,6 +2122,16 @@
                 </form>
             </div>
 
+            <!-- Opsi Pendaftaran Pesantren Baru (Self Registration) -->
+            <div class="pt-3.5 mt-3.5 border-t border-slate-100 text-center space-y-2">
+                <p class="text-[11px] text-slate-500 font-medium">Pondok Pesantren Anda belum terdaftar di RMI Demak?</p>
+                <button type="button" onclick="openSelfRegisterModal()" 
+                    class="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs transition border border-emerald-200/80 flex items-center justify-center gap-2 shadow-xs cursor-pointer group">
+                    <span class="material-symbols-outlined text-[17px] text-emerald-600 group-hover:scale-110 transition-transform">app_registration</span>
+                    <span>Daftarkan Lembaga Pesantren Baru</span>
+                </button>
+            </div>
+
             <!-- Footer Link -->
             <div class="pt-3 mt-4 border-t border-slate-100 text-center">
                 <a href="index.html" class="text-[11px] text-slate-400 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors">
@@ -2129,6 +2139,291 @@
                     <span>Kembali ke Halaman Web Publik</span>
                 </a>
             </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL PENDAFTARAN MANDIRI PESANTREN (MULTI-STEP WIZARD)  -->
+    <!-- ======================================================== -->
+    <div id="modal-self-register-pesantren" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 md:p-6 z-50 select-none overflow-y-auto">
+        <div class="bg-white rounded-[28px] max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden fade-in relative my-auto max-h-[92vh] flex flex-col">
+            
+            <!-- Sticky Header Modal -->
+            <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50/60 via-white to-teal-50/60 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                        <span class="material-symbols-outlined text-[22px]">app_registration</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Pendaftaran Mandiri Pesantren</h3>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-100 text-emerald-800 uppercase tracking-wider">Verifikasi Berjenjang</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500">Standar Pangkalan Data Digdaya Pesantren PC RMI NU Kabupaten Demak</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSelfRegisterModal()" class="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 rounded-full transition-colors cursor-pointer" title="Tutup Modal">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+
+            <!-- Stepper Indicators (Langkah 1 - 2 - 3) -->
+            <div id="self-reg-stepper" class="px-6 py-3 bg-slate-50/80 border-b border-slate-100 shrink-0">
+                <div class="flex items-center justify-between max-w-md mx-auto">
+                    <!-- Step 1 -->
+                    <div class="flex items-center gap-2" id="step-node-1">
+                        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs step-badge">1</div>
+                        <span class="text-xs font-bold text-slate-800 step-label">Operator</span>
+                    </div>
+                    <div class="flex-1 h-0.5 mx-3 bg-slate-200 step-line-1"></div>
+                    <!-- Step 2 -->
+                    <div class="flex items-center gap-2 opacity-60" id="step-node-2">
+                        <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-black text-xs flex items-center justify-center step-badge">2</div>
+                        <span class="text-xs font-bold text-slate-500 step-label">Pesantren</span>
+                    </div>
+                    <div class="flex-1 h-0.5 mx-3 bg-slate-200 step-line-2"></div>
+                    <!-- Step 3 -->
+                    <div class="flex items-center gap-2 opacity-60" id="step-node-3">
+                        <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-black text-xs flex items-center justify-center step-badge">3</div>
+                        <span class="text-xs font-bold text-slate-500 step-label">Legalitas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Body Content -->
+            <div class="p-6 overflow-y-auto flex-1 text-slate-800 text-left">
+                <!-- Alert Feedback Box -->
+                <div id="self-reg-alert" class="hidden mb-4 p-3 bg-rose-50 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 flex items-start gap-2">
+                    <span class="material-symbols-outlined text-[18px] text-rose-600 shrink-0">error</span>
+                    <span id="self-reg-alert-text">Pesan peringatan</span>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STEP 1: IDENTITAS OPERATOR / PEMOHON           -->
+                <!-- ============================================== -->
+                <div id="self-reg-step-1" class="space-y-4">
+                    <div class="p-3.5 bg-blue-50/70 rounded-2xl border border-blue-100/90 text-xs text-blue-900 leading-relaxed flex items-start gap-2.5">
+                        <span class="material-symbols-outlined text-[20px] text-blue-600 shrink-0 mt-0.5">info</span>
+                        <div>
+                            <strong>Akun Operator Pesantren:</strong> Data operator ini akan digunakan sebagai akun login resmi pengelola setelah diverifikasi oleh Admin Cabang & MWC.
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Operator / Pemohon <span class="text-rose-500">*</span></label>
+                            <input type="text" id="reg-operator-nama" placeholder="cth: Ust. Muhammad Shofi, S.Pd.I"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Email Resmi <span class="text-rose-500">*</span></label>
+                            <input type="email" id="reg-operator-email" placeholder="cth: operator.pondok@gmail.com"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                            <p class="text-[10px] text-slate-400 mt-1">Digunakan untuk menerima kode OTP & bukti verifikasi</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / HP Aktif <span class="text-rose-500">*</span></label>
+                            <input type="tel" id="reg-operator-phone" placeholder="cth: 081234567890"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                            <p class="text-[10px] text-slate-400 mt-1">Untuk koordinasi verifikasi lapangan oleh MWC</p>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Amanah / Jabatan di Pondok <span class="text-rose-500">*</span></label>
+                            <select id="reg-operator-jabatan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium bg-white">
+                                <option value="Sekretaris Pondok Pesantren">Sekretaris Pondok Pesantren</option>
+                                <option value="Operator Pangkalan Data / EMIS">Operator Pangkalan Data / EMIS</option>
+                                <option value="Lurah Pondok / Kepala Asrama">Lurah Pondok / Kepala Asrama</option>
+                                <option value="Pengurus Harian Yayasan">Pengurus Harian Yayasan</option>
+                                <option value="Dewan Asatidz / Pengajar">Dewan Asatidz / Pengajar</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STEP 2: PROFIL LEMBAGA PESANTREN               -->
+                <!-- ============================================== -->
+                <div id="self-reg-step-2" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Resmi Pondok Pesantren <span class="text-rose-500">*</span></label>
+                            <input type="text" id="reg-pesantren-nama" placeholder="cth: Pondok Pesantren Futuhiyyah"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Populer / Singkatan</label>
+                            <input type="text" id="reg-pesantren-populer" placeholder="cth: PP Futuhiyyah Suburan"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Statistik Pesantren (NSPP)</label>
+                            <input type="text" id="reg-pesantren-nspp" placeholder="12 digit angka (kosongkan jika belum terbit)" maxlength="18"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Berdiri Masehi <span class="text-rose-500">*</span></label>
+                            <input type="number" id="reg-pesantren-tahun" placeholder="cth: 1901" min="1500" max="2030"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Varian / Tipologi Pesantren <span class="text-rose-500">*</span></label>
+                            <select id="reg-pesantren-kategori" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium bg-white">
+                                <option value="Salafiyah (Kitab Kuning Tradisional)">Salafiyah (Kitab Kuning Tradisional)</option>
+                                <option value="Salafiyah Terpadu (Kombinasi Formal)">Salafiyah Terpadu (Kombinasi Formal)</option>
+                                <option value="Tahfidzul Qur'an">Tahfidzul Qur'an</option>
+                                <option value="Khalafiyah / Modern">Khalafiyah / Modern</option>
+                                <option value="Muadalah / Diniyah Formal (PDF)">Muadalah / Diniyah Formal (PDF)</option>
+                            </select>
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pengasuh Utama / Khadimul Ma'had <span class="text-rose-500">*</span></label>
+                            <input type="text" id="reg-pesantren-pengasuh" placeholder="cth: K.H. Sa'id Abdurrohim"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                            <p class="text-[10px] text-slate-400 mt-1">Sertakan gelar keilmuan atau silsilah kepengasuhan</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STEP 3: LOKASI, BERKAS & PAKTA INTEGRITAS      -->
+                <!-- ============================================== -->
+                <div id="self-reg-step-3" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan (Kab. Demak) <span class="text-rose-500">*</span></label>
+                            <select id="reg-pesantren-kecamatan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium bg-white">
+                                <option value="">-- Pilih Kecamatan MWC --</option>
+                                <option value="Bonang">Bonang</option>
+                                <option value="Demak">Demak</option>
+                                <option value="Dempet">Dempet</option>
+                                <option value="Gajah">Gajah</option>
+                                <option value="Guntur">Guntur</option>
+                                <option value="Karanganyar">Karanganyar</option>
+                                <option value="Karangawen">Karangawen</option>
+                                <option value="Karangtengah">Karangtengah</option>
+                                <option value="Kebonagung">Kebonagung</option>
+                                <option value="Mijen">Mijen</option>
+                                <option value="Mranggen">Mranggen</option>
+                                <option value="Sayung">Sayung</option>
+                                <option value="Wedung">Wedung</option>
+                                <option value="Wonosalam">Wonosalam</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kelurahan / Desa <span class="text-rose-500">*</span></label>
+                            <input type="text" id="reg-pesantren-desa" placeholder="cth: Suburan, Batursari, dll"
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium" />
+                        </div>
+
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Lengkap & Kode Pos <span class="text-rose-500">*</span></label>
+                            <textarea id="reg-pesantren-alamat" rows="2" placeholder="Jl. Raya ..., No ..., RT/RW ..., Kode Pos ..."
+                                class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 font-medium"></textarea>
+                        </div>
+
+                        <!-- Upload Berkas Rekomendasi MWC / SK IZOP -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Surat Rekomendasi MWC / SK Izin Operasional</label>
+                            <input type="file" id="reg-file-rekomendasi" accept=".pdf,image/png,image/jpeg" onchange="handleSelfRegFileInput(event, 'rekomendasi')"
+                                class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                            <p class="text-[10px] text-slate-400 mt-1">PDF/JPG (Maks 5MB)</p>
+                        </div>
+
+                        <!-- Upload Foto Plang / Gedung Pesantren -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Foto Plang Papan Nama / Gedung Utama</label>
+                            <input type="file" id="reg-file-foto" accept="image/png,image/jpeg" onchange="handleSelfRegFileInput(event, 'foto')"
+                                class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                            <p class="text-[10px] text-slate-400 mt-1">JPG/PNG (Maks 5MB)</p>
+                        </div>
+
+                        <!-- Pakta Integritas Checkbox -->
+                        <div class="sm:col-span-2 p-3.5 bg-emerald-50/60 rounded-2xl border border-emerald-100 mt-1">
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="checkbox" id="reg-pesantren-komitmen" class="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 h-4 w-4" />
+                                <span class="text-xs text-emerald-950 leading-relaxed font-medium">
+                                    <strong>Pakta Integritas & Pesantren Aman:</strong> Kami menyatakan data yang diajukan adalah benar, berhaluan Ahlussunnah wal Jama'ah An-Nahdliyyah, serta berkomitmen mewujudkan lingkungan pondok pesantren yang aman, ramah santri, dan bebas dari segala bentuk kekerasan.
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================== -->
+                <!-- STEP 4: LAYAR SUKSES & TANDA TERIMA REGISTRASI -->
+                <!-- ============================================== -->
+                <div id="self-reg-step-4" class="hidden space-y-5 text-center py-4">
+                    <div class="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
+                        <span class="material-symbols-outlined text-[36px]">check_circle</span>
+                    </div>
+
+                    <div>
+                        <h4 class="text-lg font-black text-slate-900 tracking-tight">Pendaftaran Mandiri Berhasil Terkirim!</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                            Data pengajuan telah dicatat ke pangkalan data dan antrean verifikasi PC RMI NU Kabupaten Demak.
+                        </p>
+                    </div>
+
+                    <!-- Kode Registrasi Box -->
+                    <div class="max-w-xs mx-auto p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nomor Registrasi Mandiri</div>
+                        <div id="self-reg-display-regcode" class="text-xl font-black font-mono text-emerald-700 tracking-wider mt-0.5">REG-DMK-000000</div>
+                        <div id="self-reg-display-pcode" class="text-[11px] font-bold text-slate-600 mt-1">Kode ID: RMI-DMK-000000</div>
+                    </div>
+
+                    <!-- Alur Verifikasi Card -->
+                    <div class="p-4 bg-blue-50/70 rounded-2xl border border-blue-100 text-left text-xs text-slate-700 space-y-2 max-w-lg mx-auto">
+                        <div class="font-bold text-blue-900 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px]">timeline</span> Tahapan Verifikasi Selanjutnya:
+                        </div>
+                        <ol class="list-decimal list-inside space-y-1 text-[11px] text-slate-600 leading-relaxed pl-1">
+                            <li>Bukti tanda terima registrasi otomatis telah dikirimkan ke email Anda.</li>
+                            <li>Tim Asesor PC RMI NU & Koordinator MWC setempat akan memvalidasi keabsahan dokumen.</li>
+                            <li>Akun Operator akan diaktifkan setelah pengajuan disetujui, dan Anda dapat login penuh via menu Admin.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer Action Buttons -->
+            <div id="self-reg-footer" class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/90 flex items-center justify-between shrink-0">
+                <button type="button" id="btn-self-reg-prev" onclick="prevSelfRegisterStep()" class="hidden px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 shadow-xs transition cursor-pointer flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    <span>Kembali</span>
+                </button>
+                <div class="ml-auto flex items-center gap-2">
+                    <button type="button" onclick="closeSelfRegisterModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" id="btn-self-reg-next" onclick="nextSelfRegisterStep()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5">
+                        <span>Lanjut Profil</span>
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    </button>
+                    <button type="button" id="btn-self-reg-submit" onclick="submitSelfRegisterPesantren()" class="hidden px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+                        <span>Kirim Pendaftaran</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer Selesai (Hanya di Step 4) -->
+            <div id="self-reg-footer-done" class="hidden px-6 py-3.5 border-t border-slate-100 bg-slate-50/90 text-center shrink-0">
+                <button type="button" onclick="finishSelfRegisterAndLogin()" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer inline-flex items-center justify-center gap-1.5">
+                    <span>Kembali ke Menu Masuk</span>
+                    <span class="material-symbols-outlined text-[16px]">login</span>
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -3183,9 +3478,11 @@
             renderDistrictCards();
             loadAuditLogs();
 
-            // Hash routing support (e.g. #pengguna or #peran)
+            // Hash routing support (e.g. #pengguna, #peran, atau #daftar-mandiri)
             const initialHash = window.location.hash ? window.location.hash.slice(1) : '';
-            if (initialHash && document.getElementById('view-' + initialHash)) {
+            if (initialHash === 'daftar-mandiri' || initialHash === 'registrasi') {
+                setTimeout(openSelfRegisterModal, 150);
+            } else if (initialHash && document.getElementById('view-' + initialHash)) {
                 navigateTo(initialHash);
             }
         });
@@ -3748,6 +4045,290 @@
                     countdownEl.innerText = `Kirim ulang dalam ${remaining}s`;
                 }
             }, 1000);
+        }
+
+        // =========================================================================
+        // CONTROLLER PENDAFTARAN MANDIRI PESANTREN (SELF-REGISTRATION)
+        // =========================================================================
+        let currentSelfRegStep = 1;
+        let selfRegFiles = {
+            rekomendasi: null,
+            foto: null
+        };
+
+        function openSelfRegisterModal() {
+            closeAdminLoginModal();
+            resetSelfRegisterForm();
+            const modal = document.getElementById('modal-self-register-pesantren');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeSelfRegisterModal() {
+            const modal = document.getElementById('modal-self-register-pesantren');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function resetSelfRegisterForm() {
+            currentSelfRegStep = 1;
+            selfRegFiles = { rekomendasi: null, foto: null };
+            goToSelfRegStep(1);
+            hideSelfRegAlert();
+
+            // Reset field input
+            ['reg-operator-nama', 'reg-operator-email', 'reg-operator-phone', 
+             'reg-pesantren-nama', 'reg-pesantren-populer', 'reg-pesantren-nspp', 
+             'reg-pesantren-tahun', 'reg-pesantren-pengasuh', 'reg-pesantren-desa', 
+             'reg-pesantren-alamat'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            const selKec = document.getElementById('reg-pesantren-kecamatan');
+            if (selKec) selKec.value = '';
+            const cbKomitmen = document.getElementById('reg-pesantren-komitmen');
+            if (cbKomitmen) cbKomitmen.checked = false;
+            const fileRek = document.getElementById('reg-file-rekomendasi');
+            if (fileRek) fileRek.value = '';
+            const fileFoto = document.getElementById('reg-file-foto');
+            if (fileFoto) fileFoto.value = '';
+
+            document.getElementById('self-reg-stepper')?.classList.remove('hidden');
+            document.getElementById('self-reg-footer')?.classList.remove('hidden');
+            document.getElementById('self-reg-footer-done')?.classList.add('hidden');
+        }
+
+        function showSelfRegAlert(msg) {
+            const box = document.getElementById('self-reg-alert');
+            const txt = document.getElementById('self-reg-alert-text');
+            if (box && txt) {
+                txt.innerText = msg;
+                box.classList.remove('hidden');
+            }
+        }
+
+        function hideSelfRegAlert() {
+            const box = document.getElementById('self-reg-alert');
+            if (box) box.classList.add('hidden');
+        }
+
+        function goToSelfRegStep(step) {
+            hideSelfRegAlert();
+            currentSelfRegStep = step;
+
+            // Konten Step
+            [1, 2, 3, 4].forEach(s => {
+                const el = document.getElementById('self-reg-step-' + s);
+                if (el) {
+                    if (s === step) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                }
+            });
+
+            // Update Stepper Nodes
+            const node1 = document.getElementById('step-node-1');
+            const node2 = document.getElementById('step-node-2');
+            const node3 = document.getElementById('step-node-3');
+
+            if (node1) {
+                const b1 = node1.querySelector('.step-badge');
+                if (step >= 1) {
+                    node1.classList.remove('opacity-60');
+                    if (b1) { b1.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs step-badge'; }
+                }
+            }
+            if (node2) {
+                const b2 = node2.querySelector('.step-badge');
+                if (step >= 2) {
+                    node2.classList.remove('opacity-60');
+                    if (b2) { b2.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs step-badge'; }
+                } else {
+                    node2.classList.add('opacity-60');
+                    if (b2) { b2.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-black text-xs flex items-center justify-center step-badge'; }
+                }
+            }
+            if (node3) {
+                const b3 = node3.querySelector('.step-badge');
+                if (step >= 3) {
+                    node3.classList.remove('opacity-60');
+                    if (b3) { b3.className = 'w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs step-badge'; }
+                } else {
+                    node3.classList.add('opacity-60');
+                    if (b3) { b3.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-black text-xs flex items-center justify-center step-badge'; }
+                }
+            }
+
+            // Tombol Navigasi Footer
+            const btnPrev = document.getElementById('btn-self-reg-prev');
+            const btnNext = document.getElementById('btn-self-reg-next');
+            const btnSubmit = document.getElementById('btn-self-reg-submit');
+
+            if (step === 1) {
+                btnPrev?.classList.add('hidden');
+                btnNext?.classList.remove('hidden');
+                if (btnNext) btnNext.innerHTML = '<span>Lanjut Profil</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span>';
+                btnSubmit?.classList.add('hidden');
+            } else if (step === 2) {
+                btnPrev?.classList.remove('hidden');
+                btnNext?.classList.remove('hidden');
+                if (btnNext) btnNext.innerHTML = '<span>Lanjut Legalitas</span><span class="material-symbols-outlined text-[16px]">arrow_forward</span>';
+                btnSubmit?.classList.add('hidden');
+            } else if (step === 3) {
+                btnPrev?.classList.remove('hidden');
+                btnNext?.classList.add('hidden');
+                btnSubmit?.classList.remove('hidden');
+            } else if (step === 4) {
+                document.getElementById('self-reg-stepper')?.classList.add('hidden');
+                document.getElementById('self-reg-footer')?.classList.add('hidden');
+                document.getElementById('self-reg-footer-done')?.classList.remove('hidden');
+            }
+        }
+
+        function prevSelfRegisterStep() {
+            if (currentSelfRegStep > 1) {
+                goToSelfRegStep(currentSelfRegStep - 1);
+            }
+        }
+
+        function nextSelfRegisterStep() {
+            hideSelfRegAlert();
+
+            if (currentSelfRegStep === 1) {
+                const nama = document.getElementById('reg-operator-nama')?.value.trim();
+                const email = document.getElementById('reg-operator-email')?.value.trim().toLowerCase();
+                const phone = document.getElementById('reg-operator-phone')?.value.trim();
+
+                if (!nama) { showSelfRegAlert('Nama lengkap operator/pemohon wajib diisi.'); return; }
+                if (!email || !email.includes('@') || !email.includes('.')) { showSelfRegAlert('Format email operator tidak valid.'); return; }
+                if (!phone || phone.length < 9) { showSelfRegAlert('Nomor telepon / WhatsApp aktif wajib diisi.'); return; }
+
+                goToSelfRegStep(2);
+            } else if (currentSelfRegStep === 2) {
+                const pNama = document.getElementById('reg-pesantren-nama')?.value.trim();
+                const pTahun = document.getElementById('reg-pesantren-tahun')?.value.trim();
+                const pPengasuh = document.getElementById('reg-pesantren-pengasuh')?.value.trim();
+
+                if (!pNama) { showSelfRegAlert('Nama resmi pondok pesantren wajib diisi.'); return; }
+                if (!pTahun || isNaN(pTahun) || pTahun < 1500) { showSelfRegAlert('Tahun berdiri pesantren harus berupa angka tahun yang valid.'); return; }
+                if (!pPengasuh) { showSelfRegAlert('Nama Pengasuh Utama / Dewan Masyayikh wajib diisi.'); return; }
+
+                goToSelfRegStep(3);
+            }
+        }
+
+        function handleSelfRegFileInput(event, fileKey) {
+            const file = event.target.files[0];
+            if (!file) {
+                selfRegFiles[fileKey] = null;
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showSelfRegAlert('Ukuran berkas maksimal 5MB. Silakan pilih berkas yang lebih kecil.');
+                event.target.value = '';
+                selfRegFiles[fileKey] = null;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result.split(',')[1];
+                selfRegFiles[fileKey] = {
+                    name: file.name,
+                    mimeType: file.type || 'application/octet-stream',
+                    base64: base64Data
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitSelfRegisterPesantren() {
+            hideSelfRegAlert();
+
+            // Validasi Step 3
+            const kec = document.getElementById('reg-pesantren-kecamatan')?.value;
+            const desa = document.getElementById('reg-pesantren-desa')?.value.trim();
+            const alamat = document.getElementById('reg-pesantren-alamat')?.value.trim();
+            const cbKomitmen = document.getElementById('reg-pesantren-komitmen')?.checked;
+
+            if (!kec) { showSelfRegAlert('Kecamatan di Kabupaten Demak wajib dipilih.'); return; }
+            if (!desa) { showSelfRegAlert('Nama Kelurahan / Desa lokasi pondok wajib diisi.'); return; }
+            if (!alamat) { showSelfRegAlert('Alamat lengkap pondok pesantren wajib diisi.'); return; }
+            if (!cbKomitmen) { showSelfRegAlert('Anda wajib menyetujui Pakta Integritas & Pesantren Aman.'); return; }
+
+            const submitBtn = document.getElementById('btn-self-reg-submit');
+            const prevText = submitBtn ? submitBtn.innerHTML : 'Kirim Pendaftaran';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[16px]">progress_activity</span><span>Memproses...</span>';
+            }
+
+            const payload = {
+                operator: {
+                    nama_lengkap: document.getElementById('reg-operator-nama')?.value.trim(),
+                    email: document.getElementById('reg-operator-email')?.value.trim().toLowerCase(),
+                    phone: document.getElementById('reg-operator-phone')?.value.trim(),
+                    jabatan: document.getElementById('reg-operator-jabatan')?.value
+                },
+                pesantren: {
+                    nama_resmi: document.getElementById('reg-pesantren-nama')?.value.trim(),
+                    nama_populer: document.getElementById('reg-pesantren-populer')?.value.trim(),
+                    nspp: document.getElementById('reg-pesantren-nspp')?.value.trim(),
+                    tahun_berdiri: document.getElementById('reg-pesantren-tahun')?.value.trim(),
+                    kategori: document.getElementById('reg-pesantren-kategori')?.value,
+                    pengasuh_utama: document.getElementById('reg-pesantren-pengasuh')?.value.trim(),
+                    kecamatan: kec,
+                    desa: desa,
+                    alamat: alamat,
+                    has_komitmen_pesantren_aman: cbKomitmen
+                },
+                files: selfRegFiles
+            };
+
+            try {
+                const response = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'REGISTER_PESANTREN_SELF',
+                        payload: payload
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('self-reg-display-regcode').innerText = result.registrationCode || 'REG-DMK-SUKSES';
+                    document.getElementById('self-reg-display-pcode').innerText = 'Kode ID: ' + (result.kodePesantren || result.pesantrenCode || 'RMI-DMK-NEW');
+                    goToSelfRegStep(4);
+                    showToast('success', 'Pendaftaran mandiri berhasil! Nomor Registrasi: ' + result.registrationCode);
+                } else {
+                    showSelfRegAlert(result.message || 'Gagal mengirimkan pendaftaran. Silakan periksa kembali data Anda.');
+                }
+            } catch (err) {
+                console.error('Error saat submit pendaftaran mandiri:', err);
+                showSelfRegAlert('Terjadi kendala jaringan saat menghubungi server. Silakan coba sesaat lagi.');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = prevText;
+                }
+            }
+        }
+
+        function finishSelfRegisterAndLogin() {
+            closeSelfRegisterModal();
+            openAdminLoginModal();
+            switchAdminAuthTab('otp');
+            const targetEmail = document.getElementById('reg-operator-email')?.value.trim();
+            const otpEmailInput = document.getElementById('otp-auth-email');
+            if (targetEmail && otpEmailInput) {
+                otpEmailInput.value = targetEmail;
+            }
         }
 
         // =========================================================================
