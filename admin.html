@@ -355,12 +355,12 @@
                                     <span class="flex-1">Profil Saya</span>
                                 </button>
                                 
-                                <button type="button" onclick="navigateTo('peran'); closeAdminUserDropdown();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left group">
+                                <button type="button" id="dropdown-menu-rbac" onclick="navigateTo('peran'); closeAdminUserDropdown();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left group">
                                     <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-emerald-600">security</span>
                                     <span class="flex-1">Matriks Hak Akses (RBAC)</span>
                                 </button>
 
-                                <button type="button" onclick="navigateTo('pengaturan'); closeAdminUserDropdown();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left group">
+                                <button type="button" id="dropdown-menu-settings" onclick="navigateTo('pengaturan'); closeAdminUserDropdown();" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors text-left group">
                                     <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-emerald-600">settings</span>
                                     <span class="flex-1">Pengaturan Cabang</span>
                                 </button>
@@ -1001,7 +1001,7 @@
                             <p class="text-xs text-slate-500 mt-0.5">Pengendalian otoritas akun pengurus PCNU, MWC Kecamatan, dan operator pesantren se-Kabupaten Demak.</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="openModalTambahUser()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all">
+                            <button id="btn-tambah-user-header" onclick="openModalTambahUser()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
                                 <span class="material-symbols-outlined text-[16px]">person_add</span> Tambah Pengguna
                             </button>
                             <button onclick="renderUsersTable()" class="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1 shadow-2xs transition-colors" title="Segarkan Data Pengguna">
@@ -3208,6 +3208,23 @@
                 return;
             }
 
+            // Route Permission Check (RBAC Matrix)
+            const roleKey = currentRole || CURRENT_AUTH_USER?.roleKey || CURRENT_AUTH_USER?.role || 'super_admin';
+            const perms = (typeof RBAC_MODULE_PERMISSIONS !== 'undefined' && RBAC_MODULE_PERMISSIONS[roleKey]) 
+                ? RBAC_MODULE_PERMISSIONS[roleKey] 
+                : null;
+            
+            if (perms && perms[moduleName] === 'none') {
+                showToast('warning', `Akses Ditolak: Peran "${roleKey}" tidak memiliki hak akses ke modul "${moduleName}".`);
+                const fallback = (roleKey === 'guest') ? 'direktori' :
+                                 (roleKey === 'operator_pesantren' || roleKey === 'pengasuh') ? 'buku-induk' :
+                                 (roleKey === 'verifikator') ? 'verifikasi' : 'dashboard';
+                if (moduleName !== fallback) {
+                    navigateTo(fallback);
+                }
+                return;
+            }
+
             activeModule = moduleName;
             
             // Sembunyikan semua views
@@ -4083,49 +4100,155 @@
             if (mAuth) mAuth.innerText = authority + (roleKey === 'super_admin' ? ' (11 Modul CRUD)' : '');
         }
 
-        // Penerapan hak akses modul (RBAC) berdasarkan peran akun yang login
+        const RBAC_MODULE_PERMISSIONS = {
+            super_admin: {
+                dashboard: 'full', direktori: 'full', tambah: 'full', verifikasi: 'full',
+                peta: 'full', 'buku-induk': 'full', laporan: 'full', pengguna: 'full',
+                peran: 'full', wilayah: 'full', audit: 'full', pengaturan: 'full',
+                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full'
+            },
+            admin_kabupaten: {
+                dashboard: 'full', direktori: 'full', tambah: 'full', verifikasi: 'full',
+                peta: 'full', 'buku-induk': 'full', laporan: 'full', pengguna: 'full',
+                peran: 'read', wilayah: 'full', audit: 'read', pengaturan: 'full',
+                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full'
+            },
+            admin_kecamatan: {
+                dashboard: 'read_own', direktori: 'read', tambah: 'write', verifikasi: 'write',
+                peta: 'read', 'buku-induk': 'read_own', laporan: 'read_own', pengguna: 'none',
+                peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+            },
+            operator_pesantren: {
+                dashboard: 'read_own', direktori: 'read', tambah: 'write', verifikasi: 'none',
+                peta: 'read', 'buku-induk': 'read_own', laporan: 'none', pengguna: 'none',
+                peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+            },
+            pengasuh: {
+                dashboard: 'read', direktori: 'read', tambah: 'none', verifikasi: 'read',
+                peta: 'read', 'buku-induk': 'read', laporan: 'read', pengguna: 'none',
+                peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+            },
+            verifikator: {
+                dashboard: 'read', direktori: 'read', tambah: 'write', verifikasi: 'write',
+                peta: 'read', 'buku-induk': 'read', laporan: 'none', pengguna: 'none',
+                peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+            },
+            guest: {
+                dashboard: 'none', direktori: 'read', tambah: 'none', verifikasi: 'none',
+                peta: 'read', 'buku-induk': 'none', laporan: 'none', pengguna: 'none',
+                peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+            }
+        };
+
+        function extractDistrictFromScope(scope) {
+            if (!scope) return 'Sayung';
+            const s = scope.toLowerCase();
+            const districts = [
+                "Bonang", "Demak", "Dempet", "Gajah", "Guntur", "Karanganyar",
+                "Karangawen", "Karangtengah", "Mijen", "Mranggen", "Sayung",
+                "Wedung", "Wonosalam"
+            ];
+            for (const d of districts) {
+                if (s.includes(d.toLowerCase())) return d;
+            }
+            return 'Sayung';
+        }
+
+        // Penerapan hak akses modul (RBAC) presisi untuk ke-7 peran
         function applyRbacPermissions(role) {
-            currentRole = role;
+            currentRole = role || 'super_admin';
+            const perms = RBAC_MODULE_PERMISSIONS[currentRole] || RBAC_MODULE_PERMISSIONS.super_admin;
 
-            // Sembunyikan atau tampilkan modul sesuai hak akses RBAC (Admin_Dashboard_MVP_Specification_v1.0.md Bab 3)
-            const menuTambah = document.querySelector('[data-module="tambah"]');
-            const menuVerifikasi = document.querySelector('[data-module="verifikasi"]');
-            const menuPengguna = document.querySelector('[data-module="pengguna"]');
-            const menuPengaturan = document.querySelector('[data-module="pengaturan"]');
-
-            if (role === 'operator_pesantren') {
-                if (menuTambah) menuTambah.classList.add('hidden');
-                if (menuVerifikasi) menuVerifikasi.classList.add('hidden');
-                if (menuPengguna) menuPengguna.classList.add('hidden');
-                if (menuPengaturan) menuPengaturan.classList.add('hidden');
-                
-                // Jika sedang di modul tertutup, alihkan ke direktori / buku induk
-                if (['tambah', 'verifikasi', 'pengguna', 'pengaturan'].includes(activeModule)) {
-                    navigateTo('buku-induk');
+            // 1. Visibilitas Menu Sidebar Navigasi [data-module]
+            document.querySelectorAll('[data-module]').forEach(item => {
+                const modKey = item.getAttribute('data-module');
+                const level = perms[modKey] || 'none';
+                if (level === 'none') {
+                    item.classList.add('hidden');
+                } else {
+                    item.classList.remove('hidden');
                 }
-            } else if (role === 'admin_kecamatan') {
-                if (menuTambah) menuTambah.classList.remove('hidden');
-                if (menuVerifikasi) menuVerifikasi.classList.remove('hidden');
-                if (menuPengguna) menuPengguna.classList.add('hidden');
-                if (menuPengaturan) menuPengaturan.classList.add('hidden');
+            });
 
-                const dashFilterKec = document.getElementById('dash-filter-kecamatan');
-                if (dashFilterKec) {
-                    dashFilterKec.value = 'Sayung';
-                    handleDashboardKecamatanFilter('Sayung');
-                }
-            } else {
-                // super_admin & admin_kabupaten
-                if (menuTambah) menuTambah.classList.remove('hidden');
-                if (menuVerifikasi) menuVerifikasi.classList.remove('hidden');
-                if (menuPengguna) menuPengguna.classList.remove('hidden');
-                if (menuPengaturan) menuPengaturan.classList.remove('hidden');
+            // 2. Visibilitas Grup Sidebar (Accordion)
+            const groups = [
+                { id: 'group-overview', modules: ['dashboard'] },
+                { id: 'group-pendataan', modules: ['direktori', 'tambah', 'verifikasi'] },
+                { id: 'group-arsip', modules: ['peta', 'buku-induk', 'laporan'] },
+                { id: 'group-sistem', modules: ['pengguna', 'peran', 'wilayah', 'audit'] },
+                { id: 'group-cms', modules: ['cms-beranda', 'cms-profil', 'cms-layanan', 'cms-berita'] }
+            ];
 
-                const dashFilterKec = document.getElementById('dash-filter-kecamatan');
-                if (dashFilterKec && currentDashboardKecamatan === 'Sayung') {
-                    dashFilterKec.value = '';
-                    handleDashboardKecamatanFilter('');
+            groups.forEach(g => {
+                const gEl = document.getElementById(g.id);
+                if (gEl) {
+                    const hasVisibleModule = g.modules.some(m => (perms[m] && perms[m] !== 'none'));
+                    if (hasVisibleModule) {
+                        gEl.classList.remove('hidden');
+                    } else {
+                        gEl.classList.add('hidden');
+                    }
                 }
+            });
+
+            // 3. Dropdown Menu Profil Kanan Atas
+            const dropRbac = document.getElementById('dropdown-menu-rbac');
+            if (dropRbac) {
+                if (perms.peran === 'none') dropRbac.classList.add('hidden');
+                else dropRbac.classList.remove('hidden');
+            }
+            const dropSettings = document.getElementById('dropdown-menu-settings');
+            if (dropSettings) {
+                if (perms.pengaturan === 'none') dropSettings.classList.add('hidden');
+                else dropSettings.classList.remove('hidden');
+            }
+
+            // 4. Pengendalian Filter Wilayah Dashboard
+            const dashFilterKec = document.getElementById('dash-filter-kecamatan');
+            if (dashFilterKec) {
+                if (currentRole === 'admin_kecamatan') {
+                    const userScope = CURRENT_AUTH_USER?.scope || CURRENT_AUTH_USER?.scope_wilayah || 'Sayung';
+                    const targetKec = extractDistrictFromScope(userScope);
+                    dashFilterKec.value = targetKec;
+                    dashFilterKec.disabled = true;
+                    dashFilterKec.title = `Terkunci pada wilayah MWC ${targetKec}`;
+                    handleDashboardKecamatanFilter(targetKec);
+                } else {
+                    dashFilterKec.disabled = false;
+                    dashFilterKec.title = "Pilih kecamatan untuk menyaring data";
+                    if (currentDashboardKecamatan === 'Sayung' && currentRole === 'super_admin') {
+                        dashFilterKec.value = '';
+                        handleDashboardKecamatanFilter('');
+                    }
+                }
+            }
+
+            // 5. Tombol Tambah Pengguna Baru di Modul Pengguna
+            const btnTambahUser = document.getElementById('btn-tambah-user-header');
+            if (btnTambahUser) {
+                if (perms.pengguna === 'full') btnTambahUser.classList.remove('hidden');
+                else btnTambahUser.classList.add('hidden');
+            }
+
+            // 6. Sinkronisasi Buku Induk Selector
+            populateBukuIndukSelector();
+
+            // 7. Auto-redirect jika modul aktif saat ini ditutup untuk perannya
+            if (perms[activeModule] === 'none') {
+                const defaultTarget = (currentRole === 'guest') ? 'direktori' :
+                                     (currentRole === 'operator_pesantren' || currentRole === 'pengasuh') ? 'buku-induk' :
+                                     (currentRole === 'verifikator') ? 'verifikasi' : 'dashboard';
+                navigateTo(defaultTarget);
+            }
+
+            // 8. Refresh Tabel Direktori dengan visibilitas aksi terbaru
+            if (typeof PESANTREN_DATA !== 'undefined' && PESANTREN_DATA.length > 0) {
+                renderDirektoriTable(PESANTREN_DATA);
             }
         }
 
@@ -4365,6 +4488,9 @@
                 numContainer.innerHTML = btns;
             }
 
+            const canVerify = ['super_admin', 'admin_kabupaten', 'admin_kecamatan', 'verifikator'].includes(currentRole);
+            const canViewBukuInduk = !['guest'].includes(currentRole);
+
             let rows = '';
             pagedList.forEach((p, index) => {
                 const globalIndex = startIdx + index + 1;
@@ -4428,12 +4554,14 @@
                         <td class="py-3 px-4 text-center">${pubBadge}</td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1">
+                                ${canViewBukuInduk ? `
                                 <button onclick="openBukuIndukWithId('${p.id}')" title="Buka Buku Induk" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-emerald-700">
                                     <span class="material-symbols-outlined text-[18px]">auto_stories</span>
-                                </button>
-                                <button onclick="openReviewModal('${p.id}')" title="Verifikasi" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-amber-600">
+                                </button>` : ''}
+                                ${canVerify ? `
+                                <button onclick="openReviewModal('${p.id}')" title="Verifikasi Data" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-amber-600">
                                     <span class="material-symbols-outlined text-[18px]">rule</span>
-                                </button>
+                                </button>` : ''}
                             </div>
                         </td>
                     </tr>
@@ -5089,7 +5217,23 @@
             if (!selector) return;
 
             selector.innerHTML = '';
-            PESANTREN_DATA.forEach(p => {
+            let allowedData = PESANTREN_DATA;
+
+            // Filter cakupan lembaga berdasarkan hak akses peran
+            if (currentRole === 'operator_pesantren' || currentRole === 'pengasuh') {
+                const userScope = (CURRENT_AUTH_USER?.scope || CURRENT_AUTH_USER?.scope_wilayah || '').toLowerCase();
+                const filtered = PESANTREN_DATA.filter(p => 
+                    (userScope && (p.nama_resmi.toLowerCase().includes(userScope) || (p.nama_populer && p.nama_populer.toLowerCase().includes(userScope))))
+                );
+                if (filtered.length > 0) allowedData = filtered;
+            } else if (currentRole === 'admin_kecamatan') {
+                const userScope = CURRENT_AUTH_USER?.scope || CURRENT_AUTH_USER?.scope_wilayah || 'Sayung';
+                const matchedDistrict = extractDistrictFromScope(userScope);
+                const filtered = PESANTREN_DATA.filter(p => p.kecamatan.toLowerCase() === matchedDistrict.toLowerCase());
+                if (filtered.length > 0) allowedData = filtered;
+            }
+
+            allowedData.forEach(p => {
                 const opt = document.createElement('option');
                 opt.value = p.id;
                 opt.innerText = `${p.kode_pesantren} — ${p.nama_resmi}`;
