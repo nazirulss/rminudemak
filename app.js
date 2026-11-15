@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function navigateTo(targetId, updateHash = true) {
         // Normalisasi alias ramah pengguna
         if (targetId === 'direktori') targetId = 'pesantren';
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'berita'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
         // 🚀 UPDATE HASH ROUTING (Shareable Link & Browser History Support)
@@ -1199,10 +1199,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         navBtns.forEach(btn => {
             const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
-            if(btnTarget === targetId) {
-                btn.className = 'nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all';
+            const isActive = (btnTarget === targetId) || (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan'));
+            if(isActive) {
+                btn.className = 'nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all flex items-center gap-1 cursor-pointer';
             } else {
-                btn.className = 'nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all';
+                btn.className = 'nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer';
             }
         });
 
@@ -1226,21 +1227,19 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentHash = window.location.hash.replace('#', '').trim().toLowerCase();
         if (currentHash === 'direktori') currentHash = 'pesantren';
 
-        // Deep linking untuk Panduan Masuk 7 Peran di Halaman Layanan
-        if (currentHash.startsWith('panduan') || currentHash === 'panduan-portal') {
-            navigateTo('layanan', false);
-            setTimeout(() => {
-                const el = document.getElementById('panduan-portal-layanan');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                const rolePart = currentHash.replace('panduan-', '').replace('panduan', '');
-                if (rolePart && typeof filterPanduanRole === 'function') {
+        // Deep linking untuk Sub Halaman Panduan Masuk 7 Peran
+        if (currentHash.startsWith('panduan') || currentHash === 'panduan-portal' || currentHash === 'panduan-7-peran') {
+            navigateTo('panduan', false);
+            const rolePart = currentHash.replace('panduan-', '').replace('panduan', '').trim();
+            if (rolePart && typeof filterPanduanRole === 'function') {
+                setTimeout(() => {
                     filterPanduanRole(rolePart);
-                }
-            }, 350);
+                }, 150);
+            }
             return;
         }
 
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'berita'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita'];
         const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
         navigateTo(targetPage, false);
     }
@@ -1756,4 +1755,15 @@ function shareSingleRoleWA(roleKey) {
     const text = "*PANDUAN MASUK PORTAL DATA RMI DEMAK*\n*Peran: " + roleName + "*\n\nAssalamu'alaikum Wr. Wb.\nBerikut petunjuk masuk dan hak akses untuk *" + roleName + "* di Portal Satu Data PC RMI NU Kabupaten Demak:\n\n1. Buka https://rminudemak.org/admin\n2. Pilih tab 1-Klik Akun / Email OTP\n3. Masukkan email resmi terdaftar Anda\n4. Masukkan kode 6 digit OTP yang masuk di inbox email Anda\n\nBuka panduan lengkap di:\n👉 https://rminudemak.org/#layanan\n\n_Sekretariat PC RMI NU Demak_";
     const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
     window.open(waUrl, '_blank');
+}
+
+function toggleMobileLayananSubmenu() {
+    const sub = document.getElementById('sub-mobile-layanan');
+    const chevron = document.getElementById('chevron-mobile-layanan');
+    if (sub) {
+        sub.classList.toggle('hidden');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180');
+        }
+    }
 }

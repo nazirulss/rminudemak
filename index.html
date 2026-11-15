@@ -289,8 +289,52 @@
                         data-target="profil" href="#profil">Profil</a></li>
                 <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
                         data-target="pesantren" href="#pesantren">Direktori</a></li>
-                <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
-                        data-target="layanan" href="#layanan">Layanan</a></li>
+                <!-- Menu Layanan dengan Dropdown Elegan (Desktop) -->
+                <li class="relative group/nav-dropdown">
+                    <button type="button" id="btn-dropdown-layanan"
+                        class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer"
+                        data-target="layanan">
+                        <span>Layanan</span>
+                        <span class="material-symbols-outlined text-[15px] group-hover/nav-dropdown:rotate-180 transition-transform">expand_more</span>
+                    </button>
+                    
+                    <!-- Dropdown Box Desktop -->
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover/nav-dropdown:block z-50 min-w-[260px] animate-slideFadeIn">
+                        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-2 text-slate-800 space-y-1">
+                            <a href="#layanan" class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item" data-target="layanan">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Pusat Layanan & Program</div>
+                                    <div class="text-[10px] text-slate-500">Katalog layanan, program & NSPP</div>
+                                </div>
+                            </a>
+
+                            <a href="#panduan" class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item" data-target="panduan">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Panduan Portal (7 Peran)</div>
+                                    <div class="text-[10px] text-slate-500">SOP login, hak akses & matriks RBAC</div>
+                                </div>
+                            </a>
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <a href="admin.html#daftar-mandiri" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">app_registration</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Pendaftaran Pesantren Baru</div>
+                                    <div class="text-[10px] text-slate-500">Registrasi mandiri operator pondok</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </li>
                 <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
                         data-target="berita" href="#berita">Berita</a></li>
             </ul>
@@ -329,8 +373,34 @@
                         data-target="profil" href="#profil">Profil</a></li>
                 <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
                         data-target="pesantren" href="#pesantren">Direktori Lembaga</a></li>
-                <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
-                        data-target="layanan" href="#layanan">Layanan & NSPP</a></li>
+                <!-- Layanan Dropdown Mobile Accordion -->
+                <li class="space-y-1">
+                    <button type="button" onclick="toggleMobileLayananSubmenu()" id="btn-mobile-layanan-toggle"
+                        class="w-full flex items-center justify-between mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors text-left cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">apps</span>
+                            <span>Layanan & Panduan</span>
+                        </span>
+                        <span class="material-symbols-outlined text-[18px] transition-transform" id="chevron-mobile-layanan">expand_more</span>
+                    </button>
+                    <div id="sub-mobile-layanan" class="hidden pl-4 pr-1 py-1 space-y-1 bg-black/15 rounded-xl">
+                        <a class="spa-link mobile-nav-btn text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            data-target="layanan" href="#layanan">
+                            <span class="material-symbols-outlined text-[16px]">grid_view</span>
+                            <span>Katalog Layanan & Program</span>
+                        </a>
+                        <a class="spa-link mobile-nav-btn text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            data-target="panduan" href="#panduan">
+                            <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                            <span>Panduan Portal (7 Peran)</span>
+                        </a>
+                        <a class="text-xs font-medium text-emerald-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            href="admin.html#daftar-mandiri">
+                            <span class="material-symbols-outlined text-[16px]">app_registration</span>
+                            <span>Pendaftaran Mandiri</span>
+                        </a>
+                    </div>
+                </li>
                 <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
                         data-target="berita" href="#berita">Berita & Warta</a></li>
             </ul>
@@ -1681,8 +1751,8 @@
 
                                     </a>
 
-                                    <a href="#panduan-portal"
-                                        class="flex items-start gap-3 p-3 rounded-xl bg-emerald-50/60 hover:bg-emerald-100/70 border border-emerald-200/80 transition-all group">
+                                    <a href="#panduan" data-target="panduan"
+                                        class="spa-link flex items-start gap-3 p-3 rounded-xl bg-emerald-50/60 hover:bg-emerald-100/70 border border-emerald-200/80 transition-all group">
 
                                         <span
                                             class="material-symbols-outlined text-emerald-700 mt-0.5">menu_book</span>
@@ -1721,7 +1791,34 @@
             <!-- ======================================================== -->
             <!-- SEKSI KHUSUS: PANDUAN RESMI MASUK PORTAL DATA (7 PERAN)  -->
             <!-- ======================================================== -->
-            <section id="panduan-portal-layanan" class="py-14 px-6 md:px-16 max-w-[1280px] mx-auto border-t border-slate-200/90 mt-8">
+            </div>
+
+        <!-- ======================================================== -->
+        <!-- SUB HALAMAN RESMI: PANDUAN MASUK PORTAL DATA (7 PERAN)   -->
+        <!-- ======================================================== -->
+        <div id="page-panduan" class="page-section">
+            
+            <!-- Hero Header Sub Halaman Panduan -->
+            <section class="py-14 px-6 md:px-16 text-center relative overflow-hidden text-white" style="background-color: #005c55;">
+                <div class="absolute inset-0 opacity-10 pointer-events-none"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+                
+                <div class="relative z-10 max-w-3xl mx-auto">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-emerald-200 text-xs font-bold tracking-wider uppercase mb-3">
+                        <span class="material-symbols-outlined text-[16px]">verified_user</span> Standar Digdaya Pesantren PBNU
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">
+                        Panduan Masuk Portal Data
+                    </h1>
+                    <p class="text-sm md:text-base text-emerald-100/90 font-light leading-relaxed max-w-2xl mx-auto">
+                        Petunjuk resmi pendaftaran akun, tata cara masuk tanpa kata sandi (Email OTP), serta rincian hak akses modul untuk 7 peran pengelola ekosistem pesantren se-Kabupaten Demak.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Konten Lengkap Panduan -->
+            <div class="bg-white">
+                <section id="panduan-portal-layanan" class="py-14 px-6 md:px-16 max-w-[1280px] mx-auto border-t border-slate-200/90 mt-8">
                 
                 <!-- Printable Kop Surat Header (Hanya Muncul Saat Print / PDF) -->
                 <div class="print-header hidden pb-6 mb-6 border-b-2 border-emerald-900 text-center">
@@ -2293,36 +2390,37 @@
                 </div>
 
                 <!-- Petunjuk Alur Masuk Cepat (Step-by-Step Box) -->
-                <div class="mt-10 p-6 sm:p-8 bg-gradient-to-r from-emerald-950 via-[#022c22] to-teal-950 text-white rounded-3xl shadow-xl border border-emerald-800/60 relative overflow-hidden">
+                <div class="mt-10 p-6 sm:p-8 rounded-3xl shadow-2xl border border-emerald-700/60 relative overflow-hidden text-white" style="background-color: #022c22 !important; color: #ffffff !important;">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
                     <div class="relative z-10">
-                        <div class="flex items-center gap-2 mb-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                        <div class="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider" style="color: #34d399 !important;">
                             <span class="material-symbols-outlined text-[18px]">bolt</span> Langkah Demi Langkah
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-black mb-4">Cara Mudah Masuk ke Portal Administrasi RMI NU Demak</h3>
+                        <h3 class="text-xl sm:text-2xl font-black mb-4" style="color: #ffffff !important;">Cara Mudah Masuk ke Portal Administrasi RMI NU Demak</h3>
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                            <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15">
-                                <div class="w-8 h-8 rounded-xl bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center mb-3">1</div>
-                                <h4 class="font-bold text-sm text-white mb-1">Buka Tautan Portal</h4>
-                                <p class="text-xs text-slate-200/90 leading-relaxed">Kunjungi alamat <a href="admin.html" class="underline text-emerald-300 font-semibold">rminudemak.org/admin</a> dari peramban HP atau laptop Anda.</p>
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">1</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Buka Tautan Portal</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Kunjungi alamat <a href="admin.html" class="underline text-emerald-300 font-semibold">rminudemak.org/admin</a> dari peramban HP atau laptop Anda.</p>
                             </div>
 
-                            <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15">
-                                <div class="w-8 h-8 rounded-xl bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center mb-3">2</div>
-                                <h4 class="font-bold text-sm text-white mb-1">Pilih Tab Autentikasi</h4>
-                                <p class="text-xs text-slate-200/90 leading-relaxed">Gunakan tab <strong>1-Klik Akun</strong> (Pengurus Terdaftar) atau tab <strong>Email OTP</strong>.</p>
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">2</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Pilih Tab Autentikasi</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Gunakan tab <strong>1-Klik Akun</strong> (Pengurus Terdaftar) atau tab <strong>Email OTP</strong>.</p>
                             </div>
 
-                            <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15">
-                                <div class="w-8 h-8 rounded-xl bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center mb-3">3</div>
-                                <h4 class="font-bold text-sm text-white mb-1">Terima Kode 6 Digit</h4>
-                                <p class="text-xs text-slate-200/90 leading-relaxed">Buka kotak masuk / spam email Anda untuk menyalin kode OTP resmi yang dikirimkan sistem.</p>
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">3</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Terima Kode 6 Digit</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Buka kotak masuk / spam email Anda untuk menyalin kode OTP resmi yang dikirimkan sistem.</p>
                             </div>
 
-                            <div class="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/15">
-                                <div class="w-8 h-8 rounded-xl bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center mb-3">4</div>
-                                <h4 class="font-bold text-sm text-white mb-1">Verifikasi & Masuk</h4>
-                                <p class="text-xs text-slate-200/90 leading-relaxed">Ketikkan 6 digit kode OTP dan sistem otomatis memuat menu sesuai hak akses peran Anda.</p>
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">4</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Verifikasi & Masuk</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Ketikkan 6 digit kode OTP dan sistem otomatis memuat menu sesuai hak akses peran Anda.</p>
                             </div>
                         </div>
 
@@ -2484,7 +2582,10 @@
                 </div>
 
             </section>
+            </div>
+
         </div>
+</div>
 
         <div id="page-berita" class="page-section">
 

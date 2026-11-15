@@ -37,7 +37,7 @@ html {
     display: block !important;
   }
 
-  body, main, #page-layanan, #panduan-portal-layanan {
+  body, main, #page-panduan, #panduan-portal-layanan {
     background: #ffffff !important;
     color: #000000 !important;
     padding: 0 !important;
@@ -47,11 +47,11 @@ html {
     box-shadow: none !important;
   }
 
-  .page-section:not(#page-layanan) {
+  .page-section:not(#page-panduan) {
     display: none !important;
   }
 
-  #page-layanan > section:not(#panduan-portal-layanan) {
+  #page-panduan > section:not(#panduan-portal-layanan) {
     display: none !important;
   }
 
