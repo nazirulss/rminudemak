@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Compiled Production CSS (Sub-30ms load, Zero CDN blocking) -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_0005" />
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_0018" />
 
     <link
         href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -3197,7 +3197,7 @@
             </section>
 
 
-            <!-- 3. INTI KEGIATAN: 5 HALAQAH & 6 MAJLIS PARALEL (SHOWCASE INTERAKTIF) -->
+            <!-- 3. INTI KEGIATAN: 5 PILAR KEGIATAN UTAMA (5 HALAQAH) -->
             <section id="sambang-5-halaqah" class="py-12 px-6 md:px-12 bg-slate-50 border-y border-slate-200/80">
                 <div class="max-w-[1280px] mx-auto space-y-8">
                     
@@ -3207,50 +3207,50 @@
                             <span>FORMAT & RANGKAIAN KEGIATAN RESMI</span>
                         </div>
                         <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                            5 Pilar Kegiatan Utama (6 Majlis Lesehan Paralel)
+                            5 Pilar Kegiatan Utama
                         </h2>
                         <p class="text-slate-600 text-sm leading-relaxed">
-                            Dilaksanakan serentak di Pondok Pesantren Futuhiyyah Mranggen dengan membagi peserta ke dalam majlis-majlis tematik guna efektivitas diskusi dan pelatihan.
+                            Dilaksanakan serentak di Pondok Pesantren Futuhiyyah Mranggen dengan membagi peserta ke dalam 5 halaqah tematik guna efektivitas diskusi dan pelatihan.
                         </p>
                     </div>
 
                     <!-- Tab Buttons Filter -->
                     <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
-                        <button type="button" onclick="filterSambangMajlis('all')" data-majlis="all"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-md transition-all cursor-pointer">
-                            Semua Majlis (6)
+                        <button type="button" onclick="filterSambangHalaqah('all')" data-halaqah="all"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-md transition-all cursor-pointer">
+                            Semua Halaqah (5)
                         </button>
-                        <button type="button" onclick="filterSambangMajlis('m1')" data-majlis="m1"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
-                            Majlis 1: Konsolidasi PW-PC
+                        <button type="button" onclick="filterSambangHalaqah('h1')" data-halaqah="h1"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
+                            Halaqah 1: Konsolidasi PW-PC
                         </button>
-                        <button type="button" onclick="filterSambangMajlis('m2')" data-majlis="m2"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
-                            Majlis 2: Bidang Madin NU
+                        <button type="button" onclick="filterSambangHalaqah('h2')" data-halaqah="h2"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
+                            Halaqah 2: Bidang Madin NU
                         </button>
-                        <button type="button" onclick="filterSambangMajlis('m3')" data-majlis="m3"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
-                            Majlis 3: Sowan Pengasuh (Kyai/Bu Nyai)
+                        <button type="button" onclick="filterSambangHalaqah('h3')" data-halaqah="h3"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
+                            Halaqah 3: Diskusi Kepengasuhan
                         </button>
-                        <button type="button" onclick="filterSambangMajlis('m4m5')" data-majlis="m4m5"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
-                            Majlis 4 & 5: Pelatihan Musyrif & Musyrifah
+                        <button type="button" onclick="filterSambangHalaqah('h4')" data-halaqah="h4"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
+                            Halaqah 4: Pelatihan Musyrif / Musyrifah
                         </button>
-                        <button type="button" onclick="filterSambangMajlis('m6')" data-majlis="m6"
-                            class="majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
-                            Majlis 6: Media Dakwah Santri
+                        <button type="button" onclick="filterSambangHalaqah('h5')" data-halaqah="h5"
+                            class="halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer">
+                            Halaqah 5: Media Dakwah Santri
                         </button>
                     </div>
 
-                    <!-- Majlis Cards Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4" id="majlis-cards-container">
+                    <!-- Halaqah Cards Grid (5 Halaqah) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4" id="halaqah-cards-container">
                         
-                        <!-- Majlis 1 -->
-                        <div class="majlis-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-majlis="m1">
+                        <!-- Halaqah 1 -->
+                        <div class="halaqah-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-halaqah="h1">
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
                                     <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                                        MAJLIS 1 • FGD
+                                        HALAQAH 1 • FGD
                                     </span>
                                     <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[15px]">groups</span>
@@ -3276,12 +3276,12 @@
                             </div>
                         </div>
 
-                        <!-- Majlis 2 -->
-                        <div class="majlis-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-majlis="m2">
+                        <!-- Halaqah 2 -->
+                        <div class="halaqah-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-halaqah="h2">
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
                                     <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-800">
-                                        MAJLIS 2 • FGD
+                                        HALAQAH 2 • FGD
                                     </span>
                                     <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[15px]">groups</span>
@@ -3307,12 +3307,12 @@
                             </div>
                         </div>
 
-                        <!-- Majlis 3 -->
-                        <div class="majlis-card bg-white rounded-2xl border-2 border-emerald-500/40 p-6 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between" data-majlis="m3">
+                        <!-- Halaqah 3 -->
+                        <div class="halaqah-card bg-white rounded-2xl border-2 border-emerald-500/40 p-6 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between" data-halaqah="h3">
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
                                     <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900">
-                                        MAJLIS 3 • SOWAN MASYAYIKH
+                                        HALAQAH 3 • SOWAN MASYAYIKH
                                     </span>
                                     <span class="text-xs font-bold text-emerald-700 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[15px]">stars</span>
@@ -3320,7 +3320,7 @@
                                     </span>
                                 </div>
                                 <h3 class="text-lg font-black text-slate-900">
-                                    Halaqah Kepengasuhan bersama Kyai & Bu Nyai Pengasuh
+                                    Diskusi Kepengasuhan bersama Pengasuh Pesantren
                                 </h3>
                                 <p class="text-xs text-slate-600 leading-relaxed">
                                     Forum silaturahmi luhur masyayikh pengasuh pondok pesantren se-Kabupaten Demak bermusyawarah perihal regulasi dan kemaslahatan pola asuh santri.
@@ -3330,82 +3330,51 @@
                                         <span class="material-symbols-outlined text-amber-700 text-[14px]">checklist</span>
                                         <span>Fokus Bahasan:</span>
                                     </div>
-                                    <div class="text-slate-700">Isu regulasi pesantren, tantangan pola asuh ramah santri, pencegahan kekerasan anak & KS, serta peluang ekonomi pesantren.</div>
+                                    <div class="text-slate-700">Isu regulasi pesantren, praktik dan tantangan dalam pola asuh ramah santri, pencegahan kekerasan seksual (KS) & perundungan, serta peluang ekonomi pesantren.</div>
                                 </div>
                             </div>
                             <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> KH. Nur Machin Chudlori, KH. Ustman Tahrir, KH. M. Mujib, KH. M. Arif Jatmiko, Bu Nyai Hj. Maunah Ashif, Bu Nyai Hj. Umdatul Baroroh.
+                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> KH. Nur Machin Chudlori, KH. Ustman Tahrir, KH. M. Mujib, KH. M. Arif Jatmiko, KH. Adib Khoiruzzaman, Bu Nyai Hj. Maunah Ashif, Nyai Ida Masruroh Hakim, Bu Nyai Hj. Umdatul Baroroh.
                             </div>
                         </div>
 
-                        <!-- Majlis 4 -->
-                        <div class="majlis-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-majlis="m4m5">
+                        <!-- Halaqah 4 (Gabungan Musyrif & Musyrifah) -->
+                        <div class="halaqah-card bg-white rounded-2xl border-2 border-blue-500/30 p-6 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between" data-halaqah="h4">
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-800">
-                                        MAJLIS 4 • PELATIHAN ASRAMA
+                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900">
+                                        HALAQAH 4 • PELATIHAN ASRAMA
                                     </span>
                                     <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[15px]">groups</span>
-                                        <span>50 Musyrif (Putra)</span>
+                                        <span>100 Musyrif & Musyrifah</span>
                                     </span>
                                 </div>
                                 <h3 class="text-lg font-black text-slate-900">
-                                    Pelatihan Musyrif Asrama Pondok (2 Hari)
+                                    Pelatihan Musyrif & Musyrifah Pesantren (2 Hari)
                                 </h3>
                                 <p class="text-xs text-slate-600 leading-relaxed">
-                                    Peningkatan kompetensi lurah pondok dan pembina asrama putra (Hari 1 daring/online, Hari 2 tatap muka luring di PP Futuhiyyah).
+                                    Pembekalan intensif selama 2 hari (Hari 1 daring/online, Hari 2 tatap muka luring di PP Futuhiyyah) bagi 50 musyrif putra dan 50 musyrifah putri pembina asrama pondok se-Kabupaten Demak.
                                 </p>
-                                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
-                                    <div class="font-bold text-slate-800 flex items-center gap-1">
+                                <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-100 space-y-1.5 text-xs">
+                                    <div class="font-bold text-blue-900 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-blue-700 text-[14px]">checklist</span>
                                         <span>Fokus Bahasan:</span>
                                     </div>
-                                    <div class="text-slate-600">Keterampilan kepemimpinan (*leadership*), kepengasuhan santri putra, manajemen tata kelola asrama tertib, dan psikologi santri.</div>
+                                    <div class="text-slate-700">Membekali dan meningkatkan keterampilan kepemimpinan (*leadership*), kepengasuhan, manajemen tata kelola asrama tertib & aman, serta psikologi santri putra/putri.</div>
                                 </div>
                             </div>
                             <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> H. Muhammad Nabil, M.Ag., H. Sabiq Wafiyuddin, S.Hum., H. Nur Huda Hasan, M.A., Dr. Abdul Majid Muhdlor, M.Pd.
+                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> H. M. Nabil, M.Ag., H. Sabiq Wafiyuddin, H. Nur Huda Hasan, Dr. Abdul Majid Muhdlor, M. Mulin Ni’am, MA., Nyai Isnayati Cholis, Ning Ainul Ghurroh, Ning Hj. Iffat Basyir.
                             </div>
                         </div>
 
-                        <!-- Majlis 5 -->
-                        <div class="majlis-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-majlis="m4m5">
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800">
-                                        MAJLIS 5 • PELATIHAN ASRAMA
-                                    </span>
-                                    <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-[15px]">groups</span>
-                                        <span>50 Musyrifah (Putri)</span>
-                                    </span>
-                                </div>
-                                <h3 class="text-lg font-black text-slate-900">
-                                    Pelatihan Musyrifah Asrama Putri (2 Hari)
-                                </h3>
-                                <p class="text-xs text-slate-600 leading-relaxed">
-                                    Penguatan peran pembina asrama santriwati dalam menghadirkan ruang asrama yang aman, sehat, higienis, dan berkarakter akhlakul karimah.
-                                </p>
-                                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
-                                    <div class="font-bold text-slate-800 flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-rose-700 text-[14px]">checklist</span>
-                                        <span>Fokus Bahasan:</span>
-                                    </div>
-                                    <div class="text-slate-600">Tata kelola asrama putri ramah santriwati, penanganan kesehatan dan psikologi remaja putri, kepengasuhan penuh kasih sayang.</div>
-                                </div>
-                            </div>
-                            <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> Muhammad Mulin Ni’am, MA., Nyai Isnayati Cholis, Ning Ainul Ghurroh, Ning Hj. Iffat Basyir, Lc., M.Ag.
-                            </div>
-                        </div>
-
-                        <!-- Majlis 6 -->
-                        <div class="majlis-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-majlis="m6">
+                        <!-- Halaqah 5 -->
+                        <div class="halaqah-card bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between" data-halaqah="h5">
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
                                     <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800">
-                                        MAJLIS 6 • LITERASI DIGITAL
+                                        HALAQAH 5 • LITERASI DIGITAL
                                     </span>
                                     <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-[15px]">groups</span>
@@ -3413,21 +3382,21 @@
                                     </span>
                                 </div>
                                 <h3 class="text-lg font-black text-slate-900">
-                                    Pelatihan Media & Kreator Dakwah Pesantren
+                                    Pelatihan Media Pesantren & Kreator Dakwah
                                 </h3>
                                 <p class="text-xs text-slate-600 leading-relaxed">
-                                    Membekali santri pegiat media pondok agar mahir memproduksi narasi dakwah wasathiyah yang menarik dan berdaya saing di era digital.
+                                    Membekali pengurus bidang pengembangan media di pesantren se-Kabupaten Demak agar mahir memproduksi narasi dakwah wasathiyah yang menarik dan berdaya saing di era digital.
                                 </p>
                                 <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 text-xs">
                                     <div class="font-bold text-slate-800 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-purple-700 text-[14px]">checklist</span>
                                         <span>Fokus Bahasan:</span>
                                     </div>
-                                    <div class="text-slate-600">Pembuatan konten video/grafis dakwah, jurnalistik santri, pemanfaatan medsos, dan jejaring publikasi media RMI.</div>
+                                    <div class="text-slate-600">Pembuatan konten video/grafis dakwah, jurnalistik santri, pemanfaatan media sosial, networking, dan penguatan syiar dakwah pesantren.</div>
                                 </div>
                             </div>
                             <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> KH. Basyar Rohman, H. M. Zulfa, Ahmad Fahrurrozi, M. Mukromin, M. Lu'lu'ul Maknun, Ning Shahnaz Nabila, Ning Dina Arvi.
+                                <span class="font-bold text-slate-700">Fasilitator Utama:</span> KH. Basyar Rohman, H. M. Zulfa, Ahmad Fahrurrozi, M. Mukromin, M. Lu'lu'ul Maknun, Ning Shahnaz Nabila, Ning Dina Arvi, Ning Zumrotussa’adah.
                             </div>
                         </div>
 
@@ -3477,7 +3446,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
                                     <div class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                         <span class="material-symbols-outlined text-emerald-600 text-[16px]">check_circle</span>
-                                        <span>6 Majlis Lesehan Mandiri</span>
+                                        <span>Sarana Lesehan 5 Halaqah Mandiri</span>
                                     </div>
                                     <div class="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                         <span class="material-symbols-outlined text-emerald-600 text-[16px]">check_circle</span>
@@ -3570,7 +3539,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-black text-slate-900">Registrasi Mandiri Delegasi 5 Halaqah</h3>
-                                <p class="text-xs text-slate-500">Kuota tiap majlis: 50 peserta per kategori.</p>
+                                <p class="text-xs text-slate-500">Kuota per halaqah: 50–100 peserta sesuai kapasitas.</p>
                             </div>
                         </div>
 
@@ -3615,13 +3584,12 @@
                                     <div class="space-y-1.5">
                                         <label class="block text-[11px] font-semibold text-slate-600">Pilih Majlis yang Diikuti <span class="text-rose-500">*</span></label>
                                         <select id="rsvp-kategori-majlis" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                            <option value="" disabled selected>-- Pilih Kategori Majlis --</option>
-                                            <option value="Majlis 3: Sowan Pengasuh (Kyai/Bu Nyai)">Majlis 3: Sowan Pengasuh (Kyai / Bu Nyai)</option>
-                                            <option value="Majlis 4: Pelatihan Musyrif (Putra)">Majlis 4: Pelatihan Musyrif (Asrama Putra)</option>
-                                            <option value="Majlis 5: Pelatihan Musyrifah (Putri)">Majlis 5: Pelatihan Musyrifah (Asrama Putri)</option>
-                                            <option value="Majlis 6: Pelatihan Media Pesantren">Majlis 6: Pelatihan Media Dakwah Santri</option>
-                                            <option value="Majlis 2: Bidang Madin & Kepala Madin">Majlis 2: Bidang Madin & Kepala Madin NU</option>
-                                            <option value="Majlis 1: Konsolidasi Pengurus RMI">Majlis 1: Konsolidasi Pengurus RMI</option>
+                                            <option value="" disabled selected>-- Pilih Kategori Halaqah --</option>
+                                            <option value="Halaqah 3: Diskusi Kepengasuhan Pengasuh (Kyai/Bu Nyai)">Halaqah 3: Diskusi Kepengasuhan Pengasuh (Kyai / Bu Nyai)</option>
+                                            <option value="Halaqah 4: Pelatihan Musyrif & Musyrifah (Asrama)">Halaqah 4: Pelatihan Musyrif & Musyrifah (Asrama)</option>
+                                            <option value="Halaqah 5: Pelatihan Media Pesantren">Halaqah 5: Pelatihan Media Pesantren</option>
+                                            <option value="Halaqah 2: Bidang Madin & Kepala Madin">Halaqah 2: Bidang Madin & Kepala Madin NU</option>
+                                            <option value="Halaqah 1: Konsolidasi Pengurus RMI">Halaqah 1: Konsolidasi Pengurus RMI</option>
                                         </select>
                                     </div>
 
@@ -4207,7 +4175,7 @@
 
     </footer>
 
-    <script src="app.js?v=20261116_0005"></script>
+    <script src="app.js?v=20261116_0018"></script>
 
     <!-- ======================================================== -->
 

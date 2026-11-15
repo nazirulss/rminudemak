@@ -1840,25 +1840,32 @@ function initSambangCountdown() {
     sambangCountdownTimer = setInterval(updateCountdown, 1000);
 }
 
-function filterSambangMajlis(majlisKey) {
-    const cards = document.querySelectorAll('.majlis-card');
-    const filterBtns = document.querySelectorAll('.majlis-tab-btn');
+function filterSambangHalaqah(halaqahKey) {
+    const cards = document.querySelectorAll('.halaqah-card, .majlis-card');
+    const filterBtns = document.querySelectorAll('.halaqah-tab-btn, .majlis-tab-btn');
     
     filterBtns.forEach(btn => {
-        if (btn.dataset.majlis === majlisKey) {
-            btn.className = 'majlis-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-md transition-all cursor-pointer';
+        const key = btn.dataset.halaqah || btn.dataset.majlis;
+        if (key === halaqahKey) {
+            btn.className = 'halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-emerald-800 text-white shadow-md transition-all cursor-pointer';
         } else {
-            btn.className = 'majlis-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer';
+            btn.className = 'halaqah-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border border-slate-200 transition-all cursor-pointer';
         }
     });
     
     cards.forEach(card => {
-        if (majlisKey === 'all' || card.dataset.majlis === majlisKey) {
+        const key = card.dataset.halaqah || card.dataset.majlis;
+        if (halaqahKey === 'all' || key === halaqahKey) {
             card.classList.remove('hidden');
         } else {
             card.classList.add('hidden');
         }
     });
+}
+
+// Alias kompatibilitas
+function filterSambangMajlis(key) {
+    filterSambangHalaqah(key);
 }
 
 function submitSambangRSVP() {
