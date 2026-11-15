@@ -2289,24 +2289,48 @@ function handleRequestOtp(payload) {
       </div>
     `;
 
-    MailApp.sendEmail({
-      to: email,
-      subject: subject,
-      htmlBody: htmlBody
-    });
+    // Coba kirim via GmailApp terlebih dahulu, jika gagal coba MailApp
+    let sent = false;
+    let lastError = '';
 
+    try {
+      GmailApp.sendEmail(email, subject, "Kode OTP: " + otpCode, {
+        htmlBody: htmlBody,
+        name: "PC RMI NU Demak"
+      });
+      sent = true;
+    } catch (gErr) {
+      lastError = gErr.message;
+      try {
+        MailApp.sendEmail({
+          to: email,
+          subject: subject,
+          htmlBody: htmlBody,
+          name: "PC RMI NU Demak"
+        });
+        sent = true;
+      } catch (mErr) {
+        lastError = mErr.message;
+      }
+    }
+
+    if (sent) {
+      return {
+        success: true,
+        message: 'Kode OTP 6 digit berhasil dikirim ke ' + email,
+        cooldownSeconds: 60
+      };
+    } else {
+      console.error('Gagal mengirim email OTP:', lastError);
+      return {
+        success: false,
+        message: 'Gagal mengirim email OTP: ' + lastError + '. Buka Apps Script Editor lalu jalankan fungsi testSendOtpEmail untuk mengizinkan (Review Permissions).'
+      };
+    }
+  } catch (err) {
     return {
-      success: true,
-      message: 'Kode OTP 6 digit berhasil dikirim ke ' + email,
-      cooldownSeconds: 60
-    };
-  } catch (mailErr) {
-    console.error('Gagal mengirim email OTP:', mailErr);
-    // Jika kuota mail habis atau error, tetap kembalikan info untuk fail-safe
-    return {
-      success: true,
-      message: 'Kode verifikasi telah diproses. Periksa kotak masuk / spam email Anda.',
-      cooldownSeconds: 60
+      success: false,
+      message: 'Terjadi kesalahan sistem pengiriman OTP: ' + err.message
     };
   }
 }
@@ -2393,4 +2417,19 @@ function getAvatarInitials(name) {
   const parts = name.replace(/K.H.|KH.|Gus|Ust.|H.|Hj./gi, '').trim().split(' ');
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+
+// ==========================================
+// FUNGSI OTORISASI EMAIL (JALANKAN DI EDITOR UNTUK MEMICU DIALOG REVIEW PERMISSIONS)
+// ==========================================
+function testSendOtpEmail() {
+  const targetEmail = 'nazirulmuhammad1992@gmail.com';
+  // Panggilan langsung tanpa try-catch agar Google Apps Script memunculkan jendela "Review Permissions"
+  MailApp.sendEmail(
+    targetEmail,
+    "Aktivasi Pengiriman Email OTP PC RMI NU Demak",
+    "Alhamdulillah, otorisasi pengiriman email OTP untuk Portal Satu Data RMI PCNU Demak telah berhasil diaktifkan!"
+  );
+  Logger.log("Email berhasil dikirim ke: " + targetEmail);
 }
