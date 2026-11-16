@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0635">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0640">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -686,10 +686,10 @@
                             </select>
                         </div>
 
-                        <!-- Nama Lembaga / Pondok -->
+                        <!-- Nama Lembaga / Pondok (Dikosongkan agar diisi manual oleh delegasi) -->
                         <div class="space-y-1">
                             <label class="block font-bold text-slate-700 text-[11px]">Nama Pondok Pesantren / Lembaga <span class="text-rose-500">*</span></label>
-                            <input type="text" id="undangan-nama-pesantren" required placeholder="Contoh: PP. Futuhiyyah / Al-Hidayat"
+                            <input type="text" id="undangan-nama-pesantren" required value="" placeholder="Tuliskan nama pondok pesantren / lembaga (cth: PP. Al-Hidayat)"
                                 class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
 
@@ -876,12 +876,15 @@
             const h = (params.get('h') || params.get('halaqah') || '').toLowerCase();
             const peran = params.get('peran') || '';
 
-            // Update Cover Display
+            // Update Cover Display (Form input tetap dikosongkan agar diisi manual oleh delegasi)
             if (to) {
                 document.getElementById('cover-recipient-name').textContent = to;
-                document.getElementById('undangan-nama-pesantren').value = to;
             } else {
                 document.getElementById('cover-recipient-name').textContent = 'Pondok Pesantren se-Kabupaten Demak';
+            }
+            const formPesantrenInput = document.getElementById('undangan-nama-pesantren');
+            if (formPesantrenInput) {
+                formPesantrenInput.value = '';
             }
 
             if (kec) {
