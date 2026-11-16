@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "./index.html",
     "./admin.html",
+    "./undangan.html",
     "./app.js"
   ],
   darkMode: 'class',

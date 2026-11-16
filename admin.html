@@ -317,7 +317,7 @@
                     <div class="relative" id="topbar-notif-section">
                         <button onclick="toggleNotificationPopup(event)" id="btn-notif-bell" title="Pemberitahuan Sistem & Antrean Verifikasi" class="w-9 h-9 rounded-xl border border-slate-200 hover:border-emerald-500 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center shadow-2xs transition-all relative">
                             <span class="material-symbols-outlined text-[18px]">notifications</span>
-                            <span class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-bold text-[9px] min-w-[17px] text-center shadow-xs" id="notif-badge-dot">0</span>
+                            <span class="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-white font-bold text-[9px] min-w-[17px] text-center shadow-xs" id="notif-badge-dot">0</span>
                         </button>
 
                         <!-- Floating Notification Dropdown Popup -->
@@ -5656,7 +5656,7 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex items-center gap-1.5 mb-0.5">
                                         <span class="text-[9px] font-mono text-emerald-800 bg-emerald-100/70 px-1 rounded font-bold">${escapeHTML(item.kode_pesantren)}</span>
-                                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full ${badgeColor}">${statusLabel}</span>
+                                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${badgeColor}">${statusLabel}</span>
                                     </div>
                                     <h4 class="text-xs font-bold text-slate-800 truncate leading-snug">${escapeHTML(item.nama_resmi)}</h4>
                                     <p class="text-[10px] text-slate-500 truncate">Kec. ${escapeHTML(item.kecamatan)} • ${escapeHTML(item.pengasuh_utama)}</p>
@@ -5790,7 +5790,7 @@
                                 ${totalSantri.toLocaleString('id-ID')}
                                 <span class="text-[10px] text-slate-400 font-normal">Santri</span>
                             </span>
-                            <span class="text-[9px] text-emerald-800 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/70 mt-0.5">
+                            <span class="text-[9px] text-emerald-800 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70 mt-0.5">
                                 ${santriMukim.toLocaleString('id-ID')} Mukim
                             </span>
                         </div>
@@ -5809,7 +5809,7 @@
                                     ${escapeHTML(p.nama_resmi)}
                                 </a>
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.2 rounded shadow-2xs">
+                                    <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded shadow-2xs">
                                         ${escapeHTML(p.kode_pesantren)}
                                     </span>
                                     ${p.nama_populer ? `<span class="text-[11px] text-slate-400 font-medium">${escapeHTML(p.nama_populer)}</span>` : ''}
@@ -6360,8 +6360,8 @@
                     marker.bindPopup(`
                         <div class="font-sans text-xs p-1" style="min-width: 170px;">
                             <div class="flex items-center justify-between gap-1 mb-1">
-                                <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200/80">${escapeHTML(p.kode_pesantren)}</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200/80">${escapeHTML(p.kode_pesantren)}</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
                                     ${isVerified ? 'Terverifikasi' : 'Review'}
                                 </span>
                             </div>
@@ -7259,7 +7259,7 @@
                                 <div>
                                     <div class="flex items-center gap-1.5">
                                         <h4 class="font-bold text-xs text-slate-900">${m.module}</h4>
-                                        <span class="text-[9px] uppercase font-bold px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded">${m.category}</span>
+                                        <span class="text-[9px] uppercase font-bold px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">${m.category}</span>
                                     </div>
                                     <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">${m.desc}</p>
                                 </div>
@@ -7432,7 +7432,7 @@
     <!-- Global Loading Spinner Overlay (Untuk Latensi Google Apps Script) -->
     <div id="global-loading-overlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl p-6 shadow-2xl flex items-center gap-4 border border-slate-200 max-w-sm mx-4">
-            <div class="w-8 h-8 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin shrink-0"></div>
+            <div class="w-8 h-8 border-[3px] border-emerald-700 border-t-transparent rounded-full animate-spin shrink-0"></div>
             <div>
                 <h4 class="font-bold text-sm text-slate-800" id="global-loading-title">Menghubungi Server Google...</h4>
                 <p class="text-xs text-slate-500 mt-0.5" id="global-loading-desc">Sinkronisasi data ke Spreadsheet & Drive.</p>
