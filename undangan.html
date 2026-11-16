@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0620">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0635">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -294,27 +294,27 @@
                         </span>
                     </div>
 
-                    <!-- Modern Interactive Horizontal Tab Pills -->
-                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar select-none" id="halaqah-tabs-bar">
-                        <button type="button" onclick="selectHalaqahTab(1)" id="tab-pill-1" class="tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 bg-emerald-700 text-white shadow-sm cursor-pointer">
-                            <span class="material-symbols-outlined text-[15px]">groups</span>
-                            <span>Halaqah 1 (PW-PC)</span>
+                    <!-- Modern Interactive Direct Tab Grid (Semua 5 Halaqah Terlihat Langsung, Tanpa Scroll) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 select-none" id="halaqah-tabs-bar">
+                        <button type="button" onclick="selectHalaqahTab(1)" id="tab-pill-1" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 bg-emerald-700 text-white shadow-sm cursor-pointer text-center">
+                            <span class="material-symbols-outlined text-[15px] shrink-0">groups</span>
+                            <span class="truncate">Halaqah 1 (PW-PC)</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(2)" id="tab-pill-2" class="tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer">
-                            <span class="material-symbols-outlined text-[15px]">menu_book</span>
-                            <span>Halaqah 2 (Madin)</span>
+                        <button type="button" onclick="selectHalaqahTab(2)" id="tab-pill-2" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <span class="material-symbols-outlined text-[15px] shrink-0">menu_book</span>
+                            <span class="truncate">Halaqah 2 (Madin)</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(3)" id="tab-pill-3" class="tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer">
-                            <span class="material-symbols-outlined text-[15px]">stars</span>
-                            <span>Halaqah 3 (Pengasuh)</span>
+                        <button type="button" onclick="selectHalaqahTab(3)" id="tab-pill-3" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <span class="material-symbols-outlined text-[15px] shrink-0">stars</span>
+                            <span class="truncate">Halaqah 3 (Pengasuh)</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(4)" id="tab-pill-4" class="tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer">
-                            <span class="material-symbols-outlined text-[15px]">supervisor_account</span>
-                            <span>Halaqah 4 (Musyrif)</span>
+                        <button type="button" onclick="selectHalaqahTab(4)" id="tab-pill-4" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <span class="material-symbols-outlined text-[15px] shrink-0">supervisor_account</span>
+                            <span class="truncate">Halaqah 4 (Musyrif)</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(5)" id="tab-pill-5" class="tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-all shrink-0 flex items-center gap-1.5 cursor-pointer">
-                            <span class="material-symbols-outlined text-[15px]">videocam</span>
-                            <span>Halaqah 5 (Media)</span>
+                        <button type="button" onclick="selectHalaqahTab(5)" id="tab-pill-5" class="col-span-2 sm:col-span-1 tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
+                            <span class="material-symbols-outlined text-[15px] shrink-0">videocam</span>
+                            <span class="truncate">Halaqah 5 (Media Pesantren)</span>
                         </button>
                     </div>
 
@@ -974,17 +974,18 @@
         function selectHalaqahTab(num) {
             currentActiveHalaqahTab = num;
             
-            // Update Tab Pills
+            // Update Tab Pills (Grid Langsung Tanpa Horizontal Scroll)
             for (let i = 1; i <= 5; i++) {
                 const pill = document.getElementById('tab-pill-' + i);
                 const card = document.getElementById('spotlight-card-' + i);
                 const colors = halaqahPillColors[i];
+                const baseSpan = (i === 5) ? 'col-span-2 sm:col-span-1' : '';
 
                 if (pill) {
                     if (i === num) {
-                        pill.className = `tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shrink-0 flex items-center gap-1.5 ${colors.active} cursor-pointer`;
+                        pill.className = `tab-halaqah-pill ${baseSpan} p-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${colors.active} cursor-pointer text-center`;
                     } else {
-                        pill.className = `tab-halaqah-pill px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all shrink-0 flex items-center gap-1.5 ${colors.inactive} hover:bg-slate-50 cursor-pointer`;
+                        pill.className = `tab-halaqah-pill ${baseSpan} p-2 rounded-xl text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${colors.inactive} hover:bg-slate-50 cursor-pointer text-center`;
                     }
                 }
 
@@ -1000,12 +1001,6 @@
             // Update Indicator
             const indicator = document.getElementById('label-indicator-halaqah');
             if (indicator) indicator.textContent = num + ' / 5';
-
-            // Auto-scroll pill into view smoothly
-            const activePill = document.getElementById('tab-pill-' + num);
-            if (activePill) {
-                activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
         }
 
         function navigateHalaqah(direction) {
