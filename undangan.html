@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1045">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1055">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -845,7 +845,7 @@
     </div>
 
     <!-- AUDIO ELEMENT & WEB AUDIO ENGINE (BACKSONG YA LAL WATHAN) -->
-    <audio id="invitation-audio" loop preload="auto">
+    <audio id="invitation-audio" autoplay loop preload="auto">
         <source src="assets/audio/backsong_sambang.mp3" type="audio/mpeg">
     </audio>
 
@@ -863,6 +863,13 @@
 
         // 1. URL PARAMETER PARSER
         document.addEventListener('DOMContentLoaded', () => {
+            // Auto Play Backsong Musik Ya Lal Wathan saat buka undangan
+            const audioEl = document.getElementById('invitation-audio');
+            if (audioEl) {
+                audioEl.load();
+                startAudioPlayback();
+            }
+
             const params = new URLSearchParams(window.location.search);
             const to = params.get('to') || params.get('nama') || '';
             const kec = params.get('kec') || params.get('kecamatan') || '';
@@ -1151,27 +1158,52 @@
             }
         }, { passive: true });
 
-        // 3. AUDIO PLAYER (BACKSONG RESMI YA LAL WATHAN)
+        // 3. AUDIO PLAYER (BACKSONG RESMI YA LAL WATHAN - AUTOPLAY SAAT BUKA UNDANGAN)
+        let userHasManuallyPaused = false;
+
         function startAudioPlayback() {
+            if (userHasManuallyPaused) return;
             const audio = document.getElementById('invitation-audio');
             if (!audio) return;
-            audio.play().then(() => {
-                isAudioPlaying = true;
-                updateAudioUI(true);
-            }).catch((err) => {
-                console.log('Audio autoplay prevented, using synth fallback:', err);
-                playSynthTone();
-            });
+
+            audio.muted = false;
+            audio.volume = 1.0;
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isAudioPlaying = true;
+                    updateAudioUI(true);
+                }).catch((err) => {
+                    console.log('Audio autoplay tertahan browser, menunggu sentuhan pengguna:', err);
+                    // Pemicu otomatis pada interaksi/sentuhan pertama pengguna di layar
+                    const resumeOnInteract = () => {
+                        if (!userHasManuallyPaused && !isAudioPlaying) {
+                            audio.play().then(() => {
+                                isAudioPlaying = true;
+                                updateAudioUI(true);
+                            }).catch(() => {});
+                        }
+                        ['click', 'touchstart', 'scroll'].forEach(evt => {
+                            document.removeEventListener(evt, resumeOnInteract);
+                        });
+                    };
+                    ['click', 'touchstart', 'scroll'].forEach(evt => {
+                        document.addEventListener(evt, resumeOnInteract, { once: true, passive: true });
+                    });
+                });
+            }
         }
 
         function toggleAudioPlayback() {
             const audio = document.getElementById('invitation-audio');
             if (isAudioPlaying) {
                 if (audio) audio.pause();
-                stopSynthTone();
                 isAudioPlaying = false;
+                userHasManuallyPaused = true; // Baru berhenti jika user mengklik jeda
                 updateAudioUI(false);
             } else {
+                userHasManuallyPaused = false;
                 startAudioPlayback();
             }
         }
@@ -1179,47 +1211,20 @@
         function updateAudioUI(playing) {
             const icon = document.getElementById('audio-icon');
             const text = document.getElementById('audio-status-text');
+            const btn = document.getElementById('audio-control');
             if (!icon || !text) return;
+
             if (playing) {
                 icon.textContent = 'volume_up';
                 text.textContent = 'Musik Nyala';
-                icon.classList.add('animate-pulse');
+                icon.className = 'material-symbols-outlined text-[16px] text-emerald-400 animate-pulse';
+                if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/80 backdrop-blur-md text-emerald-200 border border-emerald-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95';
             } else {
                 icon.textContent = 'volume_off';
                 text.textContent = 'Musik Jeda';
-                icon.classList.remove('animate-pulse');
+                icon.className = 'material-symbols-outlined text-[16px] text-amber-300';
+                if (btn) btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-amber-200 border border-amber-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-slate-800 shadow-lg active:scale-95';
             }
-        }
-
-        function playSynthTone() {
-            try {
-                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioContext.state === 'suspended') audioContext.resume();
-                if (!audioOscillator) {
-                    audioOscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    audioOscillator.type = 'sine';
-                    audioOscillator.frequency.setValueAtTime(432, audioContext.currentTime); // Relaxing 432Hz
-                    gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
-                    audioOscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    audioOscillator.start();
-                    isAudioPlaying = true;
-                    updateAudioUI(true);
-                }
-            } catch (e) {
-                console.log('Audio synth error:', e);
-            }
-        }
-
-        function stopSynthTone() {
-            try {
-                if (audioOscillator) {
-                    audioOscillator.stop();
-                    audioOscillator.disconnect();
-                    audioOscillator = null;
-                }
-            } catch (e) {}
         }
 
         // 4. RSVP SUBMIT & QR CARD GENERATOR

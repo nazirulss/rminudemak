@@ -18,7 +18,7 @@
     
     <!-- Tailwind CSS CDN -->
     <!-- Compiled High-Performance Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1000"/>
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1055"/>
     
     <!-- Leaflet.js (Map Library) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -5996,6 +5996,9 @@
                     if (leafletMap) loadMapMarkers(PESANTREN_DATA);
                     if (dashboardMap) loadDashboardMapMarkers(PESANTREN_DATA, currentDashboardKecamatan);
 
+                    // Sinkronkan juga data Sambang Pesantren secara background
+                    loadSambangAdminData(false);
+
                     showToast('success', `Berhasil memuat ${PESANTREN_DATA.length} data live langsung dari Google Spreadsheet.`);
                 } else {
                     console.warn('Respon live kosong, mempertahankan data lokal.');
@@ -8108,17 +8111,38 @@ function switchSambangTab(tabId) {
     }
 }
 
-// Load Data Delegasi & Presensi dari Backend Google Apps Script
+// Load Data Delegasi & Presensi dari Backend Google Apps Script (Bebas Cache Browser)
 async function loadSambangAdminData(forceRefresh = false) {
     const refreshIcon = document.getElementById('sambang-refresh-icon');
     if (refreshIcon) refreshIcon.classList.add('animate-spin');
 
-    try {
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_SAMBANG_STATS';
-        const res = await fetch(gasUrl);
-        const json = await res.json();
+    if (forceRefresh) {
+        showToast('info', 'Menghubungi Google Spreadsheet untuk sinkronisasi presensi live...');
+    }
 
-        if (json.success) {
+    try {
+        let json = null;
+
+        // 1. Prioritas Utama: POST langsung ke Apps Script (100% Bebas Caching Browser)
+        try {
+            const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'GET_SAMBANG_STATS' })
+            });
+            json = await res.json();
+        } catch (postErr) {
+            console.warn('POST GET_SAMBANG_STATS error, beralih ke anti-cache GET:', postErr);
+        }
+
+        // 2. Metode Cadangan: GET dengan Cache-Buster Timestamp Unik
+        if (!json || !json.success) {
+            const gasUrl = `${APPS_SCRIPT_WEBAPP_URL}?action=GET_SAMBANG_STATS&_t=${Date.now()}`;
+            const res = await fetch(gasUrl, { cache: 'no-store' });
+            json = await res.json();
+        }
+
+        if (json && json.success) {
             sambangDelegatesList = json.data || [];
             sambangStatsData = json.stats || {};
             sambangHalaqahStats = json.halaqah_stats || {};
@@ -8128,13 +8152,19 @@ async function loadSambangAdminData(forceRefresh = false) {
             renderSambangDelegatesTable(sambangDelegatesList);
 
             if (forceRefresh) {
-                showToast('success', 'Data Sambang Pesantren berhasil disinkronkan (' + sambangDelegatesList.length + ' delegasi).');
+                showToast('success', `Berhasil menyinkronkan ${sambangDelegatesList.length} data delegasi langsung dari Spreadsheet.`);
             }
         } else {
-            console.warn('Gagal memuat data sambang:', json.error);
+            console.warn('Gagal memuat data sambang:', json?.error || json);
+            if (forceRefresh) {
+                showToast('error', 'Gagal memuat data delegasi dari Google Sheets: ' + (json?.error || 'Respon kosong'));
+            }
         }
     } catch (err) {
         console.error('Error loadSambangAdminData:', err);
+        if (forceRefresh) {
+            showToast('error', 'Koneksi ke Google Sheets terganggu: ' + err.message);
+        }
     } finally {
         if (refreshIcon) refreshIcon.classList.remove('animate-spin');
     }

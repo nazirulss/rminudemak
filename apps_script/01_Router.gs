@@ -112,6 +112,8 @@ function doPost(e) {
       result = handleSubmitSambangDelegate(payload, lock);
     } else if (action === 'SCAN_CHECKIN_SAMBANG') {
       result = handleScanCheckinSambang(payload, lock);
+    } else if (action === 'GET_SAMBANG_STATS' || action === 'GET_SAMBANG_DELEGATES') {
+      result = getSambangDelegatesData();
     }
     
     return createJsonResponse(result);
