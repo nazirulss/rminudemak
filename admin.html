@@ -18,7 +18,7 @@
     
     <!-- Tailwind CSS CDN -->
     <!-- Compiled High-Performance Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css"/>
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_0940"/>
     
     <!-- Leaflet.js (Map Library) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2001,17 +2001,17 @@
                 <div id="view-sambang" class="space-y-4 fade-in hidden">
                     
                     <!-- HERO BANNER SAMBANG PESANTREN -->
-                    <div class="rounded-2xl bg-gradient-to-r from-[#003d2f] via-[#005c55] to-[#01221b] text-white p-4 sm:p-5 shadow-lg border border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="rounded-2xl text-white p-4 sm:p-5 shadow-lg border border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4" style="background: linear-gradient(135deg, #003d2f 0%, #005c55 50%, #01221b 100%); background-color: #003d2f; color: #ffffff;">
                         <div class="space-y-1.5">
-                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm">
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm" style="background-color: #fbbf24; color: #020617;">
                                 <span class="material-symbols-outlined text-[13px]">verified</span>
                                 <span>PW RMI NU JAWA TENGAH • TUAN RUMAH DEMAK</span>
                             </div>
-                            <h2 class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
+                            <h2 class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2" style="color: #ffffff;">
                                 <span class="material-symbols-outlined text-emerald-300 text-[24px]">qr_code_scanner</span>
                                 <span>Sambang Pesantren Jilid II (2026)</span>
                             </h2>
-                            <p class="text-xs text-emerald-100/90 flex flex-wrap items-center gap-2 font-medium">
+                            <p class="text-xs flex flex-wrap items-center gap-2 font-medium" style="color: #d1fae5;">
                                 <span>Ahad, 22 November 2026 • 12.30 WIB</span>
                                 <span class="text-emerald-300">•</span>
                                 <span>PP. Futuhiyyah Mranggen (Area SMK Futuhiyyah)</span>
@@ -2020,11 +2020,11 @@
 
                         <!-- Right Actions -->
                         <div class="flex items-center gap-2 shrink-0">
-                            <a href="undangan.html" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all shadow-xs">
+                            <a href="undangan.html" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs hover:bg-white/20" style="background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #ffffff;">
                                 <span class="material-symbols-outlined text-[16px] text-amber-300">open_in_new</span>
                                 <span>Web Undangan</span>
                             </a>
-                            <button type="button" onclick="loadSambangAdminData(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all shadow-md cursor-pointer">
+                            <button type="button" onclick="loadSambangAdminData(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-slate-950 text-xs font-black transition-all shadow-md cursor-pointer hover:opacity-90" style="background-color: #10b981; color: #020617;">
                                 <span class="material-symbols-outlined text-[16px]" id="sambang-refresh-icon">refresh</span>
                                 <span>Sinkron Data</span>
                             </button>
@@ -2071,17 +2071,17 @@
                                 </div>
 
                                 <!-- Kamera Viewport Frame -->
-                                <div class="relative w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-inner min-h-[300px] flex flex-col items-center justify-center">
+                                <div class="relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-inner min-h-[300px] flex flex-col items-center justify-center" style="background-color: #020617; border: 2px solid #1e293b;">
                                     <div id="qr-reader" class="w-full"></div>
                                     
                                     <!-- Placeholder saat kamera off -->
                                     <div id="qr-scanner-placeholder" class="p-8 text-center space-y-3">
-                                        <div class="w-16 h-16 mx-auto rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
+                                        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-slate-400" style="background-color: #0f172a; border: 1px solid #334155;">
                                             <span class="material-symbols-outlined text-[32px]">videocam_off</span>
                                         </div>
                                         <div class="space-y-1">
-                                            <p class="text-xs font-bold text-slate-300">Kamera Scanner Belum Aktif</p>
-                                            <p class="text-[11px] text-slate-500 max-w-xs mx-auto">Klik tombol "Mulai Kamera" di bawah atau gunakan verifikasi ID manual jika kamera tidak tersedia.</p>
+                                            <p class="text-xs font-bold" style="color: #e2e8f0;">Kamera Scanner Belum Aktif</p>
+                                            <p class="text-[11px] max-w-xs mx-auto" style="color: #94a3b8;">Klik tombol "Mulai Kamera" di bawah atau gunakan verifikasi ID manual jika kamera tidak tersedia.</p>
                                         </div>
                                     </div>
                                 </div>
