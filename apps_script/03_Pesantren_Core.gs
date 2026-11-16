@@ -52,8 +52,12 @@ function handleCreatePesantren(payload, lock) {
   // 2. Upload file izin & foto ke Google Drive
   let izopDrive = null;
   let fotoDrive = null;
+  let logoDrive = null;
   if (files.izop) izopDrive = uploadBase64FileToDrive(files.izop, 'Legalitas_IZOP');
   if (files.foto) fotoDrive = uploadBase64FileToDrive(files.foto, 'Foto_Lokasi');
+  if (files.logo) logoDrive = uploadBase64FileToDrive(files.logo, 'Logo_Pesantren');
+
+  const logoUrl = logoDrive ? (logoDrive.directUrl || logoDrive.url) : (data.logo_url || '');
   
   // 3. Tulis ke sheet: pesantren
   const sheetPesantren = ss.getSheetByName('pesantren');
@@ -75,7 +79,8 @@ function handleCreatePesantren(payload, lock) {
     now,
     now,
     payload.user || 'Admin',
-    payload.user || 'Admin'
+    payload.user || 'Admin',
+    logoUrl
   ]);
   
   // 4. Tulis ke sheet: pesantren_locations
@@ -167,11 +172,96 @@ function handleCreatePesantren(payload, lock) {
     success: true,
     pesantrenId: pesantrenId,
     kode_pesantren: kodePesantren,
+    logo_url: logoUrl,
     message: 'Pesantren berhasil disimpan dan ID resmi berhasil diterbitkan.',
     filesUploaded: {
       izop: izopDrive ? izopDrive.url : null,
-      foto: fotoDrive ? fotoDrive.url : null
+      foto: fotoDrive ? fotoDrive.url : null,
+      logo: logoUrl || null
     }
+  };
+}
+
+// =========================================================================
+// PEMBARUAN LOGO RESMI PESANTREN (BUKU INDUK DOMAIN 1)
+// =========================================================================
+function handleUpdatePesantrenLogo(payload) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('pesantren');
+  if (!sheet) return { success: false, message: 'Sheet pesantren tidak ditemukan' };
+  
+  const pesantrenId = payload.pesantrenId;
+  const fileLogo = payload.fileLogo || payload.logo;
+  const user = payload.user || 'Admin';
+  const role = payload.role || 'super_admin';
+  const now = new Date().toISOString();
+  
+  if (!fileLogo || !fileLogo.base64) {
+    return { success: false, message: 'File logo tidak valid atau kosong' };
+  }
+  
+  // Upload ke Google Drive subfolder Logo_Pesantren
+  const uploaded = uploadBase64FileToDrive(fileLogo, 'Logo_Pesantren');
+  if (!uploaded) {
+    return { success: false, message: 'Gagal mengunggah file logo ke Google Drive' };
+  }
+  
+  const logoUrl = uploaded.directUrl || uploaded.url;
+  
+  // Cari baris pesantren berdasarkan id atau kode_pesantren
+  const data = sheet.getDataRange().getValues();
+  let foundRow = -1;
+  let kodePesantren = '';
+  let namaPesantren = '';
+  
+  const headers = data[0];
+  let colLogo = headers.indexOf('logo_url') + 1;
+  if (colLogo === 0) {
+    // Tambahkan header logo_url di akhir jika belum ada
+    colLogo = headers.length + 1;
+    sheet.getRange(1, colLogo).setValue('logo_url').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+  }
+  
+  for (let r = 1; r < data.length; r++) {
+    if (data[r][0] === pesantrenId || data[r][1] === pesantrenId) {
+      foundRow = r + 1;
+      kodePesantren = data[r][1];
+      namaPesantren = data[r][2];
+      break;
+    }
+  }
+  
+  if (foundRow === -1) {
+    return { success: false, message: 'Pesantren ID ' + pesantrenId + ' tidak ditemukan dalam database.' };
+  }
+  
+  // Set nilai logo_url
+  sheet.getRange(foundRow, colLogo).setValue(logoUrl);
+  // Update updated_at dan updated_by
+  if (headers.indexOf('updated_at') !== -1) {
+    sheet.getRange(foundRow, headers.indexOf('updated_at') + 1).setValue(now);
+  }
+  if (headers.indexOf('updated_by') !== -1) {
+    sheet.getRange(foundRow, headers.indexOf('updated_by') + 1).setValue(user);
+  }
+  
+  // Catat audit log
+  recordAuditLog(ss, {
+    user_id: user,
+    user_role: role,
+    event_type: 'UPDATE_PESANTREN_LOGO',
+    entity_type: 'pesantren',
+    entity_id: kodePesantren,
+    action_description: 'Pembaruan logo resmi pesantren: ' + namaPesantren,
+    status: 'SUCCESS'
+  });
+  
+  return {
+    success: true,
+    message: 'Logo resmi pesantren berhasil diperbarui.',
+    logo_url: logoUrl,
+    pesantrenId: pesantrenId,
+    kode_pesantren: kodePesantren
   };
 }
 
@@ -429,6 +519,18 @@ function getAllPesantrenData() {
   
   const pHeaders = pValues[0];
   
+  // Pastikan kolom logo_url ada di baris 1 header
+  let logoColIdx = pHeaders.indexOf('logo_url');
+  if (logoColIdx === -1) {
+    try {
+      sheetPesantren.getRange(1, pHeaders.length + 1).setValue('logo_url').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      pHeaders.push('logo_url');
+      logoColIdx = pHeaders.length - 1;
+    } catch (eH) {
+      Logger.log('Gagal menambah header logo_url: ' + eH.message);
+    }
+  }
+  
   // Baca tabel-tabel relasi pendukung untuk digabungkan
   const sheetLoc = ss.getSheetByName('pesantren_locations');
   const sheetLeaders = ss.getSheetByName('pesantren_leaders');
@@ -454,6 +556,7 @@ function getAllPesantrenData() {
     });
 
     const pId = obj.id;
+    obj.logo_url = obj.logo_url ? String(obj.logo_url).trim() : '';
 
     // Join Location
     obj.alamat = '';

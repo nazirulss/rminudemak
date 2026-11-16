@@ -180,6 +180,8 @@ Data yang berubah dari tahun ke tahun harus memiliki `tahun_data` atau
                                                                  dibuat oleh pengguna
 
   `updated_by`               UUID              Opsional, sistem  FK ke `users.id`
+
+  `logo_url`                 VARCHAR(500)      Opsional          URL publik gambar logo resmi lembaga (Google Drive)
   -------------------------------------------------------------------------------------
 
 **Aturan tambahan:** - Kombinasi nama dan wilayah dapat digunakan untuk

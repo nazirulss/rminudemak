@@ -82,6 +82,8 @@ function doPost(e) {
     
     if (action === 'CREATE_PESANTREN') {
       result = handleCreatePesantren(payload, lock);
+    } else if (action === 'UPDATE_PESANTREN_LOGO' || action === 'UPLOAD_PESANTREN_LOGO') {
+      result = handleUpdatePesantrenLogo(payload);
     } else if (action === 'UPDATE_VERIFIKASI') {
       result = handleUpdateVerifikasi(payload);
     } else if (action === 'UPDATE_PESANTREN_PROFILE') {

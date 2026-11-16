@@ -18,7 +18,7 @@
     
     <!-- Tailwind CSS CDN -->
     <!-- Compiled High-Performance Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1055"/>
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1312"/>
     
     <!-- Leaflet.js (Map Library) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -736,6 +736,26 @@
                                             <option value="unknown">Dalam Konfirmasi</option>
                                         </select>
                                     </div>
+
+                                    <!-- Logo Resmi Pesantren (Opsional) -->
+                                    <div class="md:col-span-2 bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200">
+                                        <label class="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-[17px] text-emerald-700">image</span> Logo Resmi Pesantren (Opsional)
+                                            </span>
+                                            <span class="text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Format PNG / JPG transparan</span>
+                                        </label>
+                                        <div class="flex items-center gap-3.5 mt-2">
+                                            <div id="add-logo-preview-box" class="w-12 h-12 rounded-xl bg-white border-2 border-dashed border-emerald-300 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+                                                <span class="material-symbols-outlined text-slate-400 text-2xl" id="add-logo-placeholder-icon">photo_library</span>
+                                                <img id="add-logo-preview-img" src="" alt="Preview Logo" class="w-full h-full object-contain hidden" />
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <input type="file" id="add-file-logo" accept="image/png,image/jpeg,image/webp" onchange="previewAddLogoFile(this)" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 border border-slate-300 rounded-lg p-1 bg-white cursor-pointer" />
+                                                <p class="text-[10px] text-slate-500 mt-1">Maksimal 2 MB. Logo akan otomatis tampil di Direktori, Buku Induk, dan Web Publik.</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -910,7 +930,8 @@
                         <!-- Header Surat / Dokumen Resmi -->
                         <div class="border-b-2 border-emerald-800 pb-6 flex items-center justify-between gap-4">
                             <div class="flex items-center gap-4">
-                                <img src="assets/img/logo_rmi.png" alt="RMI NU Demak" class="h-16 w-16 object-contain" />
+                                <img src="assets/img/logo_rmi.png" alt="RMI NU Demak" class="h-16 w-16 object-contain shrink-0" />
+                                <div id="bi-header-pesantren-logo" class="hidden sm:flex items-center justify-center shrink-0"></div>
                                 <div>
                                     <h4 class="text-xs uppercase font-extrabold tracking-widest text-emerald-800">Pengurus Cabang Rabithah Ma'ahid Islamiyah Nahdlatul Ulama</h4>
                                     <h2 class="text-2xl font-black text-slate-900">BUKU INDUK PESANTREN KABUPATEN DEMAK</h2>
@@ -2544,6 +2565,56 @@
                         Verifikasi (Setujui)
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Unggah / Ganti Logo Pesantren (Domain 1) -->
+    <div id="modal-upload-logo" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-slideFadeIn">
+            <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[20px]">add_photo_alternate</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Buku Induk • Domain 1</span>
+                        <h3 class="text-base font-bold text-slate-800" id="modal-upload-logo-nama">Unggah Logo Pesantren</h3>
+                        <p class="text-xs text-slate-400 font-mono" id="modal-upload-logo-kode">RMI-DMK-000001</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modal-upload-logo')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex flex-col items-center justify-center p-5 bg-slate-50 border-2 border-dashed border-emerald-300 rounded-2xl text-center">
+                    <div id="modal-logo-preview-box" class="w-24 h-24 rounded-2xl bg-white border border-slate-200 p-1.5 flex items-center justify-center overflow-hidden shadow-inner mb-3">
+                        <span class="material-symbols-outlined text-4xl text-slate-300" id="modal-logo-placeholder">image</span>
+                        <img id="modal-logo-preview-img" src="" alt="Preview Logo" class="w-full h-full object-contain hidden" />
+                    </div>
+                    <label class="cursor-pointer px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">file_upload</span>
+                        <span>Pilih Berkas Logo</span>
+                        <input type="file" id="modal-input-logo" accept="image/png,image/jpeg,image/webp" onchange="previewModalLogoFile(this)" class="hidden" />
+                    </label>
+                    <p class="text-[10px] text-slate-400 mt-2">Format didukung: PNG transparan, JPG, WebP. Maksimal 2 MB.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-[11px] text-amber-800 flex items-start gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-amber-600 shrink-0 mt-0.5">info</span>
+                    <span>Logo resmi akan diunggah ke Google Drive dan langsung terhubung ke Direktori Pesantren, Buku Induk, dan Web Publik.</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button type="button" onclick="closeModal('modal-upload-logo')" class="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" id="btn-save-modal-logo" onclick="submitModalLogoUpload()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">save</span>
+                    <span id="btn-save-modal-logo-text">Simpan & Terapkan Logo</span>
+                </button>
             </div>
         </div>
     </div>
@@ -5683,7 +5754,9 @@
         // ==========================================
         function getPesantrenLogoBadge(p) {
             if (p.logo_url) {
-                return `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200 p-0.5 shadow-2xs mx-auto" onerror="this.outerHTML=getPesantrenFallbackBadge('${escapeHTML(p.nama_resmi)}','${escapeHTML(p.kode_pesantren)}')" />`;
+                const safeName = escapeHTML((p.nama_resmi || '').replace(/'/g, "\\'"));
+                const safeCode = escapeHTML((p.kode_pesantren || '').replace(/'/g, "\\'"));
+                return `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200 p-0.5 shadow-2xs mx-auto" onerror="this.outerHTML=getPesantrenFallbackBadge('${safeName}','${safeCode}')" />`;
             }
             return getPesantrenFallbackBadge(p.nama_resmi, p.kode_pesantren);
         }
@@ -6077,6 +6150,28 @@
             renderDirektoriTable(PESANTREN_DATA);
         }
 
+        function previewAddLogoFile(input) {
+            const previewImg = document.getElementById('add-logo-preview-img');
+            const placeholder = document.getElementById('add-logo-placeholder-icon');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                        previewImg.classList.remove('hidden');
+                    }
+                    if (placeholder) placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.classList.add('hidden');
+                }
+                if (placeholder) placeholder.classList.remove('hidden');
+            }
+        }
+
         async function handleFormTambah(e) {
             e.preventDefault();
 
@@ -6101,6 +6196,7 @@
             // Baca File Berkas Lampiran (Base64)
             const fileIzop = await readFileAsBase64(document.getElementById('add-file-izop'));
             const fileFoto = await readFileAsBase64(document.getElementById('add-file-foto'));
+            const fileLogo = await readFileAsBase64(document.getElementById('add-file-logo'));
 
             // Generate Next Sequence (Simulasi LockService)
             const nextSeq = PESANTREN_DATA.length + 1;
@@ -6128,6 +6224,7 @@
                 santri_mukim: 0,
                 santri_nonmukim: 0,
                 jenjang_pendidikan: ["Madrasah Diniyah"],
+                logo_url: fileLogo ? (fileLogo.data || '') : '',
                 media_sosial: {
                     hotline_psb: document.getElementById('add-hotline-psb').value.trim(),
                     youtube: document.getElementById('add-youtube').value.trim(),
@@ -6135,14 +6232,15 @@
                 },
                 berkas_lampiran: {
                     izop_name: fileIzop ? fileIzop.filename : null,
-                    foto_name: fileFoto ? fileFoto.filename : null
+                    foto_name: fileFoto ? fileFoto.filename : null,
+                    logo_name: fileLogo ? fileLogo.filename : null
                 }
             };
 
             // Kirim ke Backend Adapter Apps Script
             const serverResult = await callAppsScript('CREATE_PESANTREN', {
                 pesantren: newRecord,
-                files: { izop: fileIzop, foto: fileFoto },
+                files: { izop: fileIzop, foto: fileFoto, logo: fileLogo },
                 user: getActiveAdminName(),
                 role: currentRole
             });
@@ -6152,6 +6250,9 @@
                 newRecord.kode_pesantren = serverResult.kode_pesantren;
                 newRecord.id = serverResult.pesantrenId || newRecord.id;
             }
+            if (serverResult && serverResult.logo_url) {
+                newRecord.logo_url = serverResult.logo_url;
+            }
 
             PESANTREN_DATA.unshift(newRecord);
             
@@ -6160,7 +6261,7 @@
                 time: "Baru saja",
                 user: `${getActiveAdminName()} (${currentRole})`,
                 action: "CREATE_PESANTREN",
-                entity: kodeBaru,
+                entity: newRecord.kode_pesantren,
                 summary: `Inisiasi record baru: ${namaBaru} (Komitmen Aman: ${newRecord.has_komitmen_pesantren_aman ? 'Ya' : 'Tidak'})`,
                 status: "SUCCESS"
             });
@@ -6169,8 +6270,12 @@
             if (submitBtn) submitBtn.disabled = false;
             if (submitText) submitText.innerText = "Simpan & Terbitkan ID RMI";
 
-            showToast('success', `Pesantren berhasil didaftarkan dengan kode resmi: ${kodeBaru}`);
+            showToast('success', `Pesantren berhasil didaftarkan dengan kode resmi: ${newRecord.kode_pesantren}`);
             document.getElementById('form-tambah-pesantren').reset();
+            const pImg = document.getElementById('add-logo-preview-img');
+            const pHolder = document.getElementById('add-logo-placeholder-icon');
+            if (pImg) { pImg.src = ''; pImg.classList.add('hidden'); }
+            if (pHolder) pHolder.classList.remove('hidden');
             
             // Perbarui view
             renderDirektoriTable(PESANTREN_DATA);
@@ -6255,7 +6360,7 @@
             modal.classList.add('flex');
         }
 
-        function submitReviewDecision(decision) {
+        async function submitReviewDecision(decision) {
             if (!currentReviewPesantrenId) return;
 
             const p = PESANTREN_DATA.find(item => item.id === currentReviewPesantrenId);
@@ -6273,7 +6378,25 @@
                 p.status_verifikasi_lokasi = 'verified';
             }
 
-            // Catat audit
+            closeModal('modal-review');
+            showLoading("Menyimpan Verifikasi", "Menyinkronkan status verifikasi ke Google Spreadsheet & Audit Log...");
+
+            // Kirim ke Backend Apps Script
+            try {
+                const res = await callAppsScript('UPDATE_VERIFIKASI', {
+                    pesantrenId: p.id,
+                    decision: decision,
+                    catatan: catatan,
+                    user: getActiveAdminName(),
+                    role: currentRole
+                });
+                console.log('Update verifikasi server response:', res);
+            } catch (err) {
+                console.warn('Gagal sync verifikasi ke server:', err);
+            }
+            hideLoading();
+
+            // Catat audit lokal
             AUDIT_LOGS.unshift({
                 time: "Baru saja",
                 user: `${getActiveAdminName()} (${currentRole})`,
@@ -6283,13 +6406,18 @@
                 status: decision === 'rejected' ? 'REJECTED' : 'SUCCESS'
             });
 
-            closeModal('modal-review');
             showToast('success', `Status verifikasi untuk ${p.nama_resmi} berhasil diperbarui.`);
             
             renderDirektoriTable(PESANTREN_DATA);
             renderPriorityQueue();
             filterVerifikasiStatus(decision);
             loadAuditLogs();
+            if (typeof loadMapMarkers === 'function' && typeof leafletMap !== 'undefined' && leafletMap) {
+                loadMapMarkers(PESANTREN_DATA);
+            }
+            if (typeof loadDashboardMapMarkers === 'function' && typeof dashboardMap !== 'undefined' && dashboardMap) {
+                loadDashboardMapMarkers(PESANTREN_DATA);
+            }
         }
 
         // ==========================================
@@ -6529,6 +6657,16 @@
 
             document.getElementById('bi-header-kode').innerText = p.kode_pesantren;
             
+            // Header Pesantren Logo (Kop Dokumen Resmi)
+            const logoHeaderBox = document.getElementById('bi-header-pesantren-logo');
+            if (logoHeaderBox) {
+                if (p.logo_url) {
+                    logoHeaderBox.innerHTML = `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="h-14 w-14 object-contain border-l border-slate-200 pl-3" />`;
+                } else {
+                    logoHeaderBox.innerHTML = '';
+                }
+            }
+
             // Dynamic Pesantren Aman Badge in Header
             const amanContainer = document.getElementById('bi-header-aman-badge');
             if (amanContainer) {
@@ -6614,6 +6752,24 @@
                                     <span>Identitas Lembaga</span>
                                     <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">${p.kode_pesantren}</span>
                                 </h4>
+
+                                <!-- Logo Lembaga & Aksi Upload/Ganti (Domain 1) -->
+                                <div class="flex items-center gap-3.5 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                                    <div class="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
+                                        ${p.logo_url ? `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-full h-full object-contain" />` : getPesantrenFallbackBadge(p.nama_resmi, p.kode_pesantren)}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Logo Resmi Lembaga</span>
+                                            ${p.logo_url ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Tersimpan di Cloud</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-100 text-amber-800">Monogram Inisial</span>'}
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${p.logo_url ? 'Logo aktif terhubung ke Cloud Drive.' : 'Belum memiliki berkas logo digital.'}</p>
+                                        <button type="button" onclick="openModalUploadLogo('${escapeHTML(p.id)}')" class="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[11px] font-bold transition shadow-xs cursor-pointer">
+                                            <span class="material-symbols-outlined text-[14px]">upload</span>
+                                            <span>${p.logo_url ? 'Ganti Logo Pesantren' : 'Unggah Logo Pesantren'}</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <div><span class="text-slate-400 block">Nama Resmi Pesantren:</span><span class="font-bold text-sm text-slate-900">${p.nama_resmi}</span></div>
                                 <div><span class="text-slate-400 block">Nama Populer / Julukan:</span><span class="font-semibold text-slate-800">${p.nama_populer || '-'}</span></div>
                                 <div><span class="text-slate-400 block">Tahun Berdiri:</span><span class="font-semibold">${p.tahun_berdiri} Masehi</span></div>
@@ -6899,6 +7055,110 @@
             }
 
             container.innerHTML = content;
+        }
+
+        // ==========================================
+        // 12.B PENGELOLAAN LOGO PESANTREN (BUKU INDUK DOMAIN 1)
+        // ==========================================
+        let currentUploadLogoPesantrenId = null;
+
+        function openModalUploadLogo(pesantrenId) {
+            currentUploadLogoPesantrenId = pesantrenId;
+            const p = PESANTREN_DATA.find(item => item.id === pesantrenId);
+            if (!p) return;
+
+            const nameEl = document.getElementById('modal-upload-logo-nama');
+            const codeEl = document.getElementById('modal-upload-logo-kode');
+            if (nameEl) nameEl.innerText = p.nama_resmi;
+            if (codeEl) codeEl.innerText = p.kode_pesantren;
+
+            const previewImg = document.getElementById('modal-logo-preview-img');
+            const placeholder = document.getElementById('modal-logo-placeholder');
+            const fileInput = document.getElementById('modal-input-logo');
+            if (fileInput) fileInput.value = '';
+
+            if (p.logo_url) {
+                if (previewImg) {
+                    previewImg.src = p.logo_url;
+                    previewImg.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+            } else {
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.classList.add('hidden');
+                }
+                if (placeholder) placeholder.classList.remove('hidden');
+            }
+
+            const modal = document.getElementById('modal-upload-logo');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function previewModalLogoFile(input) {
+            const previewImg = document.getElementById('modal-logo-preview-img');
+            const placeholder = document.getElementById('modal-logo-placeholder');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                        previewImg.classList.remove('hidden');
+                    }
+                    if (placeholder) placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        async function submitModalLogoUpload() {
+            if (!currentUploadLogoPesantrenId) return;
+            const p = PESANTREN_DATA.find(item => item.id === currentUploadLogoPesantrenId);
+            if (!p) return;
+
+            const fileInput = document.getElementById('modal-input-logo');
+            if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+                alert('Silakan pilih berkas gambar logo terlebih dahulu.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-modal-logo');
+            const btnText = document.getElementById('btn-save-modal-logo-text');
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.innerText = 'Mengunggah ke Drive...';
+            showLoading('Mengunggah Logo Pesantren', 'Menyimpan berkas logo ke Google Drive & memperbarui database master...');
+
+            try {
+                const fileObj = await readFileAsBase64(fileInput);
+                const res = await callAppsScript('UPDATE_PESANTREN_LOGO', {
+                    pesantrenId: p.id,
+                    fileLogo: fileObj,
+                    user: getActiveAdminName(),
+                    role: currentRole
+                });
+
+                if (res && res.success && res.logo_url) {
+                    p.logo_url = res.logo_url;
+                    showToast('success', `Logo resmi untuk ${p.nama_resmi} berhasil diperbarui.`);
+                    closeModal('modal-upload-logo');
+
+                    // Refresh lembar Buku Induk & tabel Direktori
+                    loadBukuInduk(p.id);
+                    renderDirektoriTable(PESANTREN_DATA);
+                } else {
+                    alert('Gagal mengunggah logo: ' + (res.message || 'Terjadi kesalahan server'));
+                }
+            } catch (err) {
+                console.error('Error upload logo:', err);
+                alert('Terjadi kesalahan saat mengunggah logo: ' + err.message);
+            } finally {
+                hideLoading();
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.innerText = 'Simpan & Terapkan Logo';
+            }
         }
 
         // ==========================================

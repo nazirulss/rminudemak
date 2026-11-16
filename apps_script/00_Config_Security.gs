@@ -21,7 +21,8 @@ const SCHEMAS = {
     'id', 'kode_pesantren', 'nama_resmi', 'nama_populer', 'nspp', 'tahun_berdiri',
     'status_operasional', 'status_keanggotaan_rmi', 'status_verifikasi',
     'status_verifikasi_lokasi', 'status_publikasi', 'has_komitmen_pesantren_aman',
-    'sumber_data_awal', 'keterangan_status', 'created_at', 'updated_at', 'created_by', 'updated_by'
+    'sumber_data_awal', 'keterangan_status', 'created_at', 'updated_at', 'created_by', 'updated_by',
+    'logo_url'
   ],
   pesantren_locations: [
     'id', 'pesantren_id', 'alamat_jalan', 'rt', 'rw', 'dusun', 'desa_kelurahan',
