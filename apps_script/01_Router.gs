@@ -110,6 +110,8 @@ function doPost(e) {
       result = handleDeletePengurusRecord(payload);
     } else if (action === 'SUBMIT_SAMBANG_DELEGATE') {
       result = handleSubmitSambangDelegate(payload, lock);
+    } else if (action === 'SCAN_CHECKIN_SAMBANG') {
+      result = handleScanCheckinSambang(payload, lock);
     }
     
     return createJsonResponse(result);

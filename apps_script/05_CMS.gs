@@ -270,25 +270,145 @@ function handleSubmitSambangDelegate(payload, lock) {
   }
 }
 
+// Check-in Kehadiran Delegasi via Scan QR Code / Manual ID di Meja Tamu
+function handleScanCheckinSambang(payload, lock) {
+  try {
+    const rawCode = String(payload.delegate_id || payload.qr_code || '').trim();
+    if (!rawCode) {
+      return { success: false, error: 'Kode QR atau ID Delegasi tidak boleh kosong.' };
+    }
+
+    // Ekstraksi ID delegasi (misal jika format QR berupa JSON string atau URL, cari SBP-2026-xxx)
+    let delegateId = rawCode;
+    const match = rawCode.match(/SBP-2026-\d{3,}/i);
+    if (match) {
+      delegateId = match[0].toUpperCase();
+    } else {
+      delegateId = delegateId.toUpperCase();
+    }
+
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('sambang_delegates');
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return { success: false, error: 'Database sambang_delegates belum memiliki data.' };
+    }
+
+    // Pastikan schema header lengkap (termasuk waktu_kehadiran & petugas_scan)
+    const headers = SCHEMAS.sambang_delegates;
+    const curHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+    if (curHeaders.length < headers.length || curHeaders[10] !== 'waktu_kehadiran') {
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+    }
+
+    const raw = sheet.getDataRange().getValues();
+    let foundRowIndex = -1;
+    let delegateRecord = null;
+
+    for (let i = 1; i < raw.length; i++) {
+      const rowId = String(raw[i][0] || '').trim().toUpperCase();
+      if (rowId === delegateId) {
+        foundRowIndex = i + 1; // 1-based index in Google Sheets
+        delegateRecord = raw[i];
+        break;
+      }
+    }
+
+    if (foundRowIndex === -1 || !delegateRecord) {
+      return {
+        success: false,
+        error: 'ID Delegasi "' + delegateId + '" tidak ditemukan di database resmi PC RMI NU Demak.'
+      };
+    }
+
+    const currentStatus = String(delegateRecord[9] || '').toUpperCase();
+    const namaPeserta = delegateRecord[5] || '-';
+    const namaPesantren = delegateRecord[3] || '-';
+    const kategoriHalaqah = delegateRecord[4] || '-';
+    const kecamatan = delegateRecord[2] || '-';
+    const jabatan = delegateRecord[7] || '-';
+    const existingWaktu = delegateRecord[10] || '-';
+
+    // Cek jika sudah pernah check-in
+    if (currentStatus === 'HADIR') {
+      return {
+        success: true,
+        already_checked_in: true,
+        delegate_id: delegateId,
+        nama_peserta: namaPeserta,
+        nama_pesantren: namaPesantren,
+        kategori_halaqah: kategoriHalaqah,
+        kecamatan: kecamatan,
+        jabatan_peran: jabatan,
+        waktu_kehadiran: existingWaktu,
+        petugas_scan: delegateRecord[11] || 'Front-Desk',
+        message: 'PERINGATAN: Delegasi ' + namaPeserta + ' (' + namaPesantren + ') SUDAH PERNAH CHECK-IN sebelumnya pada ' + existingWaktu + '.'
+      };
+    }
+
+    // Eksekusi Check-in baru
+    const checkinTime = Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd HH:mm:ss');
+    const petugas = payload.petugas || 'Front-Desk Futuhiyyah';
+
+    sheet.getRange(foundRowIndex, 10).setValue('HADIR');
+    sheet.getRange(foundRowIndex, 11).setValue(checkinTime);
+    sheet.getRange(foundRowIndex, 12).setValue(petugas);
+
+    return {
+      success: true,
+      already_checked_in: false,
+      delegate_id: delegateId,
+      nama_peserta: namaPeserta,
+      nama_pesantren: namaPesantren,
+      kategori_halaqah: kategoriHalaqah,
+      kecamatan: kecamatan,
+      jabatan_peran: jabatan,
+      waktu_kehadiran: checkinTime,
+      petugas_scan: petugas,
+      message: 'VERIFIKASI BERHASIL! Selamat Datang ' + namaPeserta + ' (' + namaPesantren + ') di ' + kategoriHalaqah + '.'
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
 function getSambangDelegatesData() {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const sheet = ss.getSheetByName('sambang_delegates');
     if (!sheet || sheet.getLastRow() <= 1) {
-      return { success: true, count: 0, data: [], stats: {} };
+      return {
+        success: true,
+        count: 0,
+        total_terdaftar: 0,
+        total_hadir: 0,
+        data: [],
+        stats: {},
+        halaqah_stats: {}
+      };
     }
 
-    // Auto-migrate header jika masih 'kategori_majlis'
+    // Auto-migrate header jika masih kurang kolom atau masih ada 'kategori_majlis'
     const headers = SCHEMAS.sambang_delegates;
     const curHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-    if (curHeaders[4] !== 'kategori_halaqah') {
+    if (curHeaders[4] !== 'kategori_halaqah' || curHeaders.length < headers.length) {
       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
     }
 
     const raw = sheet.getDataRange().getValues();
     const colHeaders = raw[0];
     const delegates = [];
     const stats = {};
+    const halaqahStats = {
+      'Halaqah 1: Konsolidasi Pengurus RMI': { registered: 0, present: 0, max_capacity: 60 },
+      'Halaqah 2: Bidang Madin & Kepala Madin': { registered: 0, present: 0, max_capacity: 30 },
+      'Halaqah 3: Diskusi Kepengasuhan Pengasuh (Kyai/Bu Nyai)': { registered: 0, present: 0, max_capacity: 100 },
+      'Halaqah 4: Pelatihan Musyrif & Musyrifah (Asrama)': { registered: 0, present: 0, max_capacity: 100 },
+      'Halaqah 5: Pelatihan Media Pesantren': { registered: 0, present: 0, max_capacity: 50 }
+    };
+
+    let totalHadir = 0;
 
     for (let i = 1; i < raw.length; i++) {
       const row = raw[i];
@@ -306,13 +426,36 @@ function getSambangDelegatesData() {
 
       const kat = String(item.kategori_halaqah || item.kategori_majlis || 'Lainnya');
       stats[kat] = (stats[kat] || 0) + 1;
+
+      const isHadir = String(item.status_kehadiran || '').toUpperCase() === 'HADIR';
+      if (isHadir) {
+        totalHadir++;
+      }
+
+      // Hitung per halaqah
+      let matchedKey = null;
+      for (const hKey in halaqahStats) {
+        if (kat.includes(hKey) || hKey.includes(kat) || (kat.includes('Halaqah 4') && hKey.includes('Halaqah 4')) || (kat.includes('Halaqah 5') && hKey.includes('Halaqah 5')) || (kat.includes('Halaqah 3') && hKey.includes('Halaqah 3')) || (kat.includes('Halaqah 2') && hKey.includes('Halaqah 2')) || (kat.includes('Halaqah 1') && hKey.includes('Halaqah 1'))) {
+          matchedKey = hKey;
+          break;
+        }
+      }
+      if (matchedKey) {
+        halaqahStats[matchedKey].registered++;
+        if (isHadir) {
+          halaqahStats[matchedKey].present++;
+        }
+      }
     }
 
     return {
       success: true,
       count: delegates.length,
+      total_terdaftar: delegates.length,
+      total_hadir: totalHadir,
       data: delegates,
-      stats: stats
+      stats: stats,
+      halaqah_stats: halaqahStats
     };
   } catch (err) {
     return { success: false, error: err.message };

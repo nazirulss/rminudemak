@@ -24,6 +24,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
+    <!-- HTML5 QR Code Scanner Library for Meja Tamu Presensi -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
     
     
     <style>
@@ -107,6 +110,24 @@
                         <a href="#dashboard" onclick="navigateTo('dashboard')" data-module="dashboard" title="Dashboard Utama" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">dashboard</span>
                             <span class="sidebar-text flex-1">Dashboard Utama</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- GROUP KHUSUS: SAMBANG PESANTREN 2026 -->
+                <div class="sidebar-group" id="group-sambang">
+                    <button type="button" onclick="toggleSidebarGroup('group-sambang')" class="w-full flex items-center justify-between px-2.5 py-1 text-[10px] font-bold text-amber-300 uppercase tracking-wider group hover:text-white transition">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="material-symbols-outlined text-[15px] text-amber-400">qr_code_scanner</span>
+                            <span class="sidebar-text truncate">SAMBANG PESANTREN 2026</span>
+                        </div>
+                        <span class="material-symbols-outlined text-[15px] sidebar-text transition-transform duration-200" id="chevron-group-sambang">expand_more</span>
+                    </button>
+                    <div class="space-y-1 mt-1 group-content" id="content-group-sambang">
+                        <a href="#sambang" onclick="navigateTo('sambang')" data-module="sambang" title="Presensi Meja Tamu, QR Scanner & Undangan" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
+                            <span class="material-symbols-outlined text-[19px] nav-icon text-amber-400 group-hover:text-white shrink-0">how_to_reg</span>
+                            <span class="sidebar-text flex-1">Presensi Meja Tamu</span>
+                            <span class="sidebar-text text-[10px] font-black bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full" id="sidebar-sambang-badge">22 Nov</span>
                         </a>
                     </div>
                 </div>
@@ -1974,6 +1995,486 @@
                     </div>
                 </div>
 
+                <!-- ======================================================== -->
+                <!-- MODUL 12: SAMBANG PESANTREN 2026 (PRESENSI & UNDANGAN)    -->
+                <!-- ======================================================== -->
+                <div id="view-sambang" class="space-y-4 fade-in hidden">
+                    
+                    <!-- HERO BANNER SAMBANG PESANTREN -->
+                    <div class="rounded-2xl bg-gradient-to-r from-[#003d2f] via-[#005c55] to-[#01221b] text-white p-4 sm:p-5 shadow-lg border border-emerald-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm">
+                                <span class="material-symbols-outlined text-[13px]">verified</span>
+                                <span>PW RMI NU JAWA TENGAH • TUAN RUMAH DEMAK</span>
+                            </div>
+                            <h2 class="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-emerald-300 text-[24px]">qr_code_scanner</span>
+                                <span>Sambang Pesantren Jilid II (2026)</span>
+                            </h2>
+                            <p class="text-xs text-emerald-100/90 flex flex-wrap items-center gap-2 font-medium">
+                                <span>Ahad, 22 November 2026 • 12.30 WIB</span>
+                                <span class="text-emerald-300">•</span>
+                                <span>PP. Futuhiyyah Mranggen (Area SMK Futuhiyyah)</span>
+                            </p>
+                        </div>
+
+                        <!-- Right Actions -->
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a href="undangan.html" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all shadow-xs">
+                                <span class="material-symbols-outlined text-[16px] text-amber-300">open_in_new</span>
+                                <span>Web Undangan</span>
+                            </a>
+                            <button type="button" onclick="loadSambangAdminData(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all shadow-md cursor-pointer">
+                                <span class="material-symbols-outlined text-[16px]" id="sambang-refresh-icon">refresh</span>
+                                <span>Sinkron Data</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB SELECTOR NAVIGATION -->
+                    <div class="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
+                        <button type="button" id="tab-btn-sambang-scanner" onclick="switchSambangTab('scanner')" class="tab-btn-sambang inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-700 text-white shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                            <span>Meja Tamu & Scanner QR</span>
+                        </button>
+                        <button type="button" id="tab-btn-sambang-generator" onclick="switchSambangTab('generator')" class="tab-btn-sambang inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-all">
+                            <span class="material-symbols-outlined text-[18px]">share</span>
+                            <span>Generator Undangan WhatsApp</span>
+                        </button>
+                        <button type="button" id="tab-btn-sambang-rekap" onclick="switchSambangTab('rekap')" class="tab-btn-sambang inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-all">
+                            <span class="material-symbols-outlined text-[18px]">badge</span>
+                            <span>Rekapitulasi & Presensi (<span id="tab-count-terdaftar">0</span>)</span>
+                        </button>
+                    </div>
+
+                    <!-- ======================================================== -->
+                    <!-- SUB-VIEW 1: SCANNER MEJA TAMU (LIVE QR & MANUAL ID)      -->
+                    <!-- ======================================================== -->
+                    <div id="sambang-sub-scanner" class="sambang-sub-view space-y-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                            
+                            <!-- Kiri: Kamera Scanner & Kontrol (col-span-12 lg:col-span-7) -->
+                            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                                            <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-black text-slate-800 leading-tight">Live Camera QR Code Scanner</h3>
+                                            <p class="text-[11px] text-slate-500">Arahkan kamera ke Kode QR pada Kartu Absensi tamu</p>
+                                        </div>
+                                    </div>
+                                    <span id="scanner-live-badge" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 animate-pulse border border-rose-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Live Scanning
+                                    </span>
+                                </div>
+
+                                <!-- Kamera Viewport Frame -->
+                                <div class="relative w-full max-w-md mx-auto rounded-2xl overflow-hidden bg-slate-950 border-2 border-slate-800 shadow-inner min-h-[300px] flex flex-col items-center justify-center">
+                                    <div id="qr-reader" class="w-full"></div>
+                                    
+                                    <!-- Placeholder saat kamera off -->
+                                    <div id="qr-scanner-placeholder" class="p-8 text-center space-y-3">
+                                        <div class="w-16 h-16 mx-auto rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
+                                            <span class="material-symbols-outlined text-[32px]">videocam_off</span>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-bold text-slate-300">Kamera Scanner Belum Aktif</p>
+                                            <p class="text-[11px] text-slate-500 max-w-xs mx-auto">Klik tombol "Mulai Kamera" di bawah atau gunakan verifikasi ID manual jika kamera tidak tersedia.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Scanner Buttons -->
+                                <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                                    <button type="button" id="btn-start-scanner" onclick="startSambangScanner()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
+                                        <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                                        <span>Mulai Kamera Scanner</span>
+                                    </button>
+                                    <button type="button" id="btn-stop-scanner" onclick="stopSambangScanner()" class="hidden items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all cursor-pointer">
+                                        <span class="material-symbols-outlined text-[18px]">stop_circle</span>
+                                        <span>Hentikan Kamera</span>
+                                    </button>
+                                    <button type="button" id="btn-flip-camera" onclick="flipSambangCamera()" class="hidden items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer" title="Ganti Kamera Depan/Belakang">
+                                        <span class="material-symbols-outlined text-[18px]">flip_camera_android</span>
+                                    </button>
+                                </div>
+
+                                <!-- Manual ID Check-In Input Fallback -->
+                                <div class="pt-4 border-t border-slate-100">
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                                        <span>Verifikasi Cepat via ID Delegasi (Manual Check-In):</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">Contoh: SBP-2026-001</span>
+                                    </label>
+                                    <form onsubmit="event.preventDefault(); submitManualCheckin();" class="flex items-center gap-2">
+                                        <div class="relative flex-1">
+                                            <span class="material-symbols-outlined text-slate-400 absolute left-3 top-2.5 text-[18px]">search</span>
+                                            <input type="text" id="sambang-manual-id" placeholder="Masukkan ID Delegasi (cth: SBP-2026-001)" uppercase
+                                                class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 uppercase">
+                                        </div>
+                                        <button type="submit" id="btn-submit-manual-id" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer shrink-0">
+                                            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                            <span>Check-In</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Kanan: Hasil Verifikasi & Ringkasan Presensi (col-span-12 lg:col-span-5) -->
+                            <div class="lg:col-span-5 space-y-4">
+                                
+                                <!-- Scan Result Card -->
+                                <div id="scan-result-card" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3 min-h-[260px] flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                            <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-emerald-700 text-[18px]">verified</span>
+                                                <span>Hasil Verifikasi Tamu</span>
+                                            </div>
+                                            <span id="scan-badge-status" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500">
+                                                Menunggu Scan
+                                            </span>
+                                        </div>
+
+                                        <div id="scan-result-placeholder" class="py-8 text-center space-y-2">
+                                            <span class="material-symbols-outlined text-slate-300 text-[42px]">barcode_scanner</span>
+                                            <p class="text-xs text-slate-400 font-medium">Belum ada barcode yang discan.<br>Scan barcode atau input ID delegasi untuk memproses kehadiran.</p>
+                                        </div>
+
+                                        <!-- Scan Result Detail Container (Hidden by default) -->
+                                        <div id="scan-result-detail" class="hidden pt-3 space-y-3">
+                                            <div class="p-3.5 rounded-xl border" id="scan-status-alert-box">
+                                                <div class="text-xs font-black" id="scan-status-title">PRESENSI BERHASIL</div>
+                                                <p class="text-[11px] mt-0.5" id="scan-status-desc">-</p>
+                                            </div>
+
+                                            <div class="space-y-1.5 text-xs">
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">ID Delegasi:</span>
+                                                    <span class="font-mono font-bold text-slate-900" id="res-delegate-id">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">Nama Peserta:</span>
+                                                    <span class="font-bold text-slate-900" id="res-nama-peserta">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">Pondok Pesantren:</span>
+                                                    <span class="font-bold text-slate-800" id="res-nama-pesantren">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">Kecamatan:</span>
+                                                    <span class="font-semibold text-slate-700" id="res-kecamatan">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">Halaqah Mandat:</span>
+                                                    <span class="font-bold text-emerald-800" id="res-kategori-halaqah">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1 border-b border-slate-50">
+                                                    <span class="text-slate-400 text-[11px]">Waktu Presensi:</span>
+                                                    <span class="font-mono text-[11px] text-slate-800" id="res-waktu-kehadiran">-</span>
+                                                </div>
+                                                <div class="flex justify-between py-1">
+                                                    <span class="text-slate-400 text-[11px]">Petugas Penerima:</span>
+                                                    <span class="text-slate-600 text-[11px]" id="res-petugas">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                                        <span>Front-Desk PP. Futuhiyyah</span>
+                                        <button type="button" onclick="clearScanResult()" class="text-slate-500 hover:text-slate-800 font-semibold text-[10px]">Bersihkan Layar</button>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Counter Widget -->
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80">
+                                        <div class="text-[10px] font-bold text-emerald-800 uppercase">Tamu Telah Hadir</div>
+                                        <div class="text-2xl font-black text-emerald-950 mt-0.5" id="mini-stat-hadir">0</div>
+                                        <div class="text-[10px] text-emerald-700 mt-0.5">dari total terdaftar</div>
+                                    </div>
+                                    <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80">
+                                        <div class="text-[10px] font-bold text-amber-800 uppercase">Belum Hadir</div>
+                                        <div class="text-2xl font-black text-amber-950 mt-0.5" id="mini-stat-belum-hadir">0</div>
+                                        <div class="text-[10px] text-amber-700 mt-0.5">dalam antrean</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SUB-VIEW 2: GENERATOR UNDANGAN WHATSAPP RESMI             -->
+                    <!-- ======================================================== -->
+                    <div id="sambang-sub-generator" class="sambang-sub-view space-y-4 hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                            
+                            <!-- Formulir Generator (col-span-12 lg:col-span-6) -->
+                            <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                                <div class="border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center font-bold">
+                                            <span class="material-symbols-outlined text-[18px]">share</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-sm font-black text-slate-800 leading-tight">Generator Link Undangan Khusus</h3>
+                                            <p class="text-[11px] text-slate-500">Buat tautan personalisasi sesuai kuota halaqah surat mandat</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3.5 text-xs">
+                                    <!-- Pilih Kecamatan -->
+                                    <div class="space-y-1">
+                                        <label class="block font-bold text-slate-700 text-[11px]">Asal Kecamatan di Demak <span class="text-rose-500">*</span></label>
+                                        <select id="gen-kecamatan" onchange="updateGeneratedLink()" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <option value="Mranggen" selected>Mranggen (Tuan Rumah)</option>
+                                            <option value="Karangawen">Karangawen</option>
+                                            <option value="Sayung">Sayung</option>
+                                            <option value="Demak">Demak Kota</option>
+                                            <option value="Wonosalam">Wonosalam</option>
+                                            <option value="Guntur">Guntur</option>
+                                            <option value="Karangtengah">Karangtengah</option>
+                                            <option value="Bonang">Bonang</option>
+                                            <option value="Wedung">Wedung</option>
+                                            <option value="Dempet">Dempet</option>
+                                            <option value="Gajah">Gajah</option>
+                                            <option value="Kebonagung">Kebonagung</option>
+                                            <option value="Karanganyar">Karanganyar</option>
+                                            <option value="Mijen">Mijen</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Nama Pesantren -->
+                                    <div class="space-y-1">
+                                        <label class="block font-bold text-slate-700 text-[11px]">Nama Pondok Pesantren / Lembaga <span class="text-rose-500">*</span></label>
+                                        <input type="text" id="gen-nama-pesantren" oninput="updateGeneratedLink()" placeholder="Contoh: PP. Al-Hidayat / Futuhiyyah" value="Pondok Pesantren Futuhiyyah"
+                                            class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold">
+                                    </div>
+
+                                    <!-- Pilihan Halaqah (Presets) -->
+                                    <div class="space-y-1.5">
+                                        <label class="block font-bold text-slate-700 text-[11px]">Kategori Halaqah (Auto-Lock Sesuai Surat Mandat) <span class="text-rose-500">*</span></label>
+                                        <div class="space-y-1.5">
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="media" checked onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 5: Pelatihan Media Pesantren</div>
+                                                    <div class="text-[10px] text-slate-500">Kapasitas 50 Tim Media Pondok</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">media</span>
+                                            </label>
+
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="musyrif" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 4: Pelatihan Musyrif & Musyrifah</div>
+                                                    <div class="text-[10px] text-slate-500">Kapasitas 100 Pembina Asrama (Putra & Putri)</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">musyrif</span>
+                                            </label>
+
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="pengasuh" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 3: Diskusi Kepengasuhan Pengasuh</div>
+                                                    <div class="text-[10px] text-slate-500">Masyayikh / Kyai & Bu Nyai Pengasuh Pesantren</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">pengasuh</span>
+                                            </label>
+
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="madin" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 2: Bidang Madin & Kepala Madin</div>
+                                                    <div class="text-[10px] text-slate-500">Kapasitas 30 Kepala Madin & Pengurus</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">madin</span>
+                                            </label>
+
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="pwnu" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 1: Konsolidasi Pengurus RMI PW-PC</div>
+                                                    <div class="text-[10px] text-slate-500">Kapasitas 60 Pengurus RMI</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800">pwnu</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nomor WhatsApp Tujuan (Opsional) -->
+                                    <div class="space-y-1">
+                                        <label class="block font-bold text-slate-700 text-[11px]">Nomor WhatsApp Penerima (Opsional untuk Direct Blast)</label>
+                                        <input type="tel" id="gen-target-wa" oninput="updateGeneratedLink()" placeholder="Contoh: 081234567890"
+                                            class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pratinjau Link & Template WhatsApp (col-span-12 lg:col-span-6) -->
+                            <div class="lg:col-span-6 space-y-4">
+                                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                        <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-teal-700 text-[18px]">chat</span>
+                                            <span>Pratinjau Pesan WhatsApp Resmi</span>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">Format Standar NU</span>
+                                    </div>
+
+                                    <!-- Generated URL Field -->
+                                    <div class="space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Tautan Undangan Khusus:</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" id="gen-output-url" readonly value="https://rminudemak.org/undangan.html"
+                                                class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono font-bold text-emerald-900 select-all">
+                                            <button type="button" onclick="copyGeneratedLinkOnly()" title="Salin Link Saja" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                                                <span class="material-symbols-outlined text-[18px]">link</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pesan Lengkap WA Box -->
+                                    <div class="space-y-1">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase">Format Pesan WhatsApp Lengkap:</label>
+                                        <textarea id="gen-output-message" rows="8" readonly
+                                            class="w-full p-3 rounded-xl border border-slate-200 bg-slate-50 text-[11px] font-sans text-slate-800 leading-relaxed custom-scrollbar select-all"></textarea>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="grid grid-cols-2 gap-2 pt-1">
+                                        <button type="button" onclick="copyFullWhatsAppMessage()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                                            <span class="material-symbols-outlined text-[17px]">content_copy</span>
+                                            <span>Salin Pesan WA</span>
+                                        </button>
+                                        <button type="button" onclick="openDirectWhatsApp()" class="py-2.5 px-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                                            <span class="material-symbols-outlined text-[17px]">send</span>
+                                            <span>Buka di WhatsApp</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SUB-VIEW 3: REKAPITULASI & PRESENSI 5 HALAQAH            -->
+                    <!-- ======================================================== -->
+                    <div id="sambang-sub-rekap" class="sambang-sub-view space-y-4 hidden">
+                        
+                        <!-- 4 Stat Metric Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase">Total Delegasi Terdaftar</div>
+                                <div class="text-2xl font-black text-slate-900 mt-1" id="stat-total-terdaftar">0</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Konfirmasi RSVP Mandiri</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                                <div class="text-[10px] font-bold text-emerald-600 uppercase">Telah Hadir di Lokasi</div>
+                                <div class="text-2xl font-black text-emerald-800 mt-1" id="stat-total-hadir">0</div>
+                                <div class="text-[11px] text-emerald-600 mt-0.5">Scan Barcode Terverifikasi</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                                <div class="text-[10px] font-bold text-amber-600 uppercase">Belum Check-In</div>
+                                <div class="text-2xl font-black text-amber-800 mt-1" id="stat-total-belum-hadir">0</div>
+                                <div class="text-[11px] text-amber-600 mt-0.5">Menunggu Kedatangan</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                                <div class="text-[10px] font-bold text-teal-600 uppercase">Persentase Kehadiran</div>
+                                <div class="text-2xl font-black text-teal-900 mt-1" id="stat-persentase-hadir">0%</div>
+                                <div class="text-[11px] text-teal-600 mt-0.5">Tingkat Partisipasi Fisik</div>
+                            </div>
+                        </div>
+
+                        <!-- 5 Halaqah Quota Capacity Progress Bars -->
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-emerald-700 text-[18px]">account_tree</span>
+                                    <span>Monitoring Kuota & Kehadiran 5 Pilar Halaqah</span>
+                                </h3>
+                                <span class="text-[10px] text-slate-400">Total Kapasitas: ~340 Peserta</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3" id="halaqah-progress-cards">
+                                <!-- Diisi secara dinamis oleh renderHalaqahProgressCards() -->
+                            </div>
+                        </div>
+
+                        <!-- Data Table Card -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <!-- Table Toolbar -->
+                            <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50/50">
+                                <div class="flex flex-wrap items-center gap-2 flex-1">
+                                    <!-- Search Input -->
+                                    <div class="relative min-w-[200px] flex-1 max-w-sm">
+                                        <span class="material-symbols-outlined text-slate-400 absolute left-3 top-2.5 text-[18px]">search</span>
+                                        <input type="text" id="sambang-search-table" oninput="filterSambangDelegatesTable()" placeholder="Cari nama, pondok, atau ID..."
+                                            class="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    </div>
+
+                                    <!-- Filter Halaqah -->
+                                    <select id="sambang-filter-halaqah" onchange="filterSambangDelegatesTable()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="">Semua Halaqah (5)</option>
+                                        <option value="Halaqah 1">Halaqah 1: PW-PC</option>
+                                        <option value="Halaqah 2">Halaqah 2: Bidang Madin</option>
+                                        <option value="Halaqah 3">Halaqah 3: Pengasuh Pesantren</option>
+                                        <option value="Halaqah 4">Halaqah 4: Musyrif & Musyrifah</option>
+                                        <option value="Halaqah 5">Halaqah 5: Media Pesantren</option>
+                                    </select>
+
+                                    <!-- Filter Status -->
+                                    <select id="sambang-filter-status" onchange="filterSambangDelegatesTable()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="">Semua Status</option>
+                                        <option value="HADIR">Telah Hadir (Check-In)</option>
+                                        <option value="TERDAFTAR">Belum Hadir (Terdaftar)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Table Action Buttons -->
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button type="button" onclick="exportSambangDelegatesCSV()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition shadow-2xs">
+                                        <span class="material-symbols-outlined text-[16px] text-emerald-700">download</span>
+                                        <span>Export CSV</span>
+                                    </button>
+                                    <button type="button" onclick="printSambangBukuTamu()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-2xs">
+                                        <span class="material-symbols-outlined text-[16px]">print</span>
+                                        <span>Cetak Buku Tamu</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Table Container -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+                                        <tr>
+                                            <th class="p-3 pl-4">ID Delegasi</th>
+                                            <th class="p-3">Nama Peserta</th>
+                                            <th class="p-3">Pondok & Kecamatan</th>
+                                            <th class="p-3">Kategori Halaqah</th>
+                                            <th class="p-3">Status</th>
+                                            <th class="p-3">Waktu Check-In</th>
+                                            <th class="p-3 text-right pr-4">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sambang-delegates-tbody" class="divide-y divide-slate-100">
+                                        <!-- Diisi secara dinamis oleh renderSambangDelegatesTable() -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </main>
         </div>
     </div>
@@ -3743,7 +4244,8 @@
                 peran: { title: "Manajemen Peran & Hak Akses (RBAC)", breadcrumb: "Keamanan / Matriks Otoritas 11 Modul" },
                 wilayah: { title: "Referensi Wilayah Administratif", breadcrumb: "Master / 14 Kecamatan & Desa Demak" },
                 audit: { title: "Riwayat Aktivitas & Jejak Audit", breadcrumb: "Keamanan / Audit Trail Transaksi" },
-                pengaturan: { title: "Pengaturan Sistem", breadcrumb: "Konfigurasi / Gateway & Health Check" }
+                pengaturan: { title: "Pengaturan Sistem", breadcrumb: "Konfigurasi / Gateway & Health Check" },
+                sambang: { title: "Sambang Pesantren 2026", breadcrumb: "Agenda / Presensi Meja Tamu & Undangan Digital" }
             };
 
             if (titles[moduleName]) {
@@ -3770,6 +4272,9 @@
             }
             if (moduleName === 'pengguna') {
                 renderUsersTable();
+            }
+            if (moduleName === 'sambang') {
+                initSambangAdminModule();
             }
         }
 
@@ -4851,43 +5356,64 @@
                 dashboard: 'full', direktori: 'full', tambah: 'full', verifikasi: 'full',
                 peta: 'full', 'buku-induk': 'full', laporan: 'full', pengguna: 'full',
                 peran: 'full', wilayah: 'full', audit: 'full', pengaturan: 'full',
-                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full'
+                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full',
+                sambang: 'full'
             },
             admin_kabupaten: {
                 dashboard: 'full', direktori: 'full', tambah: 'full', verifikasi: 'full',
                 peta: 'full', 'buku-induk': 'full', laporan: 'full', pengguna: 'full',
                 peran: 'read', wilayah: 'full', audit: 'read', pengaturan: 'full',
-                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full'
+                'cms-beranda': 'full', 'cms-profil': 'full', 'cms-layanan': 'full', 'cms-berita': 'full',
+                sambang: 'full'
             },
             admin_kecamatan: {
                 dashboard: 'read_own', direktori: 'read', tambah: 'write', verifikasi: 'write',
                 peta: 'read', 'buku-induk': 'read_own', laporan: 'read_own', pengguna: 'none',
                 peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
-                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'read'
             },
             operator_pesantren: {
                 dashboard: 'read_own', direktori: 'read', tambah: 'write', verifikasi: 'none',
                 peta: 'read', 'buku-induk': 'read_own', laporan: 'none', pengguna: 'none',
                 peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
-                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'read'
             },
             pengasuh: {
                 dashboard: 'read', direktori: 'read', tambah: 'none', verifikasi: 'read',
                 peta: 'read', 'buku-induk': 'read', laporan: 'read', pengguna: 'none',
                 peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
-                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'read'
             },
             verifikator: {
                 dashboard: 'read', direktori: 'read', tambah: 'write', verifikasi: 'write',
                 peta: 'read', 'buku-induk': 'read', laporan: 'none', pengguna: 'none',
                 peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
-                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'read'
+            },
+            frontdesk: {
+                dashboard: 'none', direktori: 'read', tambah: 'none', verifikasi: 'none',
+                peta: 'none', 'buku-induk': 'none', laporan: 'none', pengguna: 'none',
+                peran: 'none', wilayah: 'none', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'full'
+            },
+            panitia_sambang: {
+                dashboard: 'read', direktori: 'read', tambah: 'none', verifikasi: 'none',
+                peta: 'none', 'buku-induk': 'none', laporan: 'none', pengguna: 'none',
+                peran: 'none', wilayah: 'none', audit: 'none', pengaturan: 'none',
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'full'
             },
             guest: {
                 dashboard: 'none', direktori: 'read', tambah: 'none', verifikasi: 'none',
                 peta: 'read', 'buku-induk': 'none', laporan: 'none', pengguna: 'none',
                 peran: 'none', wilayah: 'read', audit: 'none', pengaturan: 'none',
-                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none'
+                'cms-beranda': 'none', 'cms-profil': 'none', 'cms-layanan': 'none', 'cms-berita': 'none',
+                sambang: 'none'
             }
         };
 
@@ -7538,6 +8064,729 @@ async function hapusPengurus(id) {
             body: JSON.stringify({ action: 'DELETE_PENGURUS_RECORD', id })
         }).catch(err => console.log('Delete pengurus background error:', err));
     } catch(e) {}
+}
+
+// =========================================================================
+// MODUL KHUSUS: SAMBANG PESANTREN PW RMI NU JATENG 2026 (PRESENSI & UNDANGAN)
+// =========================================================================
+let sambangDelegatesList = [];
+let sambangStatsData = {};
+let sambangHalaqahStats = {};
+let sambangQrScanner = null;
+let isSambangScannerActive = false;
+let currentCameraFacing = "environment";
+let lastScannedCode = null;
+let lastScanTime = 0;
+
+// Inisialisasi Modul
+function initSambangAdminModule() {
+    loadSambangAdminData(false);
+    updateGeneratedLink();
+}
+
+// Ganti Sub-Tab
+function switchSambangTab(tabId) {
+    document.querySelectorAll('.tab-btn-sambang').forEach(btn => {
+        btn.className = 'tab-btn-sambang inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-all';
+    });
+    const activeBtn = document.getElementById('tab-btn-sambang-' + tabId);
+    if (activeBtn) {
+        activeBtn.className = 'tab-btn-sambang inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-700 text-white shadow-sm';
+    }
+
+    document.querySelectorAll('.sambang-sub-view').forEach(view => {
+        view.classList.add('hidden');
+    });
+    const activeView = document.getElementById('sambang-sub-' + tabId);
+    if (activeView) {
+        activeView.classList.remove('hidden');
+    }
+
+    // Jika pindah tab bukan scanner, matikan kamera agar hemat baterai/resource
+    if (tabId !== 'scanner' && isSambangScannerActive) {
+        stopSambangScanner();
+    }
+}
+
+// Load Data Delegasi & Presensi dari Backend Google Apps Script
+async function loadSambangAdminData(forceRefresh = false) {
+    const refreshIcon = document.getElementById('sambang-refresh-icon');
+    if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_SAMBANG_STATS';
+        const res = await fetch(gasUrl);
+        const json = await res.json();
+
+        if (json.success) {
+            sambangDelegatesList = json.data || [];
+            sambangStatsData = json.stats || {};
+            sambangHalaqahStats = json.halaqah_stats || {};
+
+            updateSambangStatsDisplay(json);
+            renderHalaqahProgressCards(sambangHalaqahStats);
+            renderSambangDelegatesTable(sambangDelegatesList);
+
+            if (forceRefresh) {
+                showToast('success', 'Data Sambang Pesantren berhasil disinkronkan (' + sambangDelegatesList.length + ' delegasi).');
+            }
+        } else {
+            console.warn('Gagal memuat data sambang:', json.error);
+        }
+    } catch (err) {
+        console.error('Error loadSambangAdminData:', err);
+    } finally {
+        if (refreshIcon) refreshIcon.classList.remove('animate-spin');
+    }
+}
+
+// Update Metrik & Angka Stat
+function updateSambangStatsDisplay(json) {
+    const total = json.total_terdaftar || sambangDelegatesList.length || 0;
+    const hadir = json.total_hadir || sambangDelegatesList.filter(d => String(d.status_kehadiran).toUpperCase() === 'HADIR').length || 0;
+    const belumHadir = Math.max(0, total - hadir);
+    const persen = total > 0 ? Math.round((hadir / total) * 100) : 0;
+
+    const elTotal = document.getElementById('stat-total-terdaftar');
+    const elHadir = document.getElementById('stat-total-hadir');
+    const elBelum = document.getElementById('stat-total-belum-hadir');
+    const elPersen = document.getElementById('stat-persentase-hadir');
+    const tabCount = document.getElementById('tab-count-terdaftar');
+
+    const miniHadir = document.getElementById('mini-stat-hadir');
+    const miniBelum = document.getElementById('mini-stat-belum-hadir');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elHadir) elHadir.textContent = hadir;
+    if (elBelum) elBelum.textContent = belumHadir;
+    if (elPersen) elPersen.textContent = persen + '%';
+    if (tabCount) tabCount.textContent = total;
+
+    if (miniHadir) miniHadir.textContent = hadir;
+    if (miniBelum) miniBelum.textContent = belumHadir;
+}
+
+// Render Progress Cards untuk 5 Halaqah
+function renderHalaqahProgressCards(halaqahStats) {
+    const container = document.getElementById('halaqah-progress-cards');
+    if (!container) return;
+
+    const defaultHalaqahs = [
+        { key: 'Halaqah 1: Konsolidasi Pengurus RMI', label: 'Halaqah 1: PW-PC', cap: 60, color: 'emerald' },
+        { key: 'Halaqah 2: Bidang Madin & Kepala Madin', label: 'Halaqah 2: Bidang Madin', cap: 30, color: 'purple' },
+        { key: 'Halaqah 3: Diskusi Kepengasuhan Pengasuh (Kyai/Bu Nyai)', label: 'Halaqah 3: Pengasuh', cap: 100, color: 'amber' },
+        { key: 'Halaqah 4: Pelatihan Musyrif & Musyrifah (Asrama)', label: 'Halaqah 4: Musyrif/ah', cap: 100, color: 'blue' },
+        { key: 'Halaqah 5: Pelatihan Media Pesantren', label: 'Halaqah 5: Media', cap: 50, color: 'teal' }
+    ];
+
+    container.innerHTML = defaultHalaqahs.map(h => {
+        const stat = (halaqahStats && halaqahStats[h.key]) ? halaqahStats[h.key] : { registered: 0, present: 0, max_capacity: h.cap };
+        const reg = stat.registered || 0;
+        const pres = stat.present || 0;
+        const cap = stat.max_capacity || h.cap;
+        const pct = Math.min(100, Math.round((reg / cap) * 100));
+
+        return `
+            <div class="p-3 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-800 truncate" title="${h.key}">${h.label}</span>
+                    <span class="font-mono text-[10px] text-slate-500">${reg}/${cap}</span>
+                </div>
+                <!-- Progress bar -->
+                <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+                    <span>Hadir: <strong class="text-emerald-700">${pres}</strong></span>
+                    <span>${pct}% kuota</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Web Audio API Sound Generator
+function playScanAudio(type) {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+
+        if (type === 'success') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.15);
+
+            setTimeout(() => {
+                const ctx2 = new AudioCtx();
+                const osc2 = ctx2.createOscillator();
+                const gain2 = ctx2.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx2.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1320, ctx2.currentTime);
+                gain2.gain.setValueAtTime(0.25, ctx2.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, ctx2.currentTime + 0.25);
+                osc2.start(ctx2.currentTime);
+                osc2.stop(ctx2.currentTime + 0.25);
+            }, 120);
+        } else if (type === 'warning') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, ctx.currentTime);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } else {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(220, ctx.currentTime);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.35);
+        }
+    } catch (e) {
+        console.warn('Audio feedback blocked or unavailable:', e);
+    }
+}
+
+// Mulai Scanner Kamera
+async function startSambangScanner() {
+    if (typeof Html5Qrcode === 'undefined') {
+        showToast('error', 'Library scanner sedang dimuat. Silakan tunggu beberapa detik.');
+        return;
+    }
+
+    try {
+        const placeholder = document.getElementById('qr-scanner-placeholder');
+        const btnStart = document.getElementById('btn-start-scanner');
+        const btnStop = document.getElementById('btn-stop-scanner');
+        const btnFlip = document.getElementById('btn-flip-camera');
+        const liveBadge = document.getElementById('scanner-live-badge');
+
+        if (!sambangQrScanner) {
+            sambangQrScanner = new Html5Qrcode("qr-reader");
+        }
+
+        const config = {
+            fps: 10,
+            qrbox: { width: 240, height: 240 },
+            aspectRatio: 1.0
+        };
+
+        await sambangQrScanner.start(
+            { facingMode: currentCameraFacing },
+            config,
+            (decodedText, decodedResult) => {
+                handleQrCodeScanned(decodedText);
+            },
+            (errorMessage) => {
+                // scanning frame error, ignore
+            }
+        );
+
+        isSambangScannerActive = true;
+        if (placeholder) placeholder.classList.add('hidden');
+        if (btnStart) btnStart.classList.add('hidden');
+        if (btnStop) btnStop.classList.remove('hidden');
+        if (btnFlip) btnFlip.classList.remove('hidden');
+        if (liveBadge) liveBadge.classList.remove('hidden');
+        showToast('info', 'Kamera scanner aktif. Arahkan ke Kode QR Tamu.');
+    } catch (err) {
+        console.error('Error starting scanner:', err);
+        showToast('error', 'Gagal membuka kamera: ' + (err.message || 'Izin kamera ditolak.'));
+    }
+}
+
+// Hentikan Scanner Kamera
+async function stopSambangScanner() {
+    if (sambangQrScanner && isSambangScannerActive) {
+        try {
+            await sambangQrScanner.stop();
+        } catch (e) {
+            console.warn('Error stopping scanner:', e);
+        }
+    }
+    isSambangScannerActive = false;
+    const placeholder = document.getElementById('qr-scanner-placeholder');
+    const btnStart = document.getElementById('btn-start-scanner');
+    const btnStop = document.getElementById('btn-stop-scanner');
+    const btnFlip = document.getElementById('btn-flip-camera');
+    const liveBadge = document.getElementById('scanner-live-badge');
+
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (btnStart) btnStart.classList.remove('hidden');
+    if (btnStop) btnStop.classList.add('hidden');
+    if (btnFlip) btnFlip.classList.add('hidden');
+    if (liveBadge) liveBadge.classList.add('hidden');
+}
+
+// Flip Kamera (Depan / Belakang)
+async function flipSambangCamera() {
+    currentCameraFacing = currentCameraFacing === "environment" ? "user" : "environment";
+    await stopSambangScanner();
+    setTimeout(startSambangScanner, 300);
+}
+
+// Handler Saat Kode QR Terbaca Kamera
+function handleQrCodeScanned(decodedText) {
+    const now = Date.now();
+    // Debounce scan jika kode sama dibaca berulang dalam 4 detik
+    if (decodedText === lastScannedCode && (now - lastScanTime) < 4000) {
+        return;
+    }
+    lastScannedCode = decodedText;
+    lastScanTime = now;
+
+    processCheckinApi(decodedText);
+}
+
+// Handler Manual Check-In via Form
+function submitManualCheckin() {
+    const input = document.getElementById('sambang-manual-id');
+    if (!input || !input.value.trim()) {
+        showToast('warning', 'Masukkan ID Delegasi terlebih dahulu.');
+        return;
+    }
+    const val = input.value.trim();
+    processCheckinApi(val);
+    input.value = '';
+}
+
+// Eksekusi API Check-In ke Apps Script
+async function processCheckinApi(rawInput) {
+    const petugasName = CURRENT_AUTH_USER?.nama_lengkap || CURRENT_AUTH_USER?.nama || 'Petugas Meja Tamu';
+    
+    // Tampilkan loading di result card
+    displayScanLoading(rawInput);
+
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
+        const res = await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'SCAN_CHECKIN_SAMBANG',
+                delegate_id: rawInput,
+                petugas: petugasName
+            })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+            if (result.already_checked_in) {
+                // Kasus: Tamu sudah pernah check-in sebelumnya
+                playScanAudio('warning');
+                displayScanResultWarning(result);
+                showToast('warning', `ID ${result.delegate_id} SUDAH PERNAH CHECK-IN!`);
+            } else {
+                // Kasus: Check-in Baru Berhasil
+                playScanAudio('success');
+                displayScanResultSuccess(result);
+                showToast('success', `Check-In Berhasil: ${result.nama_peserta} (${result.nama_pesantren})`);
+
+                // Update local memory data & refresh table & metrics
+                const foundIdx = sambangDelegatesList.findIndex(d => String(d.delegate_id).toUpperCase() === String(result.delegate_id).toUpperCase());
+                if (foundIdx !== -1) {
+                    sambangDelegatesList[foundIdx].status_kehadiran = 'HADIR';
+                    sambangDelegatesList[foundIdx].waktu_kehadiran = result.waktu_kehadiran;
+                    sambangDelegatesList[foundIdx].petugas_scan = result.petugas_scan;
+                } else {
+                    sambangDelegatesList.unshift({
+                        delegate_id: result.delegate_id,
+                        nama_peserta: result.nama_peserta,
+                        nama_pesantren: result.nama_pesantren,
+                        kategori_halaqah: result.kategori_halaqah,
+                        kecamatan: result.kecamatan,
+                        jabatan_peran: result.jabatan_peran,
+                        status_kehadiran: 'HADIR',
+                        waktu_kehadiran: result.waktu_kehadiran,
+                        petugas_scan: result.petugas_scan
+                    });
+                }
+                updateSambangStatsDisplay({ count: sambangDelegatesList.length });
+                renderSambangDelegatesTable(sambangDelegatesList);
+                setTimeout(() => loadSambangAdminData(false), 2000); // sync stats in background
+            }
+        } else {
+            // ID Tidak Ditemukan / Error
+            playScanAudio('error');
+            displayScanResultError(result.error || 'Data tidak ditemukan di database.');
+            showToast('error', result.error || 'ID tidak terdaftar.');
+        }
+    } catch (err) {
+        console.error('Error processCheckinApi:', err);
+        playScanAudio('error');
+        displayScanResultError('Koneksi server terganggu: ' + err.message);
+        showToast('error', 'Gagal memproses check-in. Periksa jaringan.');
+    }
+}
+
+// Display Helpers for Scan Result
+function displayScanLoading(id) {
+    const placeholder = document.getElementById('scan-result-placeholder');
+    const detail = document.getElementById('scan-result-detail');
+    const badge = document.getElementById('scan-badge-status');
+    const alertBox = document.getElementById('scan-status-alert-box');
+    const title = document.getElementById('scan-status-title');
+    const desc = document.getElementById('scan-status-desc');
+
+    if (placeholder) placeholder.classList.add('hidden');
+    if (detail) detail.classList.remove('hidden');
+    if (badge) {
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-800';
+        badge.textContent = 'Memverifikasi...';
+    }
+    if (alertBox) alertBox.className = 'p-3.5 rounded-xl border bg-blue-50 border-blue-200 text-blue-900';
+    if (title) title.textContent = 'MEMPROSES VERIFIKASI...';
+    if (desc) desc.textContent = 'Memvalidasi ID ' + id + ' ke database Cloud Google Spreadsheet...';
+}
+
+function displayScanResultSuccess(data) {
+    const badge = document.getElementById('scan-badge-status');
+    const alertBox = document.getElementById('scan-status-alert-box');
+    const title = document.getElementById('scan-status-title');
+    const desc = document.getElementById('scan-status-desc');
+
+    if (badge) {
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800';
+        badge.textContent = 'CHECK-IN SUKSES';
+    }
+    if (alertBox) {
+        alertBox.className = 'p-3.5 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-950 space-y-0.5';
+    }
+    if (title) title.textContent = '✅ PRESENSI BERHASIL DIVERIFIKASI';
+    if (desc) desc.textContent = data.message || 'Delegasi resmi terdaftar.';
+
+    document.getElementById('res-delegate-id').textContent = data.delegate_id || '-';
+    document.getElementById('res-nama-peserta').textContent = data.nama_peserta || '-';
+    document.getElementById('res-nama-pesantren').textContent = data.nama_pesantren || '-';
+    document.getElementById('res-kecamatan').textContent = 'Kec. ' + (data.kecamatan || '-');
+    document.getElementById('res-kategori-halaqah').textContent = data.kategori_halaqah || '-';
+    document.getElementById('res-waktu-kehadiran').textContent = data.waktu_kehadiran || '-';
+    document.getElementById('res-petugas').textContent = data.petugas_scan || '-';
+}
+
+function displayScanResultWarning(data) {
+    const badge = document.getElementById('scan-badge-status');
+    const alertBox = document.getElementById('scan-status-alert-box');
+    const title = document.getElementById('scan-status-title');
+    const desc = document.getElementById('scan-status-desc');
+
+    if (badge) {
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-100 text-amber-800';
+        badge.textContent = 'DUPLIKAT / SUDAH CHECK-IN';
+    }
+    if (alertBox) {
+        alertBox.className = 'p-3.5 rounded-xl border bg-amber-50 border-amber-300 text-amber-950 space-y-0.5';
+    }
+    if (title) title.textContent = '⚠️ PERINGATAN: SUDAH CHECK-IN SEBELUMNYA';
+    if (desc) desc.textContent = data.message || 'Tamu ini sudah pernah memindai barcode sebelumnya.';
+
+    document.getElementById('res-delegate-id').textContent = data.delegate_id || '-';
+    document.getElementById('res-nama-peserta').textContent = data.nama_peserta || '-';
+    document.getElementById('res-nama-pesantren').textContent = data.nama_pesantren || '-';
+    document.getElementById('res-kecamatan').textContent = 'Kec. ' + (data.kecamatan || '-');
+    document.getElementById('res-kategori-halaqah').textContent = data.kategori_halaqah || '-';
+    document.getElementById('res-waktu-kehadiran').textContent = data.waktu_kehadiran || '-';
+    document.getElementById('res-petugas').textContent = data.petugas_scan || '-';
+}
+
+function displayScanResultError(errMsg) {
+    const badge = document.getElementById('scan-badge-status');
+    const alertBox = document.getElementById('scan-status-alert-box');
+    const title = document.getElementById('scan-status-title');
+    const desc = document.getElementById('scan-status-desc');
+
+    if (badge) {
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-100 text-rose-800';
+        badge.textContent = 'TIDAK TERDAFTAR';
+    }
+    if (alertBox) {
+        alertBox.className = 'p-3.5 rounded-xl border bg-rose-50 border-rose-300 text-rose-950 space-y-0.5';
+    }
+    if (title) title.textContent = '❌ KODE QR / ID TIDAK DITEMUKAN';
+    if (desc) desc.textContent = errMsg;
+
+    document.getElementById('res-delegate-id').textContent = '-';
+    document.getElementById('res-nama-peserta').textContent = '-';
+    document.getElementById('res-nama-pesantren').textContent = '-';
+    document.getElementById('res-kecamatan').textContent = '-';
+    document.getElementById('res-kategori-halaqah').textContent = '-';
+    document.getElementById('res-waktu-kehadiran').textContent = '-';
+    document.getElementById('res-petugas').textContent = '-';
+}
+
+function clearScanResult() {
+    const placeholder = document.getElementById('scan-result-placeholder');
+    const detail = document.getElementById('scan-result-detail');
+    const badge = document.getElementById('scan-badge-status');
+
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (detail) detail.classList.add('hidden');
+    if (badge) {
+        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500';
+        badge.textContent = 'Menunggu Scan';
+    }
+}
+
+// GENERATOR LINK & WHATSAPP MESSAGE
+function updateGeneratedLink() {
+    const kec = document.getElementById('gen-kecamatan')?.value || 'Mranggen';
+    const namaPesantren = document.getElementById('gen-nama-pesantren')?.value.trim() || 'Pondok Pesantren Futuhiyyah';
+    const halaqahRadio = document.querySelector('input[name="gen-halaqah-opt"]:checked')?.value || 'media';
+    const targetWa = document.getElementById('gen-target-wa')?.value.trim() || '';
+
+    const baseUrl = 'https://rminudemak.org/undangan.html';
+    const urlParams = new URLSearchParams();
+    urlParams.set('to', namaPesantren);
+    urlParams.set('kec', kec);
+    urlParams.set('h', halaqahRadio);
+
+    const finalUrl = baseUrl + '?' + urlParams.toString();
+    const urlInput = document.getElementById('gen-output-url');
+    if (urlInput) urlInput.value = finalUrl;
+
+    const halaqahLabels = {
+        media: 'Halaqah 5: Pelatihan Media Pesantren & Kreator Dakwah (50 Tim Media)',
+        musyrif: 'Halaqah 4: Pelatihan Musyrif & Musyrifah Asrama Pondok (100 Peserta)',
+        pengasuh: 'Halaqah 3: Diskusi Kepengasuhan bersama Kyai & Bu Nyai Pengasuh se-Demak',
+        madin: 'Halaqah 2: Konsolidasi Pengurus Bidang Madin RMI & Kepala Madin (30 Org)',
+        pwnu: 'Halaqah 1: Konsolidasi & Koordinasi RMI PWNU Jawa Tengah dengan RMI PCNU (60 Org)'
+    };
+
+    const halaqahTitle = halaqahLabels[halaqahRadio] || '5 Halaqah Sambang Pesantren';
+
+    const msgTemplate = `*UNDANGAN RESMI SAMBANG PESANTREN PW RMI NU JAWA TENGAH (JILID II 2026)*
+*Tuan Rumah: Pengurus Cabang RMI NU Kabupaten Demak*
+Nomor: 003.1/PCRMINUD/U/XI/2026
+
+Kepada Yth. Masyayikh / Pengasuh / Perwakilan:
+*${namaPesantren}*
+Kecamatan ${kec}, Kabupaten Demak
+
+_Assalamu'alaikum Warahmatullahi Wabarakatuh_
+
+Menindaklanjuti Surat Resmi Pengurus Cabang Rabithah Ma'ahid Islamiyah (RMI) NU Kabupaten Demak, kami memohon kehadiran utusan delegasi resmi panjenengan pada agenda akbar:
+
+🗓 *Hari, Tanggal:* Ahad, 22 November 2026
+⏰ *Waktu:* Pukul 12.30 WIB — Selesai
+📍 *Tempat:* Pondok Pesantren Futuhiyyah (Area SMK Futuhiyyah), Jl. Suburan Timur No. 174, Brumbung, Kec. Mranggen, Kabupaten Demak
+🗺 *Google Maps:* https://maps.app.goo.gl/VHrmPeNRRjDdiqzb6
+
+📌 *Mandat Partisipasi Khusus:*
+*${halaqahTitle}*
+
+Untuk ketertiban registrasi, pencatatan kuota resmi, serta penerbitan *Kartu Tanda Hadir dengan Kode QR*, mohon berkenan mengisi formulir kehadiran melalui tautan undangan digital khusus berikut:
+
+👉 *Tautan Undangan & Konfirmasi Kehadiran:*
+${finalUrl}
+
+_Catatan Panitia:_
+1. Mohon simpan gambar/screenshot Kartu Absensi Kode QR setelah konfirmasi kehadiran.
+2. Kode QR pada kartu ditunjukkan kepada Petugas Penerima Tamu di pintu masuk PP. Futuhiyyah untuk dipindai (scan) presensi.
+
+Atas perhatian, sinergi, dan kehadirannya kami sampaikan jazaakumullah ahsanal jaza'.
+
+_Wassalamu'alaikum Warahmatullahi Wabarakatuh_
+
+*PENGURUS CABANG RMI NU KABUPATEN DEMAK*
+*KH. Ibrahim Cholilullah* (Ketua)
+*K. Ahmad Badawi* (Sekretaris)`;
+
+    const msgArea = document.getElementById('gen-output-message');
+    if (msgArea) msgArea.value = msgTemplate;
+}
+
+function copyGeneratedLinkOnly() {
+    const urlInput = document.getElementById('gen-output-url');
+    if (urlInput) {
+        navigator.clipboard.writeText(urlInput.value).then(() => {
+            showToast('success', 'Tautan undangan khusus berhasil disalin!');
+        }).catch(() => {
+            urlInput.select();
+            document.execCommand('copy');
+            showToast('success', 'Tautan undangan disalin!');
+        });
+    }
+}
+
+function copyFullWhatsAppMessage() {
+    const msgArea = document.getElementById('gen-output-message');
+    if (msgArea) {
+        navigator.clipboard.writeText(msgArea.value).then(() => {
+            showToast('success', 'Format pesan WhatsApp resmi berhasil disalin ke clipboard!');
+        }).catch(() => {
+            msgArea.select();
+            document.execCommand('copy');
+            showToast('success', 'Pesan WhatsApp disalin!');
+        });
+    }
+}
+
+function openDirectWhatsApp() {
+    const targetWa = document.getElementById('gen-target-wa')?.value.trim() || '';
+    const msg = document.getElementById('gen-output-message')?.value || '';
+    
+    let cleanPhone = targetWa.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('0')) {
+        cleanPhone = '62' + cleanPhone.substring(1);
+    }
+
+    const encodedMsg = encodeURIComponent(msg);
+    let waUrl = '';
+    if (cleanPhone) {
+        waUrl = `https://wa.me/${cleanPhone}?text=${encodedMsg}`;
+    } else {
+        waUrl = `https://wa.me/?text=${encodedMsg}`;
+    }
+    window.open(waUrl, '_blank');
+}
+
+// FILTER & RENDER TABEL DELEGASI
+function filterSambangDelegatesTable() {
+    const searchVal = (document.getElementById('sambang-search-table')?.value || '').toLowerCase();
+    const halaqahVal = document.getElementById('sambang-filter-halaqah')?.value || '';
+    const statusVal = document.getElementById('sambang-filter-status')?.value || '';
+
+    const filtered = sambangDelegatesList.filter(item => {
+        const matchesSearch = !searchVal || 
+            String(item.nama_peserta || '').toLowerCase().includes(searchVal) ||
+            String(item.nama_pesantren || '').toLowerCase().includes(searchVal) ||
+            String(item.delegate_id || '').toLowerCase().includes(searchVal) ||
+            String(item.kecamatan || '').toLowerCase().includes(searchVal);
+
+        const matchesHalaqah = !halaqahVal || String(item.kategori_halaqah || '').includes(halaqahVal);
+        const matchesStatus = !statusVal || String(item.status_kehadiran || '').toUpperCase() === statusVal;
+
+        return matchesSearch && matchesHalaqah && matchesStatus;
+    });
+
+    renderSambangDelegatesTable(filtered);
+}
+
+function renderSambangDelegatesTable(delegates) {
+    const tbody = document.getElementById('sambang-delegates-tbody');
+    if (!tbody) return;
+
+    if (!delegates || delegates.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="p-8 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-[32px] text-slate-300">search_off</span>
+                    <p class="text-xs mt-1">Tidak ada data delegasi yang cocok.</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = delegates.map(item => {
+        const isHadir = String(item.status_kehadiran || '').toUpperCase() === 'HADIR';
+        const badgeClass = isHadir
+            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+            : 'bg-amber-100 text-amber-800 border border-amber-300';
+        const badgeText = isHadir ? 'HADIR' : 'TERDAFTAR';
+
+        return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+                <td class="p-3 pl-4 font-mono font-bold text-slate-900">${item.delegate_id || '-'}</td>
+                <td class="p-3">
+                    <div class="font-bold text-slate-900">${item.nama_peserta || '-'}</div>
+                    <div class="text-[11px] text-slate-500">${item.jabatan_peran || item.jabatan || '-'}</div>
+                </td>
+                <td class="p-3">
+                    <div class="font-semibold text-slate-800">${item.nama_pesantren || '-'}</div>
+                    <div class="text-[11px] text-slate-500">Kec. ${item.kecamatan || '-'}</div>
+                </td>
+                <td class="p-3">
+                    <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
+                        ${item.kategori_halaqah || '-'}
+                    </span>
+                </td>
+                <td class="p-3">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${badgeClass}">
+                        <span class="w-1.5 h-1.5 rounded-full ${isHadir ? 'bg-emerald-600' : 'bg-amber-500'}"></span>
+                        <span>${badgeText}</span>
+                    </span>
+                </td>
+                <td class="p-3 font-mono text-[11px] text-slate-600">
+                    ${item.waktu_kehadiran || '-'}
+                </td>
+                <td class="p-3 text-right pr-4 space-x-1">
+                    ${!isHadir ? `
+                        <button type="button" onclick="manualCheckinDelegate('${item.delegate_id}')" class="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] transition shadow-2xs cursor-pointer">
+                            Tandai Hadir
+                        </button>
+                    ` : `
+                        <span class="text-[11px] font-bold text-emerald-700 flex items-center justify-end gap-1">
+                            <span class="material-symbols-outlined text-[15px]">done_all</span>
+                            <span>Hadir</span>
+                        </span>
+                    `}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function manualCheckinDelegate(delegateId) {
+    if (!confirm(`Konfirmasi kehadiran manual untuk delegasi ID "${delegateId}"?`)) return;
+    processCheckinApi(delegateId);
+}
+
+// Export CSV
+function exportSambangDelegatesCSV() {
+    if (!sambangDelegatesList || sambangDelegatesList.length === 0) {
+        showToast('warning', 'Belum ada data delegasi untuk diekspor.');
+        return;
+    }
+
+    const headers = ['ID Delegasi', 'Waktu Registrasi', 'Kecamatan', 'Nama Pesantren', 'Kategori Halaqah', 'Nama Peserta', 'Nomor WhatsApp', 'Jabatan', 'Status Kehadiran', 'Waktu Check-In', 'Petugas Scan'];
+    const rows = sambangDelegatesList.map(d => [
+        `"${d.delegate_id || ''}"`,
+        `"${d.timestamp || ''}"`,
+        `"${d.kecamatan || ''}"`,
+        `"${d.nama_pesantren || ''}"`,
+        `"${d.kategori_halaqah || ''}"`,
+        `"${d.nama_peserta || ''}"`,
+        `"${d.no_whatsapp || ''}"`,
+        `"${d.jabatan_peran || ''}"`,
+        `"${d.status_kehadiran || ''}"`,
+        `"${d.waktu_kehadiran || ''}"`,
+        `"${d.petugas_scan || ''}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Daftar_Hadir_Sambang_Pesantren_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('success', 'File CSV daftar hadir berhasil diunduh.');
+}
+
+// Print Buku Tamu
+function printSambangBukuTamu() {
+    window.print();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

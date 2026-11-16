@@ -110,7 +110,8 @@ const SCHEMAS = {
   ],
   sambang_delegates: [
     'delegate_id', 'timestamp', 'kecamatan', 'nama_pesantren', 'kategori_halaqah',
-    'nama_peserta', 'no_whatsapp', 'jabatan_peran', 'catatan_khusus', 'status_kehadiran'
+    'nama_peserta', 'no_whatsapp', 'jabatan_peran', 'catatan_khusus', 'status_kehadiran',
+    'waktu_kehadiran', 'petugas_scan'
   ]
 };
 
