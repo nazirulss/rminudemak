@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1000">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1030">
 
     <style>
         body {
@@ -105,10 +105,19 @@
     <!-- MAIN INVITATION CONTAINER -->
     <div class="invitation-container w-full min-h-screen sm:min-h-[840px] bg-white relative flex flex-col justify-between overflow-x-hidden">
 
-        <!-- FLOATING AUDIO CONTROL PILL -->
-        <div id="audio-control" class="fixed sm:absolute top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20 text-[11px] font-bold cursor-pointer transition hover:bg-black/80 shadow-lg" onclick="toggleAudioPlayback()">
-            <span class="material-symbols-outlined text-[16px] text-emerald-400" id="audio-icon">music_note</span>
-            <span id="audio-status-text">Musik</span>
+        <!-- FLOATING AUDIO & AUTOSCROLL CONTROL BAR -->
+        <div class="fixed top-3 right-3 z-50 flex items-center gap-2">
+            <!-- Tombol Putar / Jeda Musik -->
+            <button type="button" id="audio-control" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white border border-white/20 text-[11px] font-bold cursor-pointer transition hover:bg-black/90 shadow-lg active:scale-95" onclick="toggleAudioPlayback()" title="Putar / Jeda Backsong Musik">
+                <span class="material-symbols-outlined text-[16px] text-emerald-400" id="audio-icon">music_note</span>
+                <span id="audio-status-text">Musik</span>
+            </button>
+
+            <!-- Tombol Jeda / Lanjut Autoscroll (Aktif di Screen 2) -->
+            <button type="button" id="scroll-control" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95" onclick="toggleAutoScroll()" title="Jeda / Lanjut Scroll Otomatis">
+                <span class="material-symbols-outlined text-[16px] text-amber-300" id="scroll-icon">pause_circle</span>
+                <span id="scroll-status-text">Jeda Scroll</span>
+            </button>
         </div>
 
         <!-- ========================================================================= -->
@@ -831,10 +840,9 @@
 
     </div>
 
-    <!-- AUDIO ELEMENT & WEB AUDIO ENGINE -->
+    <!-- AUDIO ELEMENT & WEB AUDIO ENGINE (BACKSONG YA LAL WATHAN) -->
     <audio id="invitation-audio" loop preload="auto">
-        <!-- Silent fallback if external audio blocked; synth will activate -->
-        <source src="assets/audio/sholawat_intro.mp3" type="audio/mpeg">
+        <source src="assets/audio/backsong_sambang.mp3" type="audio/mpeg">
     </audio>
 
     <!-- Canvas for Image Export -->
@@ -1002,13 +1010,29 @@
             }
         }
 
-        // 2. SCREEN TRANSITIONS
+        // 2. SCREEN TRANSITIONS & AUTOSCROLL ENGINE
+        let isAutoScrolling = false;
+        let autoScrollRafId = null;
+        let autoScrollSpeed = 1.15; // Smooth reading speed (px per frame)
+        let autoScrollTimer = null;
+
         function bukaWartaUndangan() {
             startAudioPlayback();
             switchScreen('screen-content');
+            
+            // Tampilkan tombol kontrol scroll
+            const scrollBtn = document.getElementById('scroll-control');
+            if (scrollBtn) scrollBtn.classList.remove('hidden');
+
+            // Mulai autoscroll otomatis setelah jeda sejenak (850ms)
+            clearTimeout(autoScrollTimer);
+            autoScrollTimer = setTimeout(() => {
+                startAutoScroll();
+            }, 850);
         }
 
         function kembaliKeCover() {
+            pauseAutoScroll();
             switchScreen('screen-cover');
         }
 
@@ -1023,16 +1047,115 @@
                 target.classList.add('active');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+
+            const scrollBtn = document.getElementById('scroll-control');
+            if (screenId === 'screen-content') {
+                if (scrollBtn) scrollBtn.classList.remove('hidden');
+            } else {
+                pauseAutoScroll();
+                if (scrollBtn) scrollBtn.classList.add('hidden');
+            }
         }
 
-        // 3. AUDIO PLAYER
+        // =========================================================================
+        // AUTOSCROLL ENGINE (SMOOTH SCROLL DENGAN FITUR JEDA & LANJUT)
+        // =========================================================================
+        function startAutoScroll() {
+            if (isAutoScrolling) return;
+            isAutoScrolling = true;
+            updateScrollUI(true);
+
+            function scrollTick() {
+                if (!isAutoScrolling) return;
+
+                // Hitung batas scroll dokumen & container
+                const maxWinScroll = document.documentElement.scrollHeight - window.innerHeight;
+                const curWinScroll = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+
+                const contentBody = document.querySelector('#screen-content .overflow-y-auto');
+                const maxBodyScroll = contentBody ? (contentBody.scrollHeight - contentBody.clientHeight) : 0;
+                const curBodyScroll = contentBody ? contentBody.scrollTop : 0;
+
+                // Cek apakah sudah mencapai bagian paling bawah
+                const reachedBottom = (curWinScroll >= maxWinScroll - 8) || (contentBody && maxBodyScroll > 0 && curBodyScroll >= maxBodyScroll - 8);
+
+                if (reachedBottom) {
+                    pauseAutoScroll();
+                    return;
+                }
+
+                // Scroll window dan container pendukung
+                window.scrollBy({ top: autoScrollSpeed, left: 0, behavior: 'auto' });
+                if (contentBody && maxBodyScroll > 0) {
+                    contentBody.scrollTop += autoScrollSpeed;
+                }
+
+                autoScrollRafId = requestAnimationFrame(scrollTick);
+            }
+
+            autoScrollRafId = requestAnimationFrame(scrollTick);
+        }
+
+        function pauseAutoScroll() {
+            isAutoScrolling = false;
+            if (autoScrollRafId) {
+                cancelAnimationFrame(autoScrollRafId);
+                autoScrollRafId = null;
+            }
+            updateScrollUI(false);
+        }
+
+        function resumeAutoScroll() {
+            startAutoScroll();
+        }
+
+        function toggleAutoScroll() {
+            if (isAutoScrolling) {
+                pauseAutoScroll();
+            } else {
+                resumeAutoScroll();
+            }
+        }
+
+        function updateScrollUI(scrolling) {
+            const icon = document.getElementById('scroll-icon');
+            const text = document.getElementById('scroll-status-text');
+            const btn = document.getElementById('scroll-control');
+            if (!icon || !text || !btn) return;
+
+            if (scrolling) {
+                icon.textContent = 'pause_circle';
+                text.textContent = 'Jeda Scroll';
+                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95';
+            } else {
+                icon.textContent = 'play_circle';
+                text.textContent = 'Lanjut Scroll';
+                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-amber-300 border border-amber-400/50 text-[11px] font-bold cursor-pointer transition hover:bg-slate-800 shadow-lg active:scale-95';
+            }
+        }
+
+        // Deteksi sentuhan jari / roda mouse: jika user aktif menyentuh/menggeser layar, jeda autoscroll dengan sopan
+        window.addEventListener('wheel', (e) => {
+            if (isAutoScrolling && Math.abs(e.deltaY) > 8) {
+                pauseAutoScroll();
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', () => {
+            if (isAutoScrolling) {
+                pauseAutoScroll();
+            }
+        }, { passive: true });
+
+        // 3. AUDIO PLAYER (BACKSONG RESMI YA LAL WATHAN)
         function startAudioPlayback() {
             const audio = document.getElementById('invitation-audio');
+            if (!audio) return;
             audio.play().then(() => {
                 isAudioPlaying = true;
                 updateAudioUI(true);
-            }).catch(() => {
-                // Synthesize smooth ambient tone if audio file not loaded
+            }).catch((err) => {
+                console.log('Audio autoplay prevented, using synth fallback:', err);
                 playSynthTone();
             });
         }
@@ -1040,7 +1163,7 @@
         function toggleAudioPlayback() {
             const audio = document.getElementById('invitation-audio');
             if (isAudioPlaying) {
-                audio.pause();
+                if (audio) audio.pause();
                 stopSynthTone();
                 isAudioPlaying = false;
                 updateAudioUI(false);
@@ -1052,14 +1175,15 @@
         function updateAudioUI(playing) {
             const icon = document.getElementById('audio-icon');
             const text = document.getElementById('audio-status-text');
+            if (!icon || !text) return;
             if (playing) {
                 icon.textContent = 'volume_up';
                 text.textContent = 'Musik Nyala';
-                icon.classList.add('animate-spin');
+                icon.classList.add('animate-pulse');
             } else {
                 icon.textContent = 'volume_off';
-                text.textContent = 'Mati';
-                icon.classList.remove('animate-spin');
+                text.textContent = 'Musik Jeda';
+                icon.classList.remove('animate-pulse');
             }
         }
 
