@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1055">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1110">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -796,17 +796,17 @@
                     </div>
                 </div>
 
-                <!-- Card Details -->
-                <div class="p-3 rounded-2xl bg-black/40 border border-white/15 space-y-1.5 text-left text-xs">
-                    <div>
-                        <div class="text-[9px] font-bold text-emerald-300 uppercase">Nama Peserta:</div>
-                        <div class="font-black text-sm text-white truncate" id="card-peserta-name">Ustadz Ahmad Fauzi</div>
+                <!-- Card Details (Anti-Cut: Ruang Teks Lega, Overflow Visible, Line-Height Optimal) -->
+                <div class="p-4 rounded-2xl bg-black/50 border border-emerald-400/30 space-y-2.5 text-left text-xs" style="overflow: visible;">
+                    <div style="overflow: visible;">
+                        <div class="text-[9px] font-bold text-emerald-300 uppercase tracking-wider">Nama Peserta Delegasi:</div>
+                        <div class="font-black text-sm text-white break-words" id="card-peserta-name" style="line-height: 1.45; padding-bottom: 3px; overflow: visible;">Ustadz Ahmad Fauzi</div>
                     </div>
-                    <div>
-                        <div class="text-[9px] font-bold text-emerald-300 uppercase">Pondok / Lembaga:</div>
-                        <div class="font-bold text-slate-200 truncate" id="card-pesantren-name">PP. Futuhiyyah Mranggen</div>
+                    <div style="overflow: visible;">
+                        <div class="text-[9px] font-bold text-emerald-300 uppercase tracking-wider">Pondok Pesantren / Lembaga:</div>
+                        <div class="font-bold text-xs text-slate-100 break-words" id="card-pesantren-name" style="line-height: 1.45; padding-bottom: 3px; overflow: visible;">PP. Futuhiyyah Mranggen</div>
                     </div>
-                    <div class="flex items-center justify-between text-[10px] text-slate-300 pt-1 border-t border-white/10">
+                    <div class="flex items-center justify-between text-[10px] text-slate-300 pt-1.5 border-t border-white/15">
                         <span id="card-kecamatan">Kec. Mranggen</span>
                         <span>Ahad, 22 Nov 2026</span>
                     </div>
@@ -830,10 +830,10 @@
                     </button>
                 </div>
 
-                <a id="btn-share-wa-card" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md">
+                <button type="button" id="btn-share-wa-card" onclick="bagikanKeWhatsApp()" class="w-full py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer active:scale-95">
                     <span class="material-symbols-outlined text-[17px]">share</span>
                     <span>Bagikan Bukti ke WhatsApp</span>
-                </a>
+                </button>
 
                 <button type="button" onclick="kembaliKeForm()" class="w-full py-1 text-center text-[11px] text-slate-400 hover:text-white transition">
                     &larr; Ubah Data / Kembali
@@ -1326,22 +1326,17 @@
                 qrImgEl.src = qrUrl;
             }
 
-            // WhatsApp Share Link
-            const waText = "*KARTU TANDA HADIR RESMI SAMBANG PESANTREN 2026*\n\n" +
-                "Nama: *" + info.namaPeserta + "*\n" +
-                "Lembaga: *" + info.namaPesantren + "* (" + info.kecamatan + ")\n" +
-                "Mandat: *" + badgeText + "*\n" +
-                "No. Registrasi: *" + info.delegateId + "*\n\n" +
-                "Lokasi: PP. Futuhiyyah Mranggen Demak\n" +
-                "Waktu: Ahad, 22 Nov 2026 • 12.30 WIB\n\n" +
-                "Tunjukkan kartu ini kepada Petugas Penerima Tamu di pintu masuk.";
-            document.getElementById('btn-share-wa-card').href = "https://api.whatsapp.com/send?text=" + encodeURIComponent(waText);
+            // Simpan Info Terbit untuk Berbagi WhatsApp
+            window.lastIssuedCardInfo = {
+                ...info,
+                badgeText: badgeText
+            };
 
             // Buka Layar Kartu
             switchScreen('screen-card');
         }
 
-        // 5. DOWNLOAD CARD IMAGE (ULTRA-HD RETINA DENGAN HTML2CANVAS & SOLID FALLBACK)
+        // 5. DOWNLOAD CARD IMAGE (ULTRA-HD RETINA DENGAN HTML2CANVAS & ANTI-CUT TEXT)
         async function downloadCardImage() {
             const btn = document.getElementById('btn-save-card');
             const originalBtnHtml = btn ? btn.innerHTML : '';
@@ -1354,7 +1349,7 @@
             const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '') || 'SBP-2026';
             const cardEl = document.getElementById('printable-id-card');
 
-            // METODE UTAMA: html2canvas (Hasil 100% identik dengan preview layar, warna zamrud solid & ultra-tajam)
+            // METODE UTAMA: html2canvas (Hasil 100% identik dengan preview layar, teks utuh & tajam)
             if (typeof html2canvas === 'function' && cardEl) {
                 try {
                     const canvas = await html2canvas(cardEl, {
@@ -1370,6 +1365,21 @@
                                 clonedCard.style.boxShadow = 'none';
                                 clonedCard.style.margin = '0 auto';
                                 clonedCard.style.borderRadius = '24px';
+                                clonedCard.style.overflow = 'visible';
+                            }
+                            const pName = clonedDoc.getElementById('card-peserta-name');
+                            if (pName) {
+                                pName.style.overflow = 'visible';
+                                pName.style.lineHeight = '1.45';
+                                pName.style.whiteSpace = 'normal';
+                                pName.style.paddingBottom = '4px';
+                            }
+                            const pPesantren = clonedDoc.getElementById('card-pesantren-name');
+                            if (pPesantren) {
+                                pPesantren.style.overflow = 'visible';
+                                pPesantren.style.lineHeight = '1.45';
+                                pPesantren.style.whiteSpace = 'normal';
+                                pPesantren.style.paddingBottom = '4px';
                             }
                         }
                     });
@@ -1401,6 +1411,105 @@
                     btn.innerHTML = originalBtnHtml;
                 }
             });
+        }
+
+        // 6. BAGIKAN BUKTI KE WHATSAPP (WUJUD GAMBAR KARTU HADIR VIA WEB SHARE API)
+        async function bagikanKeWhatsApp() {
+            const btn = document.getElementById('btn-share-wa-card');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-[17px] animate-spin">refresh</span><span>Menyiapkan Kartu Hadir...</span>';
+            }
+
+            const id = (document.getElementById('card-delegate-id')?.textContent || 'SBP-2026').trim();
+            const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '') || 'SBP-2026';
+            const nama = document.getElementById('card-peserta-name')?.textContent || '';
+            const pondok = document.getElementById('card-pesantren-name')?.textContent || '';
+            const kec = document.getElementById('card-kecamatan')?.textContent || '';
+            const halaqah = document.getElementById('card-badge-halaqah')?.textContent || '';
+
+            const waText = "*KARTU TANDA HADIR RESMI SAMBANG PESANTREN 2026*\n\n" +
+                "Nama: *" + nama + "*\n" +
+                "Lembaga: *" + pondok + "* (" + kec + ")\n" +
+                "Mandat: *" + halaqah + "*\n" +
+                "No. Registrasi: *" + id + "*\n\n" +
+                "Lokasi: PP. Futuhiyyah Mranggen Demak\n" +
+                "Waktu: Ahad, 22 Nov 2026 • 12.30 WIB\n\n" +
+                "Tunjukkan kartu ini kepada Petugas Penerima Tamu di pintu masuk PP. Futuhiyyah.";
+
+            const cardEl = document.getElementById('printable-id-card');
+
+            try {
+                // Buat Canvas Gambar Kartu
+                let canvas = null;
+                if (typeof html2canvas === 'function' && cardEl) {
+                    canvas = await html2canvas(cardEl, {
+                        scale: 2.5,
+                        backgroundColor: '#01261f',
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false,
+                        onclone: (clonedDoc) => {
+                            const pName = clonedDoc.getElementById('card-peserta-name');
+                            if (pName) {
+                                pName.style.overflow = 'visible';
+                                pName.style.lineHeight = '1.45';
+                                pName.style.whiteSpace = 'normal';
+                            }
+                            const pPesantren = clonedDoc.getElementById('card-pesantren-name');
+                            if (pPesantren) {
+                                pPesantren.style.overflow = 'visible';
+                                pPesantren.style.lineHeight = '1.45';
+                                pPesantren.style.whiteSpace = 'normal';
+                            }
+                        }
+                    });
+                }
+
+                // Metode 1: Web Share API Mobile (WhatsApp langsung terbuka melampirkan gambar kartu asli!)
+                if (canvas && navigator.canShare) {
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+                    if (blob) {
+                        const file = new File([blob], 'Kartu-Hadir-' + cleanId + '.png', { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Kartu Tanda Hadir Resmi - ' + nama,
+                                text: waText
+                            });
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = originalHtml;
+                            }
+                            return;
+                        }
+                    }
+                }
+
+                // Metode 2: Desktop Fallback (Download kartu otomatis + buka WhatsApp dengan teks resmi)
+                if (canvas) {
+                    const dlLink = document.createElement('a');
+                    dlLink.download = 'Kartu-Hadir-' + cleanId + '.png';
+                    dlLink.href = canvas.toDataURL('image/png', 1.0);
+                    document.body.appendChild(dlLink);
+                    dlLink.click();
+                    document.body.removeChild(dlLink);
+                }
+
+                const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(waText);
+                window.open(waUrl, '_blank');
+
+            } catch (err) {
+                console.warn('Error saat membagikan ke WA:', err);
+                const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(waText);
+                window.open(waUrl, '_blank');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
         }
 
         function renderDirectCanvasSolid(cleanId, callback) {
