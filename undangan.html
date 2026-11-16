@@ -34,7 +34,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1030">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1045">
+
+    <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
+    <script src="assets/js/qrcode.min.js"></script>
+    <script src="assets/js/html2canvas.min.js"></script>
 
     <style>
         body {
@@ -764,19 +768,19 @@
             </div>
 
             <!-- THE ACTUAL PRINTABLE / DOWNLOADABLE ID CARD CANVAS CONTAINER -->
-            <div id="printable-id-card" class="my-4 p-5 rounded-3xl bg-gradient-to-b from-[#004e3c] to-[#01261f] text-white border-2 border-emerald-400/40 shadow-2xl relative overflow-hidden">
+            <div id="printable-id-card" style="background: linear-gradient(180deg, #004e3c 0%, #01261f 100%); background-color: #004e3c; color: #ffffff;" class="my-4 p-5 rounded-3xl text-white border-2 border-emerald-400/40 shadow-2xl relative overflow-hidden">
                 
                 <!-- Card Header with Logo -->
                 <div class="flex items-center justify-between pb-3 border-b border-emerald-500/30">
                     <div class="flex items-center gap-2">
-                        <img src="assets/img/logo_rmi.png" alt="RMI NU" class="h-10 w-auto object-contain">
+                        <img src="assets/img/logo_rmi.png" crossorigin="anonymous" alt="RMI NU" class="h-10 w-auto object-contain">
                         <div>
-                            <div class="text-[11px] font-black tracking-wide leading-tight">PC RMI NU DEMAK</div>
+                            <div class="text-[11px] font-black tracking-wide leading-tight text-white">PC RMI NU DEMAK</div>
                             <div class="text-[9px] text-emerald-300">Sambang Pesantren Jilid II 2026</div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <span id="card-badge-halaqah" class="px-2 py-0.5 rounded-md text-[9px] font-black bg-amber-400 text-slate-950 uppercase">
+                        <span id="card-badge-halaqah" class="px-2.5 py-1 rounded-lg text-[9px] font-black bg-amber-400 text-slate-950 uppercase tracking-wider shadow-sm">
                             Halaqah 4
                         </span>
                     </div>
@@ -784,16 +788,16 @@
 
                 <!-- QR Code Box in Center -->
                 <div class="py-4 text-center space-y-2">
-                    <div class="w-44 h-44 mx-auto p-2.5 bg-white rounded-2xl shadow-lg flex items-center justify-center">
+                    <div id="card-qr-container" class="w-44 h-44 mx-auto p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center overflow-hidden">
                         <img id="card-qr-img" crossorigin="anonymous" src="" alt="Kode QR Absensi" class="w-full h-full object-contain">
                     </div>
-                    <div class="text-[11px] font-black tracking-widest text-emerald-300" id="card-delegate-id">
+                    <div class="text-[12px] font-black tracking-widest text-emerald-300 font-mono" id="card-delegate-id">
                         SBP-2026-001
                     </div>
                 </div>
 
                 <!-- Card Details -->
-                <div class="p-3 rounded-2xl bg-black/30 border border-white/10 space-y-1.5 text-left text-xs">
+                <div class="p-3 rounded-2xl bg-black/40 border border-white/15 space-y-1.5 text-left text-xs">
                     <div>
                         <div class="text-[9px] font-bold text-emerald-300 uppercase">Nama Peserta:</div>
                         <div class="font-black text-sm text-white truncate" id="card-peserta-name">Ustadz Ahmad Fauzi</div>
@@ -816,7 +820,7 @@
             <!-- Action Buttons for Card (No Print) -->
             <div class="space-y-2 no-print">
                 <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="downloadCardImage()" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer">
+                    <button type="button" id="btn-save-card" onclick="downloadCardImage()" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer active:scale-95">
                         <span class="material-symbols-outlined text-[17px]">download</span>
                         <span>Simpan Gambar</span>
                     </button>
@@ -1297,12 +1301,25 @@
             else if (info.kategoriHalaqah.includes('Halaqah 5')) badgeText = 'Halaqah 5: Media';
             document.getElementById('card-badge-halaqah').textContent = badgeText;
 
-            // Generate Kode QR (Menggunakan payload token ID)
-            const qrData = encodeURIComponent(info.delegateId);
-            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + qrData;
+            // Generate Kode QR Lokal (100% Instan, Tanpa dependensi server luar & Bebas CORS)
+            const qrContainer = document.getElementById('card-qr-container');
             const qrImgEl = document.getElementById('card-qr-img');
-            qrImgEl.crossOrigin = 'anonymous';
-            qrImgEl.src = qrUrl;
+            if (typeof QRCode !== 'undefined' && qrContainer) {
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: info.delegateId,
+                    width: 156,
+                    height: 156,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else if (qrImgEl) {
+                const qrData = encodeURIComponent(info.delegateId);
+                const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' + qrData;
+                qrImgEl.crossOrigin = 'anonymous';
+                qrImgEl.src = qrUrl;
+            }
 
             // WhatsApp Share Link
             const waText = "*KARTU TANDA HADIR RESMI SAMBANG PESANTREN 2026*\n\n" +
@@ -1319,103 +1336,210 @@
             switchScreen('screen-card');
         }
 
-        // 5. DOWNLOAD CARD IMAGE VIA CANVAS
-        function downloadCardImage() {
-            const canvas = document.getElementById('export-canvas');
-            const ctx = canvas.getContext('2d');
-
-            const id = document.getElementById('card-delegate-id').textContent;
-            const nama = document.getElementById('card-peserta-name').textContent;
-            const pondok = document.getElementById('card-pesantren-name').textContent;
-            const kec = document.getElementById('card-kecamatan').textContent;
-            const halaqah = document.getElementById('card-badge-halaqah').textContent;
-            const qrImg = document.getElementById('card-qr-img');
-
-            // Draw Background Card
-            const gradient = ctx.createLinearGradient(0, 0, 0, 850);
-            gradient.addColorStop(0, '#004e3c');
-            gradient.addColorStop(1, '#01261f');
-            ctx.fillStyle = gradient;
-            ctx.roundRect(0, 0, 600, 850, 36);
-            ctx.fill();
-
-            // Border Emas
-            ctx.strokeStyle = '#34d399';
-            ctx.lineWidth = 6;
-            ctx.roundRect(0, 0, 600, 850, 36);
-            ctx.stroke();
-
-            // Header Kop
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 24px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('PC RMI NU KABUPATEN DEMAK', 300, 65);
-            ctx.fillStyle = '#6ee7b7';
-            ctx.font = 'bold 15px Inter, sans-serif';
-            ctx.fillText('SAMBANG PESANTREN PW RMI NU JATENG 2026', 300, 95);
-
-            // Halaqah Badge
-            ctx.fillStyle = '#fbbf24';
-            ctx.roundRect(150, 120, 300, 40, 20);
-            ctx.fill();
-            ctx.fillStyle = '#0f172a';
-            ctx.font = 'bold 16px Inter, sans-serif';
-            ctx.fillText(halaqah.toUpperCase(), 300, 146);
-
-            // QR Box White Container
-            ctx.fillStyle = '#ffffff';
-            ctx.roundRect(160, 190, 280, 280, 24);
-            ctx.fill();
-
-            // Draw QR Code Image if loaded
-            try {
-                ctx.drawImage(qrImg, 180, 210, 240, 240);
-            } catch(e) {
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 20px Inter, sans-serif';
-                ctx.fillText(id, 300, 330);
+        // 5. DOWNLOAD CARD IMAGE (ULTRA-HD RETINA DENGAN HTML2CANVAS & SOLID FALLBACK)
+        async function downloadCardImage() {
+            const btn = document.getElementById('btn-save-card');
+            const originalBtnHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined text-[17px] animate-spin">refresh</span><span>Memproses Kartu HD...</span>';
             }
 
-            // Delegate ID
-            ctx.fillStyle = '#6ee7b7';
-            ctx.font = '900 24px Inter, monospace';
-            ctx.fillText(id, 300, 510);
+            const id = (document.getElementById('card-delegate-id')?.textContent || 'SBP-2026').trim();
+            const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '') || 'SBP-2026';
+            const cardEl = document.getElementById('printable-id-card');
 
-            // Peserta Info Box
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-            ctx.roundRect(50, 540, 500, 220, 24);
+            // METODE UTAMA: html2canvas (Hasil 100% identik dengan preview layar, warna zamrud solid & ultra-tajam)
+            if (typeof html2canvas === 'function' && cardEl) {
+                try {
+                    const canvas = await html2canvas(cardEl, {
+                        scale: 3, // Ultra-HD Retina 3x
+                        backgroundColor: '#01261f', // Hijau zamrud tua solid, mencegah transparansi abu-abu
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false,
+                        imageTimeout: 5000,
+                        onclone: (clonedDoc) => {
+                            const clonedCard = clonedDoc.getElementById('printable-id-card');
+                            if (clonedCard) {
+                                clonedCard.style.boxShadow = 'none';
+                                clonedCard.style.margin = '0 auto';
+                                clonedCard.style.borderRadius = '24px';
+                            }
+                        }
+                    });
+
+                    const link = document.createElement('a');
+                    link.download = 'Kartu-Hadir-' + cleanId + '.png';
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    if (btn) {
+                        btn.innerHTML = '<span class="material-symbols-outlined text-[17px]">check_circle</span><span>Tersimpan!</span>';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = originalBtnHtml;
+                        }, 2000);
+                    }
+                    return;
+                } catch (err) {
+                    console.warn('html2canvas error, beralih ke direct canvas fallback:', err);
+                }
+            }
+
+            // METODE CADANGAN: Direct 2D Canvas Solid Background (Bebas transparansi)
+            renderDirectCanvasSolid(cleanId, () => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
+                }
+            });
+        }
+
+        function renderDirectCanvasSolid(cleanId, callback) {
+            const canvas = document.getElementById('export-canvas');
+            if (!canvas) {
+                if (callback) callback();
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+
+            const id = document.getElementById('card-delegate-id')?.textContent || cleanId;
+            const nama = document.getElementById('card-peserta-name')?.textContent || 'Peserta Delegasi';
+            const pondok = document.getElementById('card-pesantren-name')?.textContent || '-';
+            const kec = document.getElementById('card-kecamatan')?.textContent || 'Kab. Demak';
+            const halaqah = document.getElementById('card-badge-halaqah')?.textContent || 'Halaqah';
+
+            // 1. Solid Canvas Background Dasar (Mencegah tampilan abu-abu di Windows Photo Viewer)
+            ctx.fillStyle = '#01261f';
+            ctx.fillRect(0, 0, 600, 850);
+
+            // 2. Kartu Rounded dengan Gradien Zamrud Mewah Ar-Rawdhah
+            const grad = ctx.createLinearGradient(0, 20, 0, 830);
+            grad.addColorStop(0, '#004e3c');
+            grad.addColorStop(1, '#01261f');
+            ctx.fillStyle = grad;
+
+            // Helper rounded rect
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(15, 15, 570, 820, 32);
+            } else {
+                ctx.rect(15, 15, 570, 820);
+            }
             ctx.fill();
 
-            ctx.fillStyle = '#34d399';
-            ctx.font = 'bold 13px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('NAMA PESERTA DELEGASI:', 80, 580);
+            // Border Emerald Glow
+            ctx.strokeStyle = '#34d399';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+
+            // 3. Header Kop PC RMI NU DEMAK
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 24px Inter, sans-serif';
-            ctx.fillText(nama, 80, 615);
+            ctx.font = 'bold 22px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('PC RMI NU KABUPATEN DEMAK', 300, 70);
+            ctx.fillStyle = '#6ee7b7';
+            ctx.font = 'bold 13px Inter, sans-serif';
+            ctx.fillText('SAMBANG PESANTREN PW RMI NU JATENG 2026', 300, 95);
+
+            // 4. Badge Halaqah Keemasan
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(150, 115, 300, 36, 18);
+            } else {
+                ctx.rect(150, 115, 300, 36);
+            }
+            ctx.fill();
+            ctx.fillStyle = '#022c22';
+            ctx.font = '900 13px Inter, sans-serif';
+            ctx.fillText(halaqah.toUpperCase(), 300, 138);
+
+            // 5. Wadah Kode QR Putih Bersih
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(175, 175, 250, 250, 20);
+            } else {
+                ctx.rect(175, 175, 250, 250);
+            }
+            ctx.fill();
+
+            // Gambar Kode QR jika ada canvas/img lokal
+            const qrCanvas = document.querySelector('#card-qr-container canvas');
+            const qrImg = document.querySelector('#card-qr-container img') || document.getElementById('card-qr-img');
+            try {
+                if (qrCanvas) {
+                    ctx.drawImage(qrCanvas, 195, 195, 210, 210);
+                } else if (qrImg && qrImg.complete && qrImg.naturalWidth > 0) {
+                    ctx.drawImage(qrImg, 195, 195, 210, 210);
+                } else {
+                    ctx.fillStyle = '#022c22';
+                    ctx.font = 'bold 18px Inter, monospace';
+                    ctx.fillText(id, 300, 305);
+                }
+            } catch (e) {
+                ctx.fillStyle = '#022c22';
+                ctx.font = 'bold 18px Inter, monospace';
+                ctx.fillText(id, 300, 305);
+            }
+
+            // ID Registrasi
+            ctx.fillStyle = '#6ee7b7';
+            ctx.font = '900 20px Inter, monospace';
+            ctx.fillText(id, 300, 460);
+
+            // 6. Box Detail Peserta
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(40, 490, 520, 240, 20);
+            } else {
+                ctx.rect(40, 490, 520, 240);
+            }
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Label & Nilai Info
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('NAMA PESERTA DELEGASI:', 65, 525);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 22px Inter, sans-serif';
+            ctx.fillText(nama, 65, 555);
 
             ctx.fillStyle = '#34d399';
-            ctx.font = 'bold 13px Inter, sans-serif';
-            ctx.fillText('PONDOK PESANTREN / LEMBAGA:', 80, 665);
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('PONDOK PESANTREN / LEMBAGA:', 65, 605);
             ctx.fillStyle = '#e2e8f0';
-            ctx.font = 'bold 18px Inter, sans-serif';
-            ctx.fillText(pondok, 80, 695);
+            ctx.font = 'bold 17px Inter, sans-serif';
+            ctx.fillText(pondok, 65, 633);
 
             ctx.fillStyle = '#94a3b8';
-            ctx.font = '14px Inter, sans-serif';
-            ctx.fillText(kec + ' • Ahad, 22 November 2026', 80, 735);
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillText(kec + ' • Ahad, 22 November 2026', 65, 680);
 
-            // Footer
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.font = '12px Inter, sans-serif';
+            // 7. Footer
             ctx.textAlign = 'center';
-            ctx.fillText('Pondok Pesantren Futuhiyyah Mranggen Demak', 300, 800);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Pondok Pesantren Futuhiyyah Mranggen Demak • 12.30 WIB', 300, 785);
 
-            // Trigger Download
+            // Unduh file PNG
             const link = document.createElement('a');
-            link.download = 'Kartu-Hadir-' + id + '.png';
-            link.href = canvas.toDataURL('image/png');
+            link.download = 'Kartu-Hadir-' + cleanId + '.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+
+            if (callback) callback();
         }
     </script>
 </body>
