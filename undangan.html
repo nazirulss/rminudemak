@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0640">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0645">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -278,7 +278,7 @@
                 <!-- ============================================== -->
                 <div class="space-y-3.5">
                     
-                    <!-- Section Header with Badges -->
+                    <!-- Section Header with Badges & Slider Status -->
                     <div class="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-sm">
@@ -286,35 +286,85 @@
                             </div>
                             <div>
                                 <h3 class="text-xs sm:text-sm font-black text-slate-900 leading-tight">5 Pilar Kegiatan Utama (5 Halaqah)</h3>
-                                <p class="text-[10px] text-slate-500">Pilih pilar halaqah di bawah untuk melihat rincian agenda & kuota:</p>
+                                <p class="text-[10px] text-slate-500">Pilih halaqah di bawah untuk jeda slider & melihat detail:</p>
                             </div>
                         </div>
-                        <span class="text-[10px] font-black text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                            5 Halaqah
+                        <span id="slider-status-badge" class="text-[10px] font-black text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1 shrink-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span>
+                            <span>Auto-Slider 2s</span>
                         </span>
                     </div>
 
-                    <!-- Modern Interactive Direct Tab Grid (Semua 5 Halaqah Terlihat Langsung, Tanpa Scroll) -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 select-none" id="halaqah-tabs-bar">
-                        <button type="button" onclick="selectHalaqahTab(1)" id="tab-pill-1" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 bg-emerald-700 text-white shadow-sm cursor-pointer text-center">
-                            <span class="material-symbols-outlined text-[15px] shrink-0">groups</span>
-                            <span class="truncate">Halaqah 1 (PW-PC)</span>
+                    <!-- Susunan 5 Tombol Halaqah (5 Baris Vertikal Penuh, Bebas Teks Terpotong) -->
+                    <div class="space-y-2 select-none" id="halaqah-tabs-bar">
+                        <!-- Tombol 1 -->
+                        <button type="button" onclick="handleHalaqahTabClick(1)" id="tab-pill-1" class="tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-950 text-white shadow-md border-2 border-emerald-400 cursor-pointer">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="tab-icon-box-1" class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white">
+                                    <span class="material-symbols-outlined text-[18px]">groups</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-xs leading-tight">Halaqah 1: Konsolidasi & Koordinasi RMI PW-PC</div>
+                                    <div id="tab-subtext-1" class="text-[10px] text-emerald-200/90 mt-0.5">Kapasitas 60 Orang • Jajaran Pengurus RMI PWNU & PCNU</div>
+                                </div>
+                            </div>
+                            <span id="tab-chevron-1" class="material-symbols-outlined text-[18px] shrink-0 text-emerald-300">chevron_right</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(2)" id="tab-pill-2" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
-                            <span class="material-symbols-outlined text-[15px] shrink-0">menu_book</span>
-                            <span class="truncate">Halaqah 2 (Madin)</span>
+
+                        <!-- Tombol 2 -->
+                        <button type="button" onclick="handleHalaqahTabClick(2)" id="tab-pill-2" class="tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="tab-icon-box-2" class="w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-xs leading-tight">Halaqah 2: Bidang Madin RMI & Kepala Madin</div>
+                                    <div id="tab-subtext-2" class="text-[10px] text-slate-500 mt-0.5">Kapasitas 30 Orang • Kepala Madin Takmiliyah se-Demak</div>
+                                </div>
+                            </div>
+                            <span id="tab-chevron-2" class="material-symbols-outlined text-[18px] shrink-0 text-slate-400">chevron_right</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(3)" id="tab-pill-3" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
-                            <span class="material-symbols-outlined text-[15px] shrink-0">stars</span>
-                            <span class="truncate">Halaqah 3 (Pengasuh)</span>
+
+                        <!-- Tombol 3 -->
+                        <button type="button" onclick="handleHalaqahTabClick(3)" id="tab-pill-3" class="tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="tab-icon-box-3" class="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">stars</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-xs leading-tight">Halaqah 3: Diskusi Kepengasuhan Pengasuh Pesantren</div>
+                                    <div id="tab-subtext-3" class="text-[10px] text-slate-500 mt-0.5">Musyawarah Luhur • Masyayikh Kyai & Bu Nyai Pengasuh</div>
+                                </div>
+                            </div>
+                            <span id="tab-chevron-3" class="material-symbols-outlined text-[18px] shrink-0 text-slate-400">chevron_right</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(4)" id="tab-pill-4" class="tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
-                            <span class="material-symbols-outlined text-[15px] shrink-0">supervisor_account</span>
-                            <span class="truncate">Halaqah 4 (Musyrif)</span>
+
+                        <!-- Tombol 4 -->
+                        <button type="button" onclick="handleHalaqahTabClick(4)" id="tab-pill-4" class="tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="tab-icon-box-4" class="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">supervisor_account</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-xs leading-tight">Halaqah 4: Pelatihan Musyrif & Musyrifah Asrama (2 Hari)</div>
+                                    <div id="tab-subtext-4" class="text-[10px] text-slate-500 mt-0.5">Kapasitas 100 Pembina Asrama Pondok (Putra & Putri)</div>
+                                </div>
+                            </div>
+                            <span id="tab-chevron-4" class="material-symbols-outlined text-[18px] shrink-0 text-slate-400">chevron_right</span>
                         </button>
-                        <button type="button" onclick="selectHalaqahTab(5)" id="tab-pill-5" class="col-span-2 sm:col-span-1 tab-halaqah-pill p-2 rounded-xl text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center">
-                            <span class="material-symbols-outlined text-[15px] shrink-0">videocam</span>
-                            <span class="truncate">Halaqah 5 (Media Pesantren)</span>
+
+                        <!-- Tombol 5 -->
+                        <button type="button" onclick="handleHalaqahTabClick(5)" id="tab-pill-5" class="tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div id="tab-icon-box-5" class="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">videocam</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-xs leading-tight">Halaqah 5: Pelatihan Media Pesantren & Kreator Dakwah</div>
+                                    <div id="tab-subtext-5" class="text-[10px] text-slate-500 mt-0.5">Kapasitas 50 Tim Media Pondok Pesantren</div>
+                                </div>
+                            </div>
+                            <span id="tab-chevron-5" class="material-symbols-outlined text-[18px] shrink-0 text-slate-400">chevron_right</span>
                         </button>
                     </div>
 
@@ -966,29 +1016,82 @@
         // ==============================================
         let currentActiveHalaqahTab = 1;
 
-        const halaqahPillColors = {
-            1: { active: 'bg-emerald-700 text-white shadow-sm', inactive: 'bg-white text-slate-600 border border-slate-200' },
-            2: { active: 'bg-teal-700 text-white shadow-sm', inactive: 'bg-white text-slate-600 border border-slate-200' },
-            3: { active: 'bg-amber-600 text-slate-950 font-black shadow-sm', inactive: 'bg-white text-slate-600 border border-slate-200' },
-            4: { active: 'bg-blue-700 text-white shadow-sm', inactive: 'bg-white text-slate-600 border border-slate-200' },
-            5: { active: 'bg-purple-700 text-white shadow-sm', inactive: 'bg-white text-slate-600 border border-slate-200' }
+        const halaqahTabStyles = {
+            1: {
+                activeBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-950 text-white shadow-md border-2 border-emerald-400 cursor-pointer',
+                inactiveBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs',
+                activeIcon: 'w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white',
+                inactiveIcon: 'w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0',
+                activeSubtext: 'text-[10px] text-emerald-200/90 mt-0.5',
+                inactiveSubtext: 'text-[10px] text-slate-500 mt-0.5',
+                activeChevron: 'material-symbols-outlined text-[18px] shrink-0 text-emerald-300',
+                inactiveChevron: 'material-symbols-outlined text-[18px] shrink-0 text-slate-400'
+            },
+            2: {
+                activeBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-teal-800 via-teal-900 to-slate-950 text-white shadow-md border-2 border-teal-400 cursor-pointer',
+                inactiveBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs',
+                activeIcon: 'w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white',
+                inactiveIcon: 'w-8 h-8 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center shrink-0',
+                activeSubtext: 'text-[10px] text-teal-200/90 mt-0.5',
+                inactiveSubtext: 'text-[10px] text-slate-500 mt-0.5',
+                activeChevron: 'material-symbols-outlined text-[18px] shrink-0 text-teal-300',
+                inactiveChevron: 'material-symbols-outlined text-[18px] shrink-0 text-slate-400'
+            },
+            3: {
+                activeBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-amber-700 via-amber-800 to-slate-950 text-white shadow-md border-2 border-amber-300 cursor-pointer',
+                inactiveBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs',
+                activeIcon: 'w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white',
+                inactiveIcon: 'w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shrink-0',
+                activeSubtext: 'text-[10px] text-amber-200/90 mt-0.5',
+                inactiveSubtext: 'text-[10px] text-slate-500 mt-0.5',
+                activeChevron: 'material-symbols-outlined text-[18px] shrink-0 text-amber-300',
+                inactiveChevron: 'material-symbols-outlined text-[18px] shrink-0 text-slate-400'
+            },
+            4: {
+                activeBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-blue-800 via-blue-900 to-slate-950 text-white shadow-md border-2 border-blue-400 cursor-pointer',
+                inactiveBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs',
+                activeIcon: 'w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white',
+                inactiveIcon: 'w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0',
+                activeSubtext: 'text-[10px] text-blue-200/90 mt-0.5',
+                inactiveSubtext: 'text-[10px] text-slate-500 mt-0.5',
+                activeChevron: 'material-symbols-outlined text-[18px] shrink-0 text-blue-300',
+                inactiveChevron: 'material-symbols-outlined text-[18px] shrink-0 text-slate-400'
+            },
+            5: {
+                activeBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-gradient-to-r from-purple-800 via-purple-900 to-slate-950 text-white shadow-md border-2 border-purple-400 cursor-pointer',
+                inactiveBtn: 'tab-halaqah-pill w-full p-2.5 sm:p-3 rounded-2xl text-left transition-all flex items-center justify-between gap-2.5 bg-white text-slate-800 border-2 border-slate-200/90 hover:bg-slate-50 cursor-pointer shadow-xs',
+                activeIcon: 'w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white',
+                inactiveIcon: 'w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0',
+                activeSubtext: 'text-[10px] text-purple-200/90 mt-0.5',
+                inactiveSubtext: 'text-[10px] text-slate-500 mt-0.5',
+                activeChevron: 'material-symbols-outlined text-[18px] shrink-0 text-purple-300',
+                inactiveChevron: 'material-symbols-outlined text-[18px] shrink-0 text-slate-400'
+            }
         };
 
         function selectHalaqahTab(num) {
             currentActiveHalaqahTab = num;
             
-            // Update Tab Pills (Grid Langsung Tanpa Horizontal Scroll)
+            // Update 5 Tombol Baris Vertikal & Spotlight Card
             for (let i = 1; i <= 5; i++) {
                 const pill = document.getElementById('tab-pill-' + i);
+                const iconBox = document.getElementById('tab-icon-box-' + i);
+                const subtext = document.getElementById('tab-subtext-' + i);
+                const chevron = document.getElementById('tab-chevron-' + i);
                 const card = document.getElementById('spotlight-card-' + i);
-                const colors = halaqahPillColors[i];
-                const baseSpan = (i === 5) ? 'col-span-2 sm:col-span-1' : '';
+                const style = halaqahTabStyles[i];
 
-                if (pill) {
+                if (pill && style) {
                     if (i === num) {
-                        pill.className = `tab-halaqah-pill ${baseSpan} p-2 rounded-xl text-[11px] font-bold transition-all flex items-center justify-center gap-1.5 ${colors.active} cursor-pointer text-center`;
+                        pill.className = style.activeBtn;
+                        if (iconBox) iconBox.className = style.activeIcon;
+                        if (subtext) subtext.className = style.activeSubtext;
+                        if (chevron) chevron.className = style.activeChevron;
                     } else {
-                        pill.className = `tab-halaqah-pill ${baseSpan} p-2 rounded-xl text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 ${colors.inactive} hover:bg-slate-50 cursor-pointer text-center`;
+                        pill.className = style.inactiveBtn;
+                        if (iconBox) iconBox.className = style.inactiveIcon;
+                        if (subtext) subtext.className = style.inactiveSubtext;
+                        if (chevron) chevron.className = style.inactiveChevron;
                     }
                 }
 
@@ -1024,6 +1127,65 @@
             }
         }
 
+        // ==============================================
+        // AUTO-SLIDER ENGINE (2 DETIK / 2000 MS)
+        // ==============================================
+        let halaqahSliderInterval = null;
+        let isHalaqahSliderPausedByUser = false;
+        const HALAQAH_SLIDER_SPEED = 2000; // 2 Detik tepat sesuai instruksi user
+
+        function startHalaqahSlider() {
+            stopHalaqahSlider();
+            halaqahSliderInterval = setInterval(() => {
+                let next = currentActiveHalaqahTab + 1;
+                if (next > 5) next = 1;
+                selectHalaqahTab(next);
+            }, HALAQAH_SLIDER_SPEED);
+            updateSliderStatusBadge(false);
+        }
+
+        function stopHalaqahSlider() {
+            if (halaqahSliderInterval) {
+                clearInterval(halaqahSliderInterval);
+                halaqahSliderInterval = null;
+            }
+        }
+
+        function updateSliderStatusBadge(isPaused) {
+            const badge = document.getElementById('slider-status-badge');
+            if (!badge) return;
+            if (isPaused) {
+                badge.className = 'text-[10px] font-black text-amber-800 bg-amber-100/90 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shrink-0';
+                badge.innerHTML = '<span class="material-symbols-outlined text-[13px] text-amber-700">pause_circle</span><span>Dijeda (Klik luar utk lanjut)</span>';
+            } else {
+                badge.className = 'text-[10px] font-black text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300 flex items-center gap-1 shrink-0';
+                badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span><span>Auto-Slider 2s</span>';
+            }
+        }
+
+        function handleHalaqahTabClick(num) {
+            // Ketika salah satu dari 5 tombol diklik: jeda slider
+            isHalaqahSliderPausedByUser = true;
+            stopHalaqahSlider();
+            selectHalaqahTab(num);
+            updateSliderStatusBadge(true);
+        }
+
+        // Listener klik di luar 5 tombol untuk melanjutkan slider otomatis
+        document.addEventListener('click', function(event) {
+            // Hanya aktif jika sedang terjeda oleh klik user
+            if (!isHalaqahSliderPausedByUser) return;
+
+            const tabsBar = document.getElementById('halaqah-tabs-bar');
+            if (!tabsBar) return;
+
+            // Jika klik terjadi di luar baris tombol 5 halaqah
+            if (!tabsBar.contains(event.target)) {
+                isHalaqahSliderPausedByUser = false;
+                startHalaqahSlider();
+            }
+        });
+
         // 2. SCREEN TRANSITIONS & AUTOSCROLL ENGINE
         let isAutoScrolling = false;
         let autoScrollRafId = null;
@@ -1034,6 +1196,9 @@
             startAudioPlayback();
             switchScreen('screen-content');
             
+            // Jalankan slider 5 halaqah otomatis 2 detik
+            startHalaqahSlider();
+
             // Tampilkan tombol kontrol scroll
             const scrollBtn = document.getElementById('scroll-control');
             if (scrollBtn) scrollBtn.classList.remove('hidden');
@@ -1047,6 +1212,7 @@
 
         function kembaliKeCover() {
             pauseAutoScroll();
+            stopHalaqahSlider();
             switchScreen('screen-cover');
         }
 
@@ -1065,8 +1231,12 @@
             const scrollBtn = document.getElementById('scroll-control');
             if (screenId === 'screen-content') {
                 if (scrollBtn) scrollBtn.classList.remove('hidden');
+                if (!isHalaqahSliderPausedByUser) {
+                    startHalaqahSlider();
+                }
             } else {
                 pauseAutoScroll();
+                stopHalaqahSlider();
                 if (scrollBtn) scrollBtn.classList.add('hidden');
             }
         }
