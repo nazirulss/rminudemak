@@ -414,7 +414,7 @@ function handleSelfRegisterPesantren(payload, lock) {
     ]);
   }
 
-  // 9. Buat Akun Pengguna Operator di sheet app_users (is_active: false sampai disetujui)
+  // 9. Buat Akun Pengguna Operator di sheet app_users (is_active: true - Fast Onboarding)
   const sheetUsers = ss.getSheetByName('app_users');
   let userId = Utilities.getUuid();
   if (sheetUsers) {
@@ -425,7 +425,7 @@ function handleSelfRegisterPesantren(payload, lock) {
       operatorPhone,
       'operator_pesantren',
       namaPesantren + ' (' + (pesantren.kecamatan || 'Demak') + ')',
-      false, // Belum aktif, menunggu verifikasi Admin Cabang
+      true, // Langsung aktif: Operator dapat login dan melengkapi Buku Induk 9 Domain secara mandiri
       '',
       now,
       now
@@ -487,9 +487,12 @@ function handleSelfRegisterPesantren(payload, lock) {
               <li>Aktivasi Akun Operator & Penerbitan Sertifikat Tanda Anggota RMI PCNU Demak.</li>
             </ol>
           </div>
-          <p style="font-size: 12px; color: #64748b;">
-            Setelah disetujui oleh Admin Cabang, akun email Anda (<strong>${operatorEmail}</strong>) akan otomatis aktif dan dapat langsung digunakan login ke portal pengelola dengan metode 1-Klik / OTP.
-          </p>
+          <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 14px; margin: 16px 0;">
+            <p style="font-size: 13px; color: #065f46; font-weight: bold; margin: 0;">🎉 Akun Operator Anda Telah Langsung Aktif!</p>
+            <p style="font-size: 12px; color: #047857; margin: 6px 0 0 0;">
+              Anda dapat langsung masuk ke portal pengelola menggunakan email <strong>${operatorEmail}</strong> melalui metode OTP / 1-Klik Akun untuk melengkapi profil Buku Induk 9 Domain pesantren Anda sembari tim asesor memvalidasi berkas legalitas.
+            </p>
+          </div>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
           <p style="font-size: 11px; color: #94a3b8; text-align: center;">Sekretariat PC RMI NU Kabupaten Demak • Khidmah untuk Pesantren Kota Wali</p>
         </div>

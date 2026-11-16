@@ -462,8 +462,35 @@ function findUserByEmailInSheet(email) {
   return null;
 }
 
+
+/**
+ * Auto-aktivasi akun operator pesantren (Kebijakan Fast Onboarding PC RMI NU Demak)
+ * Memastikan operator yang baru mendaftar mandiri dapat langsung login dan melengkapi 9 Domain.
+ */
+function ensureOperatorUserActive(user) {
+  if (!user) return user;
+  if (!user.isActive && user.role === 'operator_pesantren') {
+    try {
+      const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+      const sheet = ss.getSheetByName('app_users');
+      if (sheet && user.rowNumber) {
+        const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const activeColIdx = headers.indexOf('is_active');
+        if (activeColIdx !== -1) {
+          sheet.getRange(user.rowNumber, activeColIdx + 1).setValue(true);
+          user.isActive = true;
+          Logger.log('Fast Onboarding: Auto-activated operator_pesantren ' + user.email);
+        }
+      }
+    } catch (e) {
+      Logger.log('ensureOperatorUserActive error: ' + e.message);
+    }
+  }
+  return user;
+}
+
 function handleFastLoginEmail(payload) {
-  const email = String(payload.email || '').trim().toLowerCase();
+  const email = String(payload.email || (payload.payload && payload.payload.email) || '').trim().toLowerCase();
   if (!email || !email.includes('@')) {
     return { success: false, message: 'Alamat email tidak valid.' };
   }
@@ -476,6 +503,7 @@ function handleFastLoginEmail(payload) {
     };
   }
 
+  ensureOperatorUserActive(user);
   if (!user.isActive) {
     return { 
       success: false, 
@@ -537,6 +565,7 @@ function handleRequestOtp(payload) {
     };
   }
 
+  ensureOperatorUserActive(user);
   if (!user.isActive) {
     return { 
       success: false, 
