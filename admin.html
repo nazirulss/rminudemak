@@ -351,8 +351,8 @@
                         <div class="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer select-none" onclick="toggleAdminUserDropdown(event)" id="btn-user-profile-pill">
                             <div class="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs shrink-0" id="top-user-avatar">NM</div>
                             <div class="text-left hidden lg:block min-w-0">
-                                <span class="block text-xs font-bold text-slate-800 truncate" id="top-user-name">Nazirul Muhammad</span>
-                                <span class="block text-[10px] text-slate-400 truncate" id="top-user-role">Super Administrator</span>
+                                <span class="block text-xs font-bold text-slate-800 truncate" id="top-user-name">Pengguna Tamu</span>
+                                <span class="block text-[10px] text-slate-400 truncate" id="top-user-role">Belum Masuk</span>
                             </div>
                             <span class="material-symbols-outlined text-[18px] text-slate-400 transition-transform duration-200 hidden sm:block" id="admin-topbar-chevron">expand_more</span>
                         </div>
@@ -365,7 +365,7 @@
                                     <span class="material-symbols-outlined text-[16px] text-emerald-600">domain</span>
                                     <span id="dropdown-account-type">Akun PC RMI NU Demak</span>
                                 </div>
-                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5" id="dropdown-account-email">nazirulmuhammad1992@gmail.com</p>
+                                <p class="text-[11px] text-slate-500 font-medium truncate mt-0.5" id="dropdown-account-email">Belum Masuk</p>
                                 <span class="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200" id="dropdown-account-badge">Level 1 • Otoritas Penuh</span>
                             </div>
 
@@ -410,7 +410,7 @@
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
                         <div class="flex flex-wrap items-center gap-2.5">
                             <h2 class="text-lg md:text-xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-                                Selamat Bertugas, <span id="dash-greeting-name" class="text-emerald-900">Nazirul Muhammad</span>
+                                Selamat Bertugas, <span id="dash-greeting-name" class="text-emerald-900">Pengurus / Operator</span>
                             </h2>
                             <span id="dash-authority-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200/80 shadow-2xs">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -2671,19 +2671,11 @@
                         Masuk instan tanpa kata sandi menggunakan Akun Pengurus resmi yang terdaftar sebagai <strong>Administrator, Pengurus Cabang, MWC, atau Operator Pondok</strong>.
                     </p>
 
-                    <!-- Kartu Akun Cepat Siap Masuk (Persis Kartu Google di Asnawiyyah) -->
-                    <div id="card-ready-account" onclick="executeFastLogin('nazirulmuhammad1992@gmail.com')"
-                        class="p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3 cursor-pointer shadow-xs hover:shadow transition-all group">
-                        <div class="w-9 h-9 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                            MN
-                        </div>
-                        <div class="min-w-0 flex-1 text-left">
-                            <div class="text-[10px] text-slate-400 font-medium">Continue as pengurus</div>
-                            <div class="text-xs font-bold text-slate-800 truncate group-hover:text-blue-700">Muhammad Nazirul</div>
-                            <div class="text-[10px] text-slate-500 truncate">nazirulmuhammad1992@gmail.com</div>
-                        </div>
-                        <div class="shrink-0 w-7 h-7 rounded-full bg-slate-100 group-hover:bg-blue-100 text-slate-500 group-hover:text-blue-700 flex items-center justify-center transition-colors">
-                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    <!-- Kartu Akun Cepat Siap Masuk (Dinamis dari Akun Terakhir) -->
+                    <div id="container-ready-account">
+                        <div id="card-ready-account"
+                            class="p-2.5 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3 cursor-pointer shadow-xs hover:shadow transition-all group">
+                            <!-- Diisi dinamis oleh refreshQuickLoginCard -->
                         </div>
                     </div>
                 </div>
@@ -2699,7 +2691,7 @@
                 <form id="form-custom-email-login" onsubmit="handleAdminFastLogin(event)" class="hidden space-y-2 text-left pt-1">
                     <label class="block text-[11px] font-bold text-slate-600">Ketik Alamat Email Terdaftar:</label>
                     <div class="flex gap-1.5">
-                        <input type="email" id="fast-login-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
+                        <input type="email" id="fast-login-email" required value="" placeholder="nama@rminudemak.or.id"
                             class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-medium" />
                         <button type="submit" id="btn-submit-fast-login"
                             class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer flex items-center gap-1">
@@ -2718,7 +2710,7 @@
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Email Resmi Pengelola</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">mail</span>
-                            <input type="email" id="otp-auth-email" required value="nazirulmuhammad1992@gmail.com" placeholder="nama@rminudemak.or.id"
+                            <input type="email" id="otp-auth-email" required value="" placeholder="nama@rminudemak.or.id"
                                 class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 font-medium" />
                         </div>
                     </div>
@@ -3111,8 +3103,8 @@
                 <div class="flex items-center gap-3.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0" id="modal-profile-avatar">NM</div>
                     <div class="min-w-0 flex-1">
-                        <h4 class="font-bold text-slate-800 text-sm truncate" id="modal-profile-name">Nazirul Muhammad</h4>
-                        <p class="text-slate-500 truncate text-[11px]" id="modal-profile-email">nazirulmuhammad1992@gmail.com</p>
+                        <h4 class="font-bold text-slate-800 text-sm truncate" id="modal-profile-name">Pengguna Tamu</h4>
+                        <p class="text-slate-500 truncate text-[11px]" id="modal-profile-email">-</p>
                         <span class="inline-block mt-1 px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800" id="modal-profile-role">Super Administrator</span>
                     </div>
                 </div>
@@ -4594,6 +4586,7 @@
             // Bila belum ada sesi aktif, munculkan modal login formal
             IS_LOGGED_IN = false;
             CURRENT_AUTH_USER = null;
+            updateActiveUserProfile(null, 'guest');
             openAdminLoginModal();
         }
 
@@ -4603,6 +4596,19 @@
             sessionStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, 'rmi_sess_' + Date.now());
             sessionStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
             sessionStorage.setItem(AUTH_STORAGE_KEYS.ROLE, role);
+
+            // Simpan akun terakhir ke localStorage untuk fitur 1-Klik Akun berikutnya
+            try {
+                const summaryUser = {
+                    email: user.email,
+                    name: user.name || user.nama_lengkap || user.email,
+                    role: role || user.roleKey || user.role,
+                    roleLabel: user.roleLabel || '',
+                    avatar: user.avatar || (typeof computeAvatarInitials === 'function' ? computeAvatarInitials(user.name || user.email) : 'RMI')
+                };
+                localStorage.setItem('rmi_last_auth_user', JSON.stringify(summaryUser));
+                localStorage.setItem('rmi_last_auth_email', user.email);
+            } catch (e) {}
             
             closeAdminLoginModal();
             updateActiveUserProfile(user, role);
@@ -4618,7 +4624,70 @@
             CURRENT_AUTH_USER = null;
         }
 
-        function openAdminLoginModal() {
+        function refreshQuickLoginCard(prefillUser) {
+            const cardContainer = document.getElementById('container-ready-account');
+            const card = document.getElementById('card-ready-account');
+            const formCustom = document.getElementById('form-custom-email-login');
+            const btnText = document.getElementById('btn-toggle-email-text');
+
+            let savedUser = prefillUser;
+            if (!savedUser) {
+                try {
+                    const raw = localStorage.getItem('rmi_last_auth_user');
+                    if (raw) savedUser = JSON.parse(raw);
+                } catch (e) {}
+            }
+
+            if (savedUser && savedUser.email) {
+                if (card) {
+                    const name = savedUser.name || savedUser.nama_lengkap || savedUser.email;
+                    const initials = savedUser.avatar || (typeof computeAvatarInitials === 'function' ? computeAvatarInitials(name) : 'RMI');
+                    const roleLabel = savedUser.roleLabel || (savedUser.role === 'operator_pesantren' ? 'Operator Pesantren' : 'Pengurus RMI');
+                    card.setAttribute('onclick', "executeFastLogin('" + savedUser.email + "')");
+                    card.innerHTML = `
+                        <div class="w-9 h-9 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                            ${initials}
+                        </div>
+                        <div class="min-w-0 flex-1 text-left">
+                            <div class="text-[10px] text-slate-400 font-medium">Continue as ${roleLabel}</div>
+                            <div class="text-xs font-bold text-slate-800 truncate group-hover:text-blue-700">${name}</div>
+                            <div class="text-[10px] text-slate-500 truncate">${savedUser.email}</div>
+                        </div>
+                        <div class="shrink-0 w-7 h-7 rounded-full bg-slate-100 group-hover:bg-blue-100 text-slate-500 group-hover:text-blue-700 flex items-center justify-center transition-colors">
+                            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                        </div>
+                    `;
+                    card.classList.remove('hidden');
+                }
+                if (cardContainer) cardContainer.classList.remove('hidden');
+                if (formCustom) formCustom.classList.add('hidden');
+                if (btnText) btnText.innerText = 'Buka Pilihan Akun / Masukkan Email Lain';
+            } else {
+                // Belum ada user tersimpan: tampilkan form input email langsung
+                if (card) card.classList.add('hidden');
+                if (cardContainer) cardContainer.classList.add('hidden');
+                if (formCustom) formCustom.classList.remove('hidden');
+                if (btnText) btnText.innerText = 'Sembunyikan Form Email';
+            }
+        }
+
+        function openAdminLoginModal(prefillEmail) {
+            hideAuthAlert();
+            refreshQuickLoginCard();
+
+            if (prefillEmail) {
+                const fastEmail = document.getElementById('fast-login-email');
+                const otpEmail = document.getElementById('otp-auth-email');
+                if (fastEmail) fastEmail.value = prefillEmail;
+                if (otpEmail) otpEmail.value = prefillEmail;
+            } else {
+                const lastEmail = localStorage.getItem('rmi_last_auth_email') || '';
+                const otpEmail = document.getElementById('otp-auth-email');
+                if (otpEmail && !otpEmail.value && lastEmail) {
+                    otpEmail.value = lastEmail;
+                }
+            }
+
             const modal = document.getElementById('modal-admin-login');
             if (modal) {
                 modal.classList.remove('hidden');
@@ -5236,6 +5305,7 @@
         function confirmExecuteLogout() {
             closeLogoutModal();
             clearAuthSession();
+            updateActiveUserProfile(null, 'guest');
             showToast('info', 'Sesi Anda telah berhasil diakhiri.');
             setTimeout(() => {
                 openAdminLoginModal();
@@ -5406,7 +5476,7 @@
                 return CURRENT_AUTH_USER.name || CURRENT_AUTH_USER.nama_lengkap;
             }
             const el = document.getElementById('top-user-name') || document.getElementById('dash-greeting-name');
-            return el ? el.innerText : 'Nazirul Muhammad';
+            return el ? el.innerText : 'Pengurus / Operator';
         }
 
         // ==========================================
@@ -5465,13 +5535,21 @@
 
         // Mengikat data profil pengguna login secara 100% dinamis ke seluruh komponen UI
         function updateActiveUserProfile(user, role) {
-            const roleKey = role || user?.roleKey || user?.role || 'super_admin';
+            const isGuest = !user || role === 'guest';
+            const roleKey = isGuest ? 'guest' : (role || user?.roleKey || user?.role || 'operator_pesantren');
             currentRole = roleKey;
-            const meta = ROLE_METADATA_CONFIG[roleKey] || ROLE_METADATA_CONFIG.super_admin;
+            const meta = ROLE_METADATA_CONFIG[roleKey] || (isGuest ? {
+                badge: 'Tamu',
+                roleLabel: 'Belum Masuk',
+                type: 'Akun Tamu',
+                level: 'Level 0 • Belum Terotentikasi',
+                authority: 'Silakan Masuk',
+                scope: 'Silakan masuk dengan Akun Terdaftar'
+            } : ROLE_METADATA_CONFIG.super_admin);
 
-            const name = (user && (user.name || user.nama_lengkap)) ? (user.name || user.nama_lengkap) : 'Nazirul Muhammad';
-            const email = (user && user.email) ? user.email : 'nazirulmuhammad1992@gmail.com';
-            const avatar = (user && user.avatar) ? user.avatar : computeAvatarInitials(name);
+            const name = isGuest ? 'Pengguna Tamu' : (user.name || user.nama_lengkap || 'Pengurus RMI');
+            const email = isGuest ? 'Belum Masuk' : (user.email || '-');
+            const avatar = isGuest ? '--' : (user.avatar || computeAvatarInitials(name));
             const badge = (user && user.badge) ? user.badge : meta.badge;
             const roleLabel = (user && user.roleLabel) ? user.roleLabel : meta.roleLabel;
             const type = (user && user.type) ? user.type : meta.type;
