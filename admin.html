@@ -18,7 +18,7 @@
     
     <!-- Tailwind CSS CDN -->
     <!-- Compiled High-Performance Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1312"/>
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0620"/>
     
     <!-- Leaflet.js (Map Library) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -2249,11 +2249,15 @@
                                 </div>
 
                                 <div class="space-y-3.5 text-xs">
-                                    <!-- Pilih Kecamatan -->
+                                    <!-- Pilih Kecamatan (Opsional) -->
                                     <div class="space-y-1">
-                                        <label class="block font-bold text-slate-700 text-[11px]">Asal Kecamatan di Demak <span class="text-rose-500">*</span></label>
+                                        <label class="block font-bold text-slate-700 text-[11px] flex items-center justify-between">
+                                            <span>Asal Kecamatan di Demak:</span>
+                                            <span class="text-[10px] text-slate-400 font-normal">Opsional</span>
+                                        </label>
                                         <select id="gen-kecamatan" onchange="updateGeneratedLink()" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                            <option value="Mranggen" selected>Mranggen (Tuan Rumah)</option>
+                                            <option value="" selected>-- Semua Kecamatan / Bebas Pilih (Opsional) --</option>
+                                            <option value="Mranggen">Mranggen (Tuan Rumah)</option>
                                             <option value="Karangawen">Karangawen</option>
                                             <option value="Sayung">Sayung</option>
                                             <option value="Demak">Demak Kota</option>
@@ -2270,24 +2274,43 @@
                                         </select>
                                     </div>
 
-                                    <!-- Nama Pesantren -->
+                                    <!-- Nama Pesantren (Opsional) -->
                                     <div class="space-y-1">
-                                        <label class="block font-bold text-slate-700 text-[11px]">Nama Pondok Pesantren / Lembaga <span class="text-rose-500">*</span></label>
-                                        <input type="text" id="gen-nama-pesantren" oninput="updateGeneratedLink()" placeholder="Contoh: PP. Al-Hidayat / Futuhiyyah" value="Pondok Pesantren Futuhiyyah"
+                                        <label class="block font-bold text-slate-700 text-[11px] flex items-center justify-between">
+                                            <span>Nama Pondok Pesantren / Lembaga:</span>
+                                            <span class="text-[10px] text-slate-400 font-normal">Opsional (Kosong = Siaran Umum)</span>
+                                        </label>
+                                        <input type="text" id="gen-nama-pesantren" oninput="updateGeneratedLink()" placeholder="Contoh: PP. Al-Hidayat (Kosongkan untuk siaran grup WA)" value=""
                                             class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold">
                                     </div>
 
-                                    <!-- Pilihan Halaqah (Presets) -->
+                                    <!-- Pilihan Halaqah (Presets / Opsional Bebas) -->
                                     <div class="space-y-1.5">
-                                        <label class="block font-bold text-slate-700 text-[11px]">Kategori Halaqah (Auto-Lock Sesuai Surat Mandat) <span class="text-rose-500">*</span></label>
+                                        <label class="block font-bold text-slate-700 text-[11px] flex items-center justify-between">
+                                            <span>Kategori Halaqah:</span>
+                                            <span class="text-[10px] text-slate-400 font-normal">Opsional (Bisa Bebas Pilih)</span>
+                                        </label>
                                         <div class="space-y-1.5">
-                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                                <input type="radio" name="gen-halaqah-opt" value="media" checked onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                            <!-- Pilihan Terbuka (Default Siaran Cepat) -->
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border-2 border-emerald-500/40 bg-emerald-50/40 hover:bg-emerald-50 cursor-pointer transition">
+                                                <input type="radio" name="gen-halaqah-opt" value="" checked onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
                                                 <div class="flex-1">
-                                                    <div class="font-bold text-slate-800">Halaqah 5: Pelatihan Media Pesantren</div>
-                                                    <div class="text-[10px] text-slate-500">Kapasitas 50 Tim Media Pondok</div>
+                                                    <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                                        <span>Terbuka / Bebas Pilih Sendiri (5 Halaqah)</span>
+                                                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-900 uppercase">Siaran Umum</span>
+                                                    </div>
+                                                    <div class="text-[10px] text-slate-500">Delegasi memilih sendiri 1 dari 5 halaqah sesuai surat fisik</div>
                                                 </div>
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">media</span>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-white text-emerald-800 border border-emerald-200">bebas</span>
+                                            </label>
+
+                                            <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                                                <input type="radio" name="gen-halaqah-opt" value="pengasuh" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <div class="flex-1">
+                                                    <div class="font-bold text-slate-800">Halaqah 3: Diskusi Kepengasuhan Pengasuh</div>
+                                                    <div class="text-[10px] text-slate-500">Masyayikh / Kyai & Bu Nyai Pengasuh Pesantren</div>
+                                                </div>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">pengasuh</span>
                                             </label>
 
                                             <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
@@ -2300,12 +2323,12 @@
                                             </label>
 
                                             <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
-                                                <input type="radio" name="gen-halaqah-opt" value="pengasuh" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
+                                                <input type="radio" name="gen-halaqah-opt" value="media" onchange="updateGeneratedLink()" class="text-emerald-600 focus:ring-emerald-500">
                                                 <div class="flex-1">
-                                                    <div class="font-bold text-slate-800">Halaqah 3: Diskusi Kepengasuhan Pengasuh</div>
-                                                    <div class="text-[10px] text-slate-500">Masyayikh / Kyai & Bu Nyai Pengasuh Pesantren</div>
+                                                    <div class="font-bold text-slate-800">Halaqah 5: Pelatihan Media Pesantren</div>
+                                                    <div class="text-[10px] text-slate-500">Kapasitas 50 Tim Media Pondok</div>
                                                 </div>
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">pengasuh</span>
+                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">media</span>
                                             </label>
 
                                             <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
@@ -9026,20 +9049,21 @@ function clearScanResult() {
     }
 }
 
-// GENERATOR LINK & WHATSAPP MESSAGE
+// GENERATOR LINK & WHATSAPP MESSAGE (MENDUKUNG SIARAN UMUM & BEBAS PILIH)
 function updateGeneratedLink() {
-    const kec = document.getElementById('gen-kecamatan')?.value || 'Mranggen';
-    const namaPesantren = document.getElementById('gen-nama-pesantren')?.value.trim() || 'Pondok Pesantren Futuhiyyah';
-    const halaqahRadio = document.querySelector('input[name="gen-halaqah-opt"]:checked')?.value || 'media';
-    const targetWa = document.getElementById('gen-target-wa')?.value.trim() || '';
+    const kec = (document.getElementById('gen-kecamatan')?.value || '').trim();
+    const namaPesantren = (document.getElementById('gen-nama-pesantren')?.value || '').trim();
+    const halaqahRadio = (document.querySelector('input[name="gen-halaqah-opt"]:checked')?.value || '').trim();
+    const targetWa = (document.getElementById('gen-target-wa')?.value || '').trim();
 
     const baseUrl = 'https://rminudemak.org/undangan.html';
     const urlParams = new URLSearchParams();
-    urlParams.set('to', namaPesantren);
-    urlParams.set('kec', kec);
-    urlParams.set('h', halaqahRadio);
+    if (namaPesantren) urlParams.set('to', namaPesantren);
+    if (kec) urlParams.set('kec', kec);
+    if (halaqahRadio) urlParams.set('h', halaqahRadio);
 
-    const finalUrl = baseUrl + '?' + urlParams.toString();
+    const qs = urlParams.toString();
+    const finalUrl = qs ? (baseUrl + '?' + qs) : baseUrl;
     const urlInput = document.getElementById('gen-output-url');
     if (urlInput) urlInput.value = finalUrl;
 
@@ -9051,28 +9075,39 @@ function updateGeneratedLink() {
         pwnu: 'Halaqah 1: Konsolidasi & Koordinasi RMI PWNU Jawa Tengah dengan RMI PCNU (60 Org)'
     };
 
-    const halaqahTitle = halaqahLabels[halaqahRadio] || '5 Halaqah Sambang Pesantren';
+    // 1. Teks Bagian Penerima (Adaptif Sesuai Ada / Tidaknya Nama Pondok & Kecamatan)
+    let recipientSection = '';
+    if (namaPesantren) {
+        recipientSection = `Kepada Yth. Masyayikh / Pengasuh / Perwakilan:\n*${namaPesantren}*\n${kec ? 'Kecamatan ' + kec + ', ' : ''}Kabupaten Demak`;
+    } else {
+        recipientSection = `Kepada Yth. Masyayikh / Pengasuh / Pimpinan Pondok Pesantren & Madrasah Diniyah\n${kec ? 'Kecamatan ' + kec + ', ' : 'se-'}Kabupaten Demak`;
+    }
+
+    // 2. Teks Bagian Mandat Halaqah (Adaptif Sesuai Kunci / Bebas Pilih)
+    let halaqahSection = '';
+    if (halaqahRadio && halaqahLabels[halaqahRadio]) {
+        halaqahSection = `📌 *Mandat Partisipasi Khusus:*\n*${halaqahLabels[halaqahRadio]}*`;
+    } else {
+        halaqahSection = `📌 *Mandat Partisipasi:*\n*5 Halaqah Tematik Sambang Pesantren PW-PC RMI NU* (Pilihan Terbuka Sesuai Surat Mandat Fisik)\n_Delegasi dapat langsung memilih salah satu halaqah yang ditugaskan saat membuka tautan daftar hadir._`;
+    }
 
     const msgTemplate = `*UNDANGAN RESMI SAMBANG PESANTREN PW RMI NU JAWA TENGAH (JILID II 2026)*
 *Tuan Rumah: Pengurus Cabang RMI NU Kabupaten Demak*
 Nomor: 003.1/PCRMINUD/U/XI/2026
 
-Kepada Yth. Masyayikh / Pengasuh / Perwakilan:
-*${namaPesantren}*
-Kecamatan ${kec}, Kabupaten Demak
+${recipientSection}
 
 _Assalamu'alaikum Warahmatullahi Wabarakatuh_
 
-Menindaklanjuti Surat Resmi Pengurus Cabang Rabithah Ma'ahid Islamiyah (RMI) NU Kabupaten Demak, kami memohon kehadiran utusan delegasi resmi panjenengan pada agenda akbar:
+Menindaklanjuti Surat Resmi Pengurus Cabang Rabithah Ma'ahid Islamiyah (RMI) NU Kabupaten Demak yang telah terdistribusi, kami memohon kehadiran utusan delegasi resmi panjenengan pada agenda akbar:
 
 🗓 *Hari, Tanggal:* Ahad, 22 November 2026
 ⏰ *Waktu:* Pukul 12.30 WIB — Selesai
 📍 *Tempat:* Pondok Pesantren Futuhiyyah (Area SMK Futuhiyyah), Jl. Suburan Timur No. 174, Brumbung, Kec. Mranggen, Kabupaten Demak
 
-📌 *Mandat Partisipasi Khusus:*
-*${halaqahTitle}*
+${halaqahSection}
 
-Untuk ketertiban registrasi, pencatatan kuota resmi, serta penerbitan *Kartu Tanda Hadir dengan Kode QR*, mohon berkenan mengisi formulir kehadiran melalui tautan undangan digital khusus berikut:
+Untuk ketertiban registrasi, pencatatan kuota resmi, serta penerbitan *Kartu Tanda Hadir dengan Kode QR*, mohon berkenan mengisi formulir kehadiran melalui tautan undangan digital berikut:
 
 👉 *Tautan Undangan & Konfirmasi Kehadiran:*
 ${finalUrl}

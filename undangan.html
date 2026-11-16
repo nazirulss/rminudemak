@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261116_1110">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0620">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -880,7 +880,10 @@
             if (to) {
                 document.getElementById('cover-recipient-name').textContent = to;
                 document.getElementById('undangan-nama-pesantren').value = to;
+            } else {
+                document.getElementById('cover-recipient-name').textContent = 'Pondok Pesantren se-Kabupaten Demak';
             }
+
             if (kec) {
                 document.getElementById('cover-recipient-kecamatan').textContent = 'Kecamatan ' + kec + ', Kab. Demak';
                 const kecSelect = document.getElementById('undangan-kecamatan');
@@ -890,6 +893,8 @@
                         break;
                     }
                 }
+            } else {
+                document.getElementById('cover-recipient-kecamatan').textContent = 'Kabupaten Demak, Jawa Tengah';
             }
 
             // Target Halaqah Preset
