@@ -116,6 +116,10 @@ function doPost(e) {
       result = handleScanCheckinSambang(payload, lock);
     } else if (action === 'GET_SAMBANG_STATS' || action === 'GET_SAMBANG_DELEGATES') {
       result = getSambangDelegatesData();
+    } else if (action === 'BATCH_IMPORT_PESANTREN') {
+      result = handleBatchImportPesantren(payload, lock);
+    } else if (action === 'UPLOAD_PESANTREN_MEDIA_CHUNK') {
+      result = handleUploadPesantrenMediaChunk(payload);
     }
     
     return createJsonResponse(result);
