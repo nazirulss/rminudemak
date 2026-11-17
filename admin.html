@@ -9057,13 +9057,20 @@ function updateGeneratedLink() {
     const targetWa = (document.getElementById('gen-target-wa')?.value || '').trim();
 
     const baseUrl = 'https://rminudemak.org/undangan.html';
-    const urlParams = new URLSearchParams();
-    if (namaPesantren) urlParams.set('to', namaPesantren);
-    if (kec) urlParams.set('kec', kec);
-    if (halaqahRadio) urlParams.set('h', halaqahRadio);
+    const paramsList = [];
+    if (namaPesantren) {
+        // Encode spasi dan karakter khusus, tapi pertahankan '/' agar tidak menjadi '%2F' yang rentan corrupt di WhatsApp iOS
+        const cleanTo = encodeURIComponent(namaPesantren).replace(/%2F/gi, '/');
+        paramsList.push('to=' + cleanTo);
+    }
+    if (kec) {
+        paramsList.push('kec=' + encodeURIComponent(kec));
+    }
+    if (halaqahRadio) {
+        paramsList.push('h=' + encodeURIComponent(halaqahRadio));
+    }
 
-    const qs = urlParams.toString();
-    const finalUrl = qs ? (baseUrl + '?' + qs) : baseUrl;
+    const finalUrl = paramsList.length > 0 ? (baseUrl + '?' + paramsList.join('&')) : baseUrl;
     const urlInput = document.getElementById('gen-output-url');
     if (urlInput) urlInput.value = finalUrl;
 

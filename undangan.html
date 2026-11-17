@@ -912,6 +912,61 @@
         let audioOscillator = null;
 
         // 1. URL PARAMETER PARSER
+        // Helper Dekoder URL Robust untuk iOS/Safari, Android & WhatsApp
+        function decodeUrlText(val) {
+            if (!val) return '';
+            let res = val;
+            
+            // 1. Loop decoding hingga 3 putaran (mengatasi double / triple URL encoding dari iOS Safari & WhatsApp)
+            for (let i = 0; i < 3; i++) {
+                try {
+                    let temp = res.replace(/\+/g, ' ');
+                    let decoded = decodeURIComponent(temp);
+                    if (decoded === res) break;
+                    res = decoded;
+                } catch (e) {
+                    break;
+                }
+            }
+            
+            // 2. Pembersihan eksplisit jika masih ada sisa kode persen URL (seperti %2F di iOS Safari)
+            res = res.replace(/%2F/gi, ' / ')
+                     .replace(/%20/gi, ' ')
+                     .replace(/%26/gi, '&')
+                     .replace(/%2C/gi, ',')
+                     .replace(/%3A/gi, ':')
+                     .replace(/%2B/gi, '+')
+                     .replace(/%25/gi, '%');
+
+            // 3. Bersihkan jika ada trailing '%' atau '/' di ujung teks akibat pemotongan regex tautan di WhatsApp iOS
+            res = res.replace(/[%/]+$/, '').trim();
+
+            // 4. Normalisasi spasi dan tanda garis miring ganda
+            res = res.replace(/\s*\/\s*/g, ' / ')
+                     .replace(/\s+/g, ' ')
+                     .trim();
+                     
+            return res;
+        }
+
+        function getUrlParamSafe(key) {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                let val = urlParams.get(key);
+                if (val) return val;
+            } catch (e) {}
+
+            try {
+                const search = window.location.search || '';
+                const regex = new RegExp('[?&]' + key + '=([^&#]*)', 'i');
+                const match = regex.exec(search);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            } catch (e) {}
+            return '';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Auto Play Backsong Musik Ya Lal Wathan saat buka undangan
             const audioEl = document.getElementById('invitation-audio');
@@ -920,11 +975,15 @@
                 startAudioPlayback();
             }
 
-            const params = new URLSearchParams(window.location.search);
-            const to = params.get('to') || params.get('nama') || '';
-            const kec = params.get('kec') || params.get('kecamatan') || '';
-            const h = (params.get('h') || params.get('halaqah') || '').toLowerCase();
-            const peran = params.get('peran') || '';
+            const rawTo = getUrlParamSafe('to') || getUrlParamSafe('nama') || '';
+            const rawKec = getUrlParamSafe('kec') || getUrlParamSafe('kecamatan') || '';
+            const rawH = getUrlParamSafe('h') || getUrlParamSafe('halaqah') || '';
+            const rawPeran = getUrlParamSafe('peran') || '';
+
+            const to = decodeUrlText(rawTo);
+            const kec = decodeUrlText(rawKec);
+            const h = decodeUrlText(rawH).toLowerCase();
+            const peran = decodeUrlText(rawPeran);
 
             // Update Cover Display (Form input tetap dikosongkan agar diisi manual oleh delegasi)
             if (to) {
