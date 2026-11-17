@@ -1245,6 +1245,9 @@
         let autoScrollRafId = null;
         let autoScrollSpeed = 1.15; // Smooth reading speed (px per frame)
         let autoScrollTimer = null;
+        let autoScrollStartTime = 0;
+        let scrollAccumulator = 0;
+        let touchStartY = 0;
 
         function bukaWartaUndangan() {
             startAudioPlayback();
@@ -1257,11 +1260,11 @@
             const scrollBtn = document.getElementById('scroll-control');
             if (scrollBtn) scrollBtn.classList.remove('hidden');
 
-            // Mulai autoscroll otomatis setelah jeda sejenak (850ms)
+            // Mulai autoscroll otomatis segera setelah transisi screen (300ms responsif)
             clearTimeout(autoScrollTimer);
             autoScrollTimer = setTimeout(() => {
                 startAutoScroll();
-            }, 850);
+            }, 300);
         }
 
         function kembaliKeCover() {
@@ -1296,36 +1299,50 @@
         }
 
         // =========================================================================
-        // AUTOSCROLL ENGINE (SMOOTH SCROLL DENGAN FITUR JEDA & LANJUT)
+        // AUTOSCROLL ENGINE (SMOOTH SCROLL DENGAN DUKUNGAN IOS/SAFARI & ANDROID)
         // =========================================================================
         function startAutoScroll() {
             if (isAutoScrolling) return;
             isAutoScrolling = true;
+            autoScrollStartTime = Date.now();
+            scrollAccumulator = 0;
             updateScrollUI(true);
 
             function scrollTick() {
                 if (!isAutoScrolling) return;
 
-                // Hitung batas scroll dokumen & container
-                const maxWinScroll = document.documentElement.scrollHeight - window.innerHeight;
-                const curWinScroll = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+                // Elemen penampung scroll dokumen (dukung iOS Safari WebKit & Android Chrome)
+                const scrollingEl = document.scrollingElement || document.documentElement || document.body;
+                const maxWinScroll = Math.max(0, scrollingEl.scrollHeight - window.innerHeight);
+                const curWinScroll = scrollingEl.scrollTop || window.scrollY || window.pageYOffset || 0;
 
                 const contentBody = document.querySelector('#screen-content .overflow-y-auto');
-                const maxBodyScroll = contentBody ? (contentBody.scrollHeight - contentBody.clientHeight) : 0;
+                const maxBodyScroll = contentBody ? Math.max(0, contentBody.scrollHeight - contentBody.clientHeight) : 0;
                 const curBodyScroll = contentBody ? contentBody.scrollTop : 0;
 
-                // Cek apakah sudah mencapai bagian paling bawah
-                const reachedBottom = (curWinScroll >= maxWinScroll - 8) || (contentBody && maxBodyScroll > 0 && curBodyScroll >= maxBodyScroll - 8);
+                // Cek batas bawah hanya setelah 2 detik pertama agar render awal iOS stabil
+                const timeElapsed = Date.now() - autoScrollStartTime;
+                if (timeElapsed > 2000) {
+                    const reachedWinBottom = (maxWinScroll > 150 && curWinScroll >= maxWinScroll - 12);
+                    const reachedBodyBottom = (maxBodyScroll > 150 && curBodyScroll >= maxBodyScroll - 12);
 
-                if (reachedBottom) {
-                    pauseAutoScroll();
-                    return;
+                    if (reachedWinBottom || reachedBodyBottom) {
+                        pauseAutoScroll();
+                        return;
+                    }
                 }
 
-                // Scroll window dan container pendukung
-                window.scrollBy({ top: autoScrollSpeed, left: 0, behavior: 'auto' });
-                if (contentBody && maxBodyScroll > 0) {
-                    contentBody.scrollTop += autoScrollSpeed;
+                // Integer step scrolling dengan akumulator (solusi agar tidak truncate/stuck di Safari iOS)
+                scrollAccumulator += autoScrollSpeed;
+                if (scrollAccumulator >= 1) {
+                    const step = Math.floor(scrollAccumulator);
+                    scrollAccumulator -= step;
+
+                    scrollingEl.scrollTop += step;
+                    window.scrollBy(0, step);
+                    if (contentBody && maxBodyScroll > 0) {
+                        contentBody.scrollTop += step;
+                    }
                 }
 
                 autoScrollRafId = requestAnimationFrame(scrollTick);
@@ -1372,16 +1389,33 @@
             }
         }
 
-        // Deteksi sentuhan jari / roda mouse: jika user aktif menyentuh/menggeser layar, jeda autoscroll dengan sopan
+        // Deteksi sentuhan jari / roda mouse:
         window.addEventListener('wheel', (e) => {
             if (isAutoScrolling && Math.abs(e.deltaY) > 8) {
                 pauseAutoScroll();
             }
         }, { passive: true });
 
-        window.addEventListener('touchmove', () => {
-            if (isAutoScrolling) {
-                pauseAutoScroll();
+        // Touch handling yang aman untuk iOS: hindari false-pause saat tombol ditekan
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isAutoScrolling) return;
+
+            // Grace period 1.5 detik pertama saat baru membuka warta undangan
+            if (Date.now() - autoScrollStartTime < 1500) return;
+
+            if (e.touches && e.touches.length > 0) {
+                const currentY = e.touches[0].clientY;
+                const diff = Math.abs(currentY - touchStartY);
+                // Hanya jeda jika pengguna sengaja mengusap layar (> 25px)
+                if (diff > 25) {
+                    pauseAutoScroll();
+                }
             }
         }, { passive: true });
 
