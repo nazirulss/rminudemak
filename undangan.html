@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0645">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0730">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -117,10 +117,11 @@
                 <span id="audio-status-text">Musik</span>
             </button>
 
-            <!-- Tombol Jeda / Lanjut Autoscroll (Aktif di Screen 2) -->
-            <button type="button" id="scroll-control" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95" onclick="toggleAutoScroll()" title="Jeda / Lanjut Scroll Otomatis">
-                <span class="material-symbols-outlined text-[16px] text-amber-300" id="scroll-icon">pause_circle</span>
-                <span id="scroll-status-text">Jeda Scroll</span>
+            <!-- Tombol Status & Kontrol Autoscroll (Aktif di Screen 2) -->
+            <button type="button" id="scroll-control" class="hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/50 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95" onclick="toggleAutoScroll()" title="Auto Scroll sedang aktif. Ketuk untuk menjeda.">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" id="scroll-indicator-dot"></span>
+                <span class="material-symbols-outlined text-[15px] text-emerald-300" id="scroll-icon">play_arrow</span>
+                <span id="scroll-status-text">Auto Scroll ON</span>
             </button>
         </div>
 
@@ -1243,7 +1244,7 @@
         // 2. SCREEN TRANSITIONS & AUTOSCROLL ENGINE
         let isAutoScrolling = false;
         let autoScrollRafId = null;
-        let autoScrollSpeed = 1.15; // Smooth reading speed (px per frame)
+        let autoScrollSpeed = 1.45; // Smooth reading speed (px per frame, ~90px/s)
         let autoScrollTimer = null;
         let autoScrollStartTime = 0;
         let scrollAccumulator = 0;
@@ -1260,11 +1261,11 @@
             const scrollBtn = document.getElementById('scroll-control');
             if (scrollBtn) scrollBtn.classList.remove('hidden');
 
-            // Mulai autoscroll otomatis segera setelah transisi screen (300ms responsif)
+            // Mulai autoscroll otomatis segera setelah transisi screen (250ms responsif)
             clearTimeout(autoScrollTimer);
             autoScrollTimer = setTimeout(() => {
                 startAutoScroll();
-            }, 300);
+            }, 250);
         }
 
         function kembaliKeCover() {
@@ -1282,7 +1283,7 @@
             const target = document.getElementById(screenId);
             if (target) {
                 target.classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo(0, 0); // Reset posisi scroll instan tanpa bentrok animasi
             }
 
             const scrollBtn = document.getElementById('scroll-control');
@@ -1320,9 +1321,9 @@
                 const maxBodyScroll = contentBody ? Math.max(0, contentBody.scrollHeight - contentBody.clientHeight) : 0;
                 const curBodyScroll = contentBody ? contentBody.scrollTop : 0;
 
-                // Cek batas bawah hanya setelah 2 detik pertama agar render awal iOS stabil
+                // Cek batas bawah hanya setelah 3 detik pertama agar render awal iOS stabil
                 const timeElapsed = Date.now() - autoScrollStartTime;
-                if (timeElapsed > 2000) {
+                if (timeElapsed > 3000) {
                     const reachedWinBottom = (maxWinScroll > 150 && curWinScroll >= maxWinScroll - 12);
                     const reachedBodyBottom = (maxBodyScroll > 150 && curBodyScroll >= maxBodyScroll - 12);
 
@@ -1340,6 +1341,8 @@
 
                     scrollingEl.scrollTop += step;
                     window.scrollBy(0, step);
+                    document.documentElement.scrollTop += step;
+                    document.body.scrollTop += step;
                     if (contentBody && maxBodyScroll > 0) {
                         contentBody.scrollTop += step;
                     }
@@ -1376,16 +1379,21 @@
             const icon = document.getElementById('scroll-icon');
             const text = document.getElementById('scroll-status-text');
             const btn = document.getElementById('scroll-control');
+            const dot = document.getElementById('scroll-indicator-dot');
             if (!icon || !text || !btn) return;
 
             if (scrolling) {
-                icon.textContent = 'pause_circle';
-                text.textContent = 'Jeda Scroll';
-                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/40 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95';
+                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping';
+                icon.textContent = 'play_arrow';
+                text.textContent = 'Auto Scroll ON';
+                btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/90 backdrop-blur-md text-emerald-200 border border-emerald-400/50 text-[11px] font-bold cursor-pointer transition hover:bg-emerald-900 shadow-lg active:scale-95';
+                btn.setAttribute('title', 'Auto Scroll sedang aktif. Ketuk untuk menjeda.');
             } else {
-                icon.textContent = 'play_circle';
-                text.textContent = 'Lanjut Scroll';
+                if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+                icon.textContent = 'pause';
+                text.textContent = 'Scroll Dijeda';
                 btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-amber-300 border border-amber-400/50 text-[11px] font-bold cursor-pointer transition hover:bg-slate-800 shadow-lg active:scale-95';
+                btn.setAttribute('title', 'Auto Scroll dijeda. Ketuk untuk melanjutkan.');
             }
         }
 
@@ -1406,14 +1414,14 @@
         window.addEventListener('touchmove', (e) => {
             if (!isAutoScrolling) return;
 
-            // Grace period 1.5 detik pertama saat baru membuka warta undangan
-            if (Date.now() - autoScrollStartTime < 1500) return;
+            // Grace period 3 detik pertama saat baru membuka warta undangan
+            if (Date.now() - autoScrollStartTime < 3000) return;
 
             if (e.touches && e.touches.length > 0) {
                 const currentY = e.touches[0].clientY;
                 const diff = Math.abs(currentY - touchStartY);
-                // Hanya jeda jika pengguna sengaja mengusap layar (> 25px)
-                if (diff > 25) {
+                // Hanya jeda jika pengguna sengaja mengusap layar (> 45px)
+                if (diff > 45) {
                     pauseAutoScroll();
                 }
             }
