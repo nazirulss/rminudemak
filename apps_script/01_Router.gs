@@ -123,6 +123,8 @@ function doPost(e) {
       result = getSambangDelegatesData();
     } else if (action === 'BATCH_IMPORT_PESANTREN') {
       result = handleBatchImportPesantren(payload, lock);
+    } else if (action === 'EXECUTE_OPTION_B_ENRICH_AND_IMPORT') {
+      result = handleExecuteOptionB(payload);
     } else if (action === 'UPLOAD_PESANTREN_MEDIA_CHUNK') {
       result = handleUploadPesantrenMediaChunk(payload);
     } else if (action === 'FIX_LEADERS_PRIMARY') {

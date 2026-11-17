@@ -177,3 +177,190 @@ function handleFixSpreadsheetLeadersPrimary() {
 
   return { success: true, updatedPesantren: updatedCount };
 }
+
+/**
+ * Eksekusi Opsi B:
+ * 1. Pengayaan Data Eksisting (Enrichment 184 Pesantren)
+ * 2. Impor 113 Pesantren Baru (RMI-DMK-000181 s.d. RMI-DMK-000293)
+ */
+function handleExecuteOptionB(payload) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const enrichmentList = payload.enrichedExisting || [];
+  const newRecords = payload.newRecords || {};
+
+  const summary = {
+    enriched_leaders: 0,
+    enriched_contacts: 0,
+    enriched_santri: 0,
+    enriched_staff: 0,
+    new_pesantren: 0,
+    new_locations: 0,
+    new_leaders: 0,
+    new_contacts: 0
+  };
+
+  const sheetLeaders = ss.getSheetByName('pesantren_leaders');
+  const sheetContacts = ss.getSheetByName('pesantren_contacts');
+  const sheetSantri = ss.getSheetByName('pesantren_santri_aggregates');
+  const sheetStaff = ss.getSheetByName('pesantren_staff_aggregates');
+  const nowWib = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+
+  // 1. Pengayaan Pimpinan / Pengasuh
+  if (sheetLeaders) {
+    const lData = sheetLeaders.getDataRange().getValues();
+    const lMap = {};
+    for (let i = 1; i < lData.length; i++) {
+      const pid = String(lData[i][1]);
+      lMap[pid] = lMap[pid] || [];
+      lMap[pid].push({ rowIndex: i + 1, nama: String(lData[i][2]), jabatan: String(lData[i][5]), isPrimary: String(lData[i][11]) });
+    }
+
+    const leadersToAppend = [];
+    for (let e = 0; e < enrichmentList.length; e++) {
+      const item = enrichmentList[e];
+      const pid = item.pesantren_id;
+      const pimpinan = item.pimpinan;
+      if (!pimpinan || pimpinan.length < 3) continue;
+
+      const existingLeaders = lMap[pid];
+      if (existingLeaders && existingLeaders.length > 0) {
+        const genericLeader = existingLeaders.find(l => !l.nama || l.nama.toLowerCase() === 'pengasuh pesantren' || l.nama.toLowerCase() === 'pengasuh');
+        if (genericLeader) {
+          sheetLeaders.getRange(genericLeader.rowIndex, 3).setValue(pimpinan);
+          summary.enriched_leaders++;
+        }
+      } else {
+        leadersToAppend.push([
+          Utilities.getUuid(),
+          pid,
+          pimpinan,
+          '', '', 'PENGASUH', 'Ustadz', 'Dirasah Islamiyah & Turots', 'Pondok Pesantren', 1, 'TRUE', 'TRUE', nowWib, nowWib
+        ]);
+        summary.enriched_leaders++;
+      }
+    }
+
+    if (leadersToAppend.length > 0) {
+      const lastR = sheetLeaders.getLastRow();
+      sheetLeaders.getRange(lastR + 1, 1, leadersToAppend.length, leadersToAppend[0].length).setValues(leadersToAppend);
+    }
+  }
+
+  // 2. Pengayaan Kontak HP
+  if (sheetContacts) {
+    const cData = sheetContacts.getDataRange().getValues();
+    const cMap = {};
+    for (let i = 1; i < cData.length; i++) {
+      const pid = String(cData[i][1]);
+      cMap[pid] = cMap[pid] || [];
+      cMap[pid].push(String(cData[i][3]));
+    }
+
+    const contactsToAppend = [];
+    for (let e = 0; e < enrichmentList.length; e++) {
+      const item = enrichmentList[e];
+      const pid = item.pesantren_id;
+      const phone = item.no_hp;
+      if (!phone || phone.length < 8) continue;
+
+      const existingPhones = cMap[pid] || [];
+      if (!existingPhones.includes(phone)) {
+        contactsToAppend.push([
+          Utilities.getUuid(),
+          pid,
+          'whatsapp',
+          phone,
+          'Kontak Pimpinan (Master 297)',
+          'FALSE',
+          'TRUE',
+          nowWib,
+          nowWib
+        ]);
+        summary.enriched_contacts++;
+      }
+    }
+
+    if (contactsToAppend.length > 0) {
+      const lastR = sheetContacts.getLastRow();
+      sheetContacts.getRange(lastR + 1, 1, contactsToAppend.length, contactsToAppend[0].length).setValues(contactsToAppend);
+    }
+  }
+
+  // 3. Pengayaan Santri Aggregates
+  if (sheetSantri) {
+    const santriToAppend = [];
+    for (let e = 0; e < enrichmentList.length; e++) {
+      const item = enrichmentList[e];
+      if (item.santri_total > 0 || item.santri_putra > 0 || item.santri_putri > 0) {
+        santriToAppend.push([
+          Utilities.getUuid(),
+          item.pesantren_id,
+          '2024/2025',
+          'Genap',
+          item.santri_putra || '',
+          item.santri_putri || '',
+          item.santri_total || '',
+          '', '', '',
+          item.santri_total || '',
+          'Registrasi Master RMI 297',
+          'tervalidasi',
+          nowWib,
+          nowWib
+        ]);
+        summary.enriched_santri++;
+      }
+    }
+
+    if (santriToAppend.length > 0) {
+      const lastR = sheetSantri.getLastRow();
+      sheetSantri.getRange(lastR + 1, 1, santriToAppend.length, santriToAppend[0].length).setValues(santriToAppend);
+    }
+  }
+
+  // 4. Pengayaan Staff Aggregates
+  if (sheetStaff) {
+    const staffToAppend = [];
+    for (let e = 0; e < enrichmentList.length; e++) {
+      const item = enrichmentList[e];
+      if (item.ustadz > 0) {
+        staffToAppend.push([
+          Utilities.getUuid(),
+          item.pesantren_id,
+          '2024/2025',
+          item.ustadz,
+          '',
+          item.ustadz,
+          '', '', '',
+          item.ustadz,
+          nowWib,
+          nowWib
+        ]);
+        summary.enriched_staff++;
+      }
+    }
+
+    if (staffToAppend.length > 0) {
+      const lastR = sheetStaff.getLastRow();
+      sheetStaff.getRange(lastR + 1, 1, staffToAppend.length, staffToAppend[0].length).setValues(staffToAppend);
+    }
+  }
+
+  // 5. Impor 113 Pesantren Baru
+  if (newRecords && Object.keys(newRecords).length > 0) {
+    const importRes = handleBatchImportPesantren({
+      clearExisting: false,
+      tables: newRecords
+    });
+    summary.new_pesantren = importRes.summary?.pesantren || 0;
+    summary.new_locations = importRes.summary?.pesantren_locations || 0;
+    summary.new_leaders = importRes.summary?.pesantren_leaders || 0;
+    summary.new_contacts = importRes.summary?.pesantren_contacts || 0;
+  }
+
+  return {
+    success: true,
+    message: 'Eksekusi Opsi B (Pengayaan + Impor Baru) berhasil.',
+    summary: summary,
+    timestamp: new Date().toISOString()
+  };
+}
