@@ -578,21 +578,68 @@ function getAllPesantrenData() {
       }
     }
 
-    // Join Leaders (Dewan Asatidz & Pengasuh)
+    // Join Leaders (Dewan Asatidz, Pengasuh Utama, & Wakil Pengasuh)
     obj.dewan_asatidz = [];
+    obj.wakil_pengasuh = [];
     obj.pengasuh_utama = '';
+    let bestLeaderScore = -1;
+
     for (let ld = 1; ld < leaderValues.length; ld++) {
       if (leaderValues[ld][1] === pId) {
+        const rawNama = String(leaderValues[ld][2] || '').trim();
+        const gelarDepan = String(leaderValues[ld][3] || '').trim();
+        const gelarBelakang = String(leaderValues[ld][4] || '').trim();
+        const jabatan = String(leaderValues[ld][5] || '').trim();
+        const isPrimary = leaderValues[ld][11] === true || String(leaderValues[ld][11]).toUpperCase() === 'TRUE';
+
+        // Format nama bergelar lengkap yang rapi dan elegan
+        let fullNama = rawNama;
+        if (gelarDepan) fullNama = gelarDepan + ' ' + fullNama;
+        if (gelarBelakang) fullNama = fullNama + (fullNama.includes(',') ? ' ' : ', ') + gelarBelakang;
+
         const leaderObj = {
-          nama: leaderValues[ld][2],
-          jabatan: leaderValues[ld][5],
+          nama: fullNama,
+          nama_lengkap: rawNama,
+          gelar_depan: gelarDepan,
+          gelar_belakang: gelarBelakang,
+          jabatan: jabatan,
           kategori: leaderValues[ld][6] || 'ustadz',
           spesialisasi: leaderValues[ld][7] || 'Turots',
-          pendidikan: leaderValues[ld][8] || 'Pesantren'
+          pendidikan: leaderValues[ld][8] || 'Pesantren',
+          is_primary: isPrimary
         };
         obj.dewan_asatidz.push(leaderObj);
-        if (leaderValues[ld][11] === true || !obj.pengasuh_utama) {
-          obj.pengasuh_utama = leaderValues[ld][2];
+
+        const jLower = jabatan.toLowerCase();
+
+        // 1. Cek apakah ini Wakil Pengasuh
+        if (jLower.includes('wakil pengasuh') || jLower.includes('wakil pimpinan')) {
+          if (!obj.wakil_pengasuh.includes(fullNama)) {
+            obj.wakil_pengasuh.push(fullNama);
+          }
+        }
+
+        // 2. Skoring penentuan Pengasuh Utama (Khadimul Ma'had)
+        let score = 0;
+        if (jLower.includes('pengasuh utama') || jLower === 'pengasuh' || jLower.includes('khadim')) {
+          score = 100;
+        } else if (jLower.includes('pengasuh') && !jLower.includes('wakil')) {
+          score = 90;
+        } else if ((jLower.includes('pimpinan') || jLower.includes('rois')) && !jLower.includes('wakil')) {
+          score = 75;
+        } else if (isPrimary && !jLower.includes('wakil') && !jLower.includes('guru') && !jLower.includes('ustadz')) {
+          score = 60;
+        } else if (gelarDepan.toLowerCase().includes('kh') || gelarDepan.toLowerCase().includes('k.')) {
+          score = 50;
+        } else if (isPrimary) {
+          score = 30;
+        } else {
+          score = 10;
+        }
+
+        if (score > bestLeaderScore || !obj.pengasuh_utama) {
+          bestLeaderScore = score;
+          obj.pengasuh_utama = fullNama;
         }
       }
     }

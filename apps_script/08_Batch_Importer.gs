@@ -110,3 +110,70 @@ function handleBatchImportPesantren(payload, lock) {
     timestamp: new Date().toISOString()
   };
 }
+
+/**
+ * Otomatis menyelaraskan kolom is_primary dan urutan_prioritas di sheet pesantren_leaders
+ * agar sosok berjabatan PENGASUH otomatis menjadi prioritas utama.
+ */
+function handleFixSpreadsheetLeadersPrimary() {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheetLeaders = ss.getSheetByName('pesantren_leaders');
+  if (!sheetLeaders) return { success: false, message: 'Sheet pesantren_leaders tidak ditemukan' };
+
+  const data = sheetLeaders.getDataRange().getValues();
+  if (data.length <= 1) return { success: true, updated: 0 };
+
+  // Kelompokkan per pesantren_id
+  const groups = {};
+  for (let i = 1; i < data.length; i++) {
+    const pid = String(data[i][1]);
+    if (!groups[pid]) groups[pid] = [];
+    groups[pid].push({ rowIndex: i + 1, rowData: data[i] });
+  }
+
+  let updatedCount = 0;
+
+  for (const pid in groups) {
+    const list = groups[pid];
+    let bestRow = null;
+    let bestScore = -1;
+
+    for (let j = 0; j < list.length; j++) {
+      const item = list[j];
+      const jabatan = String(item.rowData[5] || '').toLowerCase();
+      const gelarDepan = String(item.rowData[3] || '').toLowerCase();
+      let score = 10;
+
+      if (jabatan.includes('pengasuh utama') || jabatan === 'pengasuh' || jabatan.includes('khadim')) {
+        score = 100;
+      } else if (jabatan.includes('pengasuh') && !jabatan.includes('wakil')) {
+        score = 90;
+      } else if (jabatan.includes('pimpinan') && !jabatan.includes('wakil')) {
+        score = 75;
+      } else if (gelarDepan.includes('kh') || gelarDepan.includes('k.')) {
+        score = 50;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestRow = item;
+      }
+    }
+
+    if (bestRow) {
+      // Set bestRow is_primary = TRUE (Kolom L = index 12), urutan_prioritas = 1 (Kolom J = index 10)
+      sheetLeaders.getRange(bestRow.rowIndex, 12).setValue(true);
+      sheetLeaders.getRange(bestRow.rowIndex, 10).setValue(1);
+
+      // Set others is_primary = FALSE
+      for (let j = 0; j < list.length; j++) {
+        if (list[j].rowIndex !== bestRow.rowIndex) {
+          sheetLeaders.getRange(list[j].rowIndex, 12).setValue(false);
+        }
+      }
+      updatedCount++;
+    }
+  }
+
+  return { success: true, updatedPesantren: updatedCount };
+}

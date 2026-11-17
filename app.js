@@ -452,6 +452,7 @@ async function loadLembagaDariSupabase() {
                 jenis: 'Pesantren',
                 kategori_atau_metode: (p.jenjang_pendidikan && p.jenjang_pendidikan.length > 0) ? p.jenjang_pendidikan.join(', ') : 'Salafiyah',
                 pengasuh_atau_kepala: p.pengasuh_utama || 'Pengasuh',
+                wakil_pengasuh: p.wakil_pengasuh || [],
                 kecamatan: p.kecamatan || 'Demak',
                 alamat_detail: p.alamat || '',
                 nspp: p.nspp || '',
@@ -1095,6 +1096,7 @@ function inisialisasiFiturLacakBerkas() {
                         <div class="bg-white p-3 rounded-xl border border-slate-100">
                             <span class="text-[10px] text-slate-400 font-semibold block">Pengasuh Utama:</span>
                             <p class="font-bold text-slate-800 mt-0.5">${escapeHTML(item.pengasuh_atau_kepala || '-')}</p>
+                            ${(item.wakil_pengasuh && item.wakil_pengasuh.length > 0) ? `<div class="mt-1.5"><span class="text-[10px] text-slate-400 font-semibold block mb-1">Wakil Pengasuh:</span><div class="flex flex-wrap gap-1">${item.wakil_pengasuh.map(w => `<span class="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[10px] font-bold">${escapeHTML(w)}</span>`).join('')}</div></div>` : ''}
                         </div>
                         <div class="bg-white p-3 rounded-xl border border-slate-100">
                             <span class="text-[10px] text-slate-400 font-semibold block">Izin Kemenag (NSPP):</span>
@@ -1599,7 +1601,25 @@ function bukaModalDetailLembaga(lembagaId) {
 
     document.getElementById('modal-detail-nama').innerText = item.nama;
     document.getElementById('modal-detail-kategori').innerText = item.kategori_atau_metode || item.jenis;
+    // Pengasuh Utama
     document.getElementById('modal-detail-pengasuh').innerText = item.pengasuh_atau_kepala || '-';
+
+    // Wakil Pengasuh
+    const wakilContainer = document.getElementById('modal-detail-wakil-pengasuh');
+    if (wakilContainer) {
+        const wakilArr = item.wakil_pengasuh || [];
+        if (wakilArr.length > 0) {
+            wakilContainer.innerHTML = `
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    <span class="material-symbols-outlined text-[13px] text-slate-400">group</span>
+                    <span class="text-[10px] text-slate-400 font-semibold">Wakil Pengasuh:</span>
+                    ${wakilArr.map(w => `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-[10px] font-bold">${escapeHTML(w)}</span>`).join('')}
+                </div>
+            `;
+        } else {
+            wakilContainer.innerHTML = '';
+        }
+    }
     document.getElementById('modal-detail-alamat').innerText = `${item.alamat_detail || ''}, Kec. ${item.kecamatan}, Kab. Demak`;
     document.getElementById('modal-detail-nspp').innerText = item.nspp || 'Dalam Proses Verifikasi';
     

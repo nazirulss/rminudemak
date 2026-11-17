@@ -55,6 +55,11 @@ function doGet(e) {
     const res = getSambangDelegatesData();
     return createJsonResponse(res);
   }
+
+  if (action === 'FIX_LEADERS_PRIMARY') {
+    const res = handleFixSpreadsheetLeadersPrimary();
+    return createJsonResponse(res);
+  }
   
   return createJsonResponse({
     status: 'ONLINE',
@@ -120,6 +125,8 @@ function doPost(e) {
       result = handleBatchImportPesantren(payload, lock);
     } else if (action === 'UPLOAD_PESANTREN_MEDIA_CHUNK') {
       result = handleUploadPesantrenMediaChunk(payload);
+    } else if (action === 'FIX_LEADERS_PRIMARY') {
+      result = handleFixSpreadsheetLeadersPrimary();
     }
     
     return createJsonResponse(result);
