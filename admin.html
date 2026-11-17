@@ -3441,659 +3441,27 @@
         // ==========================================
         // 2. DATASET PESANTREN MODEL (MVP MOCK & REAL)
         // ==========================================
-        let PESANTREN_DATA = [
-  {
-    "id": "c1f7b820-9f2d-4e9b-b0b2-7d8b5a1b3c9e",
-    "kode_pesantren": "RMI-DMK-000001",
-    "nama_resmi": "Pondok Pesantren Fathul Huda",
-    "nama_populer": "PP Fathul Huda Sayung",
-    "kecamatan": "Sayung",
-    "desa": "Sidorejo",
-    "alamat": "Jl. Raya Semarang-Demak KM 14, Sidorejo",
-    "pengasuh_utama": "K.H. Zainal Arifin Ma'shum",
-    "tahun_berdiri": 1978,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "verified",
-    "status_verifikasi_lokasi": "verified",
-    "status_publikasi": "published",
-    "has_komitmen_pesantren_aman": true,
-    "latitude": -6.9189,
-    "longitude": 110.5218,
-    "santri_mukim": 850,
-    "santri_nonmukim": 320,
-    "nspp": "510033210001",
-    "jenjang_pendidikan": [
-      "Madrasah Diniyah",
-      "Formal (MTs/MA)",
-      "Tahfidz"
-    ],
-    "potensi_kebutuhan": "Inkubasi Koperasi Pesantren & Sanitasi Asrama Putri",
-    "media_sosial": {
-      "website": "https://fathulhuda.sch.id",
-      "youtube": "https://youtube.com/@fathulhuda_official",
-      "instagram": "https://instagram.com/pp_fathulhuda",
-      "tiktok": "https://tiktok.com/@fathulhuda_demak",
-      "hotline_psb": "081234567890"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Zainal Arifin Ma'shum",
-        "jabatan": "Khadimul Ma'had / Pengasuh Utama",
-        "kategori": "ustadz",
-        "spesialisasi": "Fiqih & Ushul Fiqih",
-        "pendidikan": "Pondok Pesantren Sarang"
-      },
-      {
-        "nama": "Nyai Hj. Masruroh Zainal",
-        "jabatan": "Pengasuh Asrama Putri",
-        "kategori": "ustadzah",
-        "spesialisasi": "Tahfidz & Akhlaq",
-        "pendidikan": "PP Al-Muayyad Solo"
-      },
-      {
-        "nama": "Gus M. Aniq, M.Pd",
-        "jabatan": "Kepala Madrasah Diniyah",
-        "kategori": "ustadz",
-        "spesialisasi": "Kajian Nahwu Sharaf",
-        "pendidikan": "UIN Walisongo Semarang (S2)"
-      },
-      {
-        "nama": "Ustadzah Siti Aminah, S.Ag",
-        "jabatan": "Pengajar Marhalah Wustho",
-        "kategori": "ustadzah",
-        "spesialisasi": "Tafsir Al-Ibriz",
-        "pendidikan": "IIQ Jakarta (S1)"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Safinatun Najah",
-        "pengarang": "Salim bin Samir al-Hadhrami",
-        "bidang_ilmu": "Fiqih Dasar"
-      },
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Al-Jurumiyah",
-        "pengarang": "Abu Abdillah bin Dawud Ash-Shanhaji",
-        "bidang_ilmu": "Tata Bahasa / Nahwu"
-      },
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Aqidatul Awam",
-        "pengarang": "Ahmad al-Marzuqi al-Maliki",
-        "bidang_ilmu": "Aqidah & Tauhid"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Fathul Qorib Al-Mujib",
-        "pengarang": "Muhammad bin Qasim al-Ghazi",
-        "bidang_ilmu": "Fiqih Lanjutan"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Imrithi",
-        "pengarang": "Syarafuddin Yahya Al-Imrithi",
-        "bidang_ilmu": "Kaidah Bahasa Arab"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Kifayatul Atqiya",
-        "pengarang": "Sayyid Bakri Syatha Ad-Dimyathi",
-        "bidang_ilmu": "Tasawuf / Akhlaq"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Fathul Wahhab",
-        "pengarang": "Zakariya al-Anshari",
-        "bidang_ilmu": "Perbandingan Madzhab Fiqih"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Alfiyah Ibnu Malik",
-        "pengarang": "Ibnu Malik",
-        "bidang_ilmu": "Linguistik Arab Komprehensif"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Ihya Ulumiddin",
-        "pengarang": "Hujjatul Islam Imam Al-Ghazali",
-        "bidang_ilmu": "Tasawuf Mendalam"
-      }
-    ],
-    "badan_usaha": [
-      {
-        "nama_usaha": "Kopontren Fathul Huda Barokah",
-        "bentuk_usaha": "koperasi",
-        "bidang_usaha": "Ritel Santri, Kantin & Sembako",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 180.000.000",
-        "deskripsi": "Penyedia kebutuhan primer santri berasrama dan warga sekitar pesantren."
-      },
-      {
-        "nama_usaha": "Konveksi & Sablon Busana Muslim",
-        "bentuk_usaha": "unit_internal",
-        "bidang_usaha": "Industri Pakaian & Sarung",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 65.000.000",
-        "deskripsi": "Produksi seragam madrasah, kaos event halaqah, dan busana muslim santri."
-      }
-    ]
-  },
-  {
-    "id": "a2e8c930-1b3d-4f1a-a0a1-6c7b4a2b1d8f",
-    "kode_pesantren": "RMI-DMK-000002",
-    "nama_resmi": "Pondok Pesantren Futuhiyyah",
-    "nama_populer": "PP Futuhiyyah Suburan",
-    "kecamatan": "Mranggen",
-    "desa": "Suburan",
-    "alamat": "Jl. Suburan Raya No. 1, Mranggen",
-    "pengasuh_utama": "K.H. Sa'id Abdurrohim",
-    "tahun_berdiri": 1901,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "verified",
-    "status_verifikasi_lokasi": "verified",
-    "status_publikasi": "published",
-    "has_komitmen_pesantren_aman": true,
-    "latitude": -7.0274,
-    "longitude": 110.5188,
-    "santri_mukim": 3200,
-    "santri_nonmukim": 1100,
-    "nspp": "510033210002",
-    "jenjang_pendidikan": [
-      "Salafiyah Wathoniyah",
-      "Madin Ulya",
-      "Formal (SMP/SMA/SMK)"
-    ],
-    "potensi_kebutuhan": "Pengembangan Balai Latihan Kerja Komunitas",
-    "media_sosial": {
-      "website": "https://futuhiyyah.org",
-      "youtube": "https://youtube.com/@futuhiyyahsuburan",
-      "instagram": "https://instagram.com/futuhiyyah_official",
-      "tiktok": "https://tiktok.com/@futuhiyyah.demak",
-      "hotline_psb": "081122334455"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Sa'id Abdurrohim",
-        "jabatan": "Pengasuh Utama",
-        "kategori": "ustadz",
-        "spesialisasi": "Hadits & Fiqih Syafi'i",
-        "pendidikan": "Haramain Makkah / Futuhiyyah"
-      },
-      {
-        "nama": "K.H. Faiz Sa'id",
-        "jabatan": "Majelis Pengasuh",
-        "kategori": "ustadz",
-        "spesialisasi": "Ushul Fiqih & Balaghah",
-        "pendidikan": "Al-Azhar Kairo (Lc.)"
-      },
-      {
-        "nama": "Nyai Hj. Fatimah",
-        "jabatan": "Pengasuh Komplek Putri An-Nur",
-        "kategori": "ustadzah",
-        "spesialisasi": "Akhlaq Lil Banat",
-        "pendidikan": "PP Futuhiyyah Putri"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Fathul Qorib",
-        "pengarang": "Ibnu Qasim al-Ghazi",
-        "bidang_ilmu": "Fiqih"
-      },
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Matan Al-Jurumiyah",
-        "pengarang": "Ibnu Ajurrum",
-        "bidang_ilmu": "Nahwu"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Fathul Mu'in",
-        "pengarang": "Zainuddin Al-Malibari",
-        "bidang_ilmu": "Fiqih"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Kawakibud Durriyyah",
-        "pengarang": "Muhammad al-Ahdal",
-        "bidang_ilmu": "Kaidah Bahasa Arab"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Shohih Al-Bukhari",
-        "pengarang": "Imam Bukhari",
-        "bidang_ilmu": "Hadits"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Jam'ul Jawami'",
-        "pengarang": "Tajuddin As-Subki",
-        "bidang_ilmu": "Ushul Fiqih"
-      }
-    ],
-    "badan_usaha": [
-      {
-        "nama_usaha": "BMT Futuhiyyah",
-        "bentuk_usaha": "koperasi",
-        "bidang_usaha": "Lembaga Keuangan Mikro Syariah",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 1.200.000.000",
-        "deskripsi": "Pemberdayaan ekonomi umat, tabungan haji, dan permodalan UMKM jamaah."
-      },
-      {
-        "nama_usaha": "Futuhiyyah Printing & Grafika",
-        "bentuk_usaha": "pt_cv",
-        "bidang_usaha": "Percetakan Kitab & Offset",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 350.000.000",
-        "deskripsi": "Mencetak risalah pengajian, majalah santri, dan administrasi pesantren."
-      }
-    ]
-  },
-  {
-    "id": "d3f9d040-2c4e-5a2b-b1b2-7d8c5b3c2e9a",
-    "kode_pesantren": "RMI-DMK-000003",
-    "nama_resmi": "Pondok Pesantren Girikusumo",
-    "nama_populer": "PP Girikusumo Banyumeneng",
-    "kecamatan": "Mranggen",
-    "desa": "Banyumeneng",
-    "alamat": "Dusun Girikusumo, Banyumeneng",
-    "pengasuh_utama": "K.H. Munif Muhammad Zuhri",
-    "tahun_berdiri": 1868,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "verified",
-    "status_verifikasi_lokasi": "verified",
-    "status_publikasi": "published",
-    "has_komitmen_pesantren_aman": true,
-    "latitude": -7.0589,
-    "longitude": 110.5412,
-    "santri_mukim": 1400,
-    "santri_nonmukim": 600,
-    "nspp": "510033210003",
-    "jenjang_pendidikan": [
-      "Thariqah Naqsyabandiyah",
-      "Kajian Turots",
-      "Madrasah Diniyah"
-    ],
-    "potensi_kebutuhan": "Konservasi Naskah Kitab Kuno & Pusat Halaqah",
-    "media_sosial": {
-      "website": "https://girikusumo.id",
-      "youtube": "https://youtube.com/@girikusumo_channel",
-      "instagram": "https://instagram.com/girikusumo_heritage",
-      "tiktok": "",
-      "hotline_psb": "081399887766"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Munif Muhammad Zuhri",
-        "jabatan": "Mursyid Thariqah & Pengasuh",
-        "kategori": "ustadz",
-        "spesialisasi": "Tasawuf & Thariqah",
-        "pendidikan": "Tradisi Sanad Girikusumo"
-      },
-      {
-        "nama": "Gus Hanif Zuhri",
-        "jabatan": "Badan Pelaksana Pengajian",
-        "kategori": "ustadz",
-        "spesialisasi": "Kajian Kitab Kuning",
-        "pendidikan": "Pondok Pesantren Lirboyo"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Sullamut Taufiq",
-        "pengarang": "Abdullah bin Husain bin Thahir",
-        "bidang_ilmu": "Fiqih & Tasawuf"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Al-Hikam",
-        "pengarang": "Ibnu Athaillah As-Sakandari",
-        "bidang_ilmu": "Tasawuf Salaf"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Tanwirul Qulub",
-        "pengarang": "Muhammad Amin Al-Kurdi",
-        "bidang_ilmu": "Thariqah wa Suluk"
-      }
-    ],
-    "badan_usaha": [
-      {
-        "nama_usaha": "Kebun Pembibitan Herbal & Agro Giri",
-        "bentuk_usaha": "unit_internal",
-        "bidang_usaha": "Pertanian & Tanaman Obat",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 45.000.000",
-        "deskripsi": "Pemberdayaan kemandirian santri melalui budidaya tanaman obat tradisional."
-      }
-    ]
-  },
-  {
-    "id": "7d8e9f10-4a5b-6c7d-8e9f-0a1b2c3d4e5f",
-    "kode_pesantren": "RMI-DMK-000007",
-    "nama_resmi": "Pondok Pesantren Asnawiyyah",
-    "nama_populer": "PP Asnawiyyah Pilang Kebonagung",
-    "kecamatan": "Kebonagung",
-    "desa": "Pilang",
-    "alamat": "Dusun Pilang RT 02 RW 04, Kebonagung",
-    "pengasuh_utama": "K.H. Asnawi Cholil",
-    "tahun_berdiri": 1996,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "verified",
-    "status_verifikasi_lokasi": "verified",
-    "status_publikasi": "published",
-    "has_komitmen_pesantren_aman": true,
-    "latitude": -6.9856,
-    "longitude": 110.6723,
-    "santri_mukim": 380,
-    "santri_nonmukim": 140,
-    "nspp": "510033210007",
-    "jenjang_pendidikan": [
-      "Salafiyah",
-      "Madrasah Diniyah Ula-Wustho",
-      "Tahfidzul Quran"
-    ],
-    "potensi_kebutuhan": "Digitalisasi Pembelajaran Kitab & Budidaya Perikanan Santri",
-    "media_sosial": {
-      "website": "https://pesantren.nu.id/pesantren/asnawiyyah-2",
-      "youtube": "https://youtube.com/@asnawiyyah_demak",
-      "instagram": "https://instagram.com/pp_asnawiyyah_kebonagung",
-      "tiktok": "https://tiktok.com/@santriasnawiyyah",
-      "hotline_psb": "085211223344"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Asnawi Cholil",
-        "jabatan": "Khadimul Ma'had",
-        "kategori": "ustadz",
-        "spesialisasi": "Kajian Fiqih & Falak",
-        "pendidikan": "PP Futuhiyyah Mranggen"
-      },
-      {
-        "nama": "Nyai Hj. Siti Rohmah",
-        "jabatan": "Pengasuh Santri Putri",
-        "kategori": "ustadzah",
-        "spesialisasi": "Tahfidz & Tajwid Al-Quran",
-        "pendidikan": "PP Yanbu'ul Quran Kudus"
-      },
-      {
-        "nama": "Ustadz M. Shofi, S.Pd.I",
-        "jabatan": "Lurah Pondok & Pengajar",
-        "kategori": "ustadz",
-        "spesialisasi": "Nahwu Shorof & I'rab",
-        "pendidikan": "STAIS Demak (S1)"
-      },
-      {
-        "nama": "Ustadzah Khairun Nisa",
-        "jabatan": "Muhaffizhah Asrama Putri",
-        "kategori": "ustadzah",
-        "spesialisasi": "Tahsin wa Qiraat",
-        "pendidikan": "Ma'had Tahfidz Kudus"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Mabadiul Fiqhiyyah Juz 1-4",
-        "pengarang": "Umar Abdul Jabbar",
-        "bidang_ilmu": "Fiqih Ibadah"
-      },
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Hidayatus Shibyan",
-        "pengarang": "Ahmad Sa'id An-Nabhani",
-        "bidang_ilmu": "Tajwid Al-Quran"
-      },
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Al-Amtsilah At-Tashrifiyyah",
-        "pengarang": "K.H. Ma'shum bin Ali",
-        "bidang_ilmu": "Shorof & Morfologi Arab"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Fathul Qorib Al-Mujib",
-        "pengarang": "Ibnu Qasim al-Ghazi",
-        "bidang_ilmu": "Fiqih Muamalah & Ibadah"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Tafsir Jalalain",
-        "pengarang": "Jalaluddin Al-Mahalli & As-Suyuthi",
-        "bidang_ilmu": "Tafsir Al-Quran"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Ta'limul Muta'allim",
-        "pengarang": "Burhanul Islam Az-Zarnuji",
-        "bidang_ilmu": "Adab & Etika Penuntut Ilmu"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Fathul Mu'in",
-        "pengarang": "Ahmad Zainuddin Al-Malibari",
-        "bidang_ilmu": "Fiqih Muamalah Mendalam"
-      },
-      {
-        "marhalah": "ulya",
-        "nama_kitab": "Bulughul Maram",
-        "pengarang": "Ibnu Hajar Al-Asqalani",
-        "bidang_ilmu": "Hadits Hukum"
-      }
-    ],
-    "badan_usaha": [
-      {
-        "nama_usaha": "Toko Kitab & Kitab Kuning Asnawiyyah",
-        "bentuk_usaha": "unit_internal",
-        "bidang_usaha": "Penyedia Kitab & ATK Santri",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 36.000.000",
-        "deskripsi": "Penyedia kebutuhan kitab rujukan pesantren dan perlengkapan pengajian santri."
-      },
-      {
-        "nama_usaha": "Budidaya Ikan Nila & Lele Santri",
-        "bentuk_usaha": "unit_internal",
-        "bidang_usaha": "Agribisnis & Perikanan Air Tawar",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 24.000.000",
-        "deskripsi": "Unit ketahanan pangan asrama dan sarana edukasi kewirausahaan santri."
-      }
-    ]
-  },
-  {
-    "id": "e4a0e150-3d5f-6b3c-c2c3-8e9d6c4d3f0b",
-    "kode_pesantren": "RMI-DMK-000004",
-    "nama_resmi": "Pondok Pesantren Al-Hidayah",
-    "nama_populer": "PP Al-Hidayah Karangtengah",
-    "kecamatan": "Karangtengah",
-    "desa": "Ploso",
-    "alamat": "Jl. KH. Sholeh Darat No. 05, Ploso",
-    "pengasuh_utama": "K. Ahmad Badhawi Ali",
-    "tahun_berdiri": 1985,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "under_review",
-    "status_verifikasi_lokasi": "verified",
-    "status_publikasi": "private",
-    "has_komitmen_pesantren_aman": false,
-    "latitude": -6.9147,
-    "longitude": 110.6274,
-    "santri_mukim": 420,
-    "santri_nonmukim": 180,
-    "nspp": "510033210004",
-    "jenjang_pendidikan": [
-      "Tahfidzul Quran",
-      "Madin Wustho"
-    ],
-    "potensi_kebutuhan": "Bantuan Sarana Air Bersih & Sanitasi",
-    "media_sosial": {
-      "website": "",
-      "youtube": "",
-      "instagram": "https://instagram.com/alhidayah_ploso",
-      "tiktok": "",
-      "hotline_psb": "082133445566"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K. Ahmad Badhawi Ali",
-        "jabatan": "Pengasuh Utama",
-        "kategori": "ustadz",
-        "spesialisasi": "Ilmu Falak & Fiqih",
-        "pendidikan": "PP Al-Anwar Sarang"
-      },
-      {
-        "nama": "Ustadz M. Ridhwan",
-        "jabatan": "Koordinator Tahfidz",
-        "kategori": "ustadz",
-        "spesialisasi": "Tahfidzul Quran 30 Juz",
-        "pendidikan": "Kudus"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Aqidatul Awam",
-        "pengarang": "Ahmad Al-Marzuqi",
-        "bidang_ilmu": "Aqidah"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Fathul Qorib",
-        "pengarang": "Ibnu Qasim",
-        "bidang_ilmu": "Fiqih"
-      }
-    ],
-    "badan_usaha": []
-  },
-  {
-    "id": "f5b1f260-4e6a-7c4d-d3d4-9f0e7d5e4a1c",
-    "kode_pesantren": "RMI-DMK-000005",
-    "nama_resmi": "Pondok Pesantren Nurul Huda",
-    "nama_populer": "PP Nurul Huda Bintoro",
-    "kecamatan": "Demak Kota",
-    "desa": "Bintoro",
-    "alamat": "Jl. Sultan Fatah Gang Kauman No. 22",
-    "pengasuh_utama": "K.H. Ibrahim Cholilullah",
-    "tahun_berdiri": 1992,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "under_review",
-    "status_verifikasi_lokasi": "under_review",
-    "status_publikasi": "pending_approval",
-    "has_komitmen_pesantren_aman": true,
-    "latitude": -6.8944,
-    "longitude": 110.6386,
-    "santri_mukim": 310,
-    "santri_nonmukim": 95,
-    "nspp": "510033210005",
-    "jenjang_pendidikan": [
-      "Kajian Fiqih",
-      "Madin Ula & Wustho"
-    ],
-    "potensi_kebutuhan": "Laboratorium Komputer & Bahasa",
-    "media_sosial": {
-      "website": "",
-      "youtube": "https://youtube.com/@nurulhudabintoro",
-      "instagram": "https://instagram.com/nurulhuda_bintoro",
-      "tiktok": "",
-      "hotline_psb": "087788990011"
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Ibrahim Cholilullah",
-        "jabatan": "Pengasuh",
-        "kategori": "ustadz",
-        "spesialisasi": "Tafsir & Hadits",
-        "pendidikan": "PP Tebuireng Jombang"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Safinatun Najah",
-        "pengarang": "Salim bin Samir",
-        "bidang_ilmu": "Fiqih"
-      },
-      {
-        "marhalah": "wustho",
-        "nama_kitab": "Riyadhus Shalihin",
-        "pengarang": "Imam An-Nawawi",
-        "bidang_ilmu": "Hadits Nabawi"
-      }
-    ],
-    "badan_usaha": [
-      {
-        "nama_usaha": "Kantin Kejujuran Santri",
-        "bentuk_usaha": "unit_internal",
-        "bidang_usaha": "Kantin & Konsumsi",
-        "status_usaha": "active",
-        "omset_tahunan": "Rp 15.000.000",
-        "deskripsi": "Penyedia jajanan sehat dan sarapan santri."
-      }
-    ]
-  },
-  {
-    "id": "b6c2a370-5f7b-8d5e-e4e5-0a1f8e6f5b2d",
-    "kode_pesantren": "RMI-DMK-000006",
-    "nama_resmi": "Pondok Pesantren Raudlatul Muta'allimin",
-    "nama_populer": "PP Babat Wedung",
-    "kecamatan": "Wedung",
-    "desa": "Babat",
-    "alamat": "Dusun Babat Lor RT 03/01, Wedung",
-    "pengasuh_utama": "K.H. Shodiq Hamzah",
-    "tahun_berdiri": 2004,
-    "status_operasional": "active",
-    "status_keanggotaan_rmi": "member",
-    "status_verifikasi": "revision_required",
-    "status_verifikasi_lokasi": "needs_correction",
-    "status_publikasi": "private",
-    "has_komitmen_pesantren_aman": false,
-    "latitude": -6.7824,
-    "longitude": 110.5614,
-    "santri_mukim": 210,
-    "santri_nonmukim": 80,
-    "nspp": "",
-    "jenjang_pendidikan": [
-      "Salafiyah",
-      "Tahfidz"
-    ],
-    "potensi_kebutuhan": "Percepatan Penerbitan Izin Operasional Kemenag",
-    "media_sosial": {
-      "website": "",
-      "youtube": "",
-      "instagram": "",
-      "tiktok": "",
-      "hotline_psb": ""
-    },
-    "dewan_asatidz": [
-      {
-        "nama": "K.H. Shodiq Hamzah",
-        "jabatan": "Pengasuh",
-        "kategori": "ustadz",
-        "spesialisasi": "Qiraat Sab'ah",
-        "pendidikan": "Kudus"
-      }
-    ],
-    "kurikulum_kitab": [
-      {
-        "marhalah": "ula",
-        "nama_kitab": "Yanbu'a",
-        "pengarang": "K.H. M. Arwani Amin Kudus",
-        "bidang_ilmu": "Tahsin Tartil Al-Quran"
-      }
-    ],
-    "badan_usaha": []
-  }
-];
+        /**
+         * Pangkalan Data Pesantren (SWR: Stale-While-Revalidate Cache Strategy)
+         * Membaca dari localStorage cache 293 data riil agar saat refresh (Ctrl+R / F5)
+         * data asli langsung tampil seketika (0 ms) tanpa kedipan data dummy.
+         */
+        function getInitialPesantrenData() {
+            try {
+                const cached = localStorage.getItem('rmi_cached_pesantren_data');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Gagal membaca cache lokal pesantren:', e);
+            }
+            return [];
+        }
+
+        let PESANTREN_DATA = getInitialPesantrenData();
 
         // Data Audit Logs Awal
         let AUDIT_LOGS = [
@@ -4329,7 +3697,9 @@
             renderDirektoriTable(PESANTREN_DATA);
             renderVerifikasiCards('under_review');
             populateBukuIndukSelector();
-            loadBukuInduk(PESANTREN_DATA[0].id);
+            if (PESANTREN_DATA && PESANTREN_DATA.length > 0 && PESANTREN_DATA[0].id) {
+                loadBukuInduk(PESANTREN_DATA[0].id);
+            }
             renderRekapPreview();
             renderUsersTable();
             renderRBACMatrixTable();
@@ -6023,15 +5393,30 @@
             if (!tbody) return;
 
             if (!dataList || dataList.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="py-8 text-center text-slate-400 text-xs">
-                            Tidak ada data pesantren yang sesuai dengan filter pencarian.
-                        </td>
-                    </tr>
-                `;
-                const infoEl = document.getElementById('pagination-info');
-                if (infoEl) infoEl.innerText = 'Menampilkan 0 dari 0 pesantren';
+                if (typeof isSyncingLive !== 'undefined' && isSyncingLive) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="py-12 text-center text-slate-500 text-xs">
+                                <div class="inline-flex items-center gap-2.5 font-bold text-emerald-800 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-200/80 shadow-2xs">
+                                    <span class="material-symbols-outlined animate-spin text-[18px] text-emerald-600">progress_activity</span>
+                                    <span>Menghubungi Google Spreadsheet untuk memuat pangkalan data resmi...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    const infoEl = document.getElementById('pagination-info');
+                    if (infoEl) infoEl.innerText = 'Menghubungi pangkalan data Google Sheets...';
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="py-8 text-center text-slate-400 text-xs">
+                                Tidak ada data pesantren yang sesuai dengan filter pencarian.
+                            </td>
+                        </tr>
+                    `;
+                    const infoEl = document.getElementById('pagination-info');
+                    if (infoEl) infoEl.innerText = 'Menampilkan 0 dari 0 pesantren';
+                }
                 const numContainer = document.getElementById('pagination-page-numbers');
                 if (numContainer) numContainer.innerHTML = '';
                 const btnPrev = document.getElementById('btn-page-prev');
@@ -6248,6 +5633,11 @@
 
                 if (result && result.success && result.data && result.data.length > 0) {
                     PESANTREN_DATA = result.data;
+                    try {
+                        localStorage.setItem('rmi_cached_pesantren_data', JSON.stringify(result.data));
+                    } catch (cErr) {
+                        console.warn('Gagal menyimpan cache pesantren:', cErr);
+                    }
                     console.log('Data live berhasil dimuat dari Google Sheets:', PESANTREN_DATA.length, 'lembaga.');
                     updatePesantrenBadgeCounts();
 
