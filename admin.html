@@ -464,7 +464,7 @@
                                 <div class="min-w-0">
                                     <span class="text-[11px] font-semibold text-emerald-100 tracking-wide truncate block">Total Pesantren Terdata</span>
                                     <div class="text-2xl font-black tracking-tight mt-0.5">
-                                        <span id="dash-stat-total">348</span>
+                                        <span id="dash-stat-total">293</span>
                                         <span class="text-[11px] font-semibold text-emerald-200 font-sans ml-1">Pesantren ↑</span>
                                     </div>
                                 </div>
@@ -669,13 +669,23 @@
 
                         <!-- Pagination Footer -->
                         <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-                            <div id="pagination-info">Menampilkan 1 - 10 dari 348 pesantren</div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-medium text-slate-600">Tampilkan:</span>
+                                <select id="direktori-page-size-select" onchange="changeDirektoriPageSize(this.value)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 cursor-pointer shadow-2xs">
+                                    <option value="10" selected>10 pesantren</option>
+                                    <option value="25">25 pesantren</option>
+                                    <option value="50">50 pesantren</option>
+                                    <option value="100">100 pesantren</option>
+                                </select>
+                                <span class="text-slate-300 hidden sm:inline">|</span>
+                                <div id="pagination-info" class="font-medium text-slate-600">Menampilkan data pesantren...</div>
+                            </div>
                             <div class="flex items-center gap-1.5" id="pagination-controls">
-                                <button onclick="changeDirektoriPage(currentDirektoriPage - 1)" id="btn-page-prev" class="px-3 py-1.5 border border-slate-300 rounded bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Sebelumnya</button>
-                                <div id="pagination-page-numbers" class="flex gap-1">
-                                    <button class="px-3 py-1.5 border border-emerald-600 rounded bg-emerald-600 text-white font-semibold">1</button>
+                                <button onclick="changeDirektoriPage(currentDirektoriPage - 1)" id="btn-page-prev" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer">Sebelumnya</button>
+                                <div id="pagination-page-numbers" class="flex items-center gap-1">
+                                    <button class="w-8 h-8 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">1</button>
                                 </div>
-                                <button onclick="changeDirektoriPage(currentDirektoriPage + 1)" id="btn-page-next" class="px-3 py-1.5 border border-slate-300 rounded bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">Berikutnya</button>
+                                <button onclick="changeDirektoriPage(currentDirektoriPage + 1)" id="btn-page-next" class="px-3 py-1.5 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium text-slate-700 shadow-2xs transition-colors cursor-pointer">Berikutnya</button>
                             </div>
                         </div>
                     </div>
@@ -4289,7 +4299,18 @@
         // ==========================================
         // 3. INISIALISASI SAAT DOM READY
         // ==========================================
+        
+        function updatePesantrenBadgeCounts() {
+            const count = (Array.isArray(PESANTREN_DATA)) ? PESANTREN_DATA.length : 0;
+            const sideCount = document.getElementById('sidebar-pesantren-count');
+            if (sideCount) sideCount.innerText = count.toLocaleString('id-ID');
+
+            const dashStatTotal = document.getElementById('dash-stat-total');
+            if (dashStatTotal) dashStatTotal.innerText = count.toLocaleString('id-ID');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            updatePesantrenBadgeCounts();
             // Verifikasi Sesi Autentikasi (Fase 4)
             checkAuthSessionOnStartup();
 
@@ -6001,7 +6022,7 @@
             const tbody = document.getElementById('direktori-table-body');
             if (!tbody) return;
 
-            if (dataList.length === 0) {
+            if (!dataList || dataList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="9" class="py-8 text-center text-slate-400 text-xs">
@@ -6011,40 +6032,26 @@
                 `;
                 const infoEl = document.getElementById('pagination-info');
                 if (infoEl) infoEl.innerText = 'Menampilkan 0 dari 0 pesantren';
+                const numContainer = document.getElementById('pagination-page-numbers');
+                if (numContainer) numContainer.innerHTML = '';
+                const btnPrev = document.getElementById('btn-page-prev');
+                const btnNext = document.getElementById('btn-page-next');
+                if (btnPrev) btnPrev.disabled = true;
+                if (btnNext) btnNext.disabled = true;
                 return;
             }
 
-            // Paginasi dinamis
+            // Paginasi dinamis dengan Smart Windowing
             const totalItems = dataList.length;
             const totalPages = Math.ceil(totalItems / direktoriPageSize) || 1;
-            if (currentDirektoriPage > totalPages) currentDirektoriPage = 1;
+            if (currentDirektoriPage > totalPages) currentDirektoriPage = totalPages;
+            if (currentDirektoriPage < 1) currentDirektoriPage = 1;
 
             const startIdx = (currentDirektoriPage - 1) * direktoriPageSize;
             const endIdx = Math.min(currentDirektoriPage * direktoriPageSize, totalItems);
             const pagedList = dataList.slice(startIdx, endIdx);
 
-            const infoEl = document.getElementById('pagination-info');
-            if (infoEl) {
-                infoEl.innerHTML = `Menampilkan <strong>${startIdx + 1} - ${endIdx}</strong> dari <strong>${totalItems}</strong> pesantren`;
-            }
-
-            const btnPrev = document.getElementById('btn-page-prev');
-            const btnNext = document.getElementById('btn-page-next');
-            if (btnPrev) btnPrev.disabled = (currentDirektoriPage <= 1);
-            if (btnNext) btnNext.disabled = (currentDirektoriPage >= totalPages);
-
-            const numContainer = document.getElementById('pagination-page-numbers');
-            if (numContainer) {
-                let btns = '';
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === currentDirektoriPage) {
-                        btns += `<button onclick="changeDirektoriPage(${i})" class="px-3 py-1.5 border border-emerald-600 rounded bg-emerald-600 text-white font-semibold">${i}</button>`;
-                    } else {
-                        btns += `<button onclick="changeDirektoriPage(${i})" class="px-3 py-1.5 border border-slate-300 rounded bg-white hover:bg-slate-50 text-slate-700">${i}</button>`;
-                    }
-                }
-                numContainer.innerHTML = btns;
-            }
+            renderDirektoriPagination(totalItems);
 
             const canVerify = ['super_admin', 'admin_kabupaten', 'admin_kecamatan', 'verifikator'].includes(currentRole);
             const canViewBukuInduk = !['guest'].includes(currentRole);
@@ -6141,9 +6148,9 @@
 
             const filtered = PESANTREN_DATA.filter(p => {
                 const matchKeyword = !keyword || 
-                    p.nama_resmi.toLowerCase().includes(keyword) ||
-                    p.kode_pesantren.toLowerCase().includes(keyword) ||
-                    p.pengasuh_utama.toLowerCase().includes(keyword);
+                    (p.nama_resmi && p.nama_resmi.toLowerCase().includes(keyword)) ||
+                    (p.kode_pesantren && p.kode_pesantren.toLowerCase().includes(keyword)) ||
+                    (p.pengasuh_utama && p.pengasuh_utama.toLowerCase().includes(keyword));
 
                 const matchDistrict = !district || p.kecamatan === district;
                 const matchVerif = !verif || p.status_verifikasi === verif;
@@ -6152,6 +6159,8 @@
                 return matchKeyword && matchDistrict && matchVerif && matchPub;
             });
 
+            currentFilteredDirektoriData = filtered;
+            currentDirektoriPage = 1;
             renderDirektoriTable(filtered);
         }
 
@@ -6160,6 +6169,8 @@
             document.getElementById('dir-filter-district').value = '';
             document.getElementById('dir-filter-verification').value = '';
             document.getElementById('dir-filter-publication').value = '';
+            currentFilteredDirektoriData = null;
+            currentDirektoriPage = 1;
             renderDirektoriTable(PESANTREN_DATA);
         }
 
@@ -6238,6 +6249,7 @@
                 if (result && result.success && result.data && result.data.length > 0) {
                     PESANTREN_DATA = result.data;
                     console.log('Data live berhasil dimuat dari Google Sheets:', PESANTREN_DATA.length, 'lembaga.');
+                    updatePesantrenBadgeCounts();
 
                     // Sinkronisasi data Pengguna live dari tab app_users
                     try {
@@ -6323,44 +6335,90 @@
             }
         }
 
-        // Paginasi Direktori State
+        // =========================================================================
+        // 8. PAGINASI CERDAS & FILTER DIREKTORI (SMART PAGINATION WITH ELLIPSIS)
+        // =========================================================================
         let currentDirektoriPage = 1;
-        const direktoriPageSize = 5;
+        let direktoriPageSize = 10;
+        let currentFilteredDirektoriData = null;
+
+        /**
+         * Algoritma pembuatan nomor halaman dengan ellipsis (...)
+         * Menjamin jumlah tombol halaman selalu ringkas (maksimal 7 tombol)
+         * sehingga tidak pernah meluap atau tertutupi di layar monitor/HP.
+         */
+        function generatePaginationNumbers(currentPage, totalPages) {
+            if (totalPages <= 7) {
+                const pages = [];
+                for (let i = 1; i <= totalPages; i++) pages.push(i);
+                return pages;
+            }
+
+            // Dekat dengan awal
+            if (currentPage <= 4) {
+                return [1, 2, 3, 4, 5, '...', totalPages];
+            }
+
+            // Dekat dengan akhir
+            if (currentPage >= totalPages - 3) {
+                return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+            }
+
+            // Di tengah
+            return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+        }
 
         function renderDirektoriPagination(totalItems) {
             const totalPages = Math.ceil(totalItems / direktoriPageSize) || 1;
-            const startIdx = (currentDirektoriPage - 1) * direktoriPageSize + 1;
+            const startIdx = totalItems === 0 ? 0 : (currentDirektoriPage - 1) * direktoriPageSize + 1;
             const endIdx = Math.min(currentDirektoriPage * direktoriPageSize, totalItems);
 
-            const infoEl = document.getElementById('direktori-pagination-info');
+            const infoEl = document.getElementById('pagination-info');
             if (infoEl) {
-                infoEl.innerHTML = `Menampilkan <strong>${totalItems === 0 ? 0 : startIdx} - ${endIdx}</strong> dari <strong>${totalItems}</strong> Pesantren`;
+                infoEl.innerHTML = `Menampilkan <strong>${startIdx} - ${endIdx}</strong> dari <strong>${totalItems}</strong> pesantren`;
             }
 
             const btnPrev = document.getElementById('btn-page-prev');
             const btnNext = document.getElementById('btn-page-next');
-            if (btnPrev) btnPrev.disabled = (currentDirektoriPage <= 1);
-            if (btnNext) btnNext.disabled = (currentDirektoriPage >= totalPages);
+            if (btnPrev) {
+                btnPrev.disabled = (currentDirektoriPage <= 1);
+                btnPrev.onclick = () => changeDirektoriPage(currentDirektoriPage - 1);
+            }
+            if (btnNext) {
+                btnNext.disabled = (currentDirektoriPage >= totalPages);
+                btnNext.onclick = () => changeDirektoriPage(currentDirektoriPage + 1);
+            }
 
             const numContainer = document.getElementById('pagination-page-numbers');
             if (numContainer) {
+                const pageNumbers = generatePaginationNumbers(currentDirektoriPage, totalPages);
                 let btns = '';
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === currentDirektoriPage) {
-                        btns += `<button onclick="changeDirektoriPage(${i})" class="px-3 py-1.5 border border-emerald-600 rounded bg-emerald-600 text-white font-semibold">${i}</button>`;
+                pageNumbers.forEach(p => {
+                    if (p === '...') {
+                        btns += `<span class="w-7 h-8 flex items-center justify-center text-slate-400 font-bold text-xs select-none">…</span>`;
+                    } else if (p === currentDirektoriPage) {
+                        btns += `<button type="button" class="w-8 h-8 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-xs border border-emerald-600 flex items-center justify-center transition-all">${p}</button>`;
                     } else {
-                        btns += `<button onclick="changeDirektoriPage(${i})" class="px-3 py-1.5 border border-slate-300 rounded bg-white hover:bg-slate-50 text-slate-700">${i}</button>`;
+                        btns += `<button type="button" onclick="changeDirektoriPage(${p})" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 text-slate-700 font-medium text-xs border border-slate-300 transition-colors flex items-center justify-center shadow-2xs cursor-pointer hover:border-slate-400">${p}</button>`;
                     }
-                }
+                });
                 numContainer.innerHTML = btns;
             }
         }
 
         function changeDirektoriPage(newPage) {
-            const totalPages = Math.ceil(PESANTREN_DATA.length / direktoriPageSize) || 1;
+            const dataToRender = currentFilteredDirektoriData || PESANTREN_DATA;
+            const totalPages = Math.ceil(dataToRender.length / direktoriPageSize) || 1;
             if (newPage < 1 || newPage > totalPages) return;
             currentDirektoriPage = newPage;
-            renderDirektoriTable(PESANTREN_DATA);
+            renderDirektoriTable(dataToRender);
+        }
+
+        function changeDirektoriPageSize(newSize) {
+            direktoriPageSize = parseInt(newSize, 10) || 10;
+            currentDirektoriPage = 1;
+            const dataToRender = currentFilteredDirektoriData || PESANTREN_DATA;
+            renderDirektoriTable(dataToRender);
         }
 
         function previewAddLogoFile(input) {
