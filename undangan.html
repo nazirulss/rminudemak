@@ -34,7 +34,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Production CSS -->
-    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0730">
+    <link rel="stylesheet" href="assets/css/styles.min.css?v=20261117_0740">
 
     <!-- Standalone Client Libraries for Ultra-HD Card Export & QR Generation -->
     <script src="assets/js/qrcode.min.js"></script>
@@ -222,8 +222,8 @@
                 </button>
             </div>
 
-            <!-- Content Body -->
-            <div class="p-5 sm:p-6 space-y-6 overflow-y-auto">
+            <!-- Content Body (Satu Aliran Scroll Tunggal Window) -->
+            <div class="p-5 sm:p-6 space-y-6">
                 
                 <!-- Surat Ref Header -->
                 <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-900 space-y-1">
@@ -372,7 +372,7 @@
                     <!-- ============================================== -->
                     <!-- DYNAMIC SPOTLIGHT CARD CONTAINER               -->
                     <!-- ============================================== -->
-                    <div id="halaqah-spotlight-container" class="relative">
+                    <div id="halaqah-spotlight-container" class="relative min-h-[460px] sm:min-h-[440px]">
                         
                         <!-- CARD 1: PW-PC -->
                         <div id="spotlight-card-1" class="spotlight-card bg-white rounded-3xl border-2 border-emerald-500/30 overflow-hidden shadow-md space-y-0 transition-all">
@@ -1312,40 +1312,25 @@
             function scrollTick() {
                 if (!isAutoScrolling) return;
 
-                // Elemen penampung scroll dokumen (dukung iOS Safari WebKit & Android Chrome)
-                const scrollingEl = document.scrollingElement || document.documentElement || document.body;
-                const maxWinScroll = Math.max(0, scrollingEl.scrollHeight - window.innerHeight);
-                const curWinScroll = scrollingEl.scrollTop || window.scrollY || window.pageYOffset || 0;
+                // Batas gulir dokumen utama
+                const maxWinScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+                const curWinScroll = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
 
-                const contentBody = document.querySelector('#screen-content .overflow-y-auto');
-                const maxBodyScroll = contentBody ? Math.max(0, contentBody.scrollHeight - contentBody.clientHeight) : 0;
-                const curBodyScroll = contentBody ? contentBody.scrollTop : 0;
-
-                // Cek batas bawah hanya setelah 3 detik pertama agar render awal iOS stabil
-                const timeElapsed = Date.now() - autoScrollStartTime;
-                if (timeElapsed > 3000) {
-                    const reachedWinBottom = (maxWinScroll > 150 && curWinScroll >= maxWinScroll - 12);
-                    const reachedBodyBottom = (maxBodyScroll > 150 && curBodyScroll >= maxBodyScroll - 12);
-
-                    if (reachedWinBottom || reachedBodyBottom) {
+                // Cek batas bawah hanya setelah 3 detik pertama agar rendering awal stabil
+                if (Date.now() - autoScrollStartTime > 3000 && maxWinScroll > 150) {
+                    if (curWinScroll >= maxWinScroll - 10) {
                         pauseAutoScroll();
                         return;
                     }
                 }
 
-                // Integer step scrolling dengan akumulator (solusi agar tidak truncate/stuck di Safari iOS)
+                // Integer step scrolling dengan akumulator: ringan, ultra halus 60fps tanpa layout thrashing
                 scrollAccumulator += autoScrollSpeed;
                 if (scrollAccumulator >= 1) {
                     const step = Math.floor(scrollAccumulator);
                     scrollAccumulator -= step;
 
-                    scrollingEl.scrollTop += step;
                     window.scrollBy(0, step);
-                    document.documentElement.scrollTop += step;
-                    document.body.scrollTop += step;
-                    if (contentBody && maxBodyScroll > 0) {
-                        contentBody.scrollTop += step;
-                    }
                 }
 
                 autoScrollRafId = requestAnimationFrame(scrollTick);
