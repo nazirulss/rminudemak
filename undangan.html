@@ -169,7 +169,7 @@
                 <div class="p-4 rounded-2xl bg-black/35 backdrop-blur-md border border-white/15 text-center space-y-1.5 shadow-inner">
                     <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center justify-center gap-1">
                         <span class="material-symbols-outlined text-[13px]">person_check</span>
-                        <span id="label-recipient-type">KEPADA YTH. MASYAYIKH / PERWAKILAN:</span>
+                        <span id="label-recipient-type">KEPADA YTH. :</span>
                     </div>
                     <div id="cover-recipient-name" class="text-base sm:text-lg font-black text-white leading-tight">
                         Pondok Pesantren se-Kabupaten Demak
@@ -965,27 +965,22 @@
                     targetValue = 'Halaqah 5: Pelatihan Media Pesantren';
                     labelText = 'Halaqah 5: Pelatihan Media Pesantren';
                     targetHalaqahNum = 5;
-                    document.getElementById('label-recipient-type').textContent = 'KEPADA YTH. PENGURUS BIDANG MEDIA:';
                 } else if (h.includes('musyrif') || h.includes('asrama') || h === '4') {
                     targetValue = 'Halaqah 4: Pelatihan Musyrif & Musyrifah (Asrama)';
                     labelText = 'Halaqah 4: Pelatihan Musyrif & Musyrifah';
                     targetHalaqahNum = 4;
-                    document.getElementById('label-recipient-type').textContent = 'KEPADA YTH. PEMBINA ASRAMA / MUSYRIF:';
                 } else if (h.includes('pengasuh') || h.includes('kyai') || h.includes('nyai') || h === '3') {
                     targetValue = 'Halaqah 3: Diskusi Kepengasuhan Pengasuh (Kyai/Bu Nyai)';
                     labelText = 'Halaqah 3: Sowan Masyayikh Pengasuh';
                     targetHalaqahNum = 3;
-                    document.getElementById('label-recipient-type').textContent = 'KEPADA YTH. KYAI / BU NYAI PENGASUH:';
                 } else if (h.includes('madin') || h === '2') {
                     targetValue = 'Halaqah 2: Bidang Madin & Kepala Madin';
                     labelText = 'Halaqah 2: Bidang Madin NU';
                     targetHalaqahNum = 2;
-                    document.getElementById('label-recipient-type').textContent = 'KEPADA YTH. KEPALA MADRASAH DINIYAH:';
                 } else if (h.includes('pc') || h.includes('pw') || h.includes('konsolidasi') || h === '1') {
                     targetValue = 'Halaqah 1: Konsolidasi Pengurus RMI';
                     labelText = 'Halaqah 1: Konsolidasi Pengurus RMI';
                     targetHalaqahNum = 1;
-                    document.getElementById('label-recipient-type').textContent = 'KEPADA YTH. PENGURUS RMI NU:';
                 }
 
                 if (targetValue) {

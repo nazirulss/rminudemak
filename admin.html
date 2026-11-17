@@ -9078,9 +9078,9 @@ function updateGeneratedLink() {
     // 1. Teks Bagian Penerima (Adaptif Sesuai Ada / Tidaknya Nama Pondok & Kecamatan)
     let recipientSection = '';
     if (namaPesantren) {
-        recipientSection = `Kepada Yth. Masyayikh / Pengasuh / Perwakilan:\n*${namaPesantren}*\n${kec ? 'Kecamatan ' + kec + ', ' : ''}Kabupaten Demak`;
+        recipientSection = `Kepada Yth. :\n*${namaPesantren}*\n${kec ? 'Kecamatan ' + kec + ', ' : ''}Kabupaten Demak`;
     } else {
-        recipientSection = `Kepada Yth. Masyayikh / Pengasuh / Pimpinan Pondok Pesantren & Madrasah Diniyah\n${kec ? 'Kecamatan ' + kec + ', ' : 'se-'}Kabupaten Demak`;
+        recipientSection = `Kepada Yth. :\n${kec ? 'Kecamatan ' + kec + ', ' : 'se-'}Kabupaten Demak`;
     }
 
     // 2. Teks Bagian Mandat Halaqah (Adaptif Sesuai Kunci / Bebas Pilih)
