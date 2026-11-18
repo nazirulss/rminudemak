@@ -266,6 +266,228 @@ function handleUpdatePesantrenLogo(payload) {
 }
 
 // =========================================================================
+// PEMBARUAN PROFIL LENGKAP PESANTREN (BUKU INDUK 9 DOMAIN)
+// =========================================================================
+function handleUpdatePesantrenProfile(payload, lock) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const pesantrenId = payload.id || payload.pesantrenId;
+  const kodePesantren = payload.kode_pesantren;
+  const now = new Date().toISOString();
+  const operator = payload.operator || 'Admin';
+  const role = payload.operator_role || payload.role || 'super_admin';
+
+  if (!pesantrenId && !kodePesantren) {
+    return { success: false, message: 'ID atau Kode Pesantren wajib dicantumkan.' };
+  }
+
+  // 1. UPDATE TABEL pesantren
+  const sheetPesantren = ss.getSheetByName('pesantren');
+  if (!sheetPesantren) return { success: false, message: 'Sheet pesantren tidak ditemukan.' };
+  
+  const pData = sheetPesantren.getDataRange().getValues();
+  const pHeaders = pData[0];
+  let pRow = -1;
+  let currentKode = kodePesantren;
+  let currentNama = '';
+
+  for (let r = 1; r < pData.length; r++) {
+    if (String(pData[r][0]) === String(pesantrenId) || (kodePesantren && String(pData[r][1]) === String(kodePesantren))) {
+      pRow = r + 1;
+      currentKode = pData[r][1];
+      currentNama = pData[r][2];
+      break;
+    }
+  }
+
+  if (pRow === -1) {
+    return { success: false, message: 'Pesantren tidak ditemukan dalam pangkalan data.' };
+  }
+
+  const iden = payload.identitas || {};
+  if (iden.nama_resmi && pHeaders.indexOf('nama_resmi') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('nama_resmi') + 1).setValue(iden.nama_resmi);
+    currentNama = iden.nama_resmi;
+  }
+  if (iden.nama_populer !== undefined && pHeaders.indexOf('nama_populer') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('nama_populer') + 1).setValue(iden.nama_populer);
+  }
+  if (iden.nspp !== undefined && pHeaders.indexOf('nspp') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('nspp') + 1).setValue(iden.nspp);
+  }
+  if (iden.tahun_berdiri !== undefined && pHeaders.indexOf('tahun_berdiri') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('tahun_berdiri') + 1).setValue(iden.tahun_berdiri);
+  }
+  if (iden.status_keanggotaan_rmi !== undefined && pHeaders.indexOf('status_keanggotaan_rmi') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('status_keanggotaan_rmi') + 1).setValue(iden.status_keanggotaan_rmi);
+  }
+  if (iden.has_komitmen_pesantren_aman !== undefined && pHeaders.indexOf('has_komitmen_pesantren_aman') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('has_komitmen_pesantren_aman') + 1).setValue(iden.has_komitmen_pesantren_aman);
+  }
+  if (pHeaders.indexOf('updated_at') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('updated_at') + 1).setValue(now);
+  }
+  if (pHeaders.indexOf('updated_by') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('updated_by') + 1).setValue(operator);
+  }
+
+  // 2. UPDATE TABEL pesantren_locations
+  const lok = payload.lokasi || {};
+  const sheetLoc = ss.getSheetByName('pesantren_locations');
+  if (sheetLoc && (lok.alamat || lok.desa || lok.kecamatan || lok.latitude !== undefined)) {
+    const locData = sheetLoc.getDataRange().getValues();
+    const locHeaders = locData[0];
+    let locRow = -1;
+    for (let l = 1; l < locData.length; l++) {
+      if (String(locData[l][1]) === String(pesantrenId)) {
+        locRow = l + 1;
+        break;
+      }
+    }
+
+    if (locRow !== -1) {
+      if (lok.alamat !== undefined && locHeaders.indexOf('alamat_jalan') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('alamat_jalan') + 1).setValue(lok.alamat);
+      if (lok.desa !== undefined && locHeaders.indexOf('desa_kelurahan') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('desa_kelurahan') + 1).setValue(lok.desa);
+      if (lok.kecamatan !== undefined && locHeaders.indexOf('kecamatan') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('kecamatan') + 1).setValue(lok.kecamatan);
+      if (lok.latitude !== undefined && locHeaders.indexOf('latitude') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('latitude') + 1).setValue(lok.latitude);
+      if (lok.longitude !== undefined && locHeaders.indexOf('longitude') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('longitude') + 1).setValue(lok.longitude);
+      if (locHeaders.indexOf('updated_at') !== -1) sheetLoc.getRange(locRow, locHeaders.indexOf('updated_at') + 1).setValue(now);
+    } else {
+      sheetLoc.appendRow([
+        Utilities.getUuid(), pesantrenId, lok.alamat || '', '', '', '', lok.desa || '', lok.kecamatan || 'Demak Kota',
+        'Demak', 'Jawa Tengah', '', lok.latitude || -6.8944, lok.longitude || 110.6386, 0, 'manual', '', true, now, now
+      ]);
+    }
+  }
+
+  // 3. UPDATE TABEL pesantren_leaders (Pengasuh Utama & Wakil Pengasuh)
+  const pim = payload.pimpinan || {};
+  const sheetLeaders = ss.getSheetByName('pesantren_leaders');
+  if (sheetLeaders && (pim.pengasuh_utama || pim.wakil_pengasuh !== undefined)) {
+    const leadData = sheetLeaders.getDataRange().getValues();
+    const leadHeaders = leadData[0];
+    
+    let pengasuhRow = -1;
+    let wakilRow = -1;
+
+    for (let ld = 1; ld < leadData.length; ld++) {
+      if (String(leadData[ld][1]) === String(pesantrenId)) {
+        const jab = String(leadData[ld][5] || '').toLowerCase();
+        const isPrim = leadData[ld][11] === true || String(leadData[ld][11]).toUpperCase() === 'TRUE';
+        if (isPrim || jab.includes('pengasuh') || jab.includes('pimpinan')) {
+          if (!jab.includes('wakil')) {
+            if (pengasuhRow === -1) pengasuhRow = ld + 1;
+          } else {
+            if (wakilRow === -1) wakilRow = ld + 1;
+          }
+        }
+      }
+    }
+
+    if (pim.pengasuh_utama) {
+      if (pengasuhRow !== -1) {
+        sheetLeaders.getRange(pengasuhRow, 3).setValue(pim.pengasuh_utama);
+        sheetLeaders.getRange(pengasuhRow, 6).setValue('PENGASUH');
+        sheetLeaders.getRange(pengasuhRow, 12).setValue(true);
+        if (leadHeaders.indexOf('updated_at') !== -1) sheetLeaders.getRange(pengasuhRow, leadHeaders.indexOf('updated_at') + 1).setValue(now);
+      } else {
+        sheetLeaders.appendRow([
+          Utilities.getUuid(), pesantrenId, pim.pengasuh_utama, '', '', 'PENGASUH', 'Ustadz', 'Turots & Kitab Kuning', 'Pesantren', 1, true, true, now, now
+        ]);
+      }
+    }
+
+    if (pim.wakil_pengasuh) {
+      if (wakilRow !== -1) {
+        sheetLeaders.getRange(wakilRow, 3).setValue(pim.wakil_pengasuh);
+        sheetLeaders.getRange(wakilRow, 6).setValue('Wakil Pengasuh');
+        if (leadHeaders.indexOf('updated_at') !== -1) sheetLeaders.getRange(wakilRow, leadHeaders.indexOf('updated_at') + 1).setValue(now);
+      } else {
+        sheetLeaders.appendRow([
+          Utilities.getUuid(), pesantrenId, pim.wakil_pengasuh, '', '', 'Wakil Pengasuh', 'Ustadz', 'Turots & Kitab Kuning', 'Pesantren', 2, true, false, now, now
+        ]);
+      }
+    } else if (pim.wakil_pengasuh === '' && wakilRow !== -1) {
+      sheetLeaders.deleteRow(wakilRow);
+    }
+  }
+
+  // 4. UPDATE TABEL pesantren_contacts (Hotline PSB, Medsos)
+  const kon = payload.kontak || {};
+  const sheetContacts = ss.getSheetByName('pesantren_contacts');
+  if (sheetContacts && (kon.hotline_psb !== undefined || kon.instagram !== undefined || kon.youtube !== undefined || kon.website !== undefined)) {
+    const contactData = sheetContacts.getDataRange().getValues();
+    const contactTypes = ['hotline_psb', 'instagram', 'youtube', 'website'];
+
+    contactTypes.forEach(cType => {
+      if (kon[cType] !== undefined) {
+        let cRow = -1;
+        for (let c = 1; c < contactData.length; c++) {
+          if (String(contactData[c][1]) === String(pesantrenId) && String(contactData[c][2]) === cType) {
+            cRow = c + 1;
+            break;
+          }
+        }
+        if (cRow !== -1) {
+          sheetContacts.getRange(cRow, 4).setValue(kon[cType]);
+          sheetContacts.getRange(cRow, 9).setValue(now);
+        } else if (kon[cType]) {
+          sheetContacts.appendRow([
+            Utilities.getUuid(), pesantrenId, cType, kon[cType], cType.toUpperCase(), cType === 'hotline_psb', true, now, now
+          ]);
+        }
+      }
+    });
+  }
+
+  // 5. UPDATE TABEL pesantren_santri_aggregates
+  const agr = payload.agregat || {};
+  const sheetSantri = ss.getSheetByName('pesantren_santri_aggregates');
+  if (sheetSantri && (agr.santri_mukim !== undefined || agr.santri_nonmukim !== undefined)) {
+    const santriData = sheetSantri.getDataRange().getValues();
+    let sRow = -1;
+    for (let s = 1; s < santriData.length; s++) {
+      if (String(santriData[s][1]) === String(pesantrenId)) {
+        sRow = s + 1;
+        break;
+      }
+    }
+
+    const mukim = Number(agr.santri_mukim) || 0;
+    const nonMukim = Number(agr.santri_nonmukim) || 0;
+    const total = mukim + nonMukim;
+
+    if (sRow !== -1) {
+      sheetSantri.getRange(sRow, 7).setValue(mukim);
+      sheetSantri.getRange(sRow, 10).setValue(nonMukim);
+      sheetSantri.getRange(sRow, 11).setValue(total);
+      sheetSantri.getRange(sRow, 14).setValue(now);
+    } else {
+      sheetSantri.appendRow([
+        Utilities.getUuid(), pesantrenId, '2024/2025', 'Ganjil', '', '', mukim, '', '', nonMukim, total, 'Pendataan Mandiri RMI', 'tervalidasi', now, now
+      ]);
+    }
+  }
+
+  // 6. CATAT AUDIT LOG
+  recordAuditLog(ss, {
+    user_id: operator,
+    user_role: role,
+    event_type: 'UPDATE_PESANTREN_PROFILE',
+    entity_type: 'pesantren',
+    entity_id: currentKode,
+    action_description: 'Pembaruan data profil Buku Induk: ' + currentNama + ' (' + currentKode + ')',
+    status: 'SUCCESS'
+  });
+
+  return {
+    success: true,
+    message: 'Data profil pesantren ' + currentNama + ' berhasil diperbarui.',
+    pesantrenId: pesantrenId,
+    kode_pesantren: currentKode
+  };
+}
+
+// =========================================================================
 // PENDAFTARAN MANDIRI PESANTREN BARU (VERIFIKASI BERJENJANG)
 // =========================================================================
 function handleSelfRegisterPesantren(payload, lock) {

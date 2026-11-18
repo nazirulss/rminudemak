@@ -92,7 +92,7 @@ function doPost(e) {
     } else if (action === 'UPDATE_VERIFIKASI') {
       result = handleUpdateVerifikasi(payload);
     } else if (action === 'UPDATE_PESANTREN_PROFILE') {
-      result = handleUpdatePesantrenProfile(payload);
+      result = handleUpdatePesantrenProfile(payload, lock);
     } else if (action === 'LOG_AUDIT') {
       result = handleLogAudit(payload);
     } else if (action === 'SAVE_USER') {

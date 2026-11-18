@@ -929,6 +929,9 @@
                             <select id="buku-induk-selector" onchange="loadBukuInduk(this.value)" class="text-sm font-semibold border border-slate-300 rounded-lg px-3 py-2 min-w-[280px] focus:ring-emerald-700">
                                 <!-- Opsi diisi via JS -->
                             </select>
+                            <button type="button" onclick="openModalEditPesantrenCurrent()" id="btn-edit-bi-current" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer" title="Sunting Data Profil Pesantren Ini">
+                                <span class="material-symbols-outlined text-[18px]">edit_document</span> Sunting Profil
+                            </button>
                             <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm">
                                 <span class="material-symbols-outlined text-[18px]">print</span> Cetak Arsip (A4)
                             </button>
@@ -2599,6 +2602,199 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL EDIT PROFIL LENGKAP PESANTREN (BUKU INDUK 9 DOMAIN) -->
+    <!-- ======================================================== -->
+    <div id="modal-edit-pesantren" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 animate-slideFadeIn">
+            
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between shrink-0 bg-slate-50/80 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-[22px]">edit_document</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Pusat Sunting Profil</span>
+                            <span id="modal-edit-p-kode" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 border border-emerald-200">RMI-DMK-000001</span>
+                        </div>
+                        <h3 class="text-base font-black text-slate-800" id="modal-edit-p-title">Sunting Data Pondok Pesantren</h3>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('modal-edit-pesantren')" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-200/60 transition cursor-pointer" title="Tutup Modal">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Nav Tabs -->
+            <div class="flex items-center gap-1 px-5 border-b border-slate-200 bg-white shrink-0 overflow-x-auto text-xs font-bold scrollbar-none">
+                <button type="button" onclick="switchEditPesantrenTab('identitas')" id="tab-btn-identitas" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-emerald-700 text-emerald-800 flex items-center gap-1.5 transition whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">id_card</span> Identitas & Legalitas
+                </button>
+                <button type="button" onclick="switchEditPesantrenTab('pimpinan')" id="tab-btn-pimpinan" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">person</span> Pimpinan & Masyayikh
+                </button>
+                <button type="button" onclick="switchEditPesantrenTab('lokasi')" id="tab-btn-lokasi" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">location_on</span> Domisili & Peta
+                </button>
+                <button type="button" onclick="switchEditPesantrenTab('kontak')" id="tab-btn-kontak" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">contact_phone</span> Kontak & Digital
+                </button>
+                <button type="button" onclick="switchEditPesantrenTab('santri')" id="tab-btn-santri" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px]">groups</span> Agregat Santri
+                </button>
+            </div>
+
+            <!-- Modal Body (Form Container with Scroll) -->
+            <form id="form-edit-pesantren" onsubmit="handleSaveEditPesantren(event)" class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+                
+                <!-- TAB 1: IDENTITAS & LEGALITAS -->
+                <div id="edit-pane-identitas" class="edit-p-pane space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">Nama Resmi Pesantren <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-p-nama" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama resmi pesantren lengkap...">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Nama Populer / Julukan</label>
+                            <input type="text" id="edit-p-populer" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Contoh: PP Futuhiyyah Suburan">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Nomor Statistik Pesantren (NSPP Kemenag)</label>
+                            <input type="text" id="edit-p-nspp" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-mono font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="12 digit angka NSPP Kemenag...">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Tahun Berdiri Masehi</label>
+                            <input type="number" id="edit-p-tahun" min="1700" max="2030" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Contoh: 1985">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Status Keanggotaan RMI NU</label>
+                            <select id="edit-p-status-rmi" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden">
+                                <option value="anggota_aktif">Anggota Aktif RMI NU</option>
+                                <option value="terdaftar">Terdaftar</option>
+                                <option value="mitra">Mitra Pesantren</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
+                        <input type="checkbox" id="edit-p-aman" class="mt-0.5 w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-700 cursor-pointer">
+                        <label for="edit-p-aman" class="cursor-pointer select-none">
+                            <span class="font-bold text-emerald-950 block">Komitmen Pesantren Ramah Santri (Pesantren Aman PBNU)</span>
+                            <span class="text-[11px] text-emerald-800">Lembaga telah menandatangani pakta integritas pencegahan kekerasan, perundungan, dan siap menerapkan SOP Pesantren Ramah Anak.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PIMPINAN & MASYAYIKH -->
+                <div id="edit-pane-pimpinan" class="edit-p-pane space-y-4 hidden">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Pengasuh Utama / Khadimul Ma'had <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit-p-pengasuh" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama lengkap Pengasuh beserta gelar...">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Wakil Pengasuh / Khodim Tsani</label>
+                        <input type="text" id="edit-p-wakil" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Wakil Pengasuh (kosongkan bila tidak ada)...">
+                        <p class="text-[10px] text-slate-400 mt-1">Jika ada lebih dari satu, pisahkan dengan koma.</p>
+                    </div>
+                </div>
+
+                <!-- TAB 3: DOMISILI & PETA GEOSPASIAL -->
+                <div id="edit-pane-lokasi" class="edit-p-pane space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Kecamatan <span class="text-red-500">*</span></label>
+                            <select id="edit-p-kecamatan" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden">
+                                <option value="Demak">Demak</option>
+                                <option value="Sayung">Sayung</option>
+                                <option value="Mranggen">Mranggen</option>
+                                <option value="Karangawen">Karangawen</option>
+                                <option value="Guntur">Guntur</option>
+                                <option value="Dempet">Dempet</option>
+                                <option value="Gajah">Gajah</option>
+                                <option value="Karanganyar">Karanganyar</option>
+                                <option value="Mijen">Mijen</option>
+                                <option value="Bonang">Bonang</option>
+                                <option value="Wedung">Wedung</option>
+                                <option value="Kebonagung">Kebonagung</option>
+                                <option value="Wonosalam">Wonosalam</option>
+                                <option value="Karangtengah">Karangtengah</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Desa / Kelurahan <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-p-desa" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Desa atau Kelurahan...">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">Alamat Jalan / Dukuh / RT / RW</label>
+                            <textarea id="edit-p-alamat" rows="2" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Alamat jalan lengkap, nomor, dukuh..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Titik Koordinat Latitude</label>
+                            <input type="number" step="any" id="edit-p-lat" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-mono font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="-6.8944">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Titik Koordinat Longitude</label>
+                            <input type="number" step="any" id="edit-p-lng" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-mono font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="110.6386">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: KONTAK & MEDIA SOSIAL -->
+                <div id="edit-pane-kontak" class="edit-p-pane space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">Nomor WhatsApp / Hotline Resmi PSB</label>
+                            <input type="text" id="edit-p-hotline" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Contoh: 0812-3456-7890">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Tautan Instagram Resmi</label>
+                            <input type="url" id="edit-p-ig" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://instagram.com/pesantren...">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Tautan Saluran YouTube</label>
+                            <input type="url" id="edit-p-yt" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://youtube.com/@pesantren...">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block font-bold text-slate-700 mb-1">Alamat Website Resmi / Portal Digital</label>
+                            <input type="url" id="edit-p-web" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://namapesantren.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: AGREGAT SANTRI -->
+                <div id="edit-pane-santri" class="edit-p-pane space-y-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Santri Mukim (Menetap di Asrama)</label>
+                            <input type="number" min="0" id="edit-p-mukim" oninput="updateEditTotalSantriPreview()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-bold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Santri Non-Mukim (Santri Kalong)</label>
+                            <input type="number" min="0" id="edit-p-nonmukim" oninput="updateEditTotalSantriPreview()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-bold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-600 text-[11px] flex items-center justify-between">
+                        <span class="font-medium">Total Akumulasi Santri Otomatis:</span>
+                        <span id="edit-p-total-preview" class="font-extrabold text-emerald-800 text-sm">0 Santri</span>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-between gap-3 shrink-0">
+                    <button type="button" onclick="closeModal('modal-edit-pesantren')" class="px-4 py-2.5 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-save-edit-pesantren" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer transition">
+                        <span class="material-symbols-outlined text-[17px]">save</span>
+                        <span id="btn-save-edit-pesantren-text">Simpan Pembaruan Profil</span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -5438,6 +5634,7 @@
 
             renderDirektoriPagination(totalItems);
 
+            const canEdit = ['super_admin', 'admin_kabupaten', 'admin_kecamatan', 'verifikator', 'operator_pesantren'].includes(currentRole);
             const canVerify = ['super_admin', 'admin_kabupaten', 'admin_kecamatan', 'verifikator'].includes(currentRole);
             const canViewBukuInduk = !['guest'].includes(currentRole);
 
@@ -5504,12 +5701,16 @@
                         <td class="py-3 px-4 text-center">${pubBadge}</td>
                         <td class="py-3 px-4 text-right">
                             <div class="flex items-center justify-end gap-1">
+                                ${canEdit ? `
+                                <button onclick="openModalEditPesantren('${p.id}')" title="Sunting Data Profil" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-blue-600 transition-colors cursor-pointer">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>` : ''}
                                 ${canViewBukuInduk ? `
-                                <button onclick="openBukuIndukWithId('${p.id}')" title="Buka Buku Induk" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-emerald-700">
+                                <button onclick="openBukuIndukWithId('${p.id}')" title="Buka Buku Induk" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-emerald-700 transition-colors cursor-pointer">
                                     <span class="material-symbols-outlined text-[18px]">auto_stories</span>
                                 </button>` : ''}
                                 ${canVerify ? `
-                                <button onclick="openReviewModal('${p.id}')" title="Verifikasi Data" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-amber-600">
+                                <button onclick="openReviewModal('${p.id}')" title="Verifikasi Data" class="p-1.5 hover:bg-slate-100 rounded text-slate-600 hover:text-amber-600 transition-colors cursor-pointer">
                                     <span class="material-symbols-outlined text-[18px]">rule</span>
                                 </button>` : ''}
                             </div>
@@ -6954,6 +7155,259 @@
                 hideLoading();
                 if (btn) btn.disabled = false;
                 if (btnText) btnText.innerText = 'Simpan & Terapkan Logo';
+            }
+        }
+
+        // ==========================================
+        // 12.C PUSAT SUNTING PROFIL PESANTREN (BUKU INDUK 9 DOMAIN)
+        // ==========================================
+        let currentEditingPesantrenId = null;
+        let currentEditingPesantrenKode = null;
+
+        function switchEditPesantrenTab(tabKey) {
+            // Update Tab Buttons UI
+            const tabButtons = document.querySelectorAll('.tab-btn-edit-p');
+            tabButtons.forEach(btn => {
+                btn.className = 'tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer';
+            });
+            const activeBtn = document.getElementById('tab-btn-' + tabKey);
+            if (activeBtn) {
+                activeBtn.className = 'tab-btn-edit-p px-3.5 py-3 border-b-2 border-emerald-700 text-emerald-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer';
+            }
+
+            // Show Active Tab Pane
+            const panes = document.querySelectorAll('.edit-p-pane');
+            panes.forEach(pane => pane.classList.add('hidden'));
+            const targetPane = document.getElementById('edit-pane-' + tabKey);
+            if (targetPane) targetPane.classList.remove('hidden');
+        }
+
+        function updateEditTotalSantriPreview() {
+            const mukim = parseInt(document.getElementById('edit-p-mukim')?.value || '0', 10) || 0;
+            const nonMukim = parseInt(document.getElementById('edit-p-nonmukim')?.value || '0', 10) || 0;
+            const total = mukim + nonMukim;
+            const previewEl = document.getElementById('edit-p-total-preview');
+            if (previewEl) {
+                previewEl.innerText = `${total.toLocaleString('id-ID')} Santri (${mukim.toLocaleString('id-ID')} Mukim, ${nonMukim.toLocaleString('id-ID')} Non-Mukim)`;
+            }
+        }
+
+        function openModalEditPesantren(pesantrenId) {
+            const p = PESANTREN_DATA.find(item => item.id === pesantrenId);
+            if (!p) {
+                showToast('error', 'Data pesantren tidak ditemukan.');
+                return;
+            }
+
+            currentEditingPesantrenId = p.id;
+            currentEditingPesantrenKode = p.kode_pesantren;
+
+            // Set Header
+            const kodeEl = document.getElementById('modal-edit-p-kode');
+            const titleEl = document.getElementById('modal-edit-p-title');
+            if (kodeEl) kodeEl.innerText = p.kode_pesantren || '-';
+            if (titleEl) titleEl.innerText = `Sunting: ${p.nama_resmi}`;
+
+            // Tab 1: Identitas & Legalitas
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = (val !== undefined && val !== null) ? val : '';
+            };
+            setVal('edit-p-nama', p.nama_resmi);
+            setVal('edit-p-populer', p.nama_populer || '');
+            setVal('edit-p-nspp', p.nspp || '');
+            setVal('edit-p-tahun', p.tahun_berdiri || 1990);
+            setVal('edit-p-status-rmi', p.status_keanggotaan_rmi || 'anggota_aktif');
+            const checkAman = document.getElementById('edit-p-aman');
+            if (checkAman) checkAman.checked = !!p.has_komitmen_pesantren_aman;
+
+            // Tab 2: Pimpinan & Masyayikh
+            setVal('edit-p-pengasuh', p.pengasuh_utama || '');
+            let wakilStr = '';
+            if (Array.isArray(p.wakil_pengasuh)) {
+                wakilStr = p.wakil_pengasuh.join(', ');
+            } else if (typeof p.wakil_pengasuh === 'string') {
+                wakilStr = p.wakil_pengasuh;
+            }
+            setVal('edit-p-wakil', wakilStr);
+
+            // Tab 3: Domisili & Peta Geospasial
+            setVal('edit-p-kecamatan', p.kecamatan || 'Demak');
+            setVal('edit-p-desa', p.desa || '');
+            setVal('edit-p-alamat', p.alamat || '');
+            setVal('edit-p-lat', p.latitude || -6.8944);
+            setVal('edit-p-lng', p.longitude || 110.6386);
+
+            // Tab 4: Kontak & Media Sosial
+            const soc = p.media_sosial || {};
+            setVal('edit-p-hotline', soc.hotline_psb || '');
+            setVal('edit-p-ig', soc.instagram || '');
+            setVal('edit-p-yt', soc.youtube || '');
+            setVal('edit-p-web', soc.website || '');
+
+            // Tab 5: Agregat Santri
+            const parseNum = (v) => (typeof v === 'number') ? v : (parseInt(String(v || '').replace(/[^\d]/g, ''), 10) || 0);
+            setVal('edit-p-mukim', parseNum(p.santri_mukim));
+            setVal('edit-p-nonmukim', parseNum(p.santri_nonmukim));
+            updateEditTotalSantriPreview();
+
+            // Reset ke Tab 1
+            switchEditPesantrenTab('identitas');
+
+            // Buka Modal
+            const modal = document.getElementById('modal-edit-pesantren');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function openModalEditPesantrenCurrent() {
+            const selector = document.getElementById('buku-induk-selector');
+            const currentId = selector ? selector.value : (PESANTREN_DATA[0] ? PESANTREN_DATA[0].id : null);
+            if (currentId) {
+                openModalEditPesantren(currentId);
+            } else {
+                showToast('warning', 'Pilih pesantren terlebih dahulu di Buku Induk.');
+            }
+        }
+
+        function closeModalEditPesantren() {
+            closeModal('modal-edit-pesantren');
+        }
+
+        async function handleSaveEditPesantren(event) {
+            if (event) event.preventDefault();
+            if (!currentEditingPesantrenId) return;
+
+            const p = PESANTREN_DATA.find(item => item.id === currentEditingPesantrenId);
+            if (!p) return;
+
+            const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
+            const namaResmi = getVal('edit-p-nama');
+            const pengasuh = getVal('edit-p-pengasuh');
+            const kecamatan = getVal('edit-p-kecamatan');
+            const desa = getVal('edit-p-desa');
+
+            if (!namaResmi) {
+                showToast('warning', 'Nama resmi pesantren wajib diisi.');
+                switchEditPesantrenTab('identitas');
+                document.getElementById('edit-p-nama')?.focus();
+                return;
+            }
+            if (!pengasuh) {
+                showToast('warning', 'Nama pengasuh utama wajib diisi.');
+                switchEditPesantrenTab('pimpinan');
+                document.getElementById('edit-p-pengasuh')?.focus();
+                return;
+            }
+            if (!desa) {
+                showToast('warning', 'Nama desa/kelurahan wajib diisi.');
+                switchEditPesantrenTab('lokasi');
+                document.getElementById('edit-p-desa')?.focus();
+                return;
+            }
+
+            const mukim = parseInt(document.getElementById('edit-p-mukim')?.value || '0', 10) || 0;
+            const nonMukim = parseInt(document.getElementById('edit-p-nonmukim')?.value || '0', 10) || 0;
+            const totalSantri = mukim + nonMukim;
+            const wakilPengasuhRaw = getVal('edit-p-wakil');
+
+            const payload = {
+                id: currentEditingPesantrenId,
+                kode_pesantren: currentEditingPesantrenKode,
+                operator: typeof getActiveAdminName === 'function' ? getActiveAdminName() : 'Super Administrator',
+                operator_role: currentRole || 'super_admin',
+                identitas: {
+                    nama_resmi: namaResmi,
+                    nama_populer: getVal('edit-p-populer'),
+                    nspp: getVal('edit-p-nspp'),
+                    tahun_berdiri: parseInt(getVal('edit-p-tahun'), 10) || 1990,
+                    status_keanggotaan_rmi: getVal('edit-p-status-rmi') || 'anggota_aktif',
+                    has_komitmen_pesantren_aman: !!document.getElementById('edit-p-aman')?.checked
+                },
+                pimpinan: {
+                    pengasuh_utama: pengasuh,
+                    wakil_pengasuh: wakilPengasuhRaw
+                },
+                lokasi: {
+                    kecamatan: kecamatan,
+                    desa: desa,
+                    alamat: getVal('edit-p-alamat'),
+                    latitude: parseFloat(getVal('edit-p-lat')) || -6.8944,
+                    longitude: parseFloat(getVal('edit-p-lng')) || 110.6386
+                },
+                kontak: {
+                    hotline_psb: getVal('edit-p-hotline'),
+                    instagram: getVal('edit-p-ig'),
+                    youtube: getVal('edit-p-yt'),
+                    website: getVal('edit-p-web')
+                },
+                santri: {
+                    santri_mukim: mukim,
+                    santri_nonmukim: nonMukim,
+                    total: totalSantri
+                }
+            };
+
+            const btnSave = document.getElementById('btn-save-edit-pesantren');
+            const btnText = document.getElementById('btn-save-edit-pesantren-text');
+            if (btnSave) btnSave.disabled = true;
+            if (btnText) btnText.innerText = 'Menyimpan ke Cloud Spreadsheet...';
+
+            try {
+                const res = await callAppsScript('UPDATE_PESANTREN_PROFILE', payload);
+                if (res && (res.success || res.simulated)) {
+                    // Update in-memory data
+                    p.nama_resmi = payload.identitas.nama_resmi;
+                    p.nama_populer = payload.identitas.nama_populer;
+                    p.tahun_berdiri = payload.identitas.tahun_berdiri;
+                    p.nspp = payload.identitas.nspp;
+                    p.status_keanggotaan_rmi = payload.identitas.status_keanggotaan_rmi;
+                    p.has_komitmen_pesantren_aman = payload.identitas.has_komitmen_pesantren_aman;
+                    
+                    p.pengasuh_utama = payload.pimpinan.pengasuh_utama;
+                    p.wakil_pengasuh = wakilPengasuhRaw ? wakilPengasuhRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+                    
+                    p.kecamatan = payload.lokasi.kecamatan;
+                    p.desa = payload.lokasi.desa;
+                    p.alamat = payload.lokasi.alamat;
+                    p.latitude = payload.lokasi.latitude;
+                    p.longitude = payload.lokasi.longitude;
+
+                    p.media_sosial = p.media_sosial || {};
+                    p.media_sosial.hotline_psb = payload.kontak.hotline_psb;
+                    p.media_sosial.instagram = payload.kontak.instagram;
+                    p.media_sosial.youtube = payload.kontak.youtube;
+                    p.media_sosial.website = payload.kontak.website;
+
+                    p.santri_mukim = payload.santri.santri_mukim;
+                    p.santri_nonmukim = payload.santri.santri_nonmukim;
+
+                    // Update Buku Induk selector label
+                    const selector = document.getElementById('buku-induk-selector');
+                    if (selector) {
+                        const opt = selector.querySelector(`option[value="${p.id}"]`);
+                        if (opt) opt.text = `${p.kode_pesantren} — ${p.nama_resmi}`;
+                    }
+
+                    // Re-render UI
+                    handleFilterDirektori();
+                    if (selector && selector.value === p.id) {
+                        loadBukuInduk(p.id);
+                    }
+
+                    closeModalEditPesantren();
+                    showToast('success', `Profil ${p.nama_resmi} berhasil diperbarui dan disinkronkan ke Cloud.`);
+                } else {
+                    showToast('error', res?.message || 'Gagal memperbarui profil pesantren.');
+                }
+            } catch (err) {
+                console.error("Error updating pesantren profile:", err);
+                showToast('error', 'Terjadi kesalahan sistem saat menghubungi backend.');
+            } finally {
+                if (btnSave) btnSave.disabled = false;
+                if (btnText) btnText.innerText = 'Simpan Pembaruan Profil';
             }
         }
 
