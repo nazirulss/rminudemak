@@ -876,7 +876,7 @@ window.loadPublicMapMarkers = loadPublicMapMarkers;
 // =========================================================================
 function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs') {
     if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
-        return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" />`;
+        return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" />`;
     }
     
     // Inisial monogram fallback elegan
@@ -896,7 +896,7 @@ function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs
     const codeNum = parseInt(String(item.id || item.kode_pesantren || '1').replace(/\D/g, '') || '0', 10);
     const palette = palettes[codeNum % palettes.length];
     
-    return `<div class="w-full h-full ${palette} rounded-xl flex items-center justify-center font-black font-mono ${textSize} select-none shadow-xs">${initials}</div>`;
+    return `<div class="w-full h-full ${palette} rounded-xl flex items-center justify-center font-black font-mono ${textSize} select-none shadow-xs" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">${initials}</div>`;
 }
 
 // Merender daftar lembaga ke masing-masing grid
@@ -2164,25 +2164,25 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
         ? item.dewan_asatidz.length 
         : (item.kurikulum_kitab?.length ? Math.max(3, Math.round(item.kurikulum_kitab.length * 0.8)) : 8);
 
-    // Kemenag Badge (Format 2 Baris Elegan ala pesantren.nu.id)
+    // Kemenag Badge (Format 2 Baris Elegan ala pesantren.nu.id dengan Inline Style Kebal CSS)
     let kemenagBadge = '';
     if (safeNspp) {
         kemenagBadge = `
-            <div class="absolute top-3 right-3 px-2.5 py-1.5 bg-[#005c55] text-white rounded-xl shadow-md border border-emerald-400/40 flex items-center gap-2 backdrop-blur-xs">
-                <div class="w-6 h-6 rounded-lg bg-emerald-900/90 flex items-center justify-center shrink-0 border border-emerald-400/30">
-                    <span class="material-symbols-outlined text-[15px] text-amber-300">verified</span>
+            <div style="position: absolute; top: 12px; right: 12px; z-index: 20; background-color: #005c55; color: #ffffff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 1px solid rgba(52, 211, 153, 0.4); display: flex; align-items: center; gap: 8px; padding: 6px 10px;">
+                <div style="width: 24px; height: 24px; border-radius: 8px; background-color: #064e3b; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(52, 211, 153, 0.3);">
+                    <span class="material-symbols-outlined" style="font-size: 15px; color: #fde047;">verified</span>
                 </div>
-                <div class="flex flex-col text-left leading-tight">
-                    <span class="text-[10px] font-bold tracking-tight text-white">Terverifikasi Kemenag</span>
-                    <span class="text-[9px] font-mono text-emerald-200 font-semibold">NSP: ${safeNspp}</span>
+                <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.15;">
+                    <span style="font-size: 10px; font-weight: 700; letter-spacing: -0.02em; color: #ffffff;">Terverifikasi Kemenag</span>
+                    <span style="font-size: 9px; font-family: monospace; color: #a7f3d0; font-weight: 600;">NSP: ${safeNspp}</span>
                 </div>
             </div>
         `;
     } else {
         kemenagBadge = `
-            <div class="absolute top-3 right-3 px-2.5 py-1.5 bg-emerald-950/90 text-white rounded-xl shadow-md border border-emerald-600/40 flex items-center gap-1.5 backdrop-blur-xs">
-                <span class="material-symbols-outlined text-[15px] text-emerald-300">shield</span>
-                <span class="text-[10px] font-bold tracking-tight">RMI PCNU Demak</span>
+            <div style="position: absolute; top: 12px; right: 12px; z-index: 20; background-color: #022c22; color: #ffffff; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: 1px solid rgba(5, 150, 105, 0.4); display: flex; align-items: center; gap: 6px; padding: 6px 10px;">
+                <span class="material-symbols-outlined" style="font-size: 15px; color: #6ee7b7;">shield</span>
+                <span style="font-size: 10px; font-weight: 700; color: #ffffff;">RMI PCNU Demak</span>
             </div>
         `;
     }
@@ -2199,13 +2199,13 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
 
     popover.innerHTML = `
         <div class="flex flex-col text-slate-800">
-            <!-- Cover & Logo Header (Logo berada di BAGIAN DALAM FOTO pojok kiri bawah) -->
-            <div class="relative bg-slate-100 shrink-0 overflow-hidden" style="height: 180px;">
-                <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover" alt="${safeNama}" />
+            <!-- Cover & Logo Header (Logo berada di BAGIAN DALAM FOTO pojok kiri bawah, di depan foto dengan z-index: 20) -->
+            <div style="position: relative; height: 180px; width: 100%; background-color: #f1f5f9; overflow: hidden; flex-shrink: 0;">
+                <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;" alt="${safeNama}" />
                 ${kemenagBadge}
                 
-                <!-- Logo di Bagian Dalam Foto Kiri Bawah (Tidak menutupi konten putih di bawah) -->
-                <div class="absolute bottom-3 left-3 z-20 w-14 h-14 rounded-2xl bg-white/95 backdrop-blur-xs border-2 border-white shadow-lg p-1 flex items-center justify-center overflow-hidden">
+                <!-- Logo di Bagian Dalam Foto Kiri Bawah (Di depan foto, z-index: 20) -->
+                <div style="position: absolute; bottom: 12px; left: 12px; z-index: 20; width: 56px; height: 56px; background-color: #ffffff; border: 2px solid #ffffff; border-radius: 16px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28); padding: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                     ${getPesantrenLogoHtml(item, 'w-12 h-12', 'text-sm')}
                 </div>
             </div>
