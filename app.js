@@ -76,6 +76,26 @@ function normalizeKecamatanName(kec) {
     return String(kec).trim();
 }
 
+// Aset visual resmi bertema Islami & Pesantren untuk lembaga yang belum mengunggah foto
+const ISLAMIC_FALLBACK_IMAGES = [
+    'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58', // Kemegahan Arsitektur Masjid & Menara Islami
+    'https://lh3.googleusercontent.com/d/1X5qDLQmi-Rww2YmblrisP9VhYiIb2k7_', // Al-Qur\'an, Kitab Turots & Rehal Kayu
+    'https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET', // Kubah Hijau & Lengkungan Seni Islami
+    'https://lh3.googleusercontent.com/d/1NCvPdIz8-DUjz2dDCD5zLKYUA3n34agP', // Masjid Agung Demak Kota Wali
+    'https://lh3.googleusercontent.com/d/1ArYG-wLb_WblviGQ8xTGCKaCjpcIs4tT'  // Halaqah Santri Mengaji Pesantren
+];
+
+function getIslamicFallbackPhoto(seedStr) {
+    if (!seedStr) return ISLAMIC_FALLBACK_IMAGES[0];
+    let hash = 0;
+    const str = String(seedStr);
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 31 + str.charCodeAt(i)) & 0xffffffff;
+    }
+    const idx = Math.abs(hash) % ISLAMIC_FALLBACK_IMAGES.length;
+    return ISLAMIC_FALLBACK_IMAGES[idx];
+}
+
 function populatePublicKecamatanDropdown(activeCategory = currentPublicCategory) {
     const selectEl = document.getElementById('filter-kecamatan');
     if (!selectEl) return;
@@ -131,7 +151,7 @@ const DEFAULT_LEMBAGA_DATA = [
         santri_mukim: 850,
         santri_nonmukim: 320,
         has_komitmen_pesantren_aman: true,
-        foto_url: "https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb",
+        foto_url: "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
         media_sosial: {
             website: "https://fathulhuda.sch.id",
             youtube: "https://youtube.com/@fathulhuda_official",
@@ -210,7 +230,7 @@ const DEFAULT_LEMBAGA_DATA = [
         santri_mukim: 1400,
         santri_nonmukim: 600,
         has_komitmen_pesantren_aman: true,
-        foto_url: "https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb",
+        foto_url: "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
         media_sosial: {
             website: "https://girikusumo.id",
             youtube: "https://youtube.com/@girikusumo_channel",
@@ -285,7 +305,7 @@ const DEFAULT_LEMBAGA_DATA = [
         santri_mukim: 420,
         santri_nonmukim: 180,
         has_komitmen_pesantren_aman: false,
-        foto_url: "https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb",
+        foto_url: "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
         media_sosial: {
             website: "",
             youtube: "",
@@ -405,8 +425,8 @@ function escapeHTML(value) {
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
 // ==================================================================
 const APPS_SCRIPT_PUBLIC_URL = "https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_ALL_PESANTREN";
-const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v2";
-const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v2";
+const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v3";
+const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v3";
 const CACHE_TTL_MS = 15 * 60 * 1000; // Cache berlaku 15 menit
 
 async function loadLembagaDariSupabase() {
@@ -462,11 +482,13 @@ async function loadLembagaDariSupabase() {
                 latitude: (p.latitude !== undefined && p.latitude !== null && p.latitude !== '') ? parseFloat(p.latitude) : null,
                 longitude: (p.longitude !== undefined && p.longitude !== null && p.longitude !== '') ? parseFloat(p.longitude) : null,
                 has_komitmen_pesantren_aman: p.has_komitmen_pesantren_aman === true || p.has_komitmen_pesantren_aman === 'true',
-                foto_url: p.foto_url || 'https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb',
+                foto_url: (p.foto_url && String(p.foto_url).trim().startsWith('http')) ? p.foto_url : getIslamicFallbackPhoto(p.id || p.nama_resmi),
                 media_sosial: p.media_sosial || {},
                 dewan_asatidz: p.dewan_asatidz || [],
                 kurikulum_kitab: p.kurikulum_kitab || [],
-                badan_usaha: p.badan_usaha || []
+                badan_usaha: p.badan_usaha || [],
+                galeri_foto: p.galeri_foto || [],
+                fasilitas: p.fasilitas || []
             }));
 
             // Gabungkan dengan unit Madin dan TPQ lokal non-pesantren
@@ -887,7 +909,7 @@ function renderLembagaCards(lembagaList) {
 
 
             if (targetList) {
-                const fallbackFoto = item.foto_url || 'https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb';
+                const fallbackFoto = (item.foto_url && String(item.foto_url).trim().startsWith('http')) ? item.foto_url : getIslamicFallbackPhoto(item.id || item.nama);
 
                 const safeFoto = escapeHTML(fallbackFoto);
                 const safeNama = escapeHTML(item.nama);
@@ -922,7 +944,7 @@ function renderLembagaCards(lembagaList) {
                 const cardHTML = `
                     <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
                         <div class="h-40 relative overflow-hidden bg-slate-100">
-                            <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${safeNama}" />
+                            <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${safeNama}" />
                             <span class="absolute top-4 left-4 ${badgeColor} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">${safeKategori}</span>
                         </div>
                         <div class="p-6 flex flex-col flex-grow">
