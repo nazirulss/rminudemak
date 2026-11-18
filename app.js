@@ -2199,19 +2199,19 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
 
     popover.innerHTML = `
         <div class="flex flex-col text-slate-800">
-            <!-- Cover & Logo Header (Tinggi 180px proporsional) -->
-            <div class="relative bg-slate-100 shrink-0" style="height: 180px;">
+            <!-- Cover & Logo Header (Logo berada di BAGIAN DALAM FOTO pojok kiri bawah) -->
+            <div class="relative bg-slate-100 shrink-0 overflow-hidden" style="height: 180px;">
                 <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover" alt="${safeNama}" />
                 ${kemenagBadge}
                 
-                <!-- Overlapping Logo di pojok kiri bawah cover -->
-                <div class="absolute -bottom-7 left-4 z-20 w-16 h-16 rounded-2xl bg-white border-2 border-white shadow-xl p-1 flex items-center justify-center overflow-hidden">
-                    ${getPesantrenLogoHtml(item, 'w-14 h-14', 'text-base')}
+                <!-- Logo di Bagian Dalam Foto Kiri Bawah (Tidak menutupi konten putih di bawah) -->
+                <div class="absolute bottom-3 left-3 z-20 w-14 h-14 rounded-2xl bg-white/95 backdrop-blur-xs border-2 border-white shadow-lg p-1 flex items-center justify-center overflow-hidden">
+                    ${getPesantrenLogoHtml(item, 'w-12 h-12', 'text-sm')}
                 </div>
             </div>
 
-            <!-- Identitas & Metadata (Padding-top 36px agar judul berada di bawah logo, zero overlap) -->
-            <div class="pt-9 px-5 pb-4 space-y-3">
+            <!-- Identitas & Metadata (Bersih tanpa halangan logo) -->
+            <div class="pt-4 px-5 pb-4 space-y-3">
                 <div>
                     <h4 class="font-extrabold text-slate-900 text-[15px] leading-snug uppercase tracking-tight">${safeNama}</h4>
                     <div class="text-[11px] text-slate-600 mt-2 space-y-1">
