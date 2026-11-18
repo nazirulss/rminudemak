@@ -2083,7 +2083,9 @@ function getFlyoutPopoverContainer() {
     if (!el) {
         el = document.createElement('div');
         el.id = 'pesantren-flyout-popover';
-        el.className = 'fixed z-[9999] bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden max-w-[360px] w-[360px] opacity-0 pointer-events-none transition-all duration-200 hidden';
+        el.style.width = '380px';
+        el.style.maxWidth = 'calc(100vw - 32px)';
+        el.className = 'fixed z-[9999] bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden opacity-0 pointer-events-none transition-all duration-200 hidden';
         el.onmouseenter = clearHoverPopoverTimeout;
         el.onmouseleave = handlePesantrenCardLeave;
         document.body.appendChild(el);
@@ -2162,21 +2164,25 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
         ? item.dewan_asatidz.length 
         : (item.kurikulum_kitab?.length ? Math.max(3, Math.round(item.kurikulum_kitab.length * 0.8)) : 8);
 
-    // Kemenag Badge
+    // Kemenag Badge (Format 2 Baris Elegan ala pesantren.nu.id)
     let kemenagBadge = '';
     if (safeNspp) {
         kemenagBadge = `
-            <div class="absolute top-2.5 right-2.5 px-2.5 py-1 bg-emerald-950/90 text-white rounded-lg shadow-sm border border-emerald-600/50 flex items-center gap-1.5 backdrop-blur-xs text-[10px] font-bold">
-                <span class="material-symbols-outlined text-[13px] text-emerald-300">verified</span>
-                <span>Terverifikasi Kemenag</span>
-                <span class="text-emerald-300 font-mono">NSP: ${safeNspp}</span>
+            <div class="absolute top-3 right-3 px-2.5 py-1.5 bg-[#005c55] text-white rounded-xl shadow-md border border-emerald-400/40 flex items-center gap-2 backdrop-blur-xs">
+                <div class="w-6 h-6 rounded-lg bg-emerald-900/90 flex items-center justify-center shrink-0 border border-emerald-400/30">
+                    <span class="material-symbols-outlined text-[15px] text-amber-300">verified</span>
+                </div>
+                <div class="flex flex-col text-left leading-tight">
+                    <span class="text-[10px] font-bold tracking-tight text-white">Terverifikasi Kemenag</span>
+                    <span class="text-[9px] font-mono text-emerald-200 font-semibold">NSP: ${safeNspp}</span>
+                </div>
             </div>
         `;
     } else {
         kemenagBadge = `
-            <div class="absolute top-2.5 right-2.5 px-2.5 py-1 bg-emerald-950/80 text-white rounded-lg shadow-sm text-[10px] font-semibold backdrop-blur-xs flex items-center gap-1">
-                <span class="material-symbols-outlined text-[13px] text-emerald-300">shield</span>
-                <span>RMI NU Demak</span>
+            <div class="absolute top-3 right-3 px-2.5 py-1.5 bg-emerald-950/90 text-white rounded-xl shadow-md border border-emerald-600/40 flex items-center gap-1.5 backdrop-blur-xs">
+                <span class="material-symbols-outlined text-[15px] text-emerald-300">shield</span>
+                <span class="text-[10px] font-bold tracking-tight">RMI PCNU Demak</span>
             </div>
         `;
     }
@@ -2184,7 +2190,7 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
     // Fasilitas Unggulan Pills
     let fasilitasHtml = '';
     const fasilitasSample = (item.fasilitas && item.fasilitas.length > 0) ? item.fasilitas : ['Asrama Santri', 'Masjid Jami\'', 'Perpustakaan Kitab', 'Aula Serbaguna'];
-    fasilitasHtml = fasilitasSample.slice(0, 4).map(f => `<span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-medium">${escapeHTML(typeof f === 'string' ? f : f.nama || f.nama_fasilitas || 'Fasilitas')}</span>`).join('');
+    fasilitasHtml = fasilitasSample.slice(0, 4).map(f => `<span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-[10px] font-medium">${escapeHTML(typeof f === 'string' ? f : f.nama || f.nama_fasilitas || 'Fasilitas')}</span>`).join('');
 
     // Maps Link
     const lat = item.latitude || -6.8944;
@@ -2193,29 +2199,31 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
 
     popover.innerHTML = `
         <div class="flex flex-col text-slate-800">
-            <!-- Cover & Logo Header -->
-            <div class="h-32 relative bg-slate-100 shrink-0">
+            <!-- Cover & Logo Header (Tinggi 180px proporsional) -->
+            <div class="relative bg-slate-100 shrink-0" style="height: 180px;">
                 <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover" alt="${safeNama}" />
                 ${kemenagBadge}
+                
                 <!-- Overlapping Logo di pojok kiri bawah cover -->
-                <div class="absolute -bottom-5 left-4 z-10 w-14 h-14 rounded-2xl bg-white border-2 border-white shadow-md p-0.5 flex items-center justify-center overflow-hidden">
-                    ${getPesantrenLogoHtml(item, 'w-13 h-13', 'text-sm')}
+                <div class="absolute -bottom-7 left-4 z-20 w-16 h-16 rounded-2xl bg-white border-2 border-white shadow-xl p-1 flex items-center justify-center overflow-hidden">
+                    ${getPesantrenLogoHtml(item, 'w-14 h-14', 'text-base')}
                 </div>
             </div>
 
-            <!-- Identitas & Metadata -->
-            <div class="pt-7 px-4 pb-3 space-y-2">
+            <!-- Identitas & Metadata (Padding-top 36px agar judul berada di bawah logo, zero overlap) -->
+            <div class="pt-9 px-5 pb-4 space-y-3">
                 <div>
-                    <h4 class="font-extrabold text-slate-900 text-sm leading-snug uppercase tracking-tight line-clamp-1">${safeNama}</h4>
-                    <div class="text-[11px] text-slate-500 mt-0.5 space-y-0.5">
-                        <p><span class="font-semibold text-slate-700">ID Pesantren:</span> <span class="font-mono text-emerald-800 font-bold">${safeKode}</span> ${safeTahun ? `• <span class="font-semibold text-slate-700">Berdiri:</span> ${safeTahun}` : ''}</p>
-                        <p class="truncate"><span class="font-semibold text-slate-700">Alamat:</span> ${safeAlamat ? safeAlamat + ', ' : ''}Kec. ${safeKecamatan}, Demak</p>
+                    <h4 class="font-extrabold text-slate-900 text-[15px] leading-snug uppercase tracking-tight">${safeNama}</h4>
+                    <div class="text-[11px] text-slate-600 mt-2 space-y-1">
+                        <p><span class="font-bold text-slate-700">ID Pesantren:</span> <span class="text-slate-800 font-mono">${safeKode}</span></p>
+                        <p><span class="font-bold text-slate-700">Tahun Berdiri:</span> <span class="text-slate-800">${safeTahun || '-'}</span></p>
+                        <p class="truncate"><span class="font-bold text-slate-700">Alamat:</span> <span class="text-slate-800">${safeAlamat ? safeAlamat + ', ' : ''}Kec. ${safeKecamatan}, Demak</span></p>
                     </div>
                 </div>
 
                 <!-- Dua Tombol Quick Action -->
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button type="button" onclick="bukaModalDetailLembaga('${escapeHTML(item.id)}')" class="px-2.5 py-2 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs">
+                <div class="grid grid-cols-2 gap-2 pt-0.5">
+                    <button type="button" onclick="hidePesantrenFlyout(); bukaModalDetailLembaga('${escapeHTML(item.id)}')" class="px-2.5 py-2 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs">
                         <span class="material-symbols-outlined text-[15px] text-emerald-700">language</span>
                         <span>Profil Lengkap</span>
                     </button>
@@ -2226,36 +2234,32 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
                 </div>
 
                 <!-- Tentang Pesantren -->
-                <div class="pt-1">
-                    <h5 class="font-bold text-[11px] text-slate-800 mb-0.5">Tentang Pesantren</h5>
-                    <p class="text-[10px] text-slate-600 leading-relaxed line-clamp-2">
-                        ${safeNama} adalah lembaga pendidikan Islam ${escapeHTML(item.kategori_atau_metode || 'Salafiyah')} di bawah naungan PC RMI NU Kabupaten Demak yang diasuh oleh ${safePengasuh}.
+                <div class="pt-0.5">
+                    <h5 class="font-bold text-[12px] text-slate-900 mb-1">Tentang Pesantren</h5>
+                    <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-2">
+                        ${safeNama} adalah lembaga pendidikan Islam ${escapeHTML(item.kategori_atau_metode || 'Salafiyah')} di Kabupaten Demak yang diasuh oleh ${safePengasuh}.
                     </p>
                 </div>
 
                 <!-- Fasilitas Pills -->
-                <div class="pt-1 flex flex-wrap gap-1">
+                <div class="flex flex-wrap gap-1.5">
                     ${fasilitasHtml}
                 </div>
 
-                <!-- Footer SDM (Jumlah Santri & Jumlah Ustadz) -->
-                <div class="border-t border-slate-100 pt-2.5 mt-2 flex items-center justify-between text-xs">
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[17px]">groups</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-slate-400 block font-semibold leading-none">Jumlah Santri</span>
-                            <span class="font-extrabold text-slate-900 text-xs">${totalSantri.toLocaleString('id-ID')}</span>
+                <!-- Footer SDM (Jumlah Santri & Jumlah Ustadz ala pesantren.nu.id) -->
+                <div class="border-t border-slate-100 pt-3 mt-1 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[24px] text-slate-600">groups</span>
+                        <div class="flex flex-col text-left leading-none">
+                            <span class="text-[10px] text-slate-400 font-semibold mb-1">Jumlah Santri</span>
+                            <span class="font-extrabold text-slate-900 text-sm">${totalSantri.toLocaleString('id-ID')}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[17px]">person_celebrate</span>
-                        </div>
-                        <div>
-                            <span class="text-[9px] text-slate-400 block font-semibold leading-none">Jumlah Ustadz</span>
-                            <span class="font-extrabold text-slate-900 text-xs">${jumlahUstadz}</span>
+                    <div class="flex items-center gap-2.5">
+                        <span class="material-symbols-outlined text-[24px] text-slate-600">person_celebrate</span>
+                        <div class="flex flex-col text-left leading-none">
+                            <span class="text-[10px] text-slate-400 font-semibold mb-1">Jumlah Ustadz</span>
+                            <span class="font-extrabold text-slate-900 text-sm">${jumlahUstadz}</span>
                         </div>
                     </div>
                 </div>
@@ -2263,9 +2267,9 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
         </div>
     `;
 
-    // Smart Viewport Collision Positioning
+    // Smart Viewport Collision Positioning (Kunci Lebar 380px)
     const rect = cardEl.getBoundingClientRect();
-    const popoverWidth = 360;
+    const popoverWidth = 380;
     const padding = 16;
     let left = 0;
     let top = rect.top;
@@ -2279,7 +2283,7 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
         left = Math.max(padding, (window.innerWidth - popoverWidth) / 2);
     }
 
-    const estimatedHeight = 420;
+    const estimatedHeight = 520;
     if (top + estimatedHeight > window.innerHeight - padding) {
         top = Math.max(padding, window.innerHeight - estimatedHeight - padding);
     }
