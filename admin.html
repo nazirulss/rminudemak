@@ -2650,14 +2650,14 @@
             </div>
 
             <!-- Modal Body (Form Container with Scroll) -->
-            <form id="form-edit-pesantren" onsubmit="handleSaveEditPesantren(event)" class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+            <form id="form-edit-pesantren" novalidate onsubmit="event.preventDefault(); handleSaveEditPesantren(event);" class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
                 
                 <!-- TAB 1: IDENTITAS & LEGALITAS -->
                 <div id="edit-pane-identitas" class="edit-p-pane space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
                             <label class="block font-bold text-slate-700 mb-1">Nama Resmi Pesantren <span class="text-red-500">*</span></label>
-                            <input type="text" id="edit-p-nama" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama resmi pesantren lengkap...">
+                            <input type="text" id="edit-p-nama" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama resmi pesantren lengkap...">
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Nama Populer / Julukan</label>
@@ -2694,7 +2694,7 @@
                 <div id="edit-pane-pimpinan" class="edit-p-pane space-y-4 hidden">
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Pengasuh Utama / Khadimul Ma'had <span class="text-red-500">*</span></label>
-                        <input type="text" id="edit-p-pengasuh" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama lengkap Pengasuh beserta gelar...">
+                        <input type="text" id="edit-p-pengasuh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama lengkap Pengasuh beserta gelar...">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Wakil Pengasuh / Khodim Tsani</label>
@@ -2708,7 +2708,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Kecamatan <span class="text-red-500">*</span></label>
-                            <select id="edit-p-kecamatan" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden">
+                            <select id="edit-p-kecamatan" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden">
                                 <option value="Demak">Demak</option>
                                 <option value="Sayung">Sayung</option>
                                 <option value="Mranggen">Mranggen</option>
@@ -2727,7 +2727,7 @@
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Desa / Kelurahan <span class="text-red-500">*</span></label>
-                            <input type="text" id="edit-p-desa" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Desa atau Kelurahan...">
+                            <input type="text" id="edit-p-desa" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Desa atau Kelurahan...">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block font-bold text-slate-700 mb-1">Alamat Jalan / Dukuh / RT / RW</label>
@@ -2753,15 +2753,15 @@
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Tautan Instagram Resmi</label>
-                            <input type="url" id="edit-p-ig" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://instagram.com/pesantren...">
+                            <input type="text" id="edit-p-ig" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://instagram.com/pesantren...">
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Tautan Saluran YouTube</label>
-                            <input type="url" id="edit-p-yt" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://youtube.com/@pesantren...">
+                            <input type="text" id="edit-p-yt" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://youtube.com/@pesantren...">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block font-bold text-slate-700 mb-1">Alamat Website Resmi / Portal Digital</label>
-                            <input type="url" id="edit-p-web" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://namapesantren.com">
+                            <input type="text" id="edit-p-web" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="https://namapesantren.com">
                         </div>
                     </div>
                 </div>
@@ -2789,7 +2789,7 @@
                     <button type="button" onclick="closeModal('modal-edit-pesantren')" class="px-4 py-2.5 border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition">
                         Batal
                     </button>
-                    <button type="submit" id="btn-save-edit-pesantren" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer transition">
+                    <button type="button" onclick="handleSaveEditPesantren(event)" id="btn-save-edit-pesantren" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm cursor-pointer transition">
                         <span class="material-symbols-outlined text-[17px]">save</span>
                         <span id="btn-save-edit-pesantren-text">Simpan Pembaruan Profil</span>
                     </button>
@@ -7277,11 +7277,21 @@
         }
 
         async function handleSaveEditPesantren(event) {
-            if (event) event.preventDefault();
-            if (!currentEditingPesantrenId) return;
+            if (event) {
+                if (typeof event.preventDefault === 'function') event.preventDefault();
+                if (typeof event.stopPropagation === 'function') event.stopPropagation();
+            }
+            console.log("[handleSaveEditPesantren] Triggered. currentEditingPesantrenId:", currentEditingPesantrenId);
+            if (!currentEditingPesantrenId) {
+                showToast('error', 'Tidak ada data pesantren yang dipilih untuk disunting.');
+                return;
+            }
 
             const p = PESANTREN_DATA.find(item => item.id === currentEditingPesantrenId);
-            if (!p) return;
+            if (!p) {
+                showToast('error', 'Pesantren tidak ditemukan dalam memori lokal.');
+                return;
+            }
 
             const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
             const namaResmi = getVal('edit-p-nama');
@@ -7395,6 +7405,13 @@
                     handleFilterDirektori();
                     if (selector && selector.value === p.id) {
                         loadBukuInduk(p.id);
+                    }
+
+                    // Simpan ke localStorage cache
+                    try {
+                        localStorage.setItem('rmi_cached_pesantren_data', JSON.stringify(PESANTREN_DATA));
+                    } catch (errCache) {
+                        console.warn("[handleSaveEditPesantren] Gagal perbarui localStorage cache:", errCache);
                     }
 
                     closeModalEditPesantren();
