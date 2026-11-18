@@ -425,8 +425,8 @@ function escapeHTML(value) {
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
 // ==================================================================
 const APPS_SCRIPT_PUBLIC_URL = "https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_ALL_PESANTREN";
-const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v3";
-const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v3";
+const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v4";
+const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v4";
 const CACHE_TTL_MS = 15 * 60 * 1000; // Cache berlaku 15 menit
 
 async function loadLembagaDariSupabase() {
@@ -467,6 +467,7 @@ async function loadLembagaDariSupabase() {
             // Formatkan agar cocok dengan struktur kartu lembaga
             const livePesantren = gasResult.data.map(p => ({
                 id: p.id,
+                kode_pesantren: p.kode_pesantren || '',
                 nama: p.nama_resmi,
                 nama_populer: p.nama_populer || '',
                 jenis: 'Pesantren',
@@ -474,6 +475,7 @@ async function loadLembagaDariSupabase() {
                 pengasuh_atau_kepala: p.pengasuh_utama || 'Pengasuh',
                 wakil_pengasuh: p.wakil_pengasuh || [],
                 kecamatan: p.kecamatan || 'Demak',
+                desa: p.desa || '',
                 alamat_detail: p.alamat || '',
                 nspp: p.nspp || '',
                 tahun_berdiri: p.tahun_berdiri || '',
@@ -483,6 +485,7 @@ async function loadLembagaDariSupabase() {
                 longitude: (p.longitude !== undefined && p.longitude !== null && p.longitude !== '') ? parseFloat(p.longitude) : null,
                 has_komitmen_pesantren_aman: p.has_komitmen_pesantren_aman === true || p.has_komitmen_pesantren_aman === 'true',
                 foto_url: (p.foto_url && String(p.foto_url).trim().startsWith('http')) ? p.foto_url : getIslamicFallbackPhoto(p.id || p.nama_resmi),
+                logo_url: (p.logo_url && String(p.logo_url).trim().startsWith('http')) ? p.logo_url : '',
                 media_sosial: p.media_sosial || {},
                 dewan_asatidz: p.dewan_asatidz || [],
                 kurikulum_kitab: p.kurikulum_kitab || [],
@@ -868,6 +871,34 @@ window.initPublicMap = initPublicMap;
 window.recenterPublicMap = recenterPublicMap;
 window.loadPublicMapMarkers = loadPublicMapMarkers;
 
+// =========================================================================
+// PENGELOLAAN LOGO & MONOGRAM ELEGAN KARTU PESANTREN
+// =========================================================================
+function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs') {
+    if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
+        return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" />`;
+    }
+    
+    // Inisial monogram fallback elegan
+    let cleanName = (item.nama || '').replace(/^(Pondok\s+Pesantren|Pondok|Pesantren|PP)\s+/i, '').trim();
+    let words = cleanName.split(/\s+/);
+    let initials = words.length >= 2 
+        ? (words[0][0] + words[1][0]).toUpperCase() 
+        : (cleanName.slice(0, 2)).toUpperCase() || 'PP';
+    
+    const palettes = [
+        'bg-emerald-700 text-white',
+        'bg-teal-800 text-teal-100',
+        'bg-blue-800 text-blue-100',
+        'bg-emerald-900 text-emerald-200',
+        'bg-slate-800 text-slate-100'
+    ];
+    const codeNum = parseInt(String(item.id || item.kode_pesantren || '1').replace(/\D/g, '') || '0', 10);
+    const palette = palettes[codeNum % palettes.length];
+    
+    return `<div class="w-full h-full ${palette} rounded-xl flex items-center justify-center font-black font-mono ${textSize} select-none shadow-xs">${initials}</div>`;
+}
+
 // Merender daftar lembaga ke masing-masing grid
 function renderLembagaCards(lembagaList) {
     try {
@@ -918,6 +949,7 @@ function renderLembagaCards(lembagaList) {
                 const safeAlamat = escapeHTML(item.alamat_detail || '');
                 const safeKecamatan = escapeHTML(item.kecamatan);
                 const safeId = escapeHTML(item.id || '');
+                const logoHtml = getPesantrenLogoHtml(item, 'w-12 h-12', 'text-xs');
 
                 // Standar Digdaya PBNU Badges
                 let amanBadgeHtml = '';
@@ -942,12 +974,26 @@ function renderLembagaCards(lembagaList) {
                 }
 
                 const cardHTML = `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-                        <div class="h-40 relative overflow-hidden bg-slate-100">
-                            <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="${safeNama}" />
-                            <span class="absolute top-4 left-4 ${badgeColor} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">${safeKategori}</span>
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group relative"
+                         data-pesantren-id="${safeId}"
+                         onmouseenter="handlePesantrenCardHover(event, '${safeId}')" 
+                         onmouseleave="handlePesantrenCardLeave()">
+                        
+                        <!-- Area Foto Cover & Logo Melayang -->
+                        <div class="h-44 relative bg-slate-100 shrink-0">
+                            <div class="w-full h-full overflow-hidden">
+                                <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${safeNama}" />
+                            </div>
+                            <span class="absolute top-3 left-3 ${badgeColor} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">${safeKategori}</span>
+                            
+                            <!-- BADGE LOGO MELAYANG POJOK KANAN BAWAH FOTO (OVERLAPPING 50% FOTO, 50% KONTEN PUTIH) -->
+                            <div class="absolute -bottom-5 right-4 z-10 w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md p-0.5 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                                ${logoHtml}
+                            </div>
                         </div>
-                        <div class="p-6 flex flex-col flex-grow">
+
+                        <!-- Area Konten Kartu -->
+                        <div class="p-6 flex flex-col flex-grow pt-7">
                             <div class="mb-2">
                                 ${amanBadgeHtml}
                             </div>
@@ -958,13 +1004,13 @@ function renderLembagaCards(lembagaList) {
                             </p>
                             <p class="text-xs text-on-surface-variant mb-4 flex items-center gap-1.5">
                                 <span class="material-symbols-outlined text-[14px]">location_on</span> 
-                                ${safeAlamat}, Kec. ${safeKecamatan}
+                                ${safeAlamat ? safeAlamat + ', ' : ''}Kec. ${safeKecamatan}
                             </p>
-                            <div class="flex items-center gap-2 mb-4">
+                            <div class="flex items-center gap-2 mb-4 flex-wrap">
                                 ${marhalahPillHtml}
-                                ${item.santri_mukim ? `<span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-semibold"><span class="material-symbols-outlined text-[11px]">groups</span> ${(item.santri_mukim + (item.santri_nonmukim || 0)).toLocaleString()} Santri</span>` : ''}
+                                ${item.santri_mukim ? `<span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[11px]">groups</span> ${(item.santri_mukim + (item.santri_nonmukim || 0)).toLocaleString()} Santri</span>` : ''}
                             </div>
-                            <button onclick="bukaModalDetailLembaga('${safeId}')" class="mt-auto w-full bg-slate-50 ${btnTextColor} border border-slate-200 font-bold text-xs py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5">
+                            <button onclick="bukaModalDetailLembaga('${safeId}')" class="mt-auto w-full bg-slate-50 ${btnTextColor} border border-slate-200 font-bold text-xs py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
                                 <span>Lihat Profil Lengkap</span>
                                 <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
                             </button>
@@ -1615,6 +1661,9 @@ function startSmartPrayerWidget() {
 // MODAL DETAIL LEMBAGA (STANDAR DIGDAYA PESANTREN PBNU)
 // ==================================================================
 function bukaModalDetailLembaga(lembagaId) {
+    if (typeof hidePesantrenFlyout === 'function') {
+        hidePesantrenFlyout();
+    }
     const item = allLembagaData.find(l => l.id === lembagaId) || DEFAULT_LEMBAGA_DATA.find(l => l.id === lembagaId);
     if (!item) return;
 
@@ -2019,5 +2068,229 @@ function submitSambangRSVP() {
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span><span>Kirim Konfirmasi Pendaftaran</span>';
         }
+    });
+}
+
+// =========================================================================
+// SISTEM HOVER PREVIEW FLYOUT POPOVER (STANDAR DIGDAYA PESANTREN.NU.ID)
+// =========================================================================
+let hoverPopoverTimer = null;
+let leavePopoverTimer = null;
+let activePopoverCard = null;
+
+function getFlyoutPopoverContainer() {
+    let el = document.getElementById('pesantren-flyout-popover');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'pesantren-flyout-popover';
+        el.className = 'fixed z-[9999] bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden max-w-[360px] w-[360px] opacity-0 pointer-events-none transition-all duration-200 hidden';
+        el.onmouseenter = clearHoverPopoverTimeout;
+        el.onmouseleave = handlePesantrenCardLeave;
+        document.body.appendChild(el);
+    }
+    return el;
+}
+
+function handlePesantrenCardHover(event, pesantrenId) {
+    if (window.innerWidth < 1024) return; // Hanya aktif pada perangkat desktop / laptop
+    
+    if (leavePopoverTimer) {
+        clearTimeout(leavePopoverTimer);
+        leavePopoverTimer = null;
+    }
+
+    const cardEl = event.currentTarget;
+    activePopoverCard = cardEl;
+
+    if (hoverPopoverTimer) clearTimeout(hoverPopoverTimer);
+    hoverPopoverTimer = setTimeout(() => {
+        if (activePopoverCard === cardEl) {
+            showPesantrenFlyout(cardEl, pesantrenId);
+        }
+    }, 180);
+}
+
+function handlePesantrenCardLeave() {
+    if (hoverPopoverTimer) {
+        clearTimeout(hoverPopoverTimer);
+        hoverPopoverTimer = null;
+    }
+
+    if (leavePopoverTimer) clearTimeout(leavePopoverTimer);
+    leavePopoverTimer = setTimeout(() => {
+        hidePesantrenFlyout();
+    }, 150);
+}
+
+function clearHoverPopoverTimeout() {
+    if (leavePopoverTimer) {
+        clearTimeout(leavePopoverTimer);
+        leavePopoverTimer = null;
+    }
+}
+
+function hidePesantrenFlyout() {
+    const popover = document.getElementById('pesantren-flyout-popover');
+    if (popover) {
+        popover.classList.remove('opacity-100', 'pointer-events-auto');
+        popover.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+            if (popover && popover.classList.contains('opacity-0')) {
+                popover.classList.add('hidden');
+            }
+        }, 200);
+    }
+    activePopoverCard = null;
+}
+
+function showPesantrenFlyout(cardEl, pesantrenId) {
+    const item = allLembagaData.find(l => String(l.id) === String(pesantrenId)) || 
+                 DEFAULT_LEMBAGA_DATA.find(l => String(l.id) === String(pesantrenId));
+    if (!item) return;
+
+    const popover = getFlyoutPopoverContainer();
+    const safeFoto = (item.foto_url && String(item.foto_url).trim().startsWith('http')) ? item.foto_url : getIslamicFallbackPhoto(item.id || item.nama);
+    const safeNama = escapeHTML(item.nama);
+    const safePengasuh = escapeHTML(item.pengasuh_atau_kepala || '-');
+    const safeAlamat = escapeHTML(item.alamat_detail || '');
+    const safeKecamatan = escapeHTML(item.kecamatan || 'Demak');
+    const safeNspp = escapeHTML(item.nspp || '');
+    const safeTahun = escapeHTML(String(item.tahun_berdiri || ''));
+    const safeKode = escapeHTML(item.kode_pesantren || item.id || '');
+    const totalSantri = (item.santri_mukim || 0) + (item.santri_nonmukim || 0);
+    const jumlahUstadz = (item.dewan_asatidz && item.dewan_asatidz.length > 0) 
+        ? item.dewan_asatidz.length 
+        : (item.kurikulum_kitab?.length ? Math.max(3, Math.round(item.kurikulum_kitab.length * 0.8)) : 8);
+
+    // Kemenag Badge
+    let kemenagBadge = '';
+    if (safeNspp) {
+        kemenagBadge = `
+            <div class="absolute top-2.5 right-2.5 px-2.5 py-1 bg-emerald-950/90 text-white rounded-lg shadow-sm border border-emerald-600/50 flex items-center gap-1.5 backdrop-blur-xs text-[10px] font-bold">
+                <span class="material-symbols-outlined text-[13px] text-emerald-300">verified</span>
+                <span>Terverifikasi Kemenag</span>
+                <span class="text-emerald-300 font-mono">NSP: ${safeNspp}</span>
+            </div>
+        `;
+    } else {
+        kemenagBadge = `
+            <div class="absolute top-2.5 right-2.5 px-2.5 py-1 bg-emerald-950/80 text-white rounded-lg shadow-sm text-[10px] font-semibold backdrop-blur-xs flex items-center gap-1">
+                <span class="material-symbols-outlined text-[13px] text-emerald-300">shield</span>
+                <span>RMI NU Demak</span>
+            </div>
+        `;
+    }
+
+    // Fasilitas Unggulan Pills
+    let fasilitasHtml = '';
+    const fasilitasSample = (item.fasilitas && item.fasilitas.length > 0) ? item.fasilitas : ['Asrama Santri', 'Masjid Jami\'', 'Perpustakaan Kitab', 'Aula Serbaguna'];
+    fasilitasHtml = fasilitasSample.slice(0, 4).map(f => `<span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-medium">${escapeHTML(typeof f === 'string' ? f : f.nama || f.nama_fasilitas || 'Fasilitas')}</span>`).join('');
+
+    // Maps Link
+    const lat = item.latitude || -6.8944;
+    const lng = item.longitude || 110.6386;
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+    popover.innerHTML = `
+        <div class="flex flex-col text-slate-800">
+            <!-- Cover & Logo Header -->
+            <div class="h-32 relative bg-slate-100 shrink-0">
+                <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover" alt="${safeNama}" />
+                ${kemenagBadge}
+                <!-- Overlapping Logo di pojok kiri bawah cover -->
+                <div class="absolute -bottom-5 left-4 z-10 w-14 h-14 rounded-2xl bg-white border-2 border-white shadow-md p-0.5 flex items-center justify-center overflow-hidden">
+                    ${getPesantrenLogoHtml(item, 'w-13 h-13', 'text-sm')}
+                </div>
+            </div>
+
+            <!-- Identitas & Metadata -->
+            <div class="pt-7 px-4 pb-3 space-y-2">
+                <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm leading-snug uppercase tracking-tight line-clamp-1">${safeNama}</h4>
+                    <div class="text-[11px] text-slate-500 mt-0.5 space-y-0.5">
+                        <p><span class="font-semibold text-slate-700">ID Pesantren:</span> <span class="font-mono text-emerald-800 font-bold">${safeKode}</span> ${safeTahun ? `• <span class="font-semibold text-slate-700">Berdiri:</span> ${safeTahun}` : ''}</p>
+                        <p class="truncate"><span class="font-semibold text-slate-700">Alamat:</span> ${safeAlamat ? safeAlamat + ', ' : ''}Kec. ${safeKecamatan}, Demak</p>
+                    </div>
+                </div>
+
+                <!-- Dua Tombol Quick Action -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button type="button" onclick="bukaModalDetailLembaga('${escapeHTML(item.id)}')" class="px-2.5 py-2 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs">
+                        <span class="material-symbols-outlined text-[15px] text-emerald-700">language</span>
+                        <span>Profil Lengkap</span>
+                    </button>
+                    <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-2 bg-slate-50 hover:bg-rose-50 text-slate-800 hover:text-rose-800 border border-slate-200 hover:border-rose-300 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs">
+                        <span class="material-symbols-outlined text-[15px] text-rose-600">map</span>
+                        <span>Buka Maps</span>
+                    </a>
+                </div>
+
+                <!-- Tentang Pesantren -->
+                <div class="pt-1">
+                    <h5 class="font-bold text-[11px] text-slate-800 mb-0.5">Tentang Pesantren</h5>
+                    <p class="text-[10px] text-slate-600 leading-relaxed line-clamp-2">
+                        ${safeNama} adalah lembaga pendidikan Islam ${escapeHTML(item.kategori_atau_metode || 'Salafiyah')} di bawah naungan PC RMI NU Kabupaten Demak yang diasuh oleh ${safePengasuh}.
+                    </p>
+                </div>
+
+                <!-- Fasilitas Pills -->
+                <div class="pt-1 flex flex-wrap gap-1">
+                    ${fasilitasHtml}
+                </div>
+
+                <!-- Footer SDM (Jumlah Santri & Jumlah Ustadz) -->
+                <div class="border-t border-slate-100 pt-2.5 mt-2 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[17px]">groups</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-slate-400 block font-semibold leading-none">Jumlah Santri</span>
+                            <span class="font-extrabold text-slate-900 text-xs">${totalSantri.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[17px]">person_celebrate</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-slate-400 block font-semibold leading-none">Jumlah Ustadz</span>
+                            <span class="font-extrabold text-slate-900 text-xs">${jumlahUstadz}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Smart Viewport Collision Positioning
+    const rect = cardEl.getBoundingClientRect();
+    const popoverWidth = 360;
+    const padding = 16;
+    let left = 0;
+    let top = rect.top;
+
+    // Cek ruang sebelah kanan kartu
+    if (rect.right + popoverWidth + padding <= window.innerWidth) {
+        left = rect.right + 12;
+    } else if (rect.left - popoverWidth - padding >= 0) {
+        left = rect.left - popoverWidth - 12;
+    } else {
+        left = Math.max(padding, (window.innerWidth - popoverWidth) / 2);
+    }
+
+    const estimatedHeight = 420;
+    if (top + estimatedHeight > window.innerHeight - padding) {
+        top = Math.max(padding, window.innerHeight - estimatedHeight - padding);
+    }
+    if (top < padding) top = padding;
+
+    popover.style.left = `${left}px`;
+    popover.style.top = `${top}px`;
+
+    popover.classList.remove('hidden');
+    requestAnimationFrame(() => {
+        popover.classList.remove('opacity-0', 'pointer-events-none');
+        popover.classList.add('opacity-100', 'pointer-events-auto');
     });
 }
