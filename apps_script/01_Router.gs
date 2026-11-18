@@ -127,6 +127,8 @@ function doPost(e) {
       result = handleExecuteOptionB(payload);
     } else if (action === 'UPLOAD_PESANTREN_MEDIA_CHUNK') {
       result = handleUploadPesantrenMediaChunk(payload);
+    } else if (action === 'SYNC_PESANTREN_MEDIA_URLS') {
+      result = handleSyncPesantrenMediaUrls(payload);
     } else if (action === 'FIX_LEADERS_PRIMARY') {
       result = handleFixSpreadsheetLeadersPrimary();
     }

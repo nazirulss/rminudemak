@@ -541,6 +541,7 @@ function getAllPesantrenData() {
   const sheetEdu = ss.getSheetByName('pesantren_education');
   const sheetSantri = ss.getSheetByName('pesantren_santri_aggregates');
   const sheetDev = ss.getSheetByName('pesantren_development_profiles');
+  const sheetFacilities = ss.getSheetByName('pesantren_facilities');
 
   const locValues = sheetLoc ? sheetLoc.getDataRange().getValues() : [];
   const leaderValues = sheetLeaders ? sheetLeaders.getDataRange().getValues() : [];
@@ -548,6 +549,7 @@ function getAllPesantrenData() {
   const eduValues = sheetEdu ? sheetEdu.getDataRange().getValues() : [];
   const santriValues = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
   const devValues = sheetDev ? sheetDev.getDataRange().getValues() : [];
+  const facValues = sheetFacilities ? sheetFacilities.getDataRange().getValues() : [];
 
   const list = [];
 
@@ -701,6 +703,37 @@ function getAllPesantrenData() {
           deskripsi: devValues[b][7] || ''
         });
       }
+    }
+
+    // Join Facilities / Galeri Foto
+    obj.foto_url = obj.foto_url ? String(obj.foto_url).trim() : '';
+    obj.fasilitas = [];
+    obj.galeri_foto = [];
+    for (let f = 1; f < facValues.length; f++) {
+      if (facValues[f][1] === pId) {
+        const facFoto = facValues[f][9] || (String(facValues[f][6] || '').startsWith('http') ? facValues[f][6] : '');
+        const facItem = {
+          id: facValues[f][0],
+          kategori: facValues[f][2] || 'SARANA',
+          nama: facValues[f][3] || 'Fasilitas',
+          kondisi: facValues[f][4] || 'Baik',
+          luas_m2: facValues[f][5] || '',
+          keterangan: facValues[f][6] || '',
+          foto_url: facFoto
+        };
+        obj.fasilitas.push(facItem);
+        if (facFoto) {
+          obj.galeri_foto.push({
+            url: facFoto,
+            judul: facItem.nama,
+            kategori: facItem.kategori
+          });
+        }
+      }
+    }
+
+    if (!obj.foto_url && obj.galeri_foto.length > 0) {
+      obj.foto_url = obj.galeri_foto[0].url;
     }
 
     // Fallback display helpers

@@ -6431,6 +6431,21 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- Foto Gedung / Gerbang Utama (Domain 1 & Foto_Lokasi) -->
+                                <div class="flex items-center gap-3.5 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                                    <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 p-0.5 flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
+                                        ${p.foto_url ? `<img src="${escapeHTML(p.foto_url)}" alt="Foto ${escapeHTML(p.nama_resmi)}" class="w-full h-full object-cover rounded-lg" />` : `<span class="material-symbols-outlined text-slate-400 text-2xl">location_city</span>`}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Foto Gerbang / Gedung Utama</span>
+                                            ${p.foto_url ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Drive: Foto_Lokasi</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-100 text-slate-600">Belum Ada Foto</span>'}
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${p.foto_url ? 'Dokumentasi visual terverifikasi di Google Drive.' : 'Belum mengunggah foto gerbang depan.'}</p>
+                                        ${p.foto_url ? `<a href="${escapeHTML(p.foto_url)}" target="_blank" class="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800"><span class="material-symbols-outlined text-[13px]">open_in_new</span> Lihat Foto Penuh</a>` : ''}
+                                    </div>
+                                </div>
                                 <div><span class="text-slate-400 block">Nama Resmi Pesantren:</span><span class="font-bold text-sm text-slate-900">${p.nama_resmi}</span></div>
                                 <div><span class="text-slate-400 block">Nama Populer / Julukan:</span><span class="font-semibold text-slate-800">${p.nama_populer || '-'}</span></div>
                                 <div><span class="text-slate-400 block">Tahun Berdiri:</span><span class="font-semibold">${p.tahun_berdiri} Masehi</span></div>
@@ -6705,6 +6720,119 @@
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
                             <h5 class="font-bold text-slate-800 mb-1">Rencana Inkubasi & Kebutuhan Pengembangan</h5>
                             <p class="text-slate-600 leading-relaxed">${p.potensi_kebutuhan || 'Pengembangan jejaring rantai pasok antarpontren se-Kabupaten Demak.'}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (tabKey === 'sarpras') {
+                // Domain 6: Sarana Prasarana & Galeri Foto Fasilitas
+                const galeriList = p.galeri_foto || [];
+                const facList = p.fasilitas || [];
+                
+                let galeriCards = '';
+                if (galeriList.length > 0) {
+                    galeriCards = galeriList.map(g => `
+                        <div class="group bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-md transition-all">
+                            <div class="h-32 bg-slate-100 overflow-hidden relative">
+                                <img src="${escapeHTML(g.url)}" alt="${escapeHTML(g.judul || 'Fasilitas')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                                <span class="absolute top-2 left-2 bg-emerald-700 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase shadow-xs">${escapeHTML(g.kategori || 'Fasilitas')}</span>
+                            </div>
+                            <div class="p-3 bg-white">
+                                <h6 class="font-bold text-xs text-slate-800 truncate" title="${escapeHTML(g.judul || '')}">${escapeHTML(g.judul || 'Fasilitas Pondok')}</h6>
+                                <div class="mt-2 flex items-center justify-between text-[10px]">
+                                    <span class="text-slate-400">Drive: Foto_Lokasi</span>
+                                    <a href="${escapeHTML(g.url)}" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800 font-bold inline-flex items-center gap-0.5">
+                                        <span>Buka</span>
+                                        <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    galeriCards = `
+                        <div class="col-span-full p-6 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                            <span class="material-symbols-outlined text-slate-400 text-3xl mb-1">photo_library</span>
+                            <p class="text-xs text-slate-500 font-medium">Belum ada dokumentasi foto fasilitas yang diunggah untuk lembaga ini.</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Foto dapat diunggah langsung ke Google Drive folder <code class="bg-slate-200 px-1 py-0.5 rounded">Foto_Lokasi</code>.</p>
+                        </div>
+                    `;
+                }
+
+                let facTableRows = '';
+                if (facList.length > 0) {
+                    facTableRows = facList.map((f, i) => `
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 text-center text-slate-400">${i + 1}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 text-slate-800">${escapeHTML(f.kategori || 'FASILITAS')}</span>
+                            </td>
+                            <td class="p-3 font-bold text-slate-800">${escapeHTML(f.nama || '-')}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${f.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${escapeHTML(f.kondisi || 'Baik')}</span>
+                            </td>
+                            <td class="p-3 text-slate-600">${escapeHTML(f.keterangan || '-')}</td>
+                            <td class="p-3 text-center">
+                                ${f.foto_url ? `<a href="${escapeHTML(f.foto_url)}" target="_blank" class="px-2 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded text-[10px] font-bold inline-flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">image</span> Lihat Foto</a>` : '<span class="text-slate-400 text-[10px]">-</span>'}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    facTableRows = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Belum ada rincian inventaris sarana prasarana yang tercatat di sheet pesantren_facilities.</td></tr>`;
+                }
+
+                content = `
+                    <div class="space-y-6 text-xs text-slate-700">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h4 class="font-bold text-sm text-emerald-900 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-emerald-700 text-[18px]">domain</span>
+                                    <span>Sarana, Prasarana & Dokumentasi Foto Lokasi</span>
+                                </h4>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Dokumentasi fisik bangunan, asrama, ruang ibadah, dan sarana edukasi terverifikasi di Google Drive <code class="bg-slate-200 px-1 py-0.5 rounded">RMINU_DEMAK_Uploads > Foto_Lokasi</code>.</p>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-lg font-bold text-xs">${galeriList.length} Foto Terverifikasi</span>
+                                <a href="https://drive.google.com/drive/folders/1DRhHDkU_cppSyqqmIE2VwYVH6WcnvCHV" target="_blank" class="px-3 py-1 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-slate-700 font-bold text-xs inline-flex items-center gap-1 shadow-2xs">
+                                    <span class="material-symbols-outlined text-[14px]">folder_open</span>
+                                    <span>Buka Folder Drive</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Galeri Foto Grid -->
+                        <div class="space-y-3">
+                            <h5 class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-700">photo_library</span>
+                                <span>Album Foto Fasilitas Pesantren</span>
+                            </h5>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+                                ${galeriCards}
+                            </div>
+                        </div>
+
+                        <!-- Tabel Inventaris Sarana Prasarana -->
+                        <div class="space-y-3 pt-2">
+                            <h5 class="font-bold text-xs uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-700">inventory_2</span>
+                                <span>Daftar Rincian Sarana & Prasarana</span>
+                            </h5>
+                            <div class="overflow-x-auto border border-slate-200 rounded-xl overflow-hidden">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-100 font-bold text-slate-700">
+                                        <tr>
+                                            <th class="p-3 text-center w-12">No</th>
+                                            <th class="p-3">Kategori</th>
+                                            <th class="p-3">Nama Fasilitas</th>
+                                            <th class="p-3">Kondisi</th>
+                                            <th class="p-3">Keterangan</th>
+                                            <th class="p-3 text-center">Dokumentasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 bg-white">
+                                        ${facTableRows}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 `;

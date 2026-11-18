@@ -22,7 +22,7 @@ const SCHEMAS = {
     'status_operasional', 'status_keanggotaan_rmi', 'status_verifikasi',
     'status_verifikasi_lokasi', 'status_publikasi', 'has_komitmen_pesantren_aman',
     'sumber_data_awal', 'keterangan_status', 'created_at', 'updated_at', 'created_by', 'updated_by',
-    'logo_url'
+    'logo_url', 'foto_url'
   ],
   pesantren_locations: [
     'id', 'pesantren_id', 'alamat_jalan', 'rt', 'rw', 'dusun', 'desa_kelurahan',
@@ -63,7 +63,7 @@ const SCHEMAS = {
   ],
   pesantren_facilities: [
     'id', 'pesantren_id', 'kategori_fasilitas', 'nama_fasilitas', 'kondisi',
-    'luas_m2', 'keterangan', 'created_at', 'updated_at'
+    'luas_m2', 'keterangan', 'created_at', 'updated_at', 'foto_url'
   ],
   pesantren_flagship_programs: [
     'id', 'pesantren_id', 'nama_program', 'bidang_program', 'deskripsi',

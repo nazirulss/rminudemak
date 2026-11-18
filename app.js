@@ -1698,6 +1698,35 @@ function bukaModalDetailLembaga(lembagaId) {
         }
     }
 
+    // Galeri Sarana & Fasilitas Pondok (Domain 6)
+    const galeriWrapper = document.getElementById('modal-detail-galeri-wrapper');
+    const galeriContainer = document.getElementById('modal-detail-galeri');
+    const galeriCountBadge = document.getElementById('modal-detail-galeri-count');
+    if (galeriContainer) {
+        const galeriList = item.galeri_foto || [];
+        if (galeriList.length > 0) {
+            if (galeriWrapper) galeriWrapper.classList.remove('hidden');
+            if (galeriCountBadge) galeriCountBadge.innerText = `${galeriList.length} Foto`;
+            galeriContainer.innerHTML = galeriList.map(g => `
+                <div class="group relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs hover:shadow-md transition-all">
+                    <div class="h-28 overflow-hidden bg-slate-200">
+                        <img src="${escapeHTML(g.url)}" alt="${escapeHTML(g.judul || 'Fasilitas')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    </div>
+                    <div class="p-2 bg-white">
+                        <span class="text-[9px] uppercase font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded">${escapeHTML(g.kategori || 'Fasilitas')}</span>
+                        <p class="text-[11px] font-bold text-slate-800 mt-1 truncate" title="${escapeHTML(g.judul || '')}">${escapeHTML(g.judul || 'Fasilitas Pondok')}</p>
+                    </div>
+                    <a href="${escapeHTML(g.url)}" target="_blank" rel="noopener noreferrer" class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer" title="Buka Foto Resolusi Penuh">
+                        <span class="material-symbols-outlined text-2xl drop-shadow">fullscreen</span>
+                    </a>
+                </div>
+            `).join('');
+        } else {
+            if (galeriCountBadge) galeriCountBadge.innerText = '0 Foto';
+            galeriContainer.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2 sm:col-span-3">Belum ada album foto fasilitas yang diunggah untuk lembaga ini.</p>';
+        }
+    }
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 }

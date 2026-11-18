@@ -364,3 +364,97 @@ function handleExecuteOptionB(payload) {
     timestamp: new Date().toISOString()
   };
 }
+
+/**
+ * Menyinkronkan foto_url cover ke sheet 'pesantren' dan galeri foto ke sheet 'pesantren_facilities'
+ */
+function handleSyncPesantrenMediaUrls(payload) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const covers = payload.covers || [];
+  const facilities = payload.facilities || [];
+  const summary = { coversUpdated: 0, facilitiesAppended: 0 };
+  const now = new Date().toISOString();
+
+  // 1. Update Covers di sheet pesantren
+  if (covers.length > 0) {
+    const sheetPesantren = ss.getSheetByName('pesantren');
+    if (sheetPesantren) {
+      const pData = sheetPesantren.getDataRange().getValues();
+      const pHeaders = pData[0];
+      let colFoto = pHeaders.indexOf('foto_url') + 1;
+      if (colFoto === 0) {
+        colFoto = pHeaders.length + 1;
+        sheetPesantren.getRange(1, colFoto).setValue('foto_url').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      }
+
+      // Map ID / Kode ke nomor baris (1-based)
+      const rowMap = {};
+      for (let r = 1; r < pData.length; r++) {
+        const id = String(pData[r][0]);
+        const kode = String(pData[r][1]);
+        rowMap[id] = r + 1;
+        rowMap[kode] = r + 1;
+      }
+
+      for (let c = 0; c < covers.length; c++) {
+        const item = covers[c];
+        const rowNum = rowMap[item.pesantren_id] || rowMap[item.kode_pesantren];
+        if (rowNum) {
+          sheetPesantren.getRange(rowNum, colFoto).setValue(item.foto_url);
+          summary.coversUpdated++;
+        }
+      }
+    }
+  }
+
+  // 2. Append Facilities ke sheet pesantren_facilities
+  if (facilities.length > 0) {
+    let sheetFac = ss.getSheetByName('pesantren_facilities');
+    const schema = SCHEMAS.pesantren_facilities || [
+      'id', 'pesantren_id', 'kategori_fasilitas', 'nama_fasilitas', 'kondisi',
+      'luas_m2', 'keterangan', 'created_at', 'updated_at'
+    ];
+    if (!sheetFac) {
+      sheetFac = ss.insertSheet('pesantren_facilities');
+      sheetFac.getRange(1, 1, 1, schema.length).setValues([schema]);
+      sheetFac.getRange(1, 1, 1, schema.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      sheetFac.setFrozenRows(1);
+    }
+
+    const facHeaders = sheetFac.getRange(1, 1, 1, sheetFac.getLastColumn()).getValues()[0];
+    let colFotoFac = facHeaders.indexOf('foto_url');
+    if (colFotoFac === -1) {
+      sheetFac.getRange(1, facHeaders.length + 1).setValue('foto_url').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+    }
+
+    const facRows = [];
+    for (let f = 0; f < facilities.length; f++) {
+      const fac = facilities[f];
+      facRows.push([
+        fac.id || Utilities.getUuid(),
+        fac.pesantren_id,
+        fac.kategori_fasilitas || 'SARANA',
+        fac.nama_fasilitas || 'Fasilitas Pondok',
+        fac.kondisi || 'Baik',
+        fac.luas_m2 || '',
+        fac.keterangan || fac.foto_url || '',
+        now,
+        now,
+        fac.foto_url || ''
+      ]);
+    }
+
+    if (facRows.length > 0) {
+      const startRow = sheetFac.getLastRow() + 1;
+      sheetFac.getRange(startRow, 1, facRows.length, facRows[0].length).setValues(facRows);
+      summary.facilitiesAppended = facRows.length;
+    }
+  }
+
+  return {
+    success: true,
+    message: 'Media URLs berhasil disinkronkan ke database Spreadsheet.',
+    summary: summary,
+    timestamp: now
+  };
+}
