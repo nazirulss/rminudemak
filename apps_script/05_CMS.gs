@@ -21,7 +21,7 @@ function setupWebCmsSheets() {
       'id', 'kategori_layanan', 'judul_langkah', 'deskripsi_syarat', 'hotline_wa', 'email_resmi', 'updated_at'
     ],
     web_berita: [
-      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
     ],
     app_pengurus: [
       'id', 'tingkat_hirarki', 'jabatan', 'nama_lengkap', 'gelar_depan', 'gelar_belakang', 'foto_drive_url', 'parent_id', 'tipe_garis', 'tupoksi', 'urutan', 'is_active', 'updated_at'
@@ -456,6 +456,191 @@ function getSambangDelegatesData() {
       data: delegates,
       stats: stats,
       halaqah_stats: halaqahStats
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+// =========================================================================
+// MANAJEMEN WARTA & BERITA MEDIA RMI NU DEMAK (WEB PUBLIK & SINKRONISASI)
+// =========================================================================
+function getPublicBeritaList(params) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('web_berita');
+    const headers = [
+      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 
+      'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 
+      'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+    ];
+
+    if (!sheet) {
+      sheet = ss.insertSheet('web_berita');
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      sheet.setFrozenRows(1);
+    } else {
+      // Self-healing header: pastikan kolom sumber_media dan url_sumber ada
+      const curFirstRow = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+      if (curFirstRow[8] !== 'sumber_media' || curFirstRow[9] !== 'url_sumber') {
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+        sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      }
+    }
+
+    if (sheet.getLastRow() <= 1) {
+      seedInitialBeritaData(sheet);
+    }
+
+    const data = sheet.getDataRange().getValues();
+    const curHeaders = headers; // gunakan schema headers resmi
+    const rows = data.slice(1);
+
+    const beritaList = rows.map(r => {
+      let obj = {};
+      curHeaders.forEach((h, idx) => {
+        obj[h] = r[idx];
+      });
+      return obj;
+    }).filter(b => {
+      if (!b.id || !b.judul) return false;
+      const st = String(b.status || 'published').toLowerCase();
+      return st === 'published' || st === 'terbit' || st === 'true' || !b.status;
+    });
+
+    // Sort descending berdasarkan published_at
+    beritaList.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+
+    return {
+      success: true,
+      count: beritaList.length,
+      data: beritaList,
+      timestamp: new Date().toISOString()
+    };
+  } catch (err) {
+    return { success: false, error: err.message, data: [] };
+  }
+}
+
+function seedInitialBeritaData(sheet) {
+  const initialNews = [
+    [
+      'BRT-2026-001',
+      'Jaga Marwah Pesantren, RMINU Demak Perkuat Peran Bu Nyai dalam Perlindungan Santri',
+      'jaga-marwah-pesantren-rminu-demak-perkuat-peran-bu-nyai-dalam-perlindungan-santri',
+      'Pesantren Ramah Anak',
+      'RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.',
+      'RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).',
+      'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+      'Tim Media RMI NU Demak',
+      'NU Online Jateng',
+      'https://jateng.nu.or.id',
+      true,
+      'published',
+      '2026-11-05',
+      1250,
+      new Date().toISOString()
+    ],
+    [
+      'BRT-2026-002',
+      'RMI PCNU Demak Deklarasikan Pesantren Sadar Hukum, Perlindungan Santri Jadi Prioritas',
+      'rmi-pcnu-demak-deklarasikan-pesantren-sadar-hukum-perlindungan-santri-jadi-prioritas',
+      'Pesantren Ramah Anak',
+      'RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum.',
+      'RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.',
+      'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21',
+      'Tim Media RMI NU Demak',
+      'Kabarjateng.id',
+      'https://kabarjateng.id',
+      false,
+      'published',
+      '2026-11-01',
+      1420,
+      new Date().toISOString()
+    ],
+    [
+      'BRT-2026-003',
+      'Respon Tuntutan Zaman, RMI NU Demak Konsolidasikan Madrasah Diniyah',
+      'respon-tuntutan-zaman-rmi-nu-demak-konsolidasikan-madrasah-diniyah',
+      'Pendidikan & Madin',
+      'Bidang Madin RMI NU Demak menggelar konsolidasi dewan asatidz se-Kabupaten Demak guna merespons dinamika kurikulum dan standardisasi mutu pembelajaran santri.',
+      'Bidang Madin RMI NU Demak menggelar konsolidasi dewan asatidz se-Kabupaten Demak guna merespons dinamika kurikulum dan standardisasi mutu pembelajaran santri.',
+      'https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET',
+      'Tim Media RMI NU Demak',
+      'Suara Nahdliyin',
+      'https://suaranahdliyin.com',
+      false,
+      'published',
+      '2026-09-16',
+      980,
+      new Date().toISOString()
+    ]
+  ];
+  sheet.getRange(2, 1, initialNews.length, initialNews[0].length).setValues(initialNews);
+}
+
+function handleSaveBerita(payload) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = ss.getSheetByName('web_berita');
+    const headers = [
+      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 
+      'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 
+      'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+    ];
+
+    if (!sheet) {
+      sheet = ss.insertSheet('web_berita');
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      sheet.setFrozenRows(1);
+    }
+
+    const now = new Date().toISOString();
+    const data = sheet.getDataRange().getValues();
+    let id = payload.id;
+    let rowIndex = -1;
+
+    if (id) {
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]).toUpperCase() === String(id).toUpperCase()) {
+          rowIndex = i + 1;
+          break;
+        }
+      }
+    } else {
+      id = 'BRT-' + Utilities.formatDate(new Date(), 'GMT+7', 'yyyy') + '-' + Utilities.formatString('%03d', data.length);
+    }
+
+    const rowData = [
+      id,
+      payload.judul || 'Tanpa Judul',
+      payload.slug || '',
+      payload.kategori || 'Warta Organisasi',
+      payload.ringkasan || '',
+      payload.isi_lengkap || '',
+      payload.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+      payload.penulis || 'Tim Media RMI NU Demak',
+      payload.sumber_media || 'Media Online',
+      payload.url_sumber || '',
+      payload.is_featured === true,
+      payload.status || 'published',
+      payload.published_at || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
+      Number(payload.views_count) || 0,
+      now
+    ];
+
+    if (rowIndex > 0) {
+      sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+    } else {
+      sheet.appendRow(rowData);
+    }
+
+    return {
+      success: true,
+      message: 'Berita "' + payload.judul + '" berhasil disimpan!',
+      id: id
     };
   } catch (err) {
     return { success: false, error: err.message };

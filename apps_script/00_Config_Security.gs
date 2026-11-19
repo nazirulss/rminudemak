@@ -105,6 +105,9 @@ const SCHEMAS = {
   web_news: [
     'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
   ],
+  web_berita: [
+    'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+  ],
   app_pengurus: [
     'id', 'tingkat_hirarki', 'jabatan', 'nama_lengkap', 'gelar_depan', 'gelar_belakang',
     'foto_drive_url', 'parent_id', 'tipe_garis', 'tupoksi', 'urutan', 'is_active', 'updated_at'

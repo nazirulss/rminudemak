@@ -1251,6 +1251,11 @@ document.addEventListener('DOMContentLoaded', () => {
             initSambangCountdown();
         }
 
+        if (targetId === 'berita') {
+            if (allBeritaData.length === 0) loadBeritaRMI();
+            else renderBeritaFullPage();
+        }
+
         if (targetId === 'beranda') {
             setTimeout(() => {
                 if (!heroGisMap) initHeroMap();
@@ -1546,6 +1551,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Eksekusi penarikan data Supabase secara aman
     loadLembagaDariSupabase();
 
+    // Memuat arsip warta media RMI Demak terkini
+    loadBeritaRMI();
+
     if (initialPage === 'pesantren') {
         setTimeout(initPublicMap, 250);
         setTimeout(() => { if (publicMap) publicMap.invalidateSize(); }, 600);
@@ -1810,6 +1818,408 @@ function tutupModalDetailLembaga() {
     }
 }
 
+
+// ==================================================================
+// MODUL WARTA & BERITA MEDIA RMI NU DEMAK (DINAMIS 1 TAHUN TERAKHIR)
+// ==================================================================
+let allBeritaData = [];
+let activeBeritaCategory = 'Semua';
+let beritaSearchQuery = '';
+
+async function loadBeritaRMI() {
+    // 1. Instant load dari aset lokal / cache (0ms)
+    try {
+        const res = await fetch('assets/data/berita_rmi.json');
+        if (res.ok) {
+            allBeritaData = await res.json();
+            renderBeritaBeranda();
+            renderBeritaFullPage();
+        }
+    } catch (err) {
+        console.warn('Gagal memuat berita lokal:', err);
+    }
+
+    // 2. Background revalidation dari Live Google Sheets Web App
+    try {
+        const liveRes = await fetch('https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_BERITA');
+        if (liveRes.ok) {
+            const result = await liveRes.json();
+            if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+                const cleanData = result.data.filter(b => b.id !== 'BRT-TEST-001');
+                if (cleanData.length > 0) {
+                    allBeritaData = cleanData;
+                    renderBeritaBeranda();
+                    renderBeritaFullPage();
+                }
+            }
+        }
+    } catch (liveErr) {
+        // Fallback aman pada cache lokal
+    }
+}
+
+function renderBeritaBeranda() {
+    if (!allBeritaData || allBeritaData.length === 0) return;
+
+    // 1. Featured Article (Sorotan Utama)
+    const featured = allBeritaData.find(b => b.is_featured) || allBeritaData[0];
+    const featuredContainer = document.getElementById('home-berita-featured');
+    if (featuredContainer && featured) {
+        const safeJudul = escapeHtml(featured.judul);
+        const safeRingkasan = escapeHtml(featured.ringkasan);
+        const safeMedia = escapeHtml(featured.sumber_media || 'Media Online');
+        const formattedDate = formatTanggalIndonesia(featured.published_at);
+        const viewsCount = featured.views_count ? (featured.views_count >= 1000 ? (featured.views_count / 1000).toFixed(1) + 'k' : featured.views_count) : '1.2k';
+
+        featuredContainer.innerHTML = `
+            <img src="${featured.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
+                alt="${safeJudul}"
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none"></div>
+            <div class="relative z-10 p-6 md:p-10 text-white w-full">
+                <div class="mb-4 flex flex-wrap items-center gap-2">
+                    <span class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-widest shadow-md">Sorotan Utama</span>
+                    <span class="bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">${safeMedia}</span>
+                </div>
+                <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 group-hover:text-secondary-container transition-colors duration-300 drop-shadow-md">
+                    ${safeJudul}
+                </h3>
+                <div class="flex items-center gap-4 text-xs text-white/80 font-medium mb-6">
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">calendar_today</span> ${formattedDate}</span>
+                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> ${viewsCount} Views</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button type="button" onclick="openBeritaDetailModal('${featured.id}')"
+                        class="bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit cursor-pointer shadow-md">
+                        Lihat Detail Berita <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                    <button type="button"
+                        onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.id}', '${safeJudul.replace(/'/g, "\\'")}', '${featured.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                        class="px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+                        title="Bagikan Berita ini ke WhatsApp">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                        <span>Share WA</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 2. Next 3 Recent Articles
+    const recentContainer = document.getElementById('home-berita-recent');
+    if (recentContainer) {
+        const otherArticles = allBeritaData.filter(b => b.id !== (featured ? featured.id : '')).slice(0, 3);
+        recentContainer.innerHTML = otherArticles.map(art => {
+            const safeJudul = escapeHtml(art.judul);
+            const safeRingkasan = escapeHtml(art.ringkasan);
+            const safeMedia = escapeHtml(art.sumber_media || 'Media Online');
+            const formattedDate = formatTanggalIndonesia(art.published_at);
+            const viewsCount = art.views_count ? (art.views_count >= 1000 ? (art.views_count / 1000).toFixed(1) + 'k' : art.views_count) : '850';
+
+            return `
+                <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                    onclick="openBeritaDetailModal('${art.id}')">
+                    <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
+                        <img src="${art.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                            alt="${safeJudul}"
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    </div>
+                    <div class="flex flex-col justify-between py-1 flex-1">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">${escapeHtml(art.kategori || 'Warta')}</span>
+                                <span class="text-slate-400">•</span>
+                                <span class="text-amber-700 text-[10px] font-bold block">${safeMedia}</span>
+                            </div>
+                            <h4 class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                ${safeJudul}
+                            </h4>
+                        </div>
+                        <div class="flex items-end justify-between mt-2">
+                            <div class="flex flex-col gap-0.5 text-[11px] text-on-surface-variant font-medium">
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${viewsCount} Views</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${art.id}', '${safeJudul.replace(/'/g, "\\'")}', '${art.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                                    class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                    title="Bagikan ke WhatsApp">
+                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                </button>
+                                <div class="w-8 h-8 rounded-full bg-slate-100 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined text-[18px] transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">arrow_forward</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function renderBeritaFullPage() {
+    if (!allBeritaData || allBeritaData.length === 0) return;
+
+    // Filter Kategori
+    const categoryContainer = document.getElementById('berita-category-filters');
+    if (categoryContainer) {
+        const categories = ['Semua', 'Pesantren Ramah Anak', 'Pendidikan & Madin', 'Ekonomi & Kemandirian', 'Warta Organisasi'];
+        categoryContainer.innerHTML = categories.map(cat => {
+            const isActive = activeBeritaCategory === cat;
+            return `
+                <button type="button" onclick="filterBeritaCategory('${cat}')"
+                    class="whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs transition-all shadow-xs cursor-pointer border ${
+                        isActive
+                            ? 'bg-primary text-white border-primary shadow-sm'
+                            : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                    }">
+                    ${cat}
+                </button>
+            `;
+        }).join('');
+    }
+
+    // Filter Data Berdasarkan Kategori & Pencarian
+    let filtered = allBeritaData.filter(item => {
+        const matchCategory = activeBeritaCategory === 'Semua' || (item.kategori || '') === activeBeritaCategory;
+        const query = beritaSearchQuery.toLowerCase();
+        const matchSearch = !query || 
+            (item.judul || '').toLowerCase().includes(query) || 
+            (item.ringkasan || '').toLowerCase().includes(query) ||
+            (item.sumber_media || '').toLowerCase().includes(query);
+        return matchCategory && matchSearch;
+    });
+
+    // Update Counter Badge
+    const countBadge = document.getElementById('berita-count-badge');
+    if (countBadge) {
+        countBadge.innerText = `${filtered.length} Berita`;
+    }
+
+    // Featured di Halaman Berita (Top 1 atau 2)
+    const pageFeaturedContainer = document.getElementById('berita-page-featured');
+    if (pageFeaturedContainer) {
+        if (filtered.length > 0) {
+            const f1 = filtered[0];
+            const safeJudul = escapeHtml(f1.judul);
+            const safeMedia = escapeHtml(f1.sumber_media || 'Media Online');
+            const formattedDate = formatTanggalIndonesia(f1.published_at);
+
+            pageFeaturedContainer.innerHTML = `
+                <div class="lg:col-span-8 relative group rounded-2xl overflow-hidden shadow-lg h-[380px] md:h-[450px] cursor-pointer"
+                    onclick="openBeritaDetailModal('${f1.id}')">
+                    <img src="${f1.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
+                        alt="${safeJudul}"
+                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-col justify-end text-white">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-primary/95 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">${escapeHtml(f1.kategori || 'Warta')}</span>
+                            <span class="bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">${safeMedia}</span>
+                        </div>
+                        <h2 class="text-xl md:text-3xl font-bold leading-tight mb-3 group-hover:text-secondary-container transition-colors drop-shadow-md">
+                            ${safeJudul}
+                        </h2>
+                        <div class="flex items-center gap-4 text-xs font-medium text-white/80">
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${f1.views_count || 1200} Views</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 flex flex-col gap-5">
+                    ${(filtered.slice(1, 3)).map(sub => {
+                        const subJudul = escapeHtml(sub.judul);
+                        const subMedia = escapeHtml(sub.sumber_media || 'Media');
+                        return `
+                            <div class="relative group rounded-2xl overflow-hidden shadow-md h-[180px] md:h-[215px] cursor-pointer"
+                                onclick="openBeritaDetailModal('${sub.id}')">
+                                <img src="${sub.cover_image_url || 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58'}"
+                                    alt="${subJudul}"
+                                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                                <div class="absolute bottom-0 left-0 w-full p-4 text-white">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-secondary-container text-[10px] font-bold uppercase tracking-wider drop-shadow-md">${escapeHtml(sub.kategori || 'Warta')}</span>
+                                        <span class="text-amber-300 text-[10px] font-bold">${subMedia}</span>
+                                    </div>
+                                    <h3 class="text-sm md:text-base font-bold leading-snug group-hover:text-primary-container transition-colors line-clamp-2">
+                                        ${subJudul}
+                                    </h3>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        } else {
+            pageFeaturedContainer.innerHTML = '';
+        }
+    }
+
+    // List Berita Lengkap
+    const pageListContainer = document.getElementById('berita-page-list');
+    if (pageListContainer) {
+        if (filtered.length === 0) {
+            pageListContainer.innerHTML = `
+                <div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-500">
+                    <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">newspaper</span>
+                    <p class="font-bold">Tidak ada berita yang sesuai dengan filter atau kata kunci pencarian.</p>
+                </div>
+            `;
+        } else {
+            pageListContainer.innerHTML = filtered.map(item => {
+                const safeJudul = escapeHtml(item.judul);
+                const safeRingkasan = escapeHtml(item.ringkasan);
+                const safeMedia = escapeHtml(item.sumber_media || 'Media Online');
+                const formattedDate = formatTanggalIndonesia(item.published_at);
+                const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '750';
+
+                return `
+                    <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer"
+                        onclick="openBeritaDetailModal('${item.id}')">
+                        <div class="sm:w-2/5 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
+                            <img src="${item.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                                alt="${safeJudul}"
+                                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        </div>
+                        <div class="sm:w-3/5 p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-primary text-[10px] font-bold uppercase tracking-wider">${escapeHtml(item.kategori || 'Warta')}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${safeMedia}</span>
+                                </div>
+                                <h4 class="text-base md:text-lg font-bold text-on-surface mb-2 leading-snug group-hover:text-primary transition-colors">
+                                    ${safeJudul}
+                                </h4>
+                                <p class="text-xs md:text-sm text-on-surface-variant line-clamp-2 mb-4 leading-relaxed">
+                                    ${safeRingkasan}
+                                </p>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] font-medium text-on-surface-variant pt-2 border-t border-slate-100">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${viewsCount} Views</span>
+                                </div>
+                                <button type="button"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.id}', '${safeJudul.replace(/'/g, "\\'")}', '${item.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                                    class="w-7 h-7 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                                    title="Bagikan ke WhatsApp">
+                                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // Trending Sidebar (Urutkan dari view terbanyak)
+    const trendingContainer = document.getElementById('berita-page-trending');
+    if (trendingContainer) {
+        const sortedByViews = [...allBeritaData].sort((a, b) => Number(b.views_count || 0) - Number(a.views_count || 0)).slice(0, 4);
+        trendingContainer.innerHTML = sortedByViews.map((item, idx) => {
+            const safeJudul = escapeHtml(item.judul);
+            const safeMedia = escapeHtml(item.sumber_media || 'Media');
+            const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
+
+            return `
+                <div class="relative flex items-center gap-4 group cursor-pointer" onclick="openBeritaDetailModal('${item.id}')">
+                    <span class="text-5xl font-black text-slate-100 absolute -left-1 top-1/2 -translate-y-1/2 -z-10 group-hover:text-primary/15 transition-colors">${idx + 1}</span>
+                    <div class="pl-6 relative z-10">
+                        <div class="text-[10px] text-amber-800 font-bold mb-0.5">${safeMedia}</div>
+                        <h5 class="text-xs md:text-sm font-bold leading-snug text-slate-800 group-hover:text-primary transition-colors line-clamp-2">
+                            ${safeJudul}
+                        </h5>
+                        <span class="text-[10px] text-on-surface-variant font-medium mt-1 block">${viewsText} Views</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function filterBeritaCategory(cat) {
+    activeBeritaCategory = cat;
+    renderBeritaFullPage();
+}
+
+function handleBeritaSearch(query) {
+    beritaSearchQuery = query || '';
+    renderBeritaFullPage();
+}
+
+function openBeritaDetailModal(id) {
+    const item = allBeritaData.find(b => b.id === id);
+    if (!item) return;
+
+    const modal = document.getElementById('modal-berita-detail');
+    if (!modal) return;
+
+    document.getElementById('modal-berita-kategori').innerText = item.kategori || 'Warta Pesantren';
+    document.getElementById('modal-berita-media').innerText = item.sumber_media || 'Media Online';
+    document.getElementById('modal-berita-judul').innerText = item.judul || '-';
+    document.getElementById('modal-berita-tanggal').innerText = formatTanggalIndonesia(item.published_at);
+    document.getElementById('modal-berita-views').innerText = `${item.views_count || 1200} Views`;
+    
+    const coverEl = document.getElementById('modal-berita-cover');
+    if (coverEl) coverEl.src = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
+
+    document.getElementById('modal-berita-ringkasan').innerText = item.ringkasan || '';
+    document.getElementById('modal-berita-isi').innerText = item.isi_lengkap || item.ringkasan || '';
+
+    const linkSumber = document.getElementById('modal-berita-link-sumber');
+    if (linkSumber) {
+        if (item.url_sumber) {
+            linkSumber.href = item.url_sumber;
+            linkSumber.classList.remove('hidden');
+        } else {
+            linkSumber.classList.add('hidden');
+        }
+    }
+
+    const btnWa = document.getElementById('modal-berita-btn-wa');
+    if (btnWa) {
+        btnWa.onclick = () => {
+            bagikanBeritaKeWA(item.id, item.judul, item.cover_image_url, item.ringkasan);
+        };
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeBeritaDetailModal() {
+    const modal = document.getElementById('modal-berita-detail');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+    }
+}
+
+function formatTanggalIndonesia(dateStr) {
+    if (!dateStr) return 'Terbaru';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+window.loadBeritaRMI = loadBeritaRMI;
+window.filterBeritaCategory = filterBeritaCategory;
+window.handleBeritaSearch = handleBeritaSearch;
+window.openBeritaDetailModal = openBeritaDetailModal;
+window.closeBeritaDetailModal = closeBeritaDetailModal;
 
 // ==================================================================
 // FITUR SHARE BERITA KE WHATSAPP DENGAN LINK PREVIEW GAMBAR DINAMIS

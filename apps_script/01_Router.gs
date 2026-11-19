@@ -56,6 +56,11 @@ function doGet(e) {
     return createJsonResponse(res);
   }
 
+  if (action === 'GET_BERITA' || action === 'GET_ALL_BERITA') {
+    const res = getPublicBeritaList(e ? e.parameter : {});
+    return createJsonResponse(res);
+  }
+
   if (action === 'FIX_LEADERS_PRIMARY') {
     const res = handleFixSpreadsheetLeadersPrimary();
     return createJsonResponse(res);
@@ -115,6 +120,8 @@ function doPost(e) {
       result = handleSavePengurusRecord(payload);
     } else if (action === 'DELETE_PENGURUS_RECORD' || action === 'DELETE_PENGURUS') {
       result = handleDeletePengurusRecord(payload);
+    } else if (action === 'SAVE_BERITA' || action === 'SYNC_BERITA') {
+      result = handleSaveBerita(payload);
     } else if (action === 'SUBMIT_SAMBANG_DELEGATE') {
       result = handleSubmitSambangDelegate(payload, lock);
     } else if (action === 'SCAN_CHECKIN_SAMBANG') {
