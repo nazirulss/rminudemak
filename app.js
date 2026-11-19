@@ -420,6 +420,10 @@ function escapeHTML(value) {
         .replace(/'/g, '&#39;');
 }
 
+function escapeHtml(value) {
+    return escapeHTML(value);
+}
+
 // ==================================================================
 // DATA FETCHER & SMART CACHE (STALE-WHILE-REVALIDATE + TTL)
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
@@ -1865,9 +1869,9 @@ function renderBeritaBeranda() {
     const featured = allBeritaData.find(b => b.is_featured) || allBeritaData[0];
     const featuredContainer = document.getElementById('home-berita-featured');
     if (featuredContainer && featured) {
-        const safeJudul = escapeHtml(featured.judul);
-        const safeRingkasan = escapeHtml(featured.ringkasan);
-        const safeMedia = escapeHtml(featured.sumber_media || 'Media Online');
+        const safeJudul = escapeHTML(featured.judul);
+        const safeRingkasan = escapeHTML(featured.ringkasan);
+        const safeMedia = escapeHTML(featured.sumber_media || 'Media Online');
         const formattedDate = formatTanggalIndonesia(featured.published_at);
         const viewsCount = featured.views_count ? (featured.views_count >= 1000 ? (featured.views_count / 1000).toFixed(1) + 'k' : featured.views_count) : '1.2k';
 
@@ -1910,9 +1914,9 @@ function renderBeritaBeranda() {
     if (recentContainer) {
         const otherArticles = allBeritaData.filter(b => b.id !== (featured ? featured.id : '')).slice(0, 3);
         recentContainer.innerHTML = otherArticles.map(art => {
-            const safeJudul = escapeHtml(art.judul);
-            const safeRingkasan = escapeHtml(art.ringkasan);
-            const safeMedia = escapeHtml(art.sumber_media || 'Media Online');
+            const safeJudul = escapeHTML(art.judul);
+            const safeRingkasan = escapeHTML(art.ringkasan);
+            const safeMedia = escapeHTML(art.sumber_media || 'Media Online');
             const formattedDate = formatTanggalIndonesia(art.published_at);
             const viewsCount = art.views_count ? (art.views_count >= 1000 ? (art.views_count / 1000).toFixed(1) + 'k' : art.views_count) : '850';
 
@@ -1927,7 +1931,7 @@ function renderBeritaBeranda() {
                     <div class="flex flex-col justify-between py-1 flex-1">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">${escapeHtml(art.kategori || 'Warta')}</span>
+                                <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">${escapeHTML(art.kategori || 'Warta')}</span>
                                 <span class="text-slate-400">•</span>
                                 <span class="text-amber-700 text-[10px] font-bold block">${safeMedia}</span>
                             </div>
@@ -2003,8 +2007,8 @@ function renderBeritaFullPage() {
     if (pageFeaturedContainer) {
         if (filtered.length > 0) {
             const f1 = filtered[0];
-            const safeJudul = escapeHtml(f1.judul);
-            const safeMedia = escapeHtml(f1.sumber_media || 'Media Online');
+            const safeJudul = escapeHTML(f1.judul);
+            const safeMedia = escapeHTML(f1.sumber_media || 'Media Online');
             const formattedDate = formatTanggalIndonesia(f1.published_at);
 
             pageFeaturedContainer.innerHTML = `
@@ -2016,7 +2020,7 @@ function renderBeritaFullPage() {
                     <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-col justify-end text-white">
                         <div class="flex items-center gap-2 mb-3">
-                            <span class="bg-primary/95 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">${escapeHtml(f1.kategori || 'Warta')}</span>
+                            <span class="bg-primary/95 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">${escapeHTML(f1.kategori || 'Warta')}</span>
                             <span class="bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">${safeMedia}</span>
                         </div>
                         <h2 class="text-xl md:text-3xl font-bold leading-tight mb-3 group-hover:text-secondary-container transition-colors drop-shadow-md">
@@ -2031,8 +2035,8 @@ function renderBeritaFullPage() {
 
                 <div class="lg:col-span-4 flex flex-col gap-5">
                     ${(filtered.slice(1, 3)).map(sub => {
-                        const subJudul = escapeHtml(sub.judul);
-                        const subMedia = escapeHtml(sub.sumber_media || 'Media');
+                        const subJudul = escapeHTML(sub.judul);
+                        const subMedia = escapeHTML(sub.sumber_media || 'Media');
                         return `
                             <div class="relative group rounded-2xl overflow-hidden shadow-md h-[180px] md:h-[215px] cursor-pointer"
                                 onclick="openBeritaDetailModal('${sub.id}')">
@@ -2042,7 +2046,7 @@ function renderBeritaFullPage() {
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
                                 <div class="absolute bottom-0 left-0 w-full p-4 text-white">
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-secondary-container text-[10px] font-bold uppercase tracking-wider drop-shadow-md">${escapeHtml(sub.kategori || 'Warta')}</span>
+                                        <span class="text-secondary-container text-[10px] font-bold uppercase tracking-wider drop-shadow-md">${escapeHTML(sub.kategori || 'Warta')}</span>
                                         <span class="text-amber-300 text-[10px] font-bold">${subMedia}</span>
                                     </div>
                                     <h3 class="text-sm md:text-base font-bold leading-snug group-hover:text-primary-container transition-colors line-clamp-2">
@@ -2071,9 +2075,9 @@ function renderBeritaFullPage() {
             `;
         } else {
             pageListContainer.innerHTML = filtered.map(item => {
-                const safeJudul = escapeHtml(item.judul);
-                const safeRingkasan = escapeHtml(item.ringkasan);
-                const safeMedia = escapeHtml(item.sumber_media || 'Media Online');
+                const safeJudul = escapeHTML(item.judul);
+                const safeRingkasan = escapeHTML(item.ringkasan);
+                const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
                 const formattedDate = formatTanggalIndonesia(item.published_at);
                 const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '750';
 
@@ -2088,7 +2092,7 @@ function renderBeritaFullPage() {
                         <div class="sm:w-3/5 p-6 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-primary text-[10px] font-bold uppercase tracking-wider">${escapeHtml(item.kategori || 'Warta')}</span>
+                                    <span class="text-primary text-[10px] font-bold uppercase tracking-wider">${escapeHTML(item.kategori || 'Warta')}</span>
                                     <span class="text-slate-300">•</span>
                                     <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${safeMedia}</span>
                                 </div>
@@ -2123,8 +2127,8 @@ function renderBeritaFullPage() {
     if (trendingContainer) {
         const sortedByViews = [...allBeritaData].sort((a, b) => Number(b.views_count || 0) - Number(a.views_count || 0)).slice(0, 4);
         trendingContainer.innerHTML = sortedByViews.map((item, idx) => {
-            const safeJudul = escapeHtml(item.judul);
-            const safeMedia = escapeHtml(item.sumber_media || 'Media');
+            const safeJudul = escapeHTML(item.judul);
+            const safeMedia = escapeHTML(item.sumber_media || 'Media');
             const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
 
             return `
