@@ -1042,7 +1042,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <!-- Berita Sorotan Utama -->
                     <div id="home-berita-featured"
-                        class="lg:col-span-7 group cursor-pointer relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-[450px] md:h-[500px] flex flex-col justify-end border border-slate-200/80">
+                        class="lg:col-span-7 group cursor-pointer relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 h-[450px] md:h-[500px] flex flex-col justify-end border border-slate-200/80"
+                        onclick="openBeritaDetailModal('BRT-2026-001')">
                         <img src="https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z"
                             alt="Berita Utama"
                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -1050,32 +1051,30 @@
                             class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none">
                         </div>
                         <div class="relative z-10 p-6 md:p-10 text-white w-full">
-                            <div class="mb-4">
+                            <div class="mb-4 flex flex-wrap items-center gap-2">
                                 <span
                                     class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-md uppercase tracking-widest shadow-md">Sorotan
                                     Utama</span>
+                                <span class="bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">NU Online Jateng</span>
                             </div>
                             <h3
                                 class="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight mb-3 group-hover:text-secondary-container transition-colors duration-300 drop-shadow-md">
-                                Ribuan Santri Demak Gelar Aksi Damai Solidaritas Pesantren Nusantara
+                                Jaga Marwah Pesantren, RMINU Demak Perkuat Peran Bu Nyai dalam Perlindungan Santri
                             </h3>
                             <div class="flex items-center gap-4 text-xs text-white/80 font-medium mb-6">
                                 <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]">calendar_today</span> 15 Okt
-                                    2026</span>
+                                        class="material-symbols-outlined text-[16px]">calendar_today</span> 5 Nov 2026</span>
                                 <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-[16px]">visibility</span> 1.2k
-                                    Views</span>
+                                        class="material-symbols-outlined text-[16px]">visibility</span> 1.3k Views</span>
                             </div>
                             <div class="flex flex-wrap items-center gap-3">
-                                <button
-                                    class="spa-link bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit"
-                                    data-target="berita">
+                                <button type="button" onclick="event.stopPropagation(); openBeritaDetailModal('BRT-2026-001')"
+                                    class="bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit shadow-md">
                                     Lihat Detail Berita <span
                                         class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                                 </button>
                                 <button type="button"
-                                    onclick="event.stopPropagation(); bagikanBeritaKeWA(1, 'Ribuan Santri Demak Gelar Aksi Damai Solidaritas Pesantren Nusantara', 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z', 'Aksi damai ribuan santri se-Kabupaten Demak meneguhkan komitmen kebangsaan dan perdamaian nusantara.')"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('BRT-2026-001', 'Jaga Marwah Pesantren, RMINU Demak Perkuat Peran Bu Nyai dalam Perlindungan Santri', 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z', 'RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.')"
                                     class="px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
                                     title="Bagikan Berita ini ke WhatsApp">
                                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -1090,34 +1089,35 @@
 
                     <!-- 3 Kolom Berita Ramping -->
                     <div id="home-berita-recent" class="lg:col-span-5 flex flex-col gap-5">
-                        <div class="spa-link group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
-                            data-target="berita">
+                        <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                            onclick="openBeritaDetailModal('BRT-2026-002')">
                             <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                                 <img src="https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21"
-                                    alt="Berita 1"
+                                    alt="Berita 2"
                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             </div>
-                            <div class="flex flex-col justify-between py-1">
+                            <div class="flex flex-col justify-between py-1 flex-1">
                                 <div>
-                                    <span
-                                        class="text-primary text-[10px] font-bold uppercase tracking-wider mb-1 block">Pendidikan</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">Pesantren Ramah Anak</span>
+                                        <span class="text-slate-400">•</span>
+                                        <span class="text-amber-700 text-[10px] font-bold block">Lingkar</span>
+                                    </div>
                                     <h4
                                         class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                                        PCNU Demak Matangkan Kurikulum Madrasah Diniyah Jelang Ujian
+                                        Dorong Penguatan Peran Bu Nyai, Ikhtiar RMI Demak Wujudkan Lingkungan Aman dan Perkuat Daya Saing Produk Pesantren
                                     </h4>
                                 </div>
                                 <div class="flex items-end justify-between mt-2">
-                                    <div class="flex flex-col gap-1 text-[11px] text-on-surface-variant font-medium">
+                                    <div class="flex flex-col gap-0.5 text-[11px] text-on-surface-variant font-medium">
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 14
-                                            Agu 2026</span>
+                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 5 Nov 2026</span>
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">visibility</span> 856
-                                            Views</span>
+                                                class="material-symbols-outlined text-[14px]">visibility</span> 1.3k Views</span>
                                     </div>
                                     <div class="flex items-center gap-1.5">
                                         <button type="button"
-                                            onclick="event.stopPropagation(); bagikanBeritaKeWA(2, 'PCNU Demak Matangkan Kurikulum Madrasah Diniyah Jelang Ujian', 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21', 'Standardisasi kurikulum madrasah diniyah disosialisasikan secara serentak di 14 kecamatan.')"
+                                            onclick="event.stopPropagation(); bagikanBeritaKeWA('BRT-2026-002', 'Dorong Penguatan Peran Bu Nyai, Ikhtiar RMI Demak Wujudkan Lingkungan Aman dan Perkuat Daya Saing Produk Pesantren', 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21', 'RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.')"
                                             class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                                             title="Bagikan ke WhatsApp">
                                             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -1135,69 +1135,93 @@
                             </div>
                         </div>
 
-                        <div class="spa-link group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-secondary/30 transition-all duration-300"
-                            data-target="berita">
+                        <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                            onclick="openBeritaDetailModal('BRT-2026-003')">
                             <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                                 <img src="https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET"
-                                    alt="Berita 2"
+                                    alt="Berita 3"
                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             </div>
-                            <div class="flex flex-col justify-between py-1">
+                            <div class="flex flex-col justify-between py-1 flex-1">
                                 <div>
-                                    <span
-                                        class="text-secondary text-[10px] font-bold uppercase tracking-wider mb-1 block">Ekonomi</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">Warta Organisasi</span>
+                                        <span class="text-slate-400">•</span>
+                                        <span class="text-amber-700 text-[10px] font-bold block">NU Online Jateng</span>
+                                    </div>
                                     <h4
-                                        class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-                                        Pelatihan Manajemen Keuangan Koperasi Pesantren se-Demak
+                                        class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                        Kolaborasi RMI PCNU dan Pemkab Demak Dorong Pesantren Adaptif dan Cetak Generasi Unggul
                                     </h4>
                                 </div>
                                 <div class="flex items-end justify-between mt-2">
-                                    <div class="flex flex-col gap-1 text-[11px] text-on-surface-variant font-medium">
+                                    <div class="flex flex-col gap-0.5 text-[11px] text-on-surface-variant font-medium">
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 12
-                                            Agu 2026</span>
+                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 1 Nov 2026</span>
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">visibility</span> 542
-                                            Views</span>
+                                                class="material-symbols-outlined text-[14px]">visibility</span> 1.4k Views</span>
                                     </div>
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-slate-100 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-colors">
-                                        <span
-                                            class="material-symbols-outlined text-[18px] transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">arrow_forward</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button"
+                                            onclick="event.stopPropagation(); bagikanBeritaKeWA('BRT-2026-003', 'Kolaborasi RMI PCNU dan Pemkab Demak Dorong Pesantren Adaptif dan Cetak Generasi Unggul', 'https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET', 'Liputan resmi kegiatan PC RMI NU Kabupaten Demak bersama Pemkab Demak.')"
+                                            class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                            title="Bagikan ke WhatsApp">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                                            </svg>
+                                        </button>
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-slate-100 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                                            <span
+                                                class="material-symbols-outlined text-[18px] transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">arrow_forward</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="spa-link group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-tertiary/30 transition-all duration-300"
-                            data-target="berita">
+                        <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
+                            onclick="openBeritaDetailModal('BRT-2026-004')">
                             <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
-                                <img src="https://lh3.googleusercontent.com/d/1X5qDLQmi-Rww2YmblrisP9VhYiIb2k7_"
-                                    alt="Berita 3"
+                                <img src="https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58"
+                                    alt="Berita 4"
                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             </div>
-                            <div class="flex flex-col justify-between py-1">
+                            <div class="flex flex-col justify-between py-1 flex-1">
                                 <div>
-                                    <span
-                                        class="text-tertiary text-[10px] font-bold uppercase tracking-wider mb-1 block">Organisasi</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-primary text-[10px] font-bold uppercase tracking-wider block">Pesantren Ramah Anak</span>
+                                        <span class="text-slate-400">•</span>
+                                        <span class="text-amber-700 text-[10px] font-bold block">NU Online Jateng</span>
+                                    </div>
                                     <h4
-                                        class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-tertiary transition-colors line-clamp-2">
-                                        Rakorcab RMI NU Rumuskan Program Beasiswa Santri Unggulan
+                                        class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                        Langkah Konkret Perkuat Komitmen Perlindungan Santri, RMI PCNU Demak Deklarasi Pesantren Sadar Hukum
                                     </h4>
                                 </div>
                                 <div class="flex items-end justify-between mt-2">
-                                    <div class="flex flex-col gap-1 text-[11px] text-on-surface-variant font-medium">
+                                    <div class="flex flex-col gap-0.5 text-[11px] text-on-surface-variant font-medium">
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 10
-                                            Agu 2026</span>
+                                                class="material-symbols-outlined text-[14px]">calendar_today</span> 1 Nov 2026</span>
                                         <span class="flex items-center gap-1"><span
-                                                class="material-symbols-outlined text-[14px]">visibility</span> 1.1k
-                                            Views</span>
+                                                class="material-symbols-outlined text-[14px]">visibility</span> 1.4k Views</span>
                                     </div>
-                                    <div
-                                        class="w-8 h-8 rounded-full bg-slate-100 text-tertiary flex items-center justify-center group-hover:bg-tertiary group-hover:text-white transition-colors">
-                                        <span
-                                            class="material-symbols-outlined text-[18px] transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">arrow_forward</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <button type="button"
+                                            onclick="event.stopPropagation(); bagikanBeritaKeWA('BRT-2026-004', 'Langkah Konkret Perkuat Komitmen Perlindungan Santri, RMI PCNU Demak Deklarasi Pesantren Sadar Hukum', 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58', 'RMI PCNU Demak bersama Pemkab Demak mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.')"
+                                            class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                            title="Bagikan ke WhatsApp">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                                            </svg>
+                                        </button>
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-slate-100 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                                            <span
+                                                class="material-symbols-outlined text-[18px] transform -rotate-45 group-hover:rotate-0 transition-transform duration-300">arrow_forward</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

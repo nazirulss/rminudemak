@@ -61,6 +61,11 @@ function doGet(e) {
     return createJsonResponse(res);
   }
 
+  if (action === 'CLEAN_DUMMY_BERITA') {
+    const res = handleCleanDummyBerita();
+    return createJsonResponse(res);
+  }
+
   if (action === 'FIX_LEADERS_PRIMARY') {
     const res = handleFixSpreadsheetLeadersPrimary();
     return createJsonResponse(res);
@@ -122,6 +127,8 @@ function doPost(e) {
       result = handleDeletePengurusRecord(payload);
     } else if (action === 'SAVE_BERITA' || action === 'SYNC_BERITA') {
       result = handleSaveBerita(payload);
+    } else if (action === 'CLEAN_DUMMY_BERITA') {
+      result = handleCleanDummyBerita();
     } else if (action === 'SUBMIT_SAMBANG_DELEGATE') {
       result = handleSubmitSambangDelegate(payload, lock);
     } else if (action === 'SCAN_CHECKIN_SAMBANG') {

@@ -646,3 +646,42 @@ function handleSaveBerita(payload) {
     return { success: false, error: err.message };
   }
 }
+
+// Membersihkan seluruh entri berita dummy/mock uji coba dari tab web_berita
+function handleCleanDummyBerita() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('web_berita');
+    if (!sheet) return { success: false, error: 'Sheet web_berita tidak ditemukan' };
+
+    const data = sheet.getDataRange().getValues();
+    let deletedCount = 0;
+
+    for (let i = data.length - 1; i >= 1; i--) {
+      const rowId = String(data[i][0] || '').trim().toUpperCase();
+      const judul = String(data[i][1] || '').trim().toLowerCase();
+
+      const isDummy = rowId === 'BRT-TEST-001' || 
+                      rowId === '1' || 
+                      rowId === '2' || 
+                      judul.includes('uji berita') || 
+                      judul.includes('ribuan santri') ||
+                      judul.includes('bantuan sanitasi') ||
+                      judul.includes('mitigasi bencana banjir rob') ||
+                      judul.includes('antologi puisi');
+
+      if (isDummy) {
+        sheet.deleteRow(i + 1);
+        deletedCount++;
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Berhasil membersihkan ' + deletedCount + ' data dummy/mock dari tab web_berita!',
+      deletedCount: deletedCount
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}

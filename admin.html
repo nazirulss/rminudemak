@@ -4003,7 +4003,11 @@
                 wilayah: { title: "Referensi Wilayah Administratif", breadcrumb: "Master / 14 Kecamatan & Desa Demak" },
                 audit: { title: "Riwayat Aktivitas & Jejak Audit", breadcrumb: "Keamanan / Audit Trail Transaksi" },
                 pengaturan: { title: "Pengaturan Sistem", breadcrumb: "Konfigurasi / Gateway & Health Check" },
-                sambang: { title: "Sambang Pesantren 2026", breadcrumb: "Agenda / Presensi Meja Tamu & Undangan Digital" }
+                sambang: { title: "Sambang Pesantren 2026", breadcrumb: "Agenda / Presensi Meja Tamu & Undangan Digital" },
+                "cms-beranda": { title: "CMS Beranda Web", breadcrumb: "CMS / Konten Publik Beranda" },
+                "cms-profil": { title: "CMS Profil Organisasi", breadcrumb: "CMS / Konten Publik Profil" },
+                "cms-layanan": { title: "CMS Layanan Organisasi", breadcrumb: "CMS / Konten Publik Layanan" },
+                "cms-berita": { title: "CMS Warta Berita RMI", breadcrumb: "CMS / Manajemen Publikasi Warta" }
             };
 
             if (titles[moduleName]) {
@@ -4033,6 +4037,12 @@
             }
             if (moduleName === 'sambang') {
                 initSambangAdminModule();
+            }
+            if (moduleName === 'cms-berita') {
+                renderCmsBeritaTable();
+                if (typeof loadCmsBeritaFromApi === 'function') {
+                    loadCmsBeritaFromApi();
+                }
             }
         }
 
@@ -7985,28 +7995,228 @@
 // =========================================================================
 let cmsBeritaData = [
     {
-        id: 1,
-        judul: "Ribuan Santri Demak Gelar Aksi Damai Solidaritas Pesantren Nusantara",
-        kategori: "Pendidikan",
-        penulis: "Redaksi RMI PCNU Demak",
-        tanggal: "2026-10-15",
-        status: "Sorotan Utama",
-        isFeatured: true,
-        cover: "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z",
-        ringkasan: "Aksi damai ribuan santri se-Kabupaten Demak meneguhkan komitmen kebangsaan dan perdamaian nusantara.",
-        isi: "Demak — Ribuan santri dari berbagai pondok pesantren di Kabupaten Demak menggelar aksi damai solidaritas..."
+        "id": "BRT-2026-001",
+        "judul": "Jaga Marwah Pesantren, RMINU Demak Perkuat Peran Bu Nyai dalam Perlindungan Santri",
+        "kategori": "Pesantren Ramah Anak",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-11-05",
+        "status": "Sorotan Utama",
+        "isFeatured": true,
+        "cover": "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z",
+        "ringkasan": "RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.",
+        "isi": "RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPRGdYN3lrQTg0NTNiWTZrUEVTZ2FoSEZOTk5YQVZmWXhicGMyemRHcnNhajBZaHpJWm9jcjY1ZlFMZTB1WUsxYnNSN3dIdng0eUp5TkNaNFhPU3J1UmtOenRqTHdaVWZHVjFsQ3J5dVVkSDZRZFlMQzJMLVdfem1Ic1o5LThTNTFVb1NSTTlRXzVuUVY1NXdOX3JGTHNBckRYZEgtd2ZUVWUxZU9hNy1RaGtVdXpUbWstRURfS1dB0gHDAUFVX3lxTE9BdE52dkNzYS1td0VHcGIwZnk3Nk1xTlFqWnFBem9xX1dRVGIwTTI0UDRMdkJSalM1VHZ3cVJQSGowNmRLUkZCQUR2N2I1VXA0Mm5acW5zTnl5ZzhhRkFYSldGcm5XcEUwSkpRaXcxdkUyZHFWZ0JsR1FnNG91MnpKUmJnUzF4b3VUZmVUSVg1X0dpWnVoRGxuclZGYUtMdjhTVFlWUjUwMHF0M2doY0JYYXYxcENPQnBiLTU1STNzdC1law?oc=5"
     },
     {
-        id: 2,
-        judul: "PCNU Demak Matangkan Kurikulum Madrasah Diniyah Jelang Ujian",
-        kategori: "Pendidikan",
-        penulis: "LTN NU Demak",
-        tanggal: "2026-08-14",
-        status: "Terbit",
-        isFeatured: false,
-        cover: "https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21",
-        ringkasan: "Standardisasi kurikulum madrasah diniyah disosialisasikan secara serentak di 14 kecamatan.",
-        isi: "Demak — Pengurus Cabang Nahdlatul Ulama (PCNU) Kabupaten Demak melalui RMI mematangkan kurikulum..."
+        "id": "BRT-2026-002",
+        "judul": "Dorong Penguatan Peran Bu Nyai, Ikhtiar RMI Demak Wujudkan Lingkungan Aman dan Perkuat Daya Saing Produk Pesantren",
+        "kategori": "Pesantren Ramah Anak",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-11-05",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21",
+        "ringkasan": "RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.",
+        "isi": "RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (Lingkar).",
+        "sumber_media": "Lingkar",
+        "url_sumber": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQUUhyM2h2U2pkSDFlS0xYQ3pSWFNzMjRQVEhHREthSXhzSnZ3X01nc1F5b3ZPSDQ5VHZDamY0clhlSUdlVFRtZzEweDMySFdMTlJWa1NLSDhIRHFvSHYyeUIzWE1GMDRBTm5kSjVwbUZ4SGpBcG1jVlpWX000Q2FlSjFLbnQ1U1BnSW1yNzg2bXRoaWZXZXFWVjQ5SmJQNHh0?oc=5"
+    },
+    {
+        "id": "BRT-2026-003",
+        "judul": "Kolaborasi RMI PCNU dan Pemkab Demak Dorong Pesantren Adaptif dan Cetak Generasi Unggul",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-11-01",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Kolaborasi RMI PCNU dan Pemkab Demak Dorong Pesantren Adaptif dan Cetak Generasi Unggul. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Kolaborasi RMI PCNU dan Pemkab Demak Dorong Pesantren Adaptif dan Cetak Generasi Unggul. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQaHB1OTZfeVZXUmdkT05Fa2JTak5KeUR3MnptQTBLR1FxR2piX2d5OWVrZEtXX2ROY3hYaUdHOVpKV2tIRW1KNDNGUEJZaFdBbmlJeHVfTUlROUVFQWgxV3ZVT0stNlpYSEUxb0Z3QnZmSWZEX2RUVGpSN0hmTDBfVlJ5QTFMeGx0bWVWcUZxY21CR0U2dFI1dmx5ODV0YTJWRi1FTV9TZndQb0h1MS1YZFpNRnh4X1B1WV9fMVZ0dnVBblFqRmfSAcsBQVVfeXFMTnZjblpYVHdtV1Z0dm5RSEs4R1Y2MC16eDJqeTVVeUg4UmlCY2RLYU1EVERSOG5SY2I0ZFZfUXp5T1M3WnJDMTVjZG9iY3VMdHRWb1p3VlZuWDVtYUhZZnd2UjJGdWhJY0Q1ZjlLWnd1SXdQZktEckotUG9IZG9KcUFEa3dVRHl2M1VKd2tscG9KX2tUNmw2UVRwRWRLeFl1WmFXSS1XN0hCZ0I4d2FBZU56Y1Rtc0Job2ktcDQ2SkFZN3UyVTNLbkROQ0k?oc=5"
+    },
+    {
+        "id": "BRT-2026-004",
+        "judul": "Langkah Konkret Perkuat Komitmen Perlindungan Santri, RMI PCNU Demak Deklarasi Pesantren Sadar Hukum",
+        "kategori": "Pesantren Ramah Anak",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-11-01",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
+        "ringkasan": "RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow Pesantren di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.",
+        "isi": "RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow Pesantren di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxNZXVMWDl1YXRVcXY0M0ZhOTljSmVsdkFEeGY1bGFRWmJPa21GRXZVdC16LXRlU2x6WE1WS3J4ZzJTVU9GTEluemdoV3BwMjFreEVXWnltWWlIY21ZWXJHeTVmU0lQendhMmtFQlZxTi1FQVVRMlpCVzZyVndNTEFTb1pTSHZuTS1FcEZXbXQ1bWpIRnZHcEpGa1FGSDRnVXQ1Wm8xZzBVWkNoOTctdGRha2RzVUJmWkVYUkFBQ2toNWU3QTRUQjNQTXI4NC1QNlpaNzJlRGNR0gHbAUFVX3lxTE9XYklGSmlfbjVXMWpRWlFLU2djZkY0SnRsZHVQSHg4VUVrTUwzTl90RnNSSkZEZno4ZHQwVVdfQ0FKLVAtTGZsSmUwZnJaZzAwQXZqQWRsTXRscXJaUXNBSFR2aFVvX2NLZ0tpS2VfSGdWNkRnMWtrVE94RTlEc3d2dmVEaHk4aklNZU85VHctNjVQQl9obkRUaC11cjBlanp3YjNsQnJoQk9vTmdJNk1FVkVHQmZtMnF3YVhFRnV4dFd5bjAxZDN4a2FLWFhkYlhwQ1BDcFRGZVE3dw?oc=5"
+    },
+    {
+        "id": "BRT-2026-005",
+        "judul": "RMI PCNU Demak Deklarasikan Pesantren Sadar Hukum, Perlindungan Santri Jadi Prioritas",
+        "kategori": "Pesantren Ramah Anak",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-11-01",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G",
+        "ringkasan": "RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow Pesantren di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.",
+        "isi": "RMI PCNU Demak bersama Pemkab Demak dan Unit PPA Polres Demak menggelar Talkshow Pesantren di Hotel Amantis, mendeklarasikan gerakan Pesantren Sadar Hukum guna memperkuat perlindungan santri.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (Kabarjateng.id).",
+        "sumber_media": "Kabarjateng.id",
+        "url_sumber": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOREhHa1IyUTZYQ3hiT0NEVENLREE4TG9UaG01d2tONFVfLXFuM1JhVWswc1VmUkp0V2s3MWpOVEkwMmo1Qk8zdkNmYTRTTG4zQ3lKckhZcFp2WlZ3Vnk1eGhmejE0Rk1ySWtrX0V2cTBjd0t2dkc5Z2hSbVNnLTFxM2I2Mm5MVGxWSEpoMjJLM0tRM3lNNGlrakV0emk3cEZ0V0RLQzdkQkZ0VmhC?oc=5"
+    },
+    {
+        "id": "BRT-2026-006",
+        "judul": "RMINU Demak Dorong Evaluasi dan Transformasi Pendidikan Pesantren",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-10-17",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMINU Demak Dorong Evaluasi dan Transformasi Pendidikan Pesantren. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMINU Demak Dorong Evaluasi dan Transformasi Pendidikan Pesantren. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQUk9lUXdwNnJ1Ty1sWmh1RVJrY29uVzBKZFBjMU9XOFdWZUdsREEyeDBpWjQ4eTNGaVlPdHhObHdZV0ljcjRtT3pVNk1ZZmNzUTJiVFFzbXh0aEFMck15bzFTNW5UTlp2MXUyTnNVTkVnVW1CNWlQdWZQOVRaY2lIOTdMVFEzSDVGWkN0bHAyaElEbzR1RU1kSFd2Yk1aU2tockVvOS00TdIBrAFBVV95cUxPVGVYcU1nSnAxZDZBODl6RXZjZkFBdVlIME9hNEVxOGJTZ0h2c3poQ0p3ajNORjVyZVd6bjlDZXNMQ2Z3OG1hd21EdlIxQktzZzI1SDB6d1p6ZWlHTUxXUVk1X0xMbzhLYWRJZm5YWVFlOU9RVlNXUzUtV0cxVU5JWGdDVy14TVVWM2RLdy1EMHBlN0hEY0JxU2JMRWRxTUg0UFN6T1J5RDhBekd1?oc=5"
+    },
+    {
+        "id": "BRT-2026-007",
+        "judul": "RMI PWNU Jateng Dorong Pesantren Perkuat Khidmah Keilmuan dan Kontribusi untuk Negeri",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-09-28",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMI PWNU Jateng Dorong Pesantren Perkuat Khidmah Keilmuan dan Kontribusi untuk Negeri. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMI PWNU Jateng Dorong Pesantren Perkuat Khidmah Keilmuan dan Kontribusi untuk Negeri. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNOGU0VzlkSVhFQTh6NTVxMFFxdU5xdEtnOWRwMlVjUjZ1NnRUWmNIOVFsYUxMZlgyTGVkSVA4VFY3N05HTkZ6d3VVYktES0VVdVZSeVFSYml5Ykp0Z1hZUk9wV2gwcXJJMGVKcEZSeVNCazdoUHVnSDdpM1lOVW4zVm1mUEtEM1BrSkF0aGZ5WG1fcTdiME91Rk5fMlUtSmxzQkVENHg0c3c3X3h5TzN0d1p6bmxpSFV2UWFiTHFGS2lqSUHSAcgBQVVfeXFMTVdjMlNmOXBVU3FyRnI1bHpYU2RqOTd2bTBtN21wQmczdU1QcTEtNThhcVpPMS0zU3RRdlBiQUF5amViUS1PdTNpWkhvSlBvcjNrNThnMGk4Q0Y4NHd2Ulk2amtrS2V1ejYwZmlGeXlPczZQTEJZYjNRUWRmVWJobUpxd19PRXF6N21haWdlOHh4RHBrZHEtOG91NXBhY3otNEF1a0lXZDlOcnlYVVN5M01aU0JEM2ZVYVc3Vm10dWZKMXgzU1ZKaXo?oc=5"
+    },
+    {
+        "id": "BRT-2026-008",
+        "judul": "Respon Tuntutan Zaman, RMI NU Demak Konsolidasikan Madrasah Diniyah",
+        "kategori": "Pendidikan & Madin",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-09-16",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET",
+        "ringkasan": "Bidang Madin RMI NU Demak menggelar konsolidasi dewan asatidz se-Kabupaten Demak guna merespons dinamika kurikulum dan standardisasi mutu pembelajaran santri.",
+        "isi": "Bidang Madin RMI NU Demak menggelar konsolidasi dewan asatidz se-Kabupaten Demak guna merespons dinamika kurikulum dan standardisasi mutu pembelajaran santri.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (Suara Nahdliyin).",
+        "sumber_media": "Suara Nahdliyin",
+        "url_sumber": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNN29OVk4zb05rTGphS1Jzd1d4VGF1ZUY0emlvdlJOck5HYWNMWkhVR3IxU1RtLUNQaHlUUHZ3Q3l1a3RzY1FQZUo2WF8wQmdDSDkxaGFWMEJLek9rdk5XUzZqNVctS2g5Zlpiak5GRkpZSTAwa2tjOXM2SWhDZ2NqUzJ1LXYwZ0dib1hYMU1XS1FxSHRQN0hiSV9XbEVrUGJB?oc=5"
+    },
+    {
+        "id": "BRT-2026-009",
+        "judul": "RMI PCNU Pati Gelar Halaqah Pengasuh Pesantren di IPMAFA, Dorong Tata Kelola Ramah dan Mandiri",
+        "kategori": "Pengkaderan & SDM",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-09-07",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMI PCNU Pati Gelar Halaqah Pengasuh Pesantren di IPMAFA, Dorong Tata Kelola Ramah dan Mandiri. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: RMI PCNU Pati Gelar Halaqah Pengasuh Pesantren di IPMAFA, Dorong Tata Kelola Ramah dan Mandiri. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOcHNqb3dXVlpjN1lHVzRDMG5kT2ttcDJNZXNUV2RVTXpfenhkaUpleVN4OVNPbkZJVTRQT3ZhS3pKMmZPc0FvdU91T2ZMTEN4bnVXbE5nZTU4cVU0X2hkMjFmbFJKQmc3eGc2T3A4c25lN1ZOOXNvam9USWxvY0JkX01Fa2t1UWg1RVgwZ1FxZEdpS0xucGRGU2xwc2NzcXhsdzRJcEFqUkpKakJINkRzVVJaNHFobENKUVVTeDlpNjdHTzhkOTlOVmtIdXRod9IB0wFBVV95cUxONUdmZHNLY2pnUkQwdnhhRVhwZGlSUlE5UjF0V2MtNmJ4R2RBREprRGFqZzZmek0xTWt3Sk9XaGVCSGIxdkpiZ1Vock9YYUpwdFNHN0ljZERqcW9HUGtaX2lKMGtwc1hUQjFRUW5FOUx6M09wazMzOW92NlAydlhHZmpkYVhFejZjWnRtM01oNXBoMm1iVTYyWXNoR2hRX3htNVlJVnZBZUJVWXNlcHg5UTBwVWtpdTc0QlBuRXRqUmZGVjZTMGMwY0ZpOVJJbjlRSFo4?oc=5"
+    },
+    {
+        "id": "BRT-2026-010",
+        "judul": "Perlindungan Santri Butuh Sinergi Semua Pihak, RMINU Demak Dorong Kemenag Aktif Dampingi Pesantren",
+        "kategori": "Pesantren Ramah Anak",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-08-05",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Perlindungan Santri Butuh Sinergi Semua Pihak, RMINU Demak Dorong Kemenag Aktif Dampingi Pesantren. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Perlindungan Santri Butuh Sinergi Semua Pihak, RMINU Demak Dorong Kemenag Aktif Dampingi Pesantren. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNZWRRdWI2R01zTXQ3QkVpOUhjMWhCY2U5Z2U5anZLZ3hld21CN1pUWjhHazhTcWVSQ0djTHhwRkV3R2RlZVh6MkVGNUtPWWNDOHVBbmFHcnNDM2pCVlRsQXBIdGNrRTFjU1AwTWxZSWU3SzdsT2ttbWFqbkRTaFVJWlVpaXJZSXlBQ2ZSSGlGalo5cVBaSUNwN1hIRkMzSEY4cHZlOGUzNkM4UnBnaE5yZW1NajF1aC03dmdHYjg2eEQ0enA2b0QxZVJfQmNSdWFhNFhR0gHYAUFVX3lxTE5rVFlwendWRGI5RWVhX0VObEdqMDdQWGU4NTdvSzdKUHhYTWd1TzBJOGlTSVNaR1czR1djQkpLWDBjb1BLMWVnVjdHbGtSN0NvSEJsMzZraFE2cnkxSE4wVWx3bEJ3Tl8zcTlRUGhYNkxRZTNXRmVDdzZEYnNKX1ZHd3lVUmpua29QTjVGUTFPUFdpRXlUczFhWUh1QU9renpIN2dvU0FGLVJYY28tSGJIVXA2UEtjUlpmUVNJVWdQYnFha1RFeHVxSzc5NFdwd1ctb0dwQVhZUg?oc=5"
+    },
+    {
+        "id": "BRT-2026-011",
+        "judul": "Sowan ke Pesantren Girikusumo Demak, Menag Dorong Santri Biasakan Tabayyun di Tengah Arus Informasi Digital",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-06-06",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Sowan ke Pesantren Girikusumo Demak, Menag Dorong Santri Biasakan Tabayyun di Tengah Arus Informasi Digital. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Sowan ke Pesantren Girikusumo Demak, Menag Dorong Santri Biasakan Tabayyun di Tengah Arus Informasi Digital. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxOR24xa1Q4NjAxSGVya25Ed1FqWnNSTW9sTWE4cGdKUmxEZUdYMGQ3M0FxTGtRazZPcU44MDhBb3M4VUF3VWdyT0wyWUhhb3pjYm5IQ1MwUTJqOWZuRW5NQUNwdVIwYmNKUi1IbEpWQUl5ckY0SHJXejdCQW5BUkU1MjVMbXJQZmdmVFdVcHAwTHM5eGRKd2lTb0dJUDJsbnpCRDhXT3FKRGpMY0ZRQ01Lb1M5MWNYWU5xNmV1ZERPUWZyeDRhZzZqM2ExcWlkZGRUdjFCRXBta05wYkxwYlc00gHkAUFVX3lxTE1paEhmZkVHNU9VX0YtWEVzeUQ5VG1pNnhGRHlyOVpPeFhqSzdSLTJyUlB6MXZmYnZiWTBocWVDX3hfeVg2TWhtQ3I0RHBFNFA5MXVmTzc4dFc2S081aWV0OGl2bEREeGxYRG9lSkVKVGZNeWloQ2dQc2dVVTFJbFBMZzg2ejNkVko2bEFhX0lPZ25QU1k1OFhOSmxtd3ZEaWhGNEM3S0cxVG8weWJ3bU9aR0RsMGRoaXkwT1dCWThSRmFlMnBXc3l0OEk5WnRCZll4X1N6Q2xWVzJsRFdIRUJuTnN5OA?oc=5"
+    },
+    {
+        "id": "BRT-2026-012",
+        "judul": "Ketua DPRD Demak Soroti Dampak Kasus Asusila terhadap Dunia Santri",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-05-28",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Ketua DPRD Demak Soroti Dampak Kasus Asusila terhadap Dunia Santri. Berita dipublikasikan oleh media VIVA Jogja.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Ketua DPRD Demak Soroti Dampak Kasus Asusila terhadap Dunia Santri. Berita dipublikasikan oleh media VIVA Jogja.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (VIVA Jogja).",
+        "sumber_media": "VIVA Jogja",
+        "url_sumber": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQMGZkWDV4b3ZuN1FjZWxYU05RRXlPMHVFRFJBaHFIMGxDTlM5WTNNZlpOUi1EZFdXWFJRbllxd0RpcDNONkNOLVBCb29VNS1rN1JBa2UtS0ZKZ0tIZUpLZjdXRjQ4NmxsNWRxOEZnUFVSQ0k4NGphSkl2cVNpV1daZUEyU2VIM2NmYnlWOHlyQ0ZOUVd1U3VXbkt2UnN2NlBSbjFYajlkQVR1ZHVSTXc?oc=5"
+    },
+    {
+        "id": "BRT-2026-013",
+        "judul": "130 Pesantren di Demak Tercatat Belum Punya Izin Operasional",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2026-05-24",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/17kYcDeiWR9QtzTTwjZE1r_xyCtnDLNET",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: 130 Pesantren di Demak Tercatat Belum Punya Izin Operasional. Berita dipublikasikan oleh media BeritaJateng.id.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: 130 Pesantren di Demak Tercatat Belum Punya Izin Operasional. Berita dipublikasikan oleh media BeritaJateng.id.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (BeritaJateng.id).",
+        "sumber_media": "BeritaJateng.id",
+        "url_sumber": "https://news.google.com/rss/articles/CBMilgFBVV95cUxNMjhWS0lsbFl5WkFpUE5Gd25zRXdOejJRa3llOVpublBBcGgwWDkzNmsyWHBRNHYtaHZvQUJZRmYzeDV4YkFvUkVmaHBxTWhHTFRmS1F5Vmw2dXRfRC1ZWFZVaEpBa21lbVkzVS1sY290V1JMNFA3TUlqRVQ1dkVkZFNGNmJkSkVyOXpLNG1CYkE3eTVodVE?oc=5"
+    },
+    {
+        "id": "BRT-2026-014",
+        "judul": "Ketua RMI PCNU Wonosobo Apresiasi Program Ketahanan Pangan Polri di Pesantren",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2025-08-07",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Ketua RMI PCNU Wonosobo Apresiasi Program Ketahanan Pangan Polri di Pesantren. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Ketua RMI PCNU Wonosobo Apresiasi Program Ketahanan Pangan Polri di Pesantren. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPU05uVG9CUEM0Wk5maUV2NVpWSXNKa3FIclNrNl9fXzJCRFJoTnpuOGZMTTdFSU9EVEhCSnRtVlBwVjdGVk1Vdk9WMXNsUVNiTDlubENHUHVJcVhsRHMwbTRkSkpHNHRQQ3o4SllneEpLZXgzQWNrLUZUN3NEbTZ1dXJoMm1QTnp5VHR6WkFVUXprTGtFQlhxUVZ3akJGcHktSFEzUkhNczJXZElPM2lCVzF3bFczV2tq0gG-AUFVX3lxTE5YWVIwOUZ5WkYyMmR1MEZyVTdFVXozME1NOU15NUpIZmVXRkhpOXdPRTAydjMxZDBKSmxQT3hROEhQS3IzSnZlV1ZnSHduVmJXbEtHR2JIWURrVmdkU1ptNGJod29FeEoxcy1BLW1EbU5GQVpBc1lrQTNMcS1aYXlVeUZSTmpUZmZmeUc5UHB6UmJzZXFkdWlvZ2lDNS1NUlRhVzJ2UkdjQTQ2Z3p3MjdNMTFzMUhTZjg0LU5nMHc?oc=5"
+    },
+    {
+        "id": "BRT-2026-015",
+        "judul": "Revitalisasi Nilai Pesantren, RMI PCNU Kendal Gelar Halaqah Pondok Pesantren se-Kabupaten Kendal",
+        "kategori": "Pengkaderan & SDM",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2025-07-29",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/15r1HChPt-hSueGYK8_84V5t-xuwzM02G",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Revitalisasi Nilai Pesantren, RMI PCNU Kendal Gelar Halaqah Pondok Pesantren se-Kabupaten Kendal. Berita dipublikasikan oleh media NU Online Jateng.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Revitalisasi Nilai Pesantren, RMI PCNU Kendal Gelar Halaqah Pondok Pesantren se-Kabupaten Kendal. Berita dipublikasikan oleh media NU Online Jateng.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (NU Online Jateng).",
+        "sumber_media": "NU Online Jateng",
+        "url_sumber": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxOOHl3WlU3ZElXVzIxS0FfZXFxOWw0MDZIdUNtUlo2ZlhwUmJRMzRMb0dJNEtwSWtSX2RiX2t5MDJ5ZFpsQUsyZWxDMWpSUV8tQWlJa0ZGU3dOVFZfNnVHLWtqbEFQMUY1cWFxaExQSnN5eGhROFBxU1ZOa2huNEE0eE43dEhaVmRiTmtuNFkxYzN3WlppOVJvNXl2UTRucU5GaS1vZGtMSTJXa3pjZVY3NHJBbFo2THJ2M2ZWVEdaZkRBd3NLN25iSGtNd3FyRExv0gHWAUFVX3lxTE9DRG5oVWtLQlI4WkZSYXJnVEpCZ3AzaEJuV3l5VGxSV1JpNHRmT3JaVWxMNEYyOUNxSFBydC01NVhfWjZPd2NEcXZ0bmdDYkNITFdIUEdFeXBWQklLOUxVZlNBSDdQbEZxU2pSY2NELXEzZ094eFZzUHZpSDdtMjVQa1dzRWlMeG1pM1lvX3hJWFJGZVdkS01HZUZfa1dRMlhnNUxYZTdVN2l2YXhsbDRfTmdad0NHWlA0Ylg0dEZhNTdycGU2RlpTVmRPRDRJRmVXSm4tNnc?oc=5"
+    },
+    {
+        "id": "BRT-2026-016",
+        "judul": "Pelantikan Pengurus RMI-NU Demak Periode 2023-2028",
+        "kategori": "Warta Organisasi",
+        "penulis": "Tim Media RMI NU Demak",
+        "tanggal": "2023-08-07",
+        "status": "Terbit",
+        "isFeatured": false,
+        "cover": "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z",
+        "ringkasan": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Pelantikan Pengurus RMI-NU Demak Periode 2023-2028. Berita dipublikasikan oleh media Portal Demak.",
+        "isi": "Liputan warta seputar kegiatan PC RMI NU Kabupaten Demak: Pelantikan Pengurus RMI-NU Demak Periode 2023-2028. Berita dipublikasikan oleh media Portal Demak.\n\nSelengkapnya dapat dibaca langsung pada publikasi media terkait (Portal Demak).",
+        "sumber_media": "Portal Demak",
+        "url_sumber": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNRXRsZDhfMmhyMEJfY0wyUFM5N1FiYm9PYXQ0MVJYaklDc1UxVHQwajhxNWNxOWhYeFg5YUZUNnlneGV5Tk5OTk04b3lxZThPQktBY1VHNDVUcjh5Q2ljOEtOaHJEOXVSMjBsaFprUGlMZmMtT0l4R1ZUak92S3J0WUNLNWY?oc=5"
     }
 ];
 
@@ -8046,10 +8256,10 @@ function renderCmsBeritaTable(filteredData = null) {
             <td class="p-3.5">${badgeStatus}</td>
             <td class="p-3.5 text-right pr-5">
                 <div class="inline-flex items-center gap-1.5">
-                    <button type="button" onclick="bukaInlineEditBerita(${item.id})" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg font-bold text-[11px] transition cursor-pointer flex items-center gap-1">
+                    <button type="button" onclick="bukaInlineEditBerita('${item.id}')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg font-bold text-[11px] transition cursor-pointer flex items-center gap-1">
                         <span class="material-symbols-outlined text-[13px]">edit</span> Edit
                     </button>
-                    <button type="button" onclick="hapusCmsBerita(${item.id})" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold text-[11px] transition cursor-pointer" title="Hapus Berita">
+                    <button type="button" onclick="hapusCmsBerita('${item.id}')" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold text-[11px] transition cursor-pointer" title="Hapus Berita">
                         <span class="material-symbols-outlined text-[13px]">delete</span>
                     </button>
                 </div>
@@ -8093,7 +8303,7 @@ function bukaInlineTambahBerita() {
 
 // Buka Inline Form untuk Edit Berita
 function bukaInlineEditBerita(id) {
-    const item = cmsBeritaData.find(b => b.id === Number(id));
+    const item = cmsBeritaData.find(b => String(b.id) === String(id));
     if (!item) return;
 
     const editor = document.getElementById('inline-editor-cms-berita');
@@ -8256,7 +8466,7 @@ function simpanArtikelBerita() {
     }
 
     if (id) {
-        const idx = cmsBeritaData.findIndex(b => b.id === Number(id));
+        const idx = cmsBeritaData.findIndex(b => String(b.id) === String(id));
         if (idx !== -1) {
             cmsBeritaData[idx] = {
                 ...cmsBeritaData[idx],
@@ -8266,7 +8476,7 @@ function simpanArtikelBerita() {
             showToast('success', 'Artikel warta berita berhasil diperbarui!');
         }
     } else {
-        const newId = Date.now();
+        const newId = 'BRT-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
         cmsBeritaData.unshift({
             id: newId,
             judul, kategori, penulis, tanggal, cover, ringkasan, isi, isFeatured,
@@ -8292,14 +8502,48 @@ function simpanArtikelBerita() {
 
 function hapusCmsBerita(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus artikel warta ini?')) return;
-    cmsBeritaData = cmsBeritaData.filter(b => b.id !== Number(id));
+    cmsBeritaData = cmsBeritaData.filter(b => String(b.id) !== String(id));
     renderCmsBeritaTable();
     showToast('info', 'Artikel warta berhasil dihapus.');
 }
 
+
+// Memuat data berita live dari Google Apps Script Database (Self-Healing Fallback)
+async function loadCmsBeritaFromApi() {
+    try {
+        const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec') + '?action=GET_BERITA';
+        const res = await fetch(gasUrl);
+        const json = await res.json();
+        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+            cmsBeritaData = json.data.map(b => ({
+                id: b.id,
+                judul: b.judul,
+                kategori: b.kategori || 'Pendidikan',
+                penulis: b.penulis || 'Redaksi RMI PCNU Demak',
+                tanggal: b.published_at || b.tanggal || '',
+                status: (b.is_featured === true || b.is_featured === 'true') ? 'Sorotan Utama' : 'Terbit',
+                isFeatured: (b.is_featured === true || b.is_featured === 'true'),
+                cover: b.cover_image_url || b.cover || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+                ringkasan: b.ringkasan || '',
+                isi: b.isi_lengkap || b.isi || '',
+                sumber_media: b.sumber_media || '',
+                url_sumber: b.url_sumber || ''
+            }));
+            renderCmsBeritaTable();
+            console.log('CMS Berita live sync sukses: ' + cmsBeritaData.length + ' berita');
+        }
+    } catch (e) {
+        console.warn('Gagal memuat live berita CMS dari backend Apps Script:', e);
+    }
+}
+
+
 // Inisialisasi awal tabel berita
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(renderCmsBeritaTable, 500);
+    setTimeout(() => {
+        renderCmsBeritaTable();
+        loadCmsBeritaFromApi();
+    }, 500);
 });
 
 // Setup Otomatis Tab Sheet Spreadsheet
