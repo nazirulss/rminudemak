@@ -1233,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetId === 'program' || targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
             targetId = 'sambang-pesantren-pwrminu-jateng';
         }
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
         // 🚀 UPDATE HASH ROUTING (Shareable Link & Browser History Support)
@@ -1315,10 +1315,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 🚀 EVENT LISTENER BROWSER BACK / FORWARD & HASH CHANGE
     function handleHashRouting() {
-        let currentHash = window.location.hash.replace('#', '').trim().toLowerCase();
+        let rawHash = window.location.hash.replace('#', '').trim();
+        let currentHash = rawHash.toLowerCase();
         if (currentHash === 'direktori') currentHash = 'pesantren';
         if (currentHash === 'program' || currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
+        }
+
+        // Deep linking untuk Halaman Berita Detail (e.g. #berita-detail?id=BRT-2026-001)
+        if (currentHash.startsWith('berita-detail')) {
+            const hashParts = rawHash.split('?');
+            const searchParams = new URLSearchParams(hashParts[1] || '');
+            const beritaId = searchParams.get('id');
+            if (beritaId && typeof openBeritaDetailModal === 'function') {
+                openBeritaDetailModal(beritaId);
+                return;
+            } else {
+                navigateTo('berita', false);
+                return;
+            }
         }
 
         // Deep linking untuk Sub Halaman Panduan Masuk 7 Peran
@@ -1333,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
         navigateTo(targetPage, false);
     }
@@ -2158,53 +2173,190 @@ function handleBeritaSearch(query) {
 }
 
 function openBeritaDetailModal(id) {
-    const item = allBeritaData.find(b => b.id === id);
-    if (!item) return;
-
-    const modal = document.getElementById('modal-berita-detail');
-    if (!modal) return;
-
-    document.getElementById('modal-berita-kategori').innerText = item.kategori || 'Warta Pesantren';
-    document.getElementById('modal-berita-media').innerText = item.sumber_media || 'Media Online';
-    document.getElementById('modal-berita-judul').innerText = item.judul || '-';
-    document.getElementById('modal-berita-tanggal').innerText = formatTanggalIndonesia(item.published_at);
-    document.getElementById('modal-berita-views').innerText = `${item.views_count || 1200} Views`;
+    const targetHash = '#berita-detail?id=' + encodeURIComponent(id);
+    if (window.location.hash !== targetHash) {
+        history.pushState({ page: 'berita-detail', id: id }, '', targetHash);
+    }
+    sessionStorage.setItem('activePage', 'berita-detail');
     
-    const coverEl = document.getElementById('modal-berita-cover');
-    if (coverEl) coverEl.src = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
+    // Sembunyikan semua page-section lain
+    const pages = document.querySelectorAll('.page-section');
+    pages.forEach(p => p.classList.remove('active'));
+    const detailPage = document.getElementById('page-berita-detail');
+    if (detailPage) {
+        detailPage.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-    document.getElementById('modal-berita-ringkasan').innerText = item.ringkasan || '';
-    document.getElementById('modal-berita-isi').innerText = item.isi_lengkap || item.ringkasan || '';
-
-    const linkSumber = document.getElementById('modal-berita-link-sumber');
-    if (linkSumber) {
-        if (item.url_sumber) {
-            linkSumber.href = item.url_sumber;
-            linkSumber.classList.remove('hidden');
+    // Sorot nav 'berita' di header
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(btn => {
+        if (btn.dataset.target === 'berita') {
+            btn.className = 'nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all flex items-center gap-1 cursor-pointer';
         } else {
-            linkSumber.classList.add('hidden');
+            btn.className = 'nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer';
         }
-    }
+    });
 
-    const btnWa = document.getElementById('modal-berita-btn-wa');
-    if (btnWa) {
-        btnWa.onclick = () => {
-            bagikanBeritaKeWA(item.id, item.judul, item.cover_image_url, item.ringkasan);
-        };
+    const container = document.getElementById('berita-detail-content');
+    if (allBeritaData.length === 0) {
+        if (container) {
+            container.innerHTML = `
+                <div class="py-16 text-center max-w-lg mx-auto">
+                    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent mb-4"></div>
+                    <p class="text-sm font-semibold text-slate-600">Memuat warta berita...</p>
+                </div>
+            `;
+        }
+        loadBeritaRMI().then(() => renderBeritaDetailPage(id));
+    } else {
+        renderBeritaDetailPage(id);
     }
+}
 
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+function renderBeritaDetailPage(id) {
+    const item = allBeritaData.find(b => b.id === id);
+    const container = document.getElementById('berita-detail-content');
+    if (!item || !container) return;
+
+    const safeJudul = escapeHTML(item.judul);
+    const safeRingkasan = escapeHTML(item.ringkasan);
+    const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
+    const safeIsi = escapeHTML(item.isi_lengkap || item.ringkasan || '');
+    const formattedDate = formatTanggalIndonesia(item.published_at);
+    const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
+    const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
+
+    // Ambil 3 berita terkait (sesama kategori, bukan dirinya sendiri)
+    const relatedNews = allBeritaData.filter(b => b.id !== item.id && b.kategori === item.kategori).slice(0, 3);
+    const otherRelated = relatedNews.length < 3 
+        ? allBeritaData.filter(b => b.id !== item.id && !relatedNews.find(r => r.id === b.id)).slice(0, 3 - relatedNews.length)
+        : [];
+    const allRelated = [...relatedNews, ...otherRelated];
+
+    container.innerHTML = `
+        <!-- Breadcrumb Navigasi Kembali -->
+        <div class="mb-6">
+            <button type="button" onclick="navigateTo('berita')" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-emerald-800 transition-colors cursor-pointer group">
+                <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                <span>Kembali ke Halaman Berita</span>
+            </button>
+        </div>
+
+        <!-- ARTICLE LAYOUT: Full-width modern magazine -->
+        <article class="max-w-4xl mx-auto">
+            <!-- Cover Image Hero -->
+            <div class="relative rounded-2xl overflow-hidden mb-8 shadow-lg aspect-video max-h-[480px]">
+                <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
+                    <span class="bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow-md">${escapeHTML(item.kategori || 'Warta')}</span>
+                    <span class="bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-md">${safeMedia}</span>
+                </div>
+            </div>
+
+            <!-- Judul & Meta -->
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-on-surface leading-tight mb-4">${safeJudul}</h1>
+            
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-on-surface-variant font-medium mb-6 pb-6 border-b border-slate-200">
+                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">calendar_today</span> ${formattedDate}</span>
+                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">person</span> ${escapeHTML(item.penulis || 'Tim Media RMI NU Demak')}</span>
+                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">visibility</span> ${viewsCount} Views</span>
+            </div>
+
+            <!-- Ringkasan / Lead -->
+            <div class="p-5 rounded-xl bg-emerald-50/60 border border-emerald-100 text-emerald-950 font-semibold text-sm md:text-base leading-relaxed mb-8">
+                ${safeRingkasan}
+            </div>
+
+            <!-- Isi Lengkap Artikel -->
+            <div class="max-w-none mb-10 text-slate-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                ${safeIsi}
+            </div>
+
+            <!-- Tombol Baca di Sumber Asli -->
+            ${item.url_sumber ? `
+            <div class="flex flex-wrap gap-3 mb-8">
+                <a href="${escapeHTML(item.url_sumber)}" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]">open_in_new</span>
+                    Baca Selengkapnya di ${safeMedia}
+                </a>
+            </div>
+            ` : ''}
+
+            <!-- SHARE BAR: Tombol Bagikan Khusus dengan Thumbnail -->
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5 mb-10">
+                <h4 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-primary">share</span>
+                    Bagikan Berita Ini
+                </h4>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" onclick="shareBeritaWhatsApp('${item.id}')"
+                        class="flex items-center gap-2.5 px-5 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition-all cursor-pointer">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                        <span>Kirim via WhatsApp</span>
+                    </button>
+                    <button type="button" onclick="salinLinkBerita('${item.id}')"
+                        class="flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl shadow-sm border border-slate-200 active:scale-95 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[20px]">content_copy</span>
+                        <span>Salin Tautan</span>
+                    </button>
+                    <button type="button" onclick="shareBeritaFacebook('${item.id}')"
+                        class="flex items-center gap-2 px-5 py-3 bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition-all cursor-pointer">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        <span>Facebook</span>
+                    </button>
+                    <button type="button" onclick="shareBeritaTelegram('${item.id}')"
+                        class="flex items-center gap-2 px-5 py-3 bg-[#0088cc] hover:bg-[#006daa] text-white font-bold text-xs rounded-xl shadow-md active:scale-95 transition-all cursor-pointer">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        <span>Telegram</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Berita Terkait -->
+            ${allRelated.length > 0 ? `
+            <div class="border-t border-slate-200 pt-10">
+                <h3 class="text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">recommend</span>
+                    Berita Terkait Lainnya
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${allRelated.map(rel => {
+                        const relJudul = escapeHTML(rel.judul);
+                        const relMedia = escapeHTML(rel.sumber_media || 'Media');
+                        const relDate = formatTanggalIndonesia(rel.published_at);
+                        return `
+                        <div class="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300"
+                            onclick="openBeritaDetailModal('${rel.id}')">
+                            <div class="h-40 overflow-hidden relative">
+                                <img src="${rel.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                                    alt="${relJudul}"
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-primary text-[10px] font-bold uppercase tracking-wider">${escapeHTML(rel.kategori || 'Warta')}</span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="text-amber-700 text-[10px] font-bold">${relMedia}</span>
+                                </div>
+                                <h4 class="text-sm font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2 mb-2">${relJudul}</h4>
+                                <span class="text-[11px] text-on-surface-variant font-medium">${relDate}</span>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            ` : ''}
+        </article>
+    `;
 }
 
 function closeBeritaDetailModal() {
-    const modal = document.getElementById('modal-berita-detail');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = '';
-    }
+    // Fallback: kembali ke halaman berita
+    navigateTo('berita');
 }
 
 function formatTanggalIndonesia(dateStr) {
@@ -2224,19 +2376,94 @@ window.filterBeritaCategory = filterBeritaCategory;
 window.handleBeritaSearch = handleBeritaSearch;
 window.openBeritaDetailModal = openBeritaDetailModal;
 window.closeBeritaDetailModal = closeBeritaDetailModal;
+window.renderBeritaDetailPage = renderBeritaDetailPage;
 
 // ==================================================================
-// FITUR SHARE BERITA KE WHATSAPP DENGAN LINK PREVIEW GAMBAR DINAMIS
+// FITUR SHARE BERITA MULTI-PLATFORM (WA, FB, TELEGRAM, SALIN TAUTAN)
 // ==================================================================
-function bagikanBeritaKeWA(id, judul, cover, ringkasan) {
-    const shareUrl = "https://rminudemak.org/share?id=" + encodeURIComponent(id) + 
-                     "&t=" + encodeURIComponent(judul) + 
-                     "&img=" + encodeURIComponent(cover) + 
-                     "&desc=" + encodeURIComponent(ringkasan || "");
-    const text = "*" + judul + "*\n\n" + (ringkasan || "") + "\n\nBaca selengkapnya di:\n👉 " + shareUrl;
+function getBeritaSharePayload(id, fallbackJudul, fallbackCover, fallbackRingkasan) {
+    const item = (typeof allBeritaData !== 'undefined' && Array.isArray(allBeritaData)) 
+        ? allBeritaData.find(b => b.id === id) 
+        : null;
+    
+    const judul = item ? (item.judul || '') : (fallbackJudul || '');
+    const ringkasan = item ? (item.ringkasan || '') : (fallbackRingkasan || '');
+    const cover = item ? (item.cover_image_url || '') : (fallbackCover || '');
+    const media = item ? (item.sumber_media || 'Media Online') : 'Media Online';
+    const tanggal = item ? formatTanggalIndonesia(item.published_at) : '';
+    const shareUrl = "https://rminudemak.org/#berita-detail?id=" + encodeURIComponent(id);
+
+    return { id, judul, ringkasan, cover, media, tanggal, shareUrl };
+}
+
+function shareBeritaWhatsApp(id, customJudul, customCover, customRingkasan) {
+    const data = getBeritaSharePayload(id, customJudul, customCover, customRingkasan);
+    
+    let text = `🕌 *WARTA RMI NU KABUPATEN DEMAK*\n\n`;
+    text += `*${data.judul}*\n\n`;
+    if (data.media) text += `📰 Sumber: ${data.media}\n`;
+    if (data.tanggal) text += `📅 ${data.tanggal}\n\n`;
+    if (data.ringkasan) text += `${data.ringkasan}\n\n`;
+    text += `👉 *Baca Selengkapnya:*\n${data.shareUrl}\n\n`;
+    text += `_Portal Resmi RMI PCNU Kabupaten Demak_`;
+
     const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(text);
     window.open(waUrl, '_blank');
 }
+
+function shareBeritaFacebook(id) {
+    const data = getBeritaSharePayload(id);
+    const fbUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(data.shareUrl);
+    window.open(fbUrl, '_blank', 'width=600,height=400');
+}
+
+function shareBeritaTelegram(id) {
+    const data = getBeritaSharePayload(id);
+    const text = `🕌 *${data.judul}*\n\n${data.ringkasan || ''}`;
+    const tgUrl = "https://t.me/share/url?url=" + encodeURIComponent(data.shareUrl) + "&text=" + encodeURIComponent(text);
+    window.open(tgUrl, '_blank');
+}
+
+function salinLinkBerita(id) {
+    const data = getBeritaSharePayload(id);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(data.shareUrl).then(() => {
+            showFloatingToast('Tautan berita berhasil disalin!');
+        }).catch(() => {
+            prompt('Salin tautan berita berikut:', data.shareUrl);
+        });
+    } else {
+        prompt('Salin tautan berita berikut:', data.shareUrl);
+    }
+}
+
+function bagikanBeritaKeWA(id, judul, cover, ringkasan) {
+    shareBeritaWhatsApp(id, judul, cover, ringkasan);
+}
+
+function showFloatingToast(message) {
+    let toast = document.getElementById('rmi-floating-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'rmi-floating-toast';
+        toast.className = 'fixed bottom-6 right-6 z-50 px-5 py-3.5 bg-slate-900/95 text-white text-xs font-bold rounded-2xl shadow-2xl flex items-center gap-2.5 transition-all duration-300 transform translate-y-12 opacity-0 backdrop-blur-sm border border-slate-700/50 pointer-events-none';
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<span class="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span><span>${message}</span>`;
+    toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+    }, 2800);
+}
+
+window.shareBeritaWhatsApp = shareBeritaWhatsApp;
+window.shareBeritaFacebook = shareBeritaFacebook;
+window.shareBeritaTelegram = shareBeritaTelegram;
+window.salinLinkBerita = salinLinkBerita;
+window.bagikanBeritaKeWA = bagikanBeritaKeWA;
+window.showFloatingToast = showFloatingToast;
 
 
 // ==================================================================
