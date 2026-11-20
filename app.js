@@ -1233,7 +1233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetId === 'program' || targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
             targetId = 'sambang-pesantren-pwrminu-jateng';
         }
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
         // 🚀 UPDATE HASH ROUTING (Shareable Link & Browser History Support)
@@ -1270,24 +1270,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         }
 
-        if (targetId === 'pesantren') {
+        if (targetId === 'pesantren' || targetId === 'pesantren-detail') {
             if (allLembagaData.length === 0) loadLembagaDariSupabase();
             inisialisasiFiturLacakBerkas();
             populatePublicKecamatanDropdown(currentPublicCategory);
-            setTimeout(() => {
-                if (!publicMap) initPublicMap();
-                else publicMap.invalidateSize();
-            }, 150);
-            setTimeout(() => {
-                if (publicMap) publicMap.invalidateSize();
-            }, 500);
+            if (targetId === 'pesantren') {
+                setTimeout(() => {
+                    if (!publicMap) initPublicMap();
+                    else publicMap.invalidateSize();
+                }, 150);
+                setTimeout(() => {
+                    if (publicMap) publicMap.invalidateSize();
+                }, 500);
+            }
         }
 
         navBtns.forEach(btn => {
             const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
             const isActive = (btnTarget === targetId) || 
+                             (btnTarget === 'pesantren' && targetId === 'pesantren-detail') ||
                              (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan')) ||
-                             (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng');
+                             (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng') ||
+                             (btnTarget === 'berita' && targetId === 'berita-detail');
             if(isActive) {
                 btn.className = 'nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all flex items-center gap-1 cursor-pointer';
             } else {
@@ -1297,7 +1301,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         mobileNavBtns.forEach(btn => {
             const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
-            if(btnTarget === targetId) {
+            const isActive = (btnTarget === targetId) || 
+                             (btnTarget === 'pesantren' && targetId === 'pesantren-detail') ||
+                             (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan')) ||
+                             (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng') ||
+                             (btnTarget === 'berita' && targetId === 'berita-detail');
+            if(isActive) {
                 btn.className = 'spa-link mobile-nav-btn text-sm font-bold text-white bg-white/20 px-4 py-2 rounded-xl block border border-white/25';
             } else {
                 btn.className = 'spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors';
@@ -1320,6 +1329,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentHash === 'direktori') currentHash = 'pesantren';
         if (currentHash === 'program' || currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
+        }
+
+        // Deep linking untuk Halaman Pesantren Detail (e.g. #pesantren-detail?id=RMI-DMK-000001 atau #pesantren/RMI-DMK-000001)
+        if (currentHash.startsWith('pesantren-detail') || currentHash.startsWith('pesantren/')) {
+            let pId = '';
+            if (rawHash.includes('?id=')) {
+                const searchParams = new URLSearchParams(rawHash.split('?')[1] || '');
+                pId = searchParams.get('id');
+            } else if (rawHash.includes('/')) {
+                pId = rawHash.split('/')[1];
+            }
+            if (pId && typeof bukaProfilPesantren === 'function') {
+                bukaProfilPesantren(pId, false);
+                return;
+            } else {
+                navigateTo('pesantren', false);
+                return;
+            }
         }
 
         // Deep linking untuk Halaman Berita Detail (e.g. #berita-detail?id=BRT-2026-001)
@@ -1348,7 +1375,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const validPages = ['beranda', 'profil', 'pesantren', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
         navigateTo(targetPage, false);
     }
@@ -1553,16 +1580,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 🚀 HASH ROUTER INIT: Baca URL Hash terlebih dahulu, jika kosong gunakan sessionStorage / Beranda
-    let initialPage = window.location.hash.replace('#', '').trim().toLowerCase();
-    if (initialPage === 'direktori') initialPage = 'pesantren';
-    const validPagesList = ['beranda', 'profil', 'pesantren', 'layanan', 'berita'];
-    
-    if (!validPagesList.includes(initialPage)) {
-        initialPage = sessionStorage.getItem('activePage') || 'beranda';
+    // 🚀 HASH ROUTER INIT: Baca URL Hash terlebih dahulu, jika deep linking delegasikan ke handleHashRouting
+    if (window.location.hash) {
+        handleHashRouting();
+    } else {
+        let initialPage = sessionStorage.getItem('activePage') || 'beranda';
+        navigateTo(initialPage, true);
     }
-
-    navigateTo(initialPage, true);
 
     // 🚀 KUNCI UPDATE: Nyalakan mesin pencatat waktu shalat otomatis
     startSmartPrayerWidget();
@@ -1684,6 +1708,685 @@ function startSmartPrayerWidget() {
     setInterval(updateCountdown, 1000);
 }
 
+// =========================================================================
+// SUBPAGE DETAIL PROFIL PESANTREN (STANDAR DIGDAYA PESANTREN.NU.ID 10 SEKSI)
+// =========================================================================
+function bukaProfilPesantren(pesantrenId, updateHash = true) {
+    if (typeof hidePesantrenFlyout === 'function') {
+        hidePesantrenFlyout();
+    }
+
+    if (!pesantrenId) {
+        navigateTo('pesantren', true);
+        return;
+    }
+
+    const container = document.getElementById('pesantren-detail-content');
+
+    // Jika data lembaga belum dimuat, tampilkan loader lalu muat data
+    if (!allLembagaData || allLembagaData.length === 0) {
+        navigateTo('pesantren-detail', false);
+        if (container) {
+            container.innerHTML = `
+                <div class="py-24 text-center max-w-lg mx-auto">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent mb-4"></div>
+                    <h3 class="text-lg font-extrabold text-slate-800">Memuat Profil Pesantren...</h3>
+                    <p class="text-xs text-slate-500 mt-1">Mengambil data resmi dari Pangkalan Data PC RMI NU Kabupaten Demak.</p>
+                </div>
+            `;
+        }
+        loadLembagaDariSupabase().then(() => {
+            renderPesantrenDetailPage(pesantrenId, updateHash);
+        });
+        return;
+    }
+
+    renderPesantrenDetailPage(pesantrenId, updateHash);
+}
+
+function kembaliKeKatalogPesantren() {
+    navigateTo('pesantren', true);
+}
+
+function salinNspp(nspp) {
+    if (!nspp) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(nspp).then(() => {
+            if (typeof showFloatingToast === 'function') {
+                showFloatingToast(`Nomor Statistik Pesantren (NSPP) ${nspp} berhasil disalin!`);
+            } else {
+                alert(`Nomor Statistik Pesantren: ${nspp} (Tersalin)`);
+            }
+        }).catch(() => {
+            prompt('Nomor Statistik Pesantren (NSPP):', nspp);
+        });
+    } else {
+        prompt('Nomor Statistik Pesantren (NSPP):', nspp);
+    }
+}
+
+function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
+    const container = document.getElementById('pesantren-detail-content');
+    if (!container) return;
+
+    const target = String(pesantrenId).trim().toLowerCase();
+    let item = allLembagaData.find(l => 
+        String(l.id).toLowerCase() === target || 
+        String(l.kode_pesantren || '').toLowerCase() === target
+    );
+    if (!item) {
+        item = DEFAULT_LEMBAGA_DATA.find(l => 
+            String(l.id).toLowerCase() === target || 
+            String(l.kode_pesantren || '').toLowerCase() === target
+        );
+    }
+    if (!item) {
+        const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+        item = allLembagaData.find(l => 
+            (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanTarget)
+        ) || DEFAULT_LEMBAGA_DATA.find(l => 
+            (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanTarget)
+        );
+    }
+
+    if (!item) {
+        container.innerHTML = `
+            <div class="py-20 text-center max-w-md mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+                <span class="material-symbols-outlined text-5xl text-slate-400 mb-3">search_off</span>
+                <h3 class="text-lg font-bold text-slate-800">Pesantren Tidak Ditemukan</h3>
+                <p class="text-xs text-slate-500 mt-2 mb-6">Maaf, data pesantren dengan ID atau nama tersebut tidak ditemukan dalam pangkalan direktori kami.</p>
+                <button type="button" onclick="kembaliKeKatalogPesantren()" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-sm inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    <span>Kembali ke Direktori Pesantren</span>
+                </button>
+            </div>
+        `;
+        navigateTo('pesantren-detail', false);
+        return;
+    }
+
+    const safeId = escapeHTML(item.id || '');
+    const safeKode = escapeHTML(item.kode_pesantren || 'RMI-DMK-000001');
+    const safeNama = escapeHTML(item.nama || 'Pesantren');
+    const safeNamaPopuler = escapeHTML(item.nama_populer || '');
+    const safeKategori = escapeHTML(item.kategori_atau_metode || item.jenis || 'Salafiyah');
+    const safePengasuh = escapeHTML(item.pengasuh_atau_kepala || '-');
+    const safeKecamatan = escapeHTML(item.kecamatan || 'Demak');
+    const safeDesa = escapeHTML(item.desa || '');
+    const safeAlamat = escapeHTML(item.alamat_detail || '');
+    const safeNspp = escapeHTML(item.nspp || '510033210001');
+    const safeTahun = escapeHTML(String(item.tahun_berdiri || '1998'));
+    const safeFoto = (item.foto_url && String(item.foto_url).trim().startsWith('http')) 
+        ? escapeHTML(item.foto_url) 
+        : 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';
+
+    // Update URL hash jika updateHash=true
+    if (updateHash) {
+        const hashId = item.kode_pesantren || item.id;
+        history.pushState({ page: 'pesantren-detail', id: hashId }, '', '#pesantren-detail?id=' + encodeURIComponent(hashId));
+    }
+
+    // Aktifkan view
+    const pages = document.querySelectorAll('.page-section');
+    pages.forEach(p => p.classList.remove('active'));
+    const detailPage = document.getElementById('page-pesantren-detail');
+    if (detailPage) {
+        detailPage.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Data Statistik
+    const santriMukimCount = parseInt(item.santri_mukim || 0, 10);
+    const santriNonMukimCount = parseInt(item.santri_nonmukim || 0, 10);
+    const totalSantriCount = santriMukimCount + santriNonMukimCount;
+    const totalAsatidzCount = (item.dewan_asatidz && item.dewan_asatidz.length > 0) 
+        ? item.dewan_asatidz.length 
+        : (item.wakil_pengasuh && item.wakil_pengasuh.length > 0 ? (item.wakil_pengasuh.length + 1) : 1);
+    const totalKitabCount = (item.kurikulum_kitab && item.kurikulum_kitab.length > 0) 
+        ? item.kurikulum_kitab.length 
+        : 14;
+
+    // URLs Aksi
+    const soc = item.media_sosial || {};
+    const websiteUrl = (soc.website && soc.website.startsWith('http')) ? soc.website : (soc.instagram || `https://www.google.com/search?q=${encodeURIComponent(item.nama + ' Demak')}`);
+    const mapsUrl = (item.latitude && item.longitude) 
+        ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` 
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.nama + ' ' + (item.desa || '') + ' ' + item.kecamatan + ' Demak')}`;
+    const waShareText = `Assalamu'alaikum. Simak profil resmi ${item.nama} (${safeKode}) di Direktori Resmi PC RMI NU Kabupaten Demak:\n${window.location.href}`;
+    const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waShareText)}`;
+    const waPsbUrl = soc.hotline_psb ? `https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Panitia PSB ' + item.nama + ', saya ingin bertanya mengenai pendaftaran santri baru.')}` : '';
+
+    // Wakil Pengasuh Badge HTML
+    let wakilPengasuhHtml = '';
+    if (item.wakil_pengasuh && item.wakil_pengasuh.length > 0) {
+        wakilPengasuhHtml = `
+            <div class="flex items-center gap-1.5 flex-wrap mt-2">
+                <span class="text-xs font-semibold text-slate-500">Wakil Pengasuh:</span>
+                ${item.wakil_pengasuh.map(w => `<span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-bold">${escapeHTML(w)}</span>`).join('')}
+            </div>
+        `;
+    }
+
+    // Galeri Foto
+    let galeriList = Array.isArray(item.galeri_foto) ? item.galeri_foto : [];
+    if (galeriList.length === 0) {
+        galeriList = [
+            { url: safeFoto, judul: 'Gedung Asrama & Lingkungan Utama', kategori: 'Gedung Utama' },
+            { url: 'https://lh3.googleusercontent.com/d/1NCvPdIz8-DUjz2dDCD5zLKYUA3n34agP', judul: 'Masjid & Sarana Ibadah Santri', kategori: 'Mushola / Masjid' },
+            { url: 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58', judul: 'Ruang Belajar Madrasah Diniyyah', kategori: 'Ruang Belajar' },
+            { url: 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z', judul: 'Halaqah Pengajian Kitab Kuning', kategori: 'Halaqah Turots' }
+        ];
+    }
+
+    // Kurikulum Kitab
+    let kitabList = Array.isArray(item.kurikulum_kitab) && item.kurikulum_kitab.length > 0 
+        ? item.kurikulum_kitab 
+        : [
+            { nama_kitab: 'Safinatun Najah', pengarang: 'Salim bin Samir Al-Hadhrami', bidang_ilmu: 'Fiqih Syafi\'i', marhalah: 'ula' },
+            { nama_kitab: 'Al-Jurumiyyah', pengarang: 'Ibnu Ajurrum', bidang_ilmu: 'Nahwu / Tata Bahasa', marhalah: 'ula' },
+            { nama_kitab: 'Aqidatul Awwam', pengarang: 'Ahmad Al-Marzuqi', bidang_ilmu: 'Aqidah / Tauhid', marhalah: 'ula' },
+            { nama_kitab: 'Fathul Qorib Al-Mujib', pengarang: 'Ibnu Qasim Al-Ghazi', bidang_ilmu: 'Fiqih Lanjutan', marhalah: 'wustho' },
+            { nama_kitab: 'Al-Imrithi', pengarang: 'Syarafuddin Al-Imrithi', bidang_ilmu: 'Gramatika Arab', marhalah: 'wustho' },
+            { nama_kitab: 'Ta\'limul Muta\'allim', pengarang: 'Imam Az-Zarnuji', bidang_ilmu: 'Akhlaq & Adab Belajar', marhalah: 'wustho' },
+            { nama_kitab: 'Fathul Mu\'in', pengarang: 'Zainuddin Al-Malibari', bidang_ilmu: 'Fiqih Mendalam', marhalah: 'ulya' },
+            { nama_kitab: 'Alfiyah Ibnu Malik', pengarang: 'Ibnu Malik', bidang_ilmu: 'Linguistik Arab Tinggi', marhalah: 'ulya' },
+            { nama_kitab: 'Bulughul Maram', pengarang: 'Ibnu Hajar Al-Asqalani', bidang_ilmu: 'Hadits Ahkam', marhalah: 'ulya' }
+        ];
+
+    // Fasilitas List
+    const defaultFasilitas = [
+        { icon: 'mosque', nama: 'Masjid & Mushola Pondok', deskripsi: 'Pusat shalat jamaah 5 waktu & pengajian' },
+        { icon: 'bed', nama: 'Asrama Santri Nyaman', deskripsi: 'Kamar santri putra dan putri terpisah rapi' },
+        { icon: 'menu_book', nama: 'Perpustakaan Kitab Turots', deskripsi: 'Koleksi khazanah kitab kuning & buku referensi' },
+        { icon: 'school', nama: 'Ruang Kelas Madin', deskripsi: 'Gedung pembelajaran madrasah berstandar' },
+        { icon: 'local_hospital', nama: 'Poskestren / UKS', deskripsi: 'Layanan kesehatan pertama santri 24 jam' },
+        { icon: 'wifi', nama: 'Akses Internet Terbimbing', deskripsi: 'Jaringan internet edukatif untuk riset keilmuan' },
+        { icon: 'soup_kitchen', nama: 'Dapur Umum Higienis', deskripsi: 'Penyediaan konsumsi santri sehat dan terjaga' },
+        { icon: 'storefront', nama: 'Koperasi Pondok Pesantren', deskripsi: 'Kebutuhan harian santri & unit usaha mandiri' },
+        { icon: 'sports_soccer', nama: 'Lapangan Olahraga', deskripsi: 'Sarana kebugaran jasmani santri sore hari' },
+        { icon: 'security', nama: 'Keamanan Terpadu 24 Jam', deskripsi: 'Lingkungan aman & tertib bagi seluruh santri' }
+    ];
+
+    container.innerHTML = `
+        <!-- Top Nav & Breadcrumb -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <button type="button" onclick="kembaliKeKatalogPesantren()" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-950 bg-white px-4 py-2.5 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-xs transition-all cursor-pointer group w-fit">
+                <span class="material-symbols-outlined text-[18px] transition-transform group-hover:-translate-x-1">arrow_back</span>
+                <span>Kembali ke Direktori Pesantren</span>
+            </button>
+            <div class="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
+                <a href="#beranda" onclick="navigateTo('beranda')" class="hover:text-emerald-700">Beranda</a>
+                <span>/</span>
+                <a href="#pesantren" onclick="navigateTo('pesantren')" class="hover:text-emerald-700">Direktori Pesantren</a>
+                <span>/</span>
+                <span class="font-bold text-slate-800 truncate max-w-xs">${safeNama}</span>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 1: COVER BANNER PANORAMA (16:6)                             -->
+        <!-- ================================================================= -->
+        <div class="relative w-full h-56 sm:h-72 md:h-84 rounded-3xl overflow-hidden shadow-sm bg-slate-900">
+            <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" alt="${safeNama}" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"></div>
+            
+            <!-- Badges Overlay di Kiri Atas -->
+            <div class="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2 z-10">
+                <span class="px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-700/90 text-white backdrop-blur-xs shadow-md border border-white/20">${safeKategori}</span>
+                ${item.has_komitmen_pesantren_aman ? `
+                    <span class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-600/90 text-white backdrop-blur-xs shadow-md border border-white/20 flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[15px]">verified_user</span>
+                        <span>Pesantren Ramah Santri</span>
+                    </span>
+                ` : ''}
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 2: KARTU PROFIL UTAMA (OVERLAPPING CARD ALA PESANTREN.NU.ID) -->
+        <!-- ================================================================= -->
+        <div class="relative z-10 -mt-12 sm:-mt-16 bg-white rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm border border-slate-200/80 mb-8">
+            <div class="flex flex-col sm:flex-row gap-5 sm:gap-6 items-start">
+                
+                <!-- Logo Box -->
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border-4 border-white shadow-md p-1.5 shrink-0 flex items-center justify-center overflow-hidden">
+                    ${getPesantrenLogoHtml(item, 'w-24 h-24 sm:w-28 sm:h-28', 'text-2xl')}
+                </div>
+
+                <!-- Detail Identitas -->
+                <div class="flex-grow">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight uppercase">${safeNama}</h1>
+                    ${safeNamaPopuler ? `<p class="text-sm sm:text-base font-semibold text-emerald-800 mt-1">${safeNamaPopuler}</p>` : ''}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-1.5 gap-x-6 text-xs sm:text-sm text-slate-600 mt-3.5">
+                        <p class="flex items-center gap-2">
+                            <span class="font-bold text-slate-700 w-24 shrink-0">ID Pesantren:</span>
+                            <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${safeKode}</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <span class="font-bold text-slate-700 w-24 shrink-0">Tahun Berdiri:</span>
+                            <span class="text-slate-800">${safeTahun || 'Terdaftar'}</span>
+                        </p>
+                        <p class="flex items-center gap-2 md:col-span-2">
+                            <span class="font-bold text-slate-700 w-24 shrink-0">Pengasuh:</span>
+                            <span class="text-slate-900 font-semibold">${safePengasuh}</span>
+                        </p>
+                        <p class="flex items-start gap-2 md:col-span-2">
+                            <span class="font-bold text-slate-700 w-24 shrink-0">Alamat:</span>
+                            <span class="text-slate-800">${safeAlamat ? safeAlamat + ', ' : ''}${safeDesa ? 'Desa ' + safeDesa + ', ' : ''}Kec. ${safeKecamatan}, Kab. Demak, Jawa Tengah</span>
+                        </p>
+                    </div>
+
+                    ${wakilPengasuhHtml}
+                </div>
+            </div>
+
+            <!-- ================================================================= -->
+            <!-- SEKSI 3: TIGA TOMBOL AKSI CEPAT                                   -->
+            <!-- ================================================================= -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-100 mt-6">
+                <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                    <span class="material-symbols-outlined text-[18px] text-emerald-700">language</span>
+                    <span>Kunjungi Laman Resmi</span>
+                </a>
+                <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-slate-50 hover:bg-rose-50 text-slate-800 hover:text-rose-800 border border-slate-200 hover:border-rose-300 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                    <span class="material-symbols-outlined text-[18px] text-rose-600">map</span>
+                    <span>Buka Google Maps</span>
+                </a>
+                <a href="${waShareUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                    <span class="material-symbols-outlined text-[18px]">share</span>
+                    <span>Bagikan Profil Pesantren</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 4: BADGE KEMENAG ZAMRUD & MEDIA SOSIAL                      -->
+        <!-- ================================================================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Banner Kemenag Zamrud -->
+            <div class="lg:col-span-2 rounded-3xl p-6 sm:p-7 text-white shadow-sm flex flex-col justify-between" style="background: linear-gradient(135deg, #005c55 0%, #004540 100%);">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-[11px] font-bold tracking-wide uppercase mb-3 border border-white/20">
+                            <span class="material-symbols-outlined text-[14px] text-emerald-300">verified</span>
+                            <span>Terverifikasi Kemenag RI & PBNU</span>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-black">Nomor Statistik Pesantren (NSPP)</h4>
+                        <p class="text-2xl sm:text-3xl font-mono font-extrabold tracking-wider text-emerald-200 mt-1">${safeNspp}</p>
+                        <p class="text-xs text-white/80 mt-2">Terdaftar resmi dalam Pangkalan Data EMIS Kementerian Agama Republik Indonesia.</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-3xl text-emerald-200">account_balance</span>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-4 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
+                    <button type="button" onclick="salinNspp('${safeNspp}')" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5 cursor-pointer">
+                        <span class="material-symbols-outlined text-[15px]">content_copy</span>
+                        <span>Salin NSPP</span>
+                    </button>
+                    <a href="https://ditpdpontren.kemenag.go.id" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-200 hover:text-white underline font-semibold flex items-center gap-1">
+                        <span>Validasi di Ditpdpontren Kemenag</span>
+                        <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tautan Media Sosial Resmi -->
+            <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h4 class="font-extrabold text-slate-900 text-base mb-1">Kanal Digital & Media Sosial</h4>
+                    <p class="text-xs text-slate-500 mb-4">Akses informasi kegiatan harian santri melalui akun resmi pesantren.</p>
+                    
+                    <div class="space-y-2.5">
+                        ${soc.hotline_psb ? `
+                            <a href="https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 transition text-xs font-bold">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-emerald-700">chat</span>
+                                    <span>WhatsApp Hotline</span>
+                                </span>
+                                <span class="font-mono text-[11px] text-emerald-800">${escapeHTML(soc.hotline_psb)}</span>
+                            </a>
+                        ` : ''}
+
+                        ${soc.instagram ? `
+                            <a href="${escapeHTML(soc.instagram)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200/80 transition text-xs font-bold">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-pink-600">photo_camera</span>
+                                    <span>Instagram</span>
+                                </span>
+                                <span class="material-symbols-outlined text-[14px] text-pink-600">open_in_new</span>
+                            </a>
+                        ` : ''}
+
+                        ${soc.youtube ? `
+                            <a href="${escapeHTML(soc.youtube)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-900 border border-red-200/80 transition text-xs font-bold">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-red-600">smart_display</span>
+                                    <span>YouTube Channel</span>
+                                </span>
+                                <span class="material-symbols-outlined text-[14px] text-red-600">open_in_new</span>
+                            </a>
+                        ` : ''}
+
+                        ${soc.website ? `
+                            <a href="${escapeHTML(soc.website)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200/80 transition text-xs font-bold">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-blue-600">language</span>
+                                    <span>Website Resmi</span>
+                                </span>
+                                <span class="material-symbols-outlined text-[14px] text-blue-600">open_in_new</span>
+                            </a>
+                        ` : ''}
+
+                        ${(!soc.hotline_psb && !soc.instagram && !soc.youtube && !soc.website) ? `
+                            <p class="text-xs text-slate-400 italic py-4 text-center">Tautan media sosial resmi belum ditambahkan oleh pengurus.</p>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 5: BANNER TRANSPARANSI & PEMUTAKHIRAN DATA                    -->
+        <!-- ================================================================= -->
+        <div class="mb-8 rounded-3xl p-5 sm:p-6 bg-emerald-50/70 border border-emerald-200/90 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+                <span class="material-symbols-outlined text-emerald-700 text-2xl shrink-0 mt-0.5">info</span>
+                <div>
+                    <h5 class="font-extrabold text-sm text-emerald-950">Pangkalan Data Resmi PC RMI NU Kabupaten Demak</h5>
+                    <p class="text-xs text-emerald-800 mt-1 leading-relaxed">
+                        Data pesantren ini dihimpun secara mandiri melalui Sensus Direktori Pesantren PC RMI NU Demak dan tersinkronisasi dengan EMIS Kemenag & PBNU. Apabila Anda pengurus pondok dan ingin memutakhirkan data, silakan masuk ke Portal Administrasi.
+                    </p>
+                </div>
+            </div>
+            <a href="/admin" target="_blank" rel="noopener noreferrer" class="shrink-0 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
+                <span class="material-symbols-outlined text-[16px]">edit_note</span>
+                <span>Update Data di Portal Admin</span>
+            </a>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 6: TENTANG PESANTREN & GRID 4 KARTU STATISTIK                -->
+        <!-- ================================================================= -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-sm mb-8">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-3">Tentang Pesantren</h3>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+                ${safeNama} adalah lembaga pendidikan Islam ${safeKategori} di bawah naungan Pengurus Cabang Rabithah Ma'ahid Islamiyah Nahdlatul Ulama (PC RMI NU) Kabupaten Demak yang diasuh oleh ${safePengasuh}. Lembaga ini berkomitmen mencetak generasi santri yang berakhlakul karimah, berpegang teguh pada ajaran Islam Ahlussunnah wal Jama'ah An-Nahdliyyah, serta mendalami khazanah keilmuan Islam turots klasik yang dipadukan dengan wawasan kebangsaan dan kemandirian umat.
+            </p>
+
+            <!-- 4 Grid Kartu Statistik -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-slate-100">
+                
+                <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                    <span class="material-symbols-outlined text-emerald-700 text-2xl mb-2">groups</span>
+                    <div>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900">${totalSantriCount.toLocaleString('id-ID')}</span>
+                        <p class="text-xs font-extrabold text-slate-700 mt-1">Santri Terdata</p>
+                        <p class="text-[11px] text-slate-500">${santriMukimCount} Mukim · ${santriNonMukimCount} Kalong</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                    <span class="material-symbols-outlined text-blue-700 text-2xl mb-2">school</span>
+                    <div>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900">${totalAsatidzCount}</span>
+                        <p class="text-xs font-extrabold text-slate-700 mt-1">Dewan Asatidz</p>
+                        <p class="text-[11px] text-slate-500">Pengajar & Pembina</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                    <span class="material-symbols-outlined text-amber-600 text-2xl mb-2">auto_stories</span>
+                    <div>
+                        <span class="text-2xl sm:text-3xl font-black text-slate-900">${totalKitabCount}</span>
+                        <p class="text-xs font-extrabold text-slate-700 mt-1">Kitab Turots</p>
+                        <p class="text-[11px] text-slate-500">Kurikulum Marhalah</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                    <span class="material-symbols-outlined text-purple-700 text-2xl mb-2">stars</span>
+                    <div>
+                        <span class="text-base sm:text-lg font-black text-slate-900 truncate block" title="${safeKategori}">${safeKategori}</span>
+                        <p class="text-xs font-extrabold text-slate-700 mt-1">Program Unggulan</p>
+                        <p class="text-[11px] text-slate-500">Fokus Pembelajaran</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 7: GALERI PESANTREN (4 FOTO DOKUMENTASI DENGAN CAPTION)       -->
+        <!-- ================================================================= -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-sm mb-8">
+            <div class="flex items-center justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-black text-slate-900">Galeri Fasilitas & Kegiatan</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Dokumentasi lingkungan dan sarana prasarana pondok pesantren.</p>
+                </div>
+                <span class="px-3 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-full">${galeriList.length} Foto</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                ${galeriList.slice(0, 4).map((g, idx) => `
+                    <div class="group relative rounded-2xl overflow-hidden border border-slate-100 bg-slate-100 shadow-2xs hover:shadow-md transition-all flex flex-col">
+                        <div class="h-44 sm:h-48 overflow-hidden bg-slate-200">
+                            <img src="${escapeHTML(g.url)}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" alt="${escapeHTML(g.judul || 'Fasilitas')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                        </div>
+                        <div class="p-3.5 bg-white flex-grow">
+                            <span class="text-[10px] uppercase font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">${escapeHTML(g.kategori || 'Fasilitas')}</span>
+                            <h5 class="text-xs font-bold text-slate-800 mt-1.5 leading-snug">${escapeHTML(g.judul || 'Gedung Pesantren')}</h5>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 8: PROGRAM UNGGULAN & METODE BELAJAR                        -->
+        <!-- ================================================================= -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-sm mb-8">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-2">Program Unggulan</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mb-6">Program pendidikan dan pembinaan karakter yang menjadi kekhasan pesantren ini.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">menu_book</span>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-900 text-sm">Madrasah Diniyyah Salafiyah</h4>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">Jenjang pendidikan keagamaan terstruktur dengan sistem tingkatan kelas (Awaliyah/Wustha/Ulya) mengkaji fan fiqih, ushul fiqih, nahwu, sharaf, dan tasawuf.</p>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">record_voice_over</span>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-900 text-sm">Pengajian Wetonan & Sorogan Kitab</h4>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">Tradisi talaqqi langsung di hadapan Kyai/Nyai pengasuh melalui metode sorogan (privat membaca kitab) dan bandongan/wetonan berjamaah.</p>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">auto_awesome</span>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-900 text-sm">Tahfidz & Tartil Al-Qur'an (Metode Yanbu'a)</h4>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">Bimbingan tahsin makhorijul huruf dengan sanad bersambung, hafalan juz 'amma hingga 30 juz mutqin dengan muraja'ah harian.</p>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">forum</span>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-slate-900 text-sm">Halaqah Bahtsul Masail & Khitobah</h4>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">Pelatihan musyawarah kontekstual pemecahan hukum Islam kontemporer berbasis kitab turots dan latihan pidato/dakwah santri.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 9: KURIKULUM KITAB TUROTS & FASILITAS PESANTREN             -->
+        <!-- ================================================================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Tabel Kitab Kuning (2 Kolom) -->
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-900">Kitab yang Dipelajari</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Khazanah keilmuan Islam turots salaf yang diajarkan.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold rounded-full">${kitabList.length} Kitab</span>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-100 rounded-2xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 font-bold text-slate-700 border-b border-slate-100">
+                            <tr>
+                                <th class="p-3 text-center w-10">No</th>
+                                <th class="p-3">Nama Kitab</th>
+                                <th class="p-3">Pengarang (Mu'allif)</th>
+                                <th class="p-3">Fan Ilmu</th>
+                                <th class="p-3 text-center">Marhalah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            ${kitabList.map((k, i) => `
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="p-3 text-center text-slate-400 font-mono">${i + 1}</td>
+                                    <td class="p-3 font-bold text-slate-900">${escapeHTML(k.nama_kitab)}</td>
+                                    <td class="p-3 text-slate-600">${escapeHTML(k.pengarang || '-')}</td>
+                                    <td class="p-3 font-semibold text-slate-700">${escapeHTML(k.bidang_ilmu || '-')}</td>
+                                    <td class="p-3 text-center">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${k.marhalah === 'wustho' ? 'bg-emerald-100 text-emerald-800' : (k.marhalah === 'ulya' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800')}">${escapeHTML(k.marhalah || 'Salaf')}</span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Fasilitas Pondok (1 Kolom) -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 mb-1">Fasilitas Pesantren</h3>
+                    <p class="text-xs text-slate-500 mb-5">Sarana pendukung kenyamanan belajar dan ibadah santri.</p>
+                    
+                    <div class="space-y-3">
+                        ${defaultFasilitas.slice(0, 7).map(f => `
+                            <div class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <span class="material-symbols-outlined text-emerald-700 text-xl shrink-0 mt-0.5">${f.icon}</span>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-900 leading-snug">${f.nama}</h5>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">${f.deskripsi}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="pt-4 mt-4 border-t border-slate-100">
+                    <span class="text-xs text-slate-500 italic flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[15px] text-emerald-600">check_circle</span>
+                        <span>Fasilitas telah diverifikasi oleh tim sarpras RMI Demak.</span>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- SEKSI 10: DEWAN PENGASUH & KONTAK PENDAFTARAN (PSB)               -->
+        <!-- ================================================================= -->
+        <div class="bg-white rounded-3xl p-6 sm:p-8 md:p-10 border border-slate-200/80 shadow-sm mb-8">
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-2">Dewan Pengasuh & Pimpinan</h3>
+            <p class="text-xs sm:text-sm text-slate-500 mb-6">Mursyid, pengasuh, dan asatidz pembina santri.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+                
+                <div class="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-800 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm">
+                        ${(safePengasuh.slice(0, 2)).toUpperCase()}
+                    </div>
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">Pengasuh Utama</span>
+                        <h4 class="font-extrabold text-slate-900 text-sm leading-snug mt-0.5">${safePengasuh}</h4>
+                        <p class="text-xs text-slate-600 mt-0.5">Pimpinan Pondok Pesantren</p>
+                    </div>
+                </div>
+
+                ${(item.wakil_pengasuh || []).map(w => `
+                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-700 text-white flex items-center justify-center font-black text-xl shrink-0 shadow-sm">
+                            ${(w.slice(0, 2)).toUpperCase()}
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Wakil Pengasuh</span>
+                            <h4 class="font-extrabold text-slate-900 text-sm leading-snug mt-0.5">${escapeHTML(w)}</h4>
+                            <p class="text-xs text-slate-600 mt-0.5">Majelis Pengasuh</p>
+                        </div>
+                    </div>
+                `).join('')}
+
+            </div>
+
+            <!-- Banner Pendaftaran Santri Baru (PSB) WhatsApp Langsung -->
+            <div class="rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm" style="background: linear-gradient(135deg, #005c55 0%, #064e3b 100%);">
+                <div class="space-y-1.5 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border border-white/20">
+                        <span class="material-symbols-outlined text-[15px] text-emerald-300">campaign</span>
+                        <span>Penerimaan Santri Baru (PSB)</span>
+                    </div>
+                    <h4 class="text-xl sm:text-2xl font-black">Informasi Pendaftaran & Silaturahmi</h4>
+                    <p class="text-xs sm:text-sm text-white/80 max-w-xl">
+                        Ingin mendaftar sebagai santri baru atau berkonsultasi mengenai kurikulum dan tata cara mukim? Hubungi sekretariat pendaftaran resmi pesantren ini.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+                    ${soc.hotline_psb ? `
+                        <a href="${waPsbUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-2xl text-xs sm:text-sm font-black transition-all shadow-md inline-flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-[20px] text-emerald-700">chat</span>
+                            <span>WhatsApp Panitia PSB</span>
+                        </a>
+                    ` : `
+                        <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3.5 bg-white text-emerald-900 hover:bg-emerald-50 rounded-2xl text-xs sm:text-sm font-black transition-all shadow-md inline-flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-[20px] text-emerald-700">pin_drop</span>
+                            <span>Kunjungi Sekretariat Pesantren</span>
+                        </a>
+                    `}
+                    <button type="button" onclick="kembaliKeKatalogPesantren()" class="w-full sm:w-auto px-5 py-3.5 bg-white/15 hover:bg-white/25 text-white rounded-2xl text-xs sm:text-sm font-bold transition inline-flex items-center justify-center gap-2 border border-white/20 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">list_alt</span>
+                        <span>Lihat Pesantren Lainnya</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    `;
+}
+
+// Expose fungsi secara global
+window.bukaProfilPesantren = bukaProfilPesantren;
+window.renderPesantrenDetailPage = renderPesantrenDetailPage;
+window.kembaliKeKatalogPesantren = kembaliKeKatalogPesantren;
+window.salinNspp = salinNspp;
+
 // ==================================================================
 // MODAL DETAIL LEMBAGA (STANDAR DIGDAYA PESANTREN PBNU)
 // ==================================================================
@@ -1691,142 +2394,8 @@ function bukaModalDetailLembaga(lembagaId) {
     if (typeof hidePesantrenFlyout === 'function') {
         hidePesantrenFlyout();
     }
-    const item = allLembagaData.find(l => l.id === lembagaId) || DEFAULT_LEMBAGA_DATA.find(l => l.id === lembagaId);
-    if (!item) return;
-
-    const modal = document.getElementById('modal-public-detail');
-    if (!modal) return;
-
-    document.getElementById('modal-detail-nama').innerText = item.nama;
-    document.getElementById('modal-detail-kategori').innerText = item.kategori_atau_metode || item.jenis;
-    // Pengasuh Utama
-    document.getElementById('modal-detail-pengasuh').innerText = item.pengasuh_atau_kepala || '-';
-
-    // Wakil Pengasuh
-    const wakilContainer = document.getElementById('modal-detail-wakil-pengasuh');
-    if (wakilContainer) {
-        const wakilArr = item.wakil_pengasuh || [];
-        if (wakilArr.length > 0) {
-            wakilContainer.innerHTML = `
-                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <span class="material-symbols-outlined text-[13px] text-slate-400">group</span>
-                    <span class="text-[10px] text-slate-400 font-semibold">Wakil Pengasuh:</span>
-                    ${wakilArr.map(w => `<span class="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-[10px] font-bold">${escapeHTML(w)}</span>`).join('')}
-                </div>
-            `;
-        } else {
-            wakilContainer.innerHTML = '';
-        }
-    }
-    document.getElementById('modal-detail-alamat').innerText = `${item.alamat_detail || ''}, Kec. ${item.kecamatan}, Kab. Demak`;
-    document.getElementById('modal-detail-nspp').innerText = item.nspp || 'Dalam Proses Verifikasi';
-    
-    // Pesantren Aman badge
-    const amanContainer = document.getElementById('modal-detail-aman-badge');
-    if (amanContainer) {
-        if (item.has_komitmen_pesantren_aman) {
-            amanContainer.innerHTML = `
-                <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3">
-                    <span class="material-symbols-outlined text-emerald-700 text-2xl">verified_user</span>
-                    <div>
-                        <h5 class="font-bold text-xs text-emerald-950">Pesantren Ramah Santri (Pesantren Aman PBNU)</h5>
-                        <p class="text-[11px] text-emerald-700">Lembaga ini telah menandatangani pakta integritas perlindungan santri dari segala bentuk kekerasan fisik dan verbal.</p>
-                    </div>
-                </div>
-            `;
-        } else {
-            amanContainer.innerHTML = '';
-        }
-    }
-
-    // Kontak & Medsos
-    const soc = item.media_sosial || {};
-    const medsosContainer = document.getElementById('modal-detail-medsos');
-    if (medsosContainer) {
-        let socHtml = '';
-        if (soc.hotline_psb) {
-            socHtml += `<a href="https://wa.me/${soc.hotline_psb.replace(/[^0-9]/g, '')}" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs inline-flex items-center gap-1.5"><span class="material-symbols-outlined text-[15px]">chat</span> WhatsApp PSB: ${soc.hotline_psb}</a>`;
-        }
-        if (soc.instagram) {
-            socHtml += `<a href="${soc.instagram}" target="_blank" class="px-2.5 py-1 bg-pink-50 text-pink-700 hover:bg-pink-100 border border-pink-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">photo_camera</span> Instagram</a>`;
-        }
-        if (soc.youtube) {
-            socHtml += `<a href="${soc.youtube}" target="_blank" class="px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">smart_display</span> YouTube</a>`;
-        }
-        if (soc.website) {
-            socHtml += `<a href="${soc.website}" target="_blank" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">language</span> Website</a>`;
-        }
-        medsosContainer.innerHTML = socHtml || '<span class="text-xs text-slate-400 italic">Kontak digital publik belum ditambahkan.</span>';
-    }
-
-    // Kurikulum Turots / Marhalah
-    const kurikulumContainer = document.getElementById('modal-detail-kurikulum');
-    if (kurikulumContainer) {
-        const rawKitab = item.kurikulum_kitab || [];
-        if (rawKitab.length > 0) {
-            let kRows = rawKitab.map((k, i) => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-2 text-center text-slate-400">${i + 1}</td>
-                    <td class="p-2 font-bold text-slate-800">${k.nama_kitab}</td>
-                    <td class="p-2 text-slate-600">${k.pengarang}</td>
-                    <td class="p-2 font-semibold text-slate-700">${k.bidang_ilmu}</td>
-                    <td class="p-2 text-center"><span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase ${k.marhalah === 'wustho' ? 'bg-emerald-100 text-emerald-800' : (k.marhalah === 'ulya' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800')}">${k.marhalah}</span></td>
-                </tr>
-            `).join('');
-            kurikulumContainer.innerHTML = `
-                <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 font-bold text-slate-700">
-                            <tr>
-                                <th class="p-2 text-center w-10">No</th>
-                                <th class="p-2">Kitab</th>
-                                <th class="p-2">Pengarang</th>
-                                <th class="p-2">Fan Ilmu</th>
-                                <th class="p-2 text-center">Marhalah</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 bg-white">
-                            ${kRows}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        } else {
-            kurikulumContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Data kurikulum turots sedang dalam proses digitalisasi oleh tim RMI Demak.</p>';
-        }
-    }
-
-    // Galeri Sarana & Fasilitas Pondok (Domain 6)
-    const galeriWrapper = document.getElementById('modal-detail-galeri-wrapper');
-    const galeriContainer = document.getElementById('modal-detail-galeri');
-    const galeriCountBadge = document.getElementById('modal-detail-galeri-count');
-    if (galeriContainer) {
-        const galeriList = item.galeri_foto || [];
-        if (galeriList.length > 0) {
-            if (galeriWrapper) galeriWrapper.classList.remove('hidden');
-            if (galeriCountBadge) galeriCountBadge.innerText = `${galeriList.length} Foto`;
-            galeriContainer.innerHTML = galeriList.map(g => `
-                <div class="group relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs hover:shadow-md transition-all">
-                    <div class="h-28 overflow-hidden bg-slate-200">
-                        <img src="${escapeHTML(g.url)}" alt="${escapeHTML(g.judul || 'Fasilitas')}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                    </div>
-                    <div class="p-2 bg-white">
-                        <span class="text-[9px] uppercase font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded">${escapeHTML(g.kategori || 'Fasilitas')}</span>
-                        <p class="text-[11px] font-bold text-slate-800 mt-1 truncate" title="${escapeHTML(g.judul || '')}">${escapeHTML(g.judul || 'Fasilitas Pondok')}</p>
-                    </div>
-                    <a href="${escapeHTML(g.url)}" target="_blank" rel="noopener noreferrer" class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer" title="Buka Foto Resolusi Penuh">
-                        <span class="material-symbols-outlined text-2xl drop-shadow">fullscreen</span>
-                    </a>
-                </div>
-            `).join('');
-        } else {
-            if (galeriCountBadge) galeriCountBadge.innerText = '0 Foto';
-            galeriContainer.innerHTML = '<p class="text-xs text-slate-400 italic col-span-2 sm:col-span-3">Belum ada album foto fasilitas yang diunggah untuk lembaga ini.</p>';
-        }
-    }
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    // Langsung alihkan ke halaman detail profil penuh ala pesantren.nu.id
+    bukaProfilPesantren(lembagaId, true);
 }
 
 function tutupModalDetailLembaga() {
