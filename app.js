@@ -1331,8 +1331,17 @@ document.addEventListener('DOMContentLoaded', () => {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
         }
 
-        // Deep linking untuk Halaman Pesantren Detail (e.g. #pesantren-detail?id=RMI-DMK-000001 atau #pesantren/RMI-DMK-000001)
-        if (currentHash.startsWith('pesantren-detail') || currentHash.startsWith('pesantren/')) {
+        // Deep linking untuk Halaman Pesantren Detail:
+        // 1. Format Bersih & SEO-friendly ala pesantren.nu.id: #pesantren/roudlotul-mubarokah
+        // 2. Format Kompatibilitas Legacy: #pesantren-detail?id=RMI-DMK-000001
+        if (currentHash.startsWith('pesantren/')) {
+            const slugPart = rawHash.substring(rawHash.indexOf('/') + 1).trim();
+            if (slugPart && typeof bukaProfilPesantren === 'function') {
+                bukaProfilPesantren(slugPart, false);
+                return;
+            }
+        }
+        if (currentHash.startsWith('pesantren-detail')) {
             let pId = '';
             if (rawHash.includes('?id=')) {
                 const searchParams = new URLSearchParams(rawHash.split('?')[1] || '');
@@ -1341,7 +1350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pId = rawHash.split('/')[1];
             }
             if (pId && typeof bukaProfilPesantren === 'function') {
-                bukaProfilPesantren(pId, false);
+                bukaProfilPesantren(pId, true); // Update otomatis ke format baru #pesantren/[slug]
                 return;
             } else {
                 navigateTo('pesantren', false);
@@ -1709,6 +1718,57 @@ function startSmartPrayerWidget() {
 }
 
 // =========================================================================
+// HELPER SLUG RESMI PESANTREN (STANDAR PESANTREN.NU.ID)
+// =========================================================================
+function generatePesantrenSlug(item) {
+    if (!item) return '';
+    let baseName = (item.nama || '').toLowerCase();
+    // Hilangkan awalan umum agar slug bersih, ringkas, persis pesantren.nu.id
+    baseName = baseName.replace(/^(pondok\s+pesantren|pesantren|ponpes|pp\.|pp)\s+/i, '');
+    let slug = baseName
+        .trim()
+        .toLowerCase()
+        .replace(/['"’`]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    return slug || (item.kode_pesantren ? item.kode_pesantren.toLowerCase() : item.id);
+}
+
+function findPesantrenBySlugOrId(param) {
+    if (!param) return null;
+    const target = decodeURIComponent(String(param)).trim().toLowerCase();
+    const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+
+    const list = (allLembagaData && allLembagaData.length > 0) ? allLembagaData : DEFAULT_LEMBAGA_DATA;
+
+    // 1. Cek langsung dengan ID atau Kode Pesantren (e.g. RMI-DMK-000001 atau UUID)
+    let found = list.find(l => 
+        String(l.id).toLowerCase() === target || 
+        String(l.kode_pesantren || '').toLowerCase() === target
+    );
+    if (found) return found;
+
+    // 2. Cek apakah cocok dengan generatePesantrenSlug (e.g. roudlotul-mubarokah)
+    found = list.find(l => generatePesantrenSlug(l) === target);
+    if (found) return found;
+
+    // 3. Cek apakah cocok dengan slug nama lengkap tanpa menghapus awalan
+    found = list.find(l => {
+        const fullSlug = (l.nama || '').toLowerCase().replace(/['"’`]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+        return fullSlug === target;
+    });
+    if (found) return found;
+
+    // 4. Cek apakah slug cocok dengan substring nama bersih
+    found = list.find(l => {
+        const cleanName = (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        return cleanName.includes(cleanTarget) || cleanTarget.includes(cleanName);
+    });
+    return found || null;
+}
+
+// =========================================================================
 // SUBPAGE DETAIL PROFIL PESANTREN (STANDAR DIGDAYA PESANTREN.NU.ID 10 SEKSI)
 // =========================================================================
 function bukaProfilPesantren(pesantrenId, updateHash = true) {
@@ -1769,25 +1829,7 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
     const container = document.getElementById('pesantren-detail-content');
     if (!container) return;
 
-    const target = String(pesantrenId).trim().toLowerCase();
-    let item = allLembagaData.find(l => 
-        String(l.id).toLowerCase() === target || 
-        String(l.kode_pesantren || '').toLowerCase() === target
-    );
-    if (!item) {
-        item = DEFAULT_LEMBAGA_DATA.find(l => 
-            String(l.id).toLowerCase() === target || 
-            String(l.kode_pesantren || '').toLowerCase() === target
-        );
-    }
-    if (!item) {
-        const cleanTarget = target.replace(/[^a-z0-9]/g, '');
-        item = allLembagaData.find(l => 
-            (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanTarget)
-        ) || DEFAULT_LEMBAGA_DATA.find(l => 
-            (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanTarget)
-        );
-    }
+    const item = findPesantrenBySlugOrId(pesantrenId);
 
     if (!item) {
         container.innerHTML = `
@@ -1820,10 +1862,13 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
         ? escapeHTML(item.foto_url) 
         : 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';
 
-    // Update URL hash jika updateHash=true
+    // 🚀 GENERATE CLEAN SLUG ALA PESANTREN.NU.ID (e.g. #pesantren/roudlotul-mubarokah)
+    const slug = generatePesantrenSlug(item);
     if (updateHash) {
-        const hashId = item.kode_pesantren || item.id;
-        history.pushState({ page: 'pesantren-detail', id: hashId }, '', '#pesantren-detail?id=' + encodeURIComponent(hashId));
+        const targetHash = '#pesantren/' + slug;
+        if (window.location.hash !== targetHash) {
+            history.pushState({ page: 'pesantren-detail', slug: slug, id: item.id }, '', targetHash);
+        }
     }
 
     // Aktifkan view
@@ -1852,7 +1897,10 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
     const mapsUrl = (item.latitude && item.longitude) 
         ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` 
         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.nama + ' ' + (item.desa || '') + ' ' + item.kecamatan + ' Demak')}`;
-    const waShareText = `Assalamu'alaikum. Simak profil resmi ${item.nama} (${safeKode}) di Direktori Resmi PC RMI NU Kabupaten Demak:\n${window.location.href}`;
+    
+    // Tautan Share WhatsApp dengan Slug Bersih ala pesantren.nu.id
+    const shareProfileUrl = `${window.location.origin}${window.location.pathname}#pesantren/${slug}`;
+    const waShareText = `Assalamu'alaikum. Simak profil resmi ${item.nama} (${safeKode}) di Direktori Resmi PC RMI NU Kabupaten Demak:\n${shareProfileUrl}`;
     const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waShareText)}`;
     const waPsbUrl = soc.hotline_psb ? `https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Panitia PSB ' + item.nama + ', saya ingin bertanya mengenai pendaftaran santri baru.')}` : '';
 
@@ -2386,6 +2434,8 @@ window.bukaProfilPesantren = bukaProfilPesantren;
 window.renderPesantrenDetailPage = renderPesantrenDetailPage;
 window.kembaliKeKatalogPesantren = kembaliKeKatalogPesantren;
 window.salinNspp = salinNspp;
+window.generatePesantrenSlug = generatePesantrenSlug;
+window.findPesantrenBySlugOrId = findPesantrenBySlugOrId;
 
 // ==================================================================
 // MODAL DETAIL LEMBAGA (STANDAR DIGDAYA PESANTREN PBNU)
