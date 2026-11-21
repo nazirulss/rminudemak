@@ -2636,13 +2636,19 @@
                     <span class="material-symbols-outlined text-[16px]">id_card</span> Identitas
                 </button>
                 <button type="button" onclick="switchEditPesantrenTab('media')" id="tab-btn-media" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
-                    <span class="material-symbols-outlined text-[16px]">cloud_upload</span> Logo & Sampul (Drive)
+                    <span class="material-symbols-outlined text-[16px]">cloud_upload</span> Logo & Sampul
                 </button>
                 <button type="button" onclick="switchEditPesantrenTab('program')" id="tab-btn-program" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span class="material-symbols-outlined text-[16px]">stars</span> Program & Klasifikasi
                 </button>
+                <button type="button" onclick="switchEditPesantrenTab('kitab')" id="tab-btn-kitab" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">menu_book</span> Kurikulum Kitab
+                </button>
                 <button type="button" onclick="switchEditPesantrenTab('pimpinan')" id="tab-btn-pimpinan" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
-                    <span class="material-symbols-outlined text-[16px]">person</span> Pimpinan
+                    <span class="material-symbols-outlined text-[16px]">person</span> Pimpinan & Asatidz
+                </button>
+                <button type="button" onclick="switchEditPesantrenTab('sarpras')" id="tab-btn-sarpras" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">domain</span> Sarana Prasarana
                 </button>
                 <button type="button" onclick="switchEditPesantrenTab('lokasi')" id="tab-btn-lokasi" class="tab-btn-edit-p px-3.5 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span class="material-symbols-outlined text-[16px]">location_on</span> Lokasi
@@ -2870,16 +2876,274 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: PIMPINAN & MASYAYIKH -->
-                <div id="edit-pane-pimpinan" class="edit-p-pane space-y-4 hidden">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Pengasuh Utama / Khadimul Ma'had <span class="text-red-500">*</span></label>
-                        <input type="text" id="edit-p-pengasuh" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama lengkap Pengasuh beserta gelar...">
+                <!-- TAB KURIKULUM KITAB TUROTS (DOMAIN 4) -->
+                <div id="edit-pane-kitab" class="edit-p-pane space-y-5 hidden">
+                    <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
+                        <span class="material-symbols-outlined text-emerald-700 text-[20px] shrink-0 mt-0.5">menu_book</span>
+                        <div class="text-[11px] text-emerald-900 leading-relaxed">
+                            <span class="font-bold">Kurikulum Kitab Turots Berjenjang:</span> Pendataan kurikulum kitab kuning yang dikaji santri berdasarkan marhalah (Ula, Wustho, Ulya) untuk sinkronisasi ke tabel <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono">pesantren_education</code> dan lembar resmi Buku Induk.
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Wakil Pengasuh / Khodim Tsani</label>
-                        <input type="text" id="edit-p-wakil" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Wakil Pengasuh (kosongkan bila tidak ada)...">
-                        <p class="text-[10px] text-slate-400 mt-1">Jika ada lebih dari satu, pisahkan dengan koma.</p>
+
+                    <!-- Quick Add Standard Kitab -->
+                    <div class="space-y-1.5">
+                        <label class="block font-bold text-slate-700 text-xs">Tambah Cepat Kitab Standar Pesantren:</label>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="quickAddEditKitab('Safinatun Najah', 'Salim bin Samir', 'Fiqih Dasar', 'ula')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-blue-600">add</span> + Safinatun Najah (Ula)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Al-Jurumiyah', 'Ibnu Ajurrum', 'Nahwu & Gramatika', 'ula')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-blue-600">add</span> + Al-Jurumiyah (Ula)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Fathul Qorib Al-Mujib', 'Ibnu Qasim Al-Ghazi', 'Fiqih Lanjutan', 'wustho')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-emerald-600">add</span> + Fathul Qorib (Wustho)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Al-Imrithi', 'Syarafuddin Al-Imrithi', 'Gramatika Arab', 'wustho')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-emerald-600">add</span> + Al-Imrithi (Wustho)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Fathul Mu\'in', 'Zainuddin Al-Malibari', 'Fiqih Syafi\'i', 'ulya')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-purple-600">add</span> + Fathul Mu'in (Ulya)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Alfiyyah Ibnu Malik', 'Ibnu Malik', 'Linguistik & Nahwu Tinggi', 'ulya')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-purple-600">add</span> + Alfiyyah (Ulya)
+                            </button>
+                            <button type="button" onclick="quickAddEditKitab('Tafsir Jalalain', 'Jalaluddin Al-Mahalli & As-Suyuthi', 'Tafsir Al-Qur\'an', 'ulya')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-purple-600">add</span> + Tafsir Jalalain (Ulya)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Input Manual Kitab -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-700">edit_note</span>
+                            <span>Tambah Kitab Kuning Khusus</span>
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Nama Kitab Kuning</label>
+                                <input type="text" id="input-new-kitab-nama" placeholder="Contoh: Riyadhus Shalihin..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Pengarang / Muallif</label>
+                                <input type="text" id="input-new-kitab-muallif" placeholder="Contoh: Imam An-Nawawi..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Bidang / Fan Keilmuan</label>
+                                <select id="input-new-kitab-bidang" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden">
+                                    <option value="Fiqih">Fiqih & Ushul Fiqih</option>
+                                    <option value="Nahwu & Sharaf">Nahwu & Sharaf</option>
+                                    <option value="Hadits">Hadits & Musthalah</option>
+                                    <option value="Tafsir">Tafsir & Ulumul Qur'an</option>
+                                    <option value="Akhlaq & Tasawuf">Akhlaq & Tasawuf</option>
+                                    <option value="Tauhid & Aqidah">Tauhid & Aqidah</option>
+                                    <option value="Tarikh Islam">Tarikh & Sirah Nabawiyah</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Jenjang Marhalah</label>
+                                <select id="input-new-kitab-marhalah" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden">
+                                    <option value="ula">Marhalah Ula (Dasar)</option>
+                                    <option value="wustho">Marhalah Wustho (Menengah)</option>
+                                    <option value="ulya">Marhalah Ulya (Tinggi)</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" onclick="addNewEditKitabManual()" class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition shadow-xs flex items-center justify-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">add</span>
+                                    <span>Tambahkan Kitab</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Daftar Kitab Aktif -->
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-700">library_books</span>
+                                <span>Daftar Kurikulum Kitab Terdaftar</span>
+                            </h5>
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="filterEditKitabList('all')" id="edit-kitab-filter-all" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-700 text-white cursor-pointer">Semua (<span id="edit-kitab-count-all">0</span>)</button>
+                                <button type="button" onclick="filterEditKitabList('ula')" id="edit-kitab-filter-ula" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Ula (<span id="edit-kitab-count-ula">0</span>)</button>
+                                <button type="button" onclick="filterEditKitabList('wustho')" id="edit-kitab-filter-wustho" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Wustho (<span id="edit-kitab-count-wustho">0</span>)</button>
+                                <button type="button" onclick="filterEditKitabList('ulya')" id="edit-kitab-filter-ulya" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Ulya (<span id="edit-kitab-count-ulya">0</span>)</button>
+                            </div>
+                        </div>
+                        <div id="edit-kitab-list-container" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            <!-- Diisi via renderEditKitabList() -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB PIMPINAN & DEWAN ASATIDZ (DOMAIN 1 & 5) -->
+                <div id="edit-pane-pimpinan" class="edit-p-pane space-y-5 hidden">
+                    <!-- Pengasuh & Wakil Pengasuh Utama -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                        <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-700">shield_person</span>
+                            <span>Khadimul Ma'had & Pimpinan Lembaga</span>
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Pengasuh Utama / Khadimul Ma'had <span class="text-red-500">*</span></label>
+                                <input type="text" id="edit-p-pengasuh" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama lengkap Pengasuh beserta gelar...">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Wakil Pengasuh / Khodim Tsani</label>
+                                <input type="text" id="edit-p-wakil" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 text-xs font-medium focus:ring-2 focus:ring-emerald-700 focus:outline-hidden" placeholder="Nama Wakil Pengasuh (kosongkan bila tidak ada)...">
+                                <p class="text-[10px] text-slate-400 mt-1">Jika ada lebih dari satu, pisahkan dengan koma.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seksi Dewan Asatidz & Ustadz/Ustadzah Pengajar (Domain 5) -->
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-700">person_add</span>
+                                <span>Tambah Dewan Asatidz & Asatidzah</span>
+                            </h5>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                                <div class="sm:col-span-2">
+                                    <label class="block font-bold text-slate-600 text-[11px] mb-1">Nama Asatidz & Gelar</label>
+                                    <input type="text" id="input-new-asatidz-nama" placeholder="Contoh: Ust. Ahmad Fauzi, S.Pd.I..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-600 text-[11px] mb-1">Kategori</label>
+                                    <select id="input-new-asatidz-kategori" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden">
+                                        <option value="ustadz">Ustadz (Guru Putra)</option>
+                                        <option value="ustadzah">Ustadzah (Guru Putri)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-600 text-[11px] mb-1">Jabatan / Amanah</label>
+                                    <input type="text" id="input-new-asatidz-jabatan" placeholder="Contoh: Kepala Madin / Pengajar" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="block font-bold text-slate-600 text-[11px] mb-1">Spesialisasi Fan Keilmuan</label>
+                                    <input type="text" id="input-new-asatidz-spesialisasi" placeholder="Contoh: Fiqih Syafi'i & Nahwu..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-600 text-[11px] mb-1">Almamater / Riwayat</label>
+                                    <input type="text" id="input-new-asatidz-pendidikan" placeholder="Contoh: PP Sarang / Al-Azhar" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                                </div>
+                                <div class="flex items-end">
+                                    <button type="button" onclick="addNewEditAsatidzManual()" class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition shadow-xs flex items-center justify-center gap-1 cursor-pointer">
+                                        <span class="material-symbols-outlined text-[16px]">add</span>
+                                        <span>Tambahkan Asatidz</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daftar Dewan Asatidz Terdaftar -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[16px] text-emerald-700">diversity_3</span>
+                                    <span>Daftar Dewan Asatidz Aktif</span>
+                                </h5>
+                                <span id="edit-asatidz-count-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">0 Asatidz</span>
+                            </div>
+                            <div id="edit-asatidz-list-container" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                                <!-- Diisi via renderEditAsatidzList() -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB SARANA PRASARANA & FASILITAS (DOMAIN 6) -->
+                <div id="edit-pane-sarpras" class="edit-p-pane space-y-5 hidden">
+                    <div class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-start gap-3">
+                        <span class="material-symbols-outlined text-emerald-700 text-[20px] shrink-0 mt-0.5">domain</span>
+                        <div class="text-[11px] text-emerald-900 leading-relaxed">
+                            <span class="font-bold">Inventaris Sarana & Fasilitas Pesantren:</span> Pencatatan sarana fisik lembaga (masjid, asrama, madrasah, koperasi, poskestren) untuk sinkronisasi ke tabel <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono">pesantren_facilities</code> dan album dokumentasi Buku Induk.
+                        </div>
+                    </div>
+
+                    <!-- Quick Add Standard Sarana -->
+                    <div class="space-y-1.5">
+                        <label class="block font-bold text-slate-700 text-xs">Tambah Cepat Fasilitas Standar:</label>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="quickAddEditFasilitas('Masjid Jami\' Pondok', 'Ibadah', 'Baik', 'Pusat ibadah santri & sholat berjamaah.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-emerald-600">add</span> + Masjid Pondok
+                            </button>
+                            <button type="button" onclick="quickAddEditFasilitas('Gedung Asrama Santri Mukim', 'Asrama', 'Baik', 'Hunian asrama bertingkat untuk santri menetap.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-emerald-600">add</span> + Asrama Santri
+                            </button>
+                            <button type="button" onclick="quickAddEditFasilitas('Gedung Madrasah Diniyah', 'Pendidikan', 'Baik', 'Ruang kelas pembelajaran kitab turots.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-indigo-600">add</span> + Madrasah Diniyah
+                            </button>
+                            <button type="button" onclick="quickAddEditFasilitas('Perpustakaan Kitab Turots', 'Pendidikan', 'Baik', 'Khazanah referensi kitab klasik dan modern.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-indigo-600">add</span> + Perpustakaan Kitab
+                            </button>
+                            <button type="button" onclick="quickAddEditFasilitas('Pos Kesehatan Pesantren (Poskestren)', 'Kesehatan', 'Baik', 'Layanan kesehatan pertama bagi para santri.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-teal-600">add</span> + Poskestren
+                            </button>
+                            <button type="button" onclick="quickAddEditFasilitas('Koperasi Pondok Pesantren (Kopontren)', 'Kemandirian Usaha', 'Baik', 'Unit penyedia kebutuhan harian santri.')" class="px-2.5 py-1 bg-white hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition flex items-center gap-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-[13px] text-amber-600">add</span> + Kopontren
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Input Manual Sarana -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-700">edit_note</span>
+                            <span>Tambah Sarana / Prasarana Khusus</span>
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Nama Fasilitas / Gedung</label>
+                                <input type="text" id="input-new-fac-nama" placeholder="Contoh: Gedung Laboratorium Komputer..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Kategori</label>
+                                <select id="input-new-fac-kategori" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden">
+                                    <option value="Ibadah">Ibadah</option>
+                                    <option value="Asrama">Asrama Santri</option>
+                                    <option value="Pendidikan">Pendidikan & Kelas</option>
+                                    <option value="Kesehatan">Kesehatan</option>
+                                    <option value="Kemandirian Usaha">Kemandirian Usaha</option>
+                                    <option value="Sanitasi">Sanitasi & MCK</option>
+                                    <option value="Olahraga">Olahraga & Seni</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Kondisi Fisik</label>
+                                <select id="input-new-fac-kondisi" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs font-semibold focus:ring-2 focus:ring-emerald-600 focus:outline-hidden">
+                                    <option value="Baik">Baik</option>
+                                    <option value="Rusak Ringan">Rusak Ringan</option>
+                                    <option value="Rusak Sedang">Rusak Sedang</option>
+                                </select>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label class="block font-bold text-slate-600 text-[11px] mb-1">Keterangan / Kapasitas / Luas</label>
+                                <input type="text" id="input-new-fac-keterangan" placeholder="Contoh: Luas 200 m2, daya tampung 150 santri..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-hidden" />
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" onclick="addNewEditFasilitasManual()" class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition shadow-xs flex items-center justify-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">add</span>
+                                    <span>Tambahkan Sarana</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daftar Sarana Prasarana Terdaftar -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-emerald-700">inventory_2</span>
+                                <span>Daftar Sarana & Prasarana Aktif</span>
+                            </h5>
+                            <span id="edit-fac-count-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">0 Fasilitas</span>
+                        </div>
+                        <div id="edit-fac-list-container" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                            <!-- Diisi via renderEditFacList() -->
+                        </div>
                     </div>
                 </div>
 
@@ -4381,6 +4645,13 @@
                 } catch (e) {
                     clearAuthSession();
                 }
+            }
+
+            // Auto-restore sesi Super Administrator di lingkungan lokal (127.0.0.1 / localhost)
+            if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+                const demoUser = DEMO_CREDENTIALS.super_admin_nazirul;
+                applyAuthenticatedSession(demoUser, 'super_admin');
+                return;
             }
 
             // Bila belum ada sesi aktif, munculkan modal login formal
@@ -7783,6 +8054,354 @@
             }
         }
 
+        // ==========================================
+        // 12.C.3 KURIKULUM KITAB TUROTS (DOMAIN 4)
+        // ==========================================
+        let editPesantrenKitabs = [];
+        let activeEditKitabFilter = 'all';
+
+        function filterEditKitabList(marhalah) {
+            activeEditKitabFilter = marhalah;
+            ['all', 'ula', 'wustho', 'ulya'].forEach(m => {
+                const btn = document.getElementById(`edit-kitab-filter-${m}`);
+                if (btn) {
+                    if (m === marhalah) {
+                        btn.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-700 text-white cursor-pointer';
+                    } else {
+                        btn.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer';
+                    }
+                }
+            });
+            renderEditKitabList();
+        }
+
+        function renderEditKitabList() {
+            const container = document.getElementById('edit-kitab-list-container');
+            if (!container) return;
+
+            // Update Counters
+            const countAll = editPesantrenKitabs.length;
+            const countUla = editPesantrenKitabs.filter(k => (k.marhalah || '').toLowerCase() === 'ula').length;
+            const countWustho = editPesantrenKitabs.filter(k => (k.marhalah || '').toLowerCase() === 'wustho').length;
+            const countUlya = editPesantrenKitabs.filter(k => (k.marhalah || '').toLowerCase() === 'ulya').length;
+
+            const elAll = document.getElementById('edit-kitab-count-all');
+            const elUla = document.getElementById('edit-kitab-count-ula');
+            const elWustho = document.getElementById('edit-kitab-count-wustho');
+            const elUlya = document.getElementById('edit-kitab-count-ulya');
+            if (elAll) elAll.innerText = countAll;
+            if (elUla) elUla.innerText = countUla;
+            if (elWustho) elWustho.innerText = countWustho;
+            if (elUlya) elUlya.innerText = countUlya;
+
+            const filtered = activeEditKitabFilter === 'all' 
+                ? editPesantrenKitabs 
+                : editPesantrenKitabs.filter(k => (k.marhalah || '').toLowerCase() === activeEditKitabFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-center text-slate-400 text-xs">
+                        Belum ada kurikulum kitab pada filter marhalah ini.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map((item, idx) => {
+                const nama = item.nama_kitab || item.nama || '';
+                const muallif = item.pengarang || item.pengarang_kitab || '-';
+                const bidang = item.bidang_ilmu || 'Fiqih';
+                const marhalah = (item.marhalah || 'ula').toLowerCase();
+
+                let mBadge = 'bg-blue-100 text-blue-800 border-blue-200';
+                if (marhalah === 'wustho') mBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (marhalah === 'ulya') mBadge = 'bg-purple-100 text-purple-800 border-purple-200';
+
+                const origIdx = editPesantrenKitabs.indexOf(item);
+
+                return `
+                    <div class="p-2.5 bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-3 shadow-2xs hover:border-slate-300 transition">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 font-mono text-[11px] font-bold flex items-center justify-center shrink-0">${origIdx + 1}</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h6 class="font-bold text-xs text-slate-900 truncate">${escapeHTML(nama)}</h6>
+                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase border ${mBadge}">${escapeHTML(marhalah)}</span>
+                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-100 text-slate-600">${escapeHTML(bidang)}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 truncate mt-0.5">Muallif: ${escapeHTML(muallif)}</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeEditKitab(${origIdx})" class="text-slate-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Hapus Kitab">
+                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function quickAddEditKitab(nama, muallif, bidang, marhalah) {
+            const exists = editPesantrenKitabs.some(k => (k.nama_kitab || '').toLowerCase() === nama.toLowerCase());
+            if (exists) {
+                showToast('warning', `Kitab "${nama}" sudah terdaftar.`);
+                return;
+            }
+            editPesantrenKitabs.push({
+                nama_kitab: nama,
+                pengarang: muallif,
+                bidang_ilmu: bidang,
+                marhalah: marhalah
+            });
+            renderEditKitabList();
+            showToast('success', `Kitab "${nama}" ditambahkan.`);
+        }
+
+        function addNewEditKitabManual() {
+            const namaEl = document.getElementById('input-new-kitab-nama');
+            const muallifEl = document.getElementById('input-new-kitab-muallif');
+            const bidangEl = document.getElementById('input-new-kitab-bidang');
+            const marhalahEl = document.getElementById('input-new-kitab-marhalah');
+
+            const nama = namaEl ? namaEl.value.trim() : '';
+            const muallif = muallifEl ? muallifEl.value.trim() : '-';
+            const bidang = bidangEl ? bidangEl.value : 'Fiqih';
+            const marhalah = marhalahEl ? marhalahEl.value : 'ula';
+
+            if (!nama) {
+                showToast('warning', 'Nama kitab kuning wajib diisi.');
+                namaEl?.focus();
+                return;
+            }
+
+            editPesantrenKitabs.push({
+                nama_kitab: nama,
+                pengarang: muallif,
+                bidang_ilmu: bidang,
+                marhalah: marhalah
+            });
+
+            if (namaEl) namaEl.value = '';
+            if (muallifEl) muallifEl.value = '';
+
+            renderEditKitabList();
+            showToast('success', `Kitab "${nama}" berhasil ditambahkan.`);
+        }
+
+        function removeEditKitab(idx) {
+            if (idx >= 0 && idx < editPesantrenKitabs.length) {
+                const removed = editPesantrenKitabs.splice(idx, 1);
+                renderEditKitabList();
+                showToast('info', `Kitab "${removed[0]?.nama_kitab || 'Kitab'}" dihapus.`);
+            }
+        }
+
+        // ==========================================
+        // 12.C.4 DEWAN ASATIDZ (DOMAIN 5)
+        // ==========================================
+        let editPesantrenAsatidz = [];
+
+        function renderEditAsatidzList() {
+            const container = document.getElementById('edit-asatidz-list-container');
+            const badge = document.getElementById('edit-asatidz-count-badge');
+            if (!container) return;
+
+            if (badge) badge.innerText = `${editPesantrenAsatidz.length} Asatidz`;
+
+            if (editPesantrenAsatidz.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-center text-slate-400 text-xs">
+                        Belum ada dewan asatidz/asatidzah yang terdaftar untuk lembaga ini.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = editPesantrenAsatidz.map((u, idx) => {
+                const nama = u.nama || u.nama_lengkap || '';
+                const kat = (u.kategori || 'ustadz').toLowerCase();
+                const jab = u.jabatan || 'Dewan Asatidz';
+                const spes = u.spesialisasi || 'Turots & Kitab Kuning';
+                const pend = u.pendidikan || 'Pesantren';
+
+                const isUstadzah = kat === 'ustadzah';
+                const colorTheme = isUstadzah 
+                    ? { bg: 'bg-purple-100', text: 'text-purple-700', icon: 'face_4', badge: 'bg-purple-100 text-purple-800' }
+                    : { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: 'person', badge: 'bg-emerald-100 text-emerald-800' };
+
+                return `
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 flex items-start justify-between gap-3 shadow-2xs hover:border-slate-300 transition">
+                        <div class="flex items-start gap-3 flex-1 min-w-0">
+                            <div class="w-8 h-8 rounded-full ${colorTheme.bg} ${colorTheme.text} flex items-center justify-center shrink-0 mt-0.5">
+                                <span class="material-symbols-outlined text-[18px]">${colorTheme.icon}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <h6 class="font-bold text-xs text-slate-900 truncate">${escapeHTML(nama)}</h6>
+                                    <span class="px-1.5 py-0.2 rounded text-[9px] uppercase font-bold ${colorTheme.badge}">${escapeHTML(kat)}</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 font-medium">${escapeHTML(jab)}</p>
+                                <div class="mt-1 flex flex-wrap gap-1 text-[10px] text-slate-500">
+                                    <span class="bg-slate-100 px-1.5 py-0.5 rounded">Keahlian: ${escapeHTML(spes)}</span>
+                                    <span class="bg-slate-100 px-1.5 py-0.5 rounded">Alumni: ${escapeHTML(pend)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeEditAsatidz(${idx})" class="text-slate-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Hapus Asatidz">
+                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addNewEditAsatidzManual() {
+            const namaEl = document.getElementById('input-new-asatidz-nama');
+            const katEl = document.getElementById('input-new-asatidz-kategori');
+            const jabEl = document.getElementById('input-new-asatidz-jabatan');
+            const spesEl = document.getElementById('input-new-asatidz-spesialisasi');
+            const pendEl = document.getElementById('input-new-asatidz-pendidikan');
+
+            const nama = namaEl ? namaEl.value.trim() : '';
+            const kat = katEl ? katEl.value : 'ustadz';
+            const jab = jabEl ? jabEl.value.trim() : 'Dewan Asatidz';
+            const spes = spesEl ? spesEl.value.trim() : 'Turots & Kitab Kuning';
+            const pend = pendEl ? pendEl.value.trim() : 'Pesantren';
+
+            if (!nama) {
+                showToast('warning', 'Nama asatidz wajib diisi.');
+                namaEl?.focus();
+                return;
+            }
+
+            editPesantrenAsatidz.push({
+                nama: nama,
+                kategori: kat,
+                jabatan: jab || 'Dewan Asatidz',
+                spesialisasi: spes || 'Turots & Kitab Kuning',
+                pendidikan: pend || 'Pesantren'
+            });
+
+            if (namaEl) namaEl.value = '';
+            if (jabEl) jabEl.value = '';
+            if (spesEl) spesEl.value = '';
+            if (pendEl) pendEl.value = '';
+
+            renderEditAsatidzList();
+            showToast('success', `Ustadz/Ustadzah "${nama}" berhasil ditambahkan.`);
+        }
+
+        function removeEditAsatidz(idx) {
+            if (idx >= 0 && idx < editPesantrenAsatidz.length) {
+                const removed = editPesantrenAsatidz.splice(idx, 1);
+                renderEditAsatidzList();
+                showToast('info', `"${removed[0]?.nama || 'Asatidz'}" dihapus dari dewan asatidz.`);
+            }
+        }
+
+        // ==========================================
+        // 12.C.5 SARANA PRASARANA & FASILITAS (DOMAIN 6)
+        // ==========================================
+        let editPesantrenFacs = [];
+
+        function renderEditFacList() {
+            const container = document.getElementById('edit-fac-list-container');
+            const badge = document.getElementById('edit-fac-count-badge');
+            if (!container) return;
+
+            if (badge) badge.innerText = `${editPesantrenFacs.length} Fasilitas`;
+
+            if (editPesantrenFacs.length === 0) {
+                container.innerHTML = `
+                    <div class="p-4 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-center text-slate-400 text-xs">
+                        Belum ada sarana prasarana yang tercatat untuk lembaga ini.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = editPesantrenFacs.map((f, idx) => {
+                const nama = f.nama || f.nama_fasilitas || '';
+                const kat = f.kategori || 'Fasilitas';
+                const kond = f.kondisi || 'Baik';
+                const luas = f.luas_m2 ? `${f.luas_m2} m²` : '';
+                const ket = f.keterangan || '';
+
+                const isBaik = kond === 'Baik';
+                const kondBadge = isBaik ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+
+                return `
+                    <div class="p-3 bg-white rounded-xl border border-slate-200 flex items-start justify-between gap-3 shadow-2xs hover:border-slate-300 transition">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-100 text-slate-700">${escapeHTML(kat)}</span>
+                                <h6 class="font-bold text-xs text-slate-900 truncate">${escapeHTML(nama)}</h6>
+                                <span class="px-2 py-0.5 rounded text-[9px] font-bold ${kondBadge}">${escapeHTML(kond)}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">${escapeHTML(ket || luas || '-')}</p>
+                        </div>
+                        <button type="button" onclick="removeEditFasilitas(${idx})" class="text-slate-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition cursor-pointer" title="Hapus Fasilitas">
+                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function quickAddEditFasilitas(nama, kategori, kondisi, keterangan) {
+            const exists = editPesantrenFacs.some(f => (f.nama || f.nama_fasilitas || '').toLowerCase() === nama.toLowerCase());
+            if (exists) {
+                showToast('warning', `Fasilitas "${nama}" sudah terdaftar.`);
+                return;
+            }
+            editPesantrenFacs.push({
+                nama: nama,
+                kategori: kategori,
+                kondisi: kondisi,
+                keterangan: keterangan
+            });
+            renderEditFacList();
+            showToast('success', `Fasilitas "${nama}" ditambahkan.`);
+        }
+
+        function addNewEditFasilitasManual() {
+            const namaEl = document.getElementById('input-new-fac-nama');
+            const katEl = document.getElementById('input-new-fac-kategori');
+            const kondEl = document.getElementById('input-new-fac-kondisi');
+            const ketEl = document.getElementById('input-new-fac-keterangan');
+
+            const nama = namaEl ? namaEl.value.trim() : '';
+            const kat = katEl ? katEl.value : 'Pendidikan';
+            const kond = kondEl ? kondEl.value : 'Baik';
+            const ket = ketEl ? ketEl.value.trim() : '';
+
+            if (!nama) {
+                showToast('warning', 'Nama fasilitas wajib diisi.');
+                namaEl?.focus();
+                return;
+            }
+
+            editPesantrenFacs.push({
+                nama: nama,
+                kategori: kat,
+                kondisi: kond,
+                keterangan: ket
+            });
+
+            if (namaEl) namaEl.value = '';
+            if (ketEl) ketEl.value = '';
+
+            renderEditFacList();
+            showToast('success', `Fasilitas "${nama}" berhasil ditambahkan.`);
+        }
+
+        function removeEditFasilitas(idx) {
+            if (idx >= 0 && idx < editPesantrenFacs.length) {
+                const removed = editPesantrenFacs.splice(idx, 1);
+                renderEditFacList();
+                showToast('info', `Fasilitas "${removed[0]?.nama || 'Fasilitas'}" dihapus.`);
+            }
+        }
+
         function updateEditTotalSantriPreview() {
             const mukim = parseInt(document.getElementById('edit-p-mukim')?.value || '0', 10) || 0;
             const nonMukim = parseInt(document.getElementById('edit-p-nonmukim')?.value || '0', 10) || 0;
@@ -7879,6 +8498,27 @@
             }
             renderEditProgramList();
             updateEditClassificationPreview();
+
+            // Tab Kurikulum Kitab Turots
+            editPesantrenKitabs = [];
+            if (Array.isArray(p.kurikulum_kitab)) {
+                editPesantrenKitabs = JSON.parse(JSON.stringify(p.kurikulum_kitab));
+            }
+            filterEditKitabList('all');
+
+            // Tab Dewan Asatidz
+            editPesantrenAsatidz = [];
+            if (Array.isArray(p.dewan_asatidz)) {
+                editPesantrenAsatidz = JSON.parse(JSON.stringify(p.dewan_asatidz));
+            }
+            renderEditAsatidzList();
+
+            // Tab Sarana Prasarana
+            editPesantrenFacs = [];
+            if (Array.isArray(p.fasilitas)) {
+                editPesantrenFacs = JSON.parse(JSON.stringify(p.fasilitas));
+            }
+            renderEditFacList();
 
             // Tab Pimpinan & Masyayikh
             setVal('edit-p-pengasuh', p.pengasuh_utama || '');
@@ -7991,6 +8631,9 @@
                 operator_role: currentRole || 'super_admin',
                 klasifikasi: finalKlasifikasi,
                 program_unggulan: editPesantrenPrograms,
+                kurikulum_kitab: editPesantrenKitabs,
+                fasilitas: editPesantrenFacs,
+                dewan_asatidz: editPesantrenAsatidz,
                 identitas: {
                     nama_resmi: namaResmi,
                     nama_populer: getVal('edit-p-populer'),
@@ -8074,6 +8717,11 @@
                     p.klasifikasi = res.klasifikasi || finalKlasifikasi;
                     p.program_unggulan = res.program_unggulan || editPesantrenPrograms;
 
+                    // Update Kurikulum Kitab, Fasilitas, & Dewan Asatidz
+                    p.kurikulum_kitab = res.kurikulum_kitab || editPesantrenKitabs;
+                    p.fasilitas = res.fasilitas || editPesantrenFacs;
+                    p.dewan_asatidz = res.dewan_asatidz || editPesantrenAsatidz;
+
                     // Update Logo & Cover jika baru diunggah
                     if (res.logo_url) {
                         p.logo_url = res.logo_url;
@@ -8103,7 +8751,7 @@
                     }
 
                     closeModalEditPesantren();
-                    showToast('success', `Profil ${p.nama_resmi} berhasil diperbarui, terklasifikasi sebagai ${p.klasifikasi}, dan disinkronkan ke Cloud.`);
+                    showToast('success', `Profil ${p.nama_resmi} berhasil diperbarui, data 9 domain tersinkronisasi sempurna.`);
                 } else {
                     showToast('error', res?.message || 'Gagal memperbarui profil pesantren.');
                 }
@@ -8115,6 +8763,7 @@
                 if (btnText) btnText.innerText = 'Simpan Pembaruan Profil';
             }
         }
+
 
         // ==========================================
         // 13. LAPORAN & EKSPOR

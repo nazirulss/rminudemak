@@ -568,7 +568,126 @@ function handleUpdatePesantrenProfile(payload, lock) {
     }
   }
 
-  // 7. CATAT AUDIT LOG
+  // 7. UPDATE TABEL pesantren_education (KURIKULUM KITAB TUROTS MARHALAH)
+  let savedKitabs = [];
+  if (Array.isArray(payload.kurikulum_kitab)) {
+    const sheetEdu = ss.getSheetByName('pesantren_education');
+    if (sheetEdu) {
+      const eduData = sheetEdu.getDataRange().getValues();
+      for (let ed = eduData.length - 1; ed >= 1; ed--) {
+        if (isMatchPesantren(eduData[ed][1])) {
+          sheetEdu.deleteRow(ed + 1);
+        }
+      }
+
+      payload.kurikulum_kitab.forEach(function(item) {
+        const kId = Utilities.getUuid();
+        const kNama = typeof item === 'string' ? item : (item.nama_kitab || item.nama || '');
+        const kMarhalah = typeof item === 'object' ? (item.marhalah || 'ula') : 'ula';
+        const kPengarang = typeof item === 'object' ? (item.pengarang || item.pengarang_kitab || '') : '';
+        const kBidang = typeof item === 'object' ? (item.bidang_ilmu || 'Fiqih') : 'Fiqih';
+
+        if (kNama && kNama.trim()) {
+          sheetEdu.appendRow([
+            kId, foreignKeyId, 'Salafiyah', '', kMarhalah.toLowerCase(), kNama.trim(), kPengarang.trim(), kBidang.trim(),
+            '', '', '', true, now, now
+          ]);
+          savedKitabs.push({
+            id: kId,
+            marhalah: kMarhalah.toLowerCase(),
+            nama_kitab: kNama.trim(),
+            pengarang: kPengarang.trim(),
+            bidang_ilmu: kBidang.trim()
+          });
+        }
+      });
+    }
+  }
+
+  // 8. UPDATE TABEL pesantren_facilities (SARANA PRASARANA & FOTO FASILITAS)
+  let savedFacilities = [];
+  if (Array.isArray(payload.fasilitas)) {
+    const sheetFac = ss.getSheetByName('pesantren_facilities');
+    if (sheetFac) {
+      const facData = sheetFac.getDataRange().getValues();
+      for (let fc = facData.length - 1; fc >= 1; fc--) {
+        if (isMatchPesantren(facData[fc][1])) {
+          sheetFac.deleteRow(fc + 1);
+        }
+      }
+
+      payload.fasilitas.forEach(function(item) {
+        const fId = Utilities.getUuid();
+        const fNama = typeof item === 'string' ? item : (item.nama || item.nama_fasilitas || '');
+        const fKategori = typeof item === 'object' ? (item.kategori || 'Fasilitas') : 'Fasilitas';
+        const fKondisi = typeof item === 'object' ? (item.kondisi || 'Baik') : 'Baik';
+        const fLuas = typeof item === 'object' ? (item.luas_m2 || '') : '';
+        const fKet = typeof item === 'object' ? (item.keterangan || '') : '';
+        const fFoto = typeof item === 'object' ? (item.foto_url || '') : '';
+
+        if (fNama && fNama.trim()) {
+          sheetFac.appendRow([
+            fId, foreignKeyId, fKategori.trim(), fNama.trim(), fKondisi.trim(), fLuas, fKet.trim(), now, now, fFoto
+          ]);
+          savedFacilities.push({
+            id: fId,
+            kategori: fKategori.trim(),
+            nama: fNama.trim(),
+            kondisi: fKondisi.trim(),
+            luas_m2: fLuas,
+            keterangan: fKet.trim(),
+            foto_url: fFoto
+          });
+        }
+      });
+    }
+  }
+
+  // 9. UPDATE TABEL pesantren_leaders (DEWAN ASATIDZ LENGKAP)
+  let savedAsatidz = [];
+  if (Array.isArray(payload.dewan_asatidz)) {
+    const sheetLdr = ss.getSheetByName('pesantren_leaders');
+    if (sheetLdr) {
+      const ldrData = sheetLdr.getDataRange().getValues();
+      // Hapus yang BUKAN Pengasuh Utama (is_primary) & BUKAN Wakil Pengasuh
+      for (let ld = ldrData.length - 1; ld >= 1; ld--) {
+        if (isMatchPesantren(ldrData[ld][1])) {
+          const jab = String(ldrData[ld][5] || '').toLowerCase();
+          const isPrim = ldrData[ld][11] === true || String(ldrData[ld][11]).toUpperCase() === 'TRUE';
+          if (!isPrim && !jab.includes('pengasuh utama') && !jab.includes('wakil pengasuh')) {
+            sheetLdr.deleteRow(ld + 1);
+          }
+        }
+      }
+
+      // Masukkan Dewan Asatidz baru
+      payload.dewan_asatidz.forEach(function(u) {
+        const uId = Utilities.getUuid();
+        const uNama = typeof u === 'string' ? u : (u.nama || u.nama_lengkap || '');
+        const uJab = typeof u === 'object' ? (u.jabatan || 'Dewan Asatidz') : 'Dewan Asatidz';
+        const uKat = typeof u === 'object' ? (u.kategori || 'ustadz') : 'ustadz';
+        const uSpes = typeof u === 'object' ? (u.spesialisasi || 'Turots & Kitab Kuning') : 'Turots & Kitab Kuning';
+        const uPend = typeof u === 'object' ? (u.pendidikan || 'Pesantren') : 'Pesantren';
+
+        if (uNama && uNama.trim()) {
+          sheetLdr.appendRow([
+            uId, foreignKeyId, uNama.trim(), '', '', uJab.trim(), uKat.toLowerCase(),
+            uSpes.trim(), uPend.trim(), 3, true, false, now, now
+          ]);
+          savedAsatidz.push({
+            id: uId,
+            nama: uNama.trim(),
+            jabatan: uJab.trim(),
+            kategori: uKat.toLowerCase(),
+            spesialisasi: uSpes.trim(),
+            pendidikan: uPend.trim()
+          });
+        }
+      });
+    }
+  }
+
+  // 10. CATAT AUDIT LOG
   recordAuditLog(ss, {
     user_id: operator,
     user_role: role,
@@ -587,7 +706,10 @@ function handleUpdatePesantrenProfile(payload, lock) {
     klasifikasi: finalKlasifikasi,
     logo_url: updatedLogoUrl,
     foto_url: updatedFotoUrl,
-    program_unggulan: savedPrograms
+    program_unggulan: savedPrograms,
+    kurikulum_kitab: savedKitabs,
+    fasilitas: savedFacilities,
+    dewan_asatidz: savedAsatidz
   };
 }
 
