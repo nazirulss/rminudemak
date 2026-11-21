@@ -773,6 +773,18 @@ function getAllPesantrenData() {
       Logger.log('Gagal menambah header logo_url: ' + eH.message);
     }
   }
+
+  // Pastikan kolom klasifikasi ada di baris 1 header
+  let klasifikasiColIdx = pHeaders.indexOf('klasifikasi');
+  if (klasifikasiColIdx === -1) {
+    try {
+      sheetPesantren.getRange(1, pHeaders.length + 1).setValue('klasifikasi').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+      pHeaders.push('klasifikasi');
+      klasifikasiColIdx = pHeaders.length - 1;
+    } catch (eH) {
+      Logger.log('Gagal menambah header klasifikasi: ' + eH.message);
+    }
+  }
   
   // Baca tabel-tabel relasi pendukung untuk digabungkan
   const sheetLoc = ss.getSheetByName('pesantren_locations');
@@ -782,6 +794,7 @@ function getAllPesantrenData() {
   const sheetSantri = ss.getSheetByName('pesantren_santri_aggregates');
   const sheetDev = ss.getSheetByName('pesantren_development_profiles');
   const sheetFacilities = ss.getSheetByName('pesantren_facilities');
+  const sheetPrograms = ss.getSheetByName('pesantren_flagship_programs');
 
   const locValues = sheetLoc ? sheetLoc.getDataRange().getValues() : [];
   const leaderValues = sheetLeaders ? sheetLeaders.getDataRange().getValues() : [];
@@ -790,6 +803,7 @@ function getAllPesantrenData() {
   const santriValues = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
   const devValues = sheetDev ? sheetDev.getDataRange().getValues() : [];
   const facValues = sheetFacilities ? sheetFacilities.getDataRange().getValues() : [];
+  const progValues = sheetPrograms ? sheetPrograms.getDataRange().getValues() : [];
 
   const list = [];
 
@@ -976,6 +990,27 @@ function getAllPesantrenData() {
       obj.foto_url = obj.galeri_foto[0].url;
     }
 
+    // Join Flagship Programs
+    obj.program_unggulan = [];
+    for (let pg = 1; pg < progValues.length; pg++) {
+      if (progValues[pg][1] === pId) {
+        obj.program_unggulan.push({
+          id: progValues[pg][0],
+          nama_program: progValues[pg][2] || '',
+          bidang_program: progValues[pg][3] || '',
+          deskripsi: progValues[pg][4] || '',
+          prestasi_terkait: progValues[pg][5] || ''
+        });
+      }
+    }
+
+    // Auto-derive / Normalisasi Klasifikasi
+    if (!obj.klasifikasi || String(obj.klasifikasi).trim() === '') {
+      obj.klasifikasi = derivePesantrenClassification(obj);
+    } else {
+      obj.klasifikasi = String(obj.klasifikasi).trim().toUpperCase();
+    }
+
     // Fallback display helpers
     if (!obj.pengasuh_utama) obj.pengasuh_utama = 'Pengasuh Pesantren';
     if (obj.jenjang_pendidikan.length === 0) obj.jenjang_pendidikan = ['Salafiyah'];
@@ -984,6 +1019,118 @@ function getAllPesantrenData() {
   }
 
   return { success: true, total: list.length, data: list };
+}
+
+/**
+ * Smart Rule Engine untuk menentukan klasifikasi pesantren secara otomatis
+ * Kategori: SALAF, TAHFIDZ, KOMBINASI, TERINTEGRASI, MODERN
+ */
+function derivePesantrenClassification(item) {
+  if (!item) return 'SALAF';
+
+  const nama = String(item.nama_resmi || item.nama || '').toLowerCase();
+  const programs = Array.isArray(item.program_unggulan) ? item.program_unggulan : [];
+  const kitabs = Array.isArray(item.kurikulum_kitab) ? item.kurikulum_kitab : [];
+  const jenjang = Array.isArray(item.jenjang_pendidikan) ? item.jenjang_pendidikan : [];
+
+  let allText = (nama + ' ' + jenjang.join(' ')).toLowerCase();
+  programs.forEach(function(p) {
+    allText += ' ' + (p.nama_program || '') + ' ' + (p.bidang_program || '') + ' ' + (p.deskripsi || '');
+  });
+  allText = allText.toLowerCase();
+
+  const hasFormal = /\b(formal|mts|smp|ma|sma|smk|kejuruan|terpadu|kuliah|universitas|sekolah)\b/i.test(allText);
+  const hasModern = /\b(modern|kmi|muallimin|bilingual|bahasa arab aktif|english|sains|robotik|digital)\b/i.test(allText);
+  const hasTahfidz = /\b(tahfidz|tahfidzul|tahfidh|huffadh|al-qur'?an|quran|tilawah|qiroat|juz 30|hishnun naja|darun najach|usysyaqil|bustanul quran|bukit al-qur|murottil|yanbu'a|yanbua)\b/i.test(allText);
+
+  if (hasFormal) return 'TERINTEGRASI';
+  if (hasModern) return 'MODERN';
+  if (hasTahfidz && kitabs.length >= 5) return 'KOMBINASI';
+  if (hasTahfidz) return 'TAHFIDZ';
+  return 'SALAF';
+}
+
+/**
+ * Migrasi & Pengisian Awal Kolom Klasifikasi di Spreadsheet Database
+ */
+function handleMigrateInitialKlasifikasi() {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('pesantren');
+  if (!sheet) return { success: false, message: 'Sheet pesantren tidak ditemukan' };
+
+  const pData = sheet.getDataRange().getValues();
+  if (pData.length <= 1) return { success: true, message: 'Tidak ada data pesantren' };
+
+  const pHeaders = pData[0];
+  let colKlasifikasi = pHeaders.indexOf('klasifikasi') + 1;
+  if (colKlasifikasi === 0) {
+    colKlasifikasi = pHeaders.length + 1;
+    sheet.getRange(1, colKlasifikasi).setValue('klasifikasi').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+  }
+
+  // Ambil data kurikulum kitab untuk referensi penentuan
+  const sheetEdu = ss.getSheetByName('pesantren_education');
+  const eduData = sheetEdu ? sheetEdu.getDataRange().getValues() : [];
+  const eduMap = {};
+  for (let e = 1; e < eduData.length; e++) {
+    const pid = String(eduData[e][1]);
+    if (!eduMap[pid]) eduMap[pid] = [];
+    if (eduData[e][5]) eduMap[pid].push(eduData[e][5]);
+  }
+
+  // Ambil data program unggulan jika ada
+  const sheetProg = ss.getSheetByName('pesantren_flagship_programs');
+  const progData = sheetProg ? sheetProg.getDataRange().getValues() : [];
+  const progMap = {};
+  for (let pg = 1; pg < progData.length; pg++) {
+    const pid = String(progData[pg][1]);
+    if (!progMap[pid]) progMap[pid] = [];
+    progMap[pid].push({
+      nama_program: progData[pg][2] || '',
+      bidang_program: progData[pg][3] || '',
+      deskripsi: progData[pg][4] || ''
+    });
+  }
+
+  const updates = [];
+  const summary = { SALAF: 0, TAHFIDZ: 0, KOMBINASI: 0, TERINTEGRASI: 0, MODERN: 0 };
+  let countUpdated = 0;
+
+  for (let r = 1; r < pData.length; r++) {
+    const pId = String(pData[r][0]);
+    const currentVal = String(pData[r][colKlasifikasi - 1] || '').trim();
+    
+    // Siapkan objek ringkas untuk dianalisis
+    const pObj = {
+      id: pId,
+      kode_pesantren: String(pData[r][1] || ''),
+      nama_resmi: String(pData[r][2] || ''),
+      nama_populer: String(pData[r][3] || ''),
+      kurikulum_kitab: eduMap[pId] || [],
+      program_unggulan: progMap[pId] || []
+    };
+
+    let targetKlasifikasi = currentVal;
+    if (!targetKlasifikasi) {
+      targetKlasifikasi = derivePesantrenClassification(pObj);
+      updates.push({ row: r + 1, val: targetKlasifikasi });
+      countUpdated++;
+    }
+
+    summary[targetKlasifikasi] = (summary[targetKlasifikasi] || 0) + 1;
+  }
+
+  // Tuliskan ke spreadsheet
+  updates.forEach(function(u) {
+    sheet.getRange(u.row, colKlasifikasi).setValue(u.val);
+  });
+
+  return {
+    success: true,
+    totalRows: pData.length - 1,
+    newlyAssigned: countUpdated,
+    summary: summary
+  };
 }
 
 

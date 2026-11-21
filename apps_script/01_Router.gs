@@ -75,6 +75,11 @@ function doGet(e) {
     const res = handleCleanupOldJpgInLogoFolder();
     return createJsonResponse(res);
   }
+
+  if (action === 'MIGRATE_INITIAL_KLASIFIKASI' || action === 'CALCULATE_KLASIFIKASI') {
+    const res = handleMigrateInitialKlasifikasi();
+    return createJsonResponse(res);
+  }
   
   return createJsonResponse({
     status: 'ONLINE',
@@ -154,6 +159,8 @@ function doPost(e) {
       result = handleUploadAndReplaceLogoPesantren(payload);
     } else if (action === 'CLEANUP_OLD_JPG_LOGOS') {
       result = handleCleanupOldJpgInLogoFolder();
+    } else if (action === 'MIGRATE_INITIAL_KLASIFIKASI' || action === 'CALCULATE_KLASIFIKASI') {
+      result = handleMigrateInitialKlasifikasi();
     }
     
     return createJsonResponse(result);
