@@ -429,8 +429,8 @@ function escapeHtml(value) {
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
 // ==================================================================
 const APPS_SCRIPT_PUBLIC_URL = "https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_ALL_PESANTREN";
-const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v4";
-const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v4";
+const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v5";
+const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v5";
 const CACHE_TTL_MS = 15 * 60 * 1000; // Cache berlaku 15 menit
 
 async function loadLembagaDariSupabase() {
@@ -907,18 +907,20 @@ function getLocalTransparentLogoUrl(item) {
 }
 
 // =========================================================================
-// RENDERER ELEMEN LOGO PESANTREN (BEBAS WARNA HITAM, INSTAN & KEBAL CORS)
+// RENDERER ELEMEN LOGO PESANTREN (DATABASE & GOOGLE DRIVE RESMI, BEBAS LATAR HITAM)
 // =========================================================================
 function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs') {
-    // 1. Prioritaskan aset berkas .png transparan lokal yang telah dikonversi bersih
-    const localLogo = getLocalTransparentLogoUrl(item);
-    if (localLogo) {
-        return `<img src="${localLogo}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" onerror="this.onerror=null; this.src='${escapeHTML(item.logo_url || '')}';" />`;
+    // 1. Ambil langsung dari Database & Google Drive (logo_url) sebagai Single Source of Truth
+    if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
+        const localFallback = getLocalTransparentLogoUrl(item);
+        const fallbackAttr = localFallback ? `onerror="this.onerror=null; this.src='${localFallback}';"` : '';
+        return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" ${fallbackAttr} />`;
     }
 
-    // 2. Fallback ke URL logo online jika ada
-    if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
-        return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" />`;
+    // 2. Fallback ke berkas .png lokal jika database belum terisi URL online
+    const localLogo = getLocalTransparentLogoUrl(item);
+    if (localLogo) {
+        return `<img src="${localLogo}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" />`;
     }
     
     // Inisial monogram fallback elegan
