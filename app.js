@@ -876,9 +876,47 @@ window.recenterPublicMap = recenterPublicMap;
 window.loadPublicMapMarkers = loadPublicMapMarkers;
 
 // =========================================================================
-// PENGELOLAAN LOGO & MONOGRAM ELEGAN KARTU PESANTREN
+// REGISTRI LOGO TRANSPARAN RESMI (.PNG TRANS-BACKGROUND ASLI)
+// =========================================================================
+const LOCAL_TRANSPARENT_LOGOS = new Set([
+    'al-badriyyah-2', 'al-maarif-2', 'asnawiyyah-2', 'bustanu-usysyaqil-quran', 'bustanul-quran-3',
+    'darul-ulum-8', 'hidayatul-mubtadiin-11', 'miftahul-anwar-2', 'nahdlotul-fata-asysyababain-2',
+    'nurul-burhany-2', 'pondok-pesantren-al-adzkar', 'pondok-pesantren-al-falah-jogoloyo-2',
+    'pondok-pesantren-al-furqon-sidorejo-2', 'pondok-pesantren-al-kautsariyyah-2',
+    'pondok-pesantren-alfattaah-demak', 'pondok-pesantren-as-salafiyah-as-syafiiyyah-2',
+    'pondok-pesantren-bukit-al-quran-2', 'pondok-pesantren-darul-mawa-2', 'pondok-pesantren-futuhiyyah',
+    'pondok-pesantren-ibrohimiyyah-putri-induk-2', 'pondok-pesantren-kyai-gading-2',
+    'pondok-pesantren-murottil-quran-2', 'pondok-pesantren-raudhotudz-dzakirin-sodong-2',
+    'pondok-pesantren-sains-nurul-fikri', 'pondok-pesantren-tahfidz-al-futuhat-2',
+    'pondok-pesantren-tahfidzul-quran-hisnun-naja', 'pondok-pesantren-usmaniyyah',
+    'ponpes-nurul-lathifah', 'ponpes-sabilunnajah', 'pp-sabilul-muttaqin-2', 'ppiq-darun-najach',
+    'raudlotus-sibyan-2', 'roudhotus-sholihin', 'roudlotul-mubarokah', 'roudlotul-muttaqin-2',
+    'roudlotul-quran', 'sirojuth-tholibin-2', 'ubaydillah-2'
+]);
+
+function getLocalTransparentLogoUrl(item) {
+    if (!item) return '';
+    const slug = (typeof generatePesantrenSlug === 'function') ? generatePesantrenSlug(item) : '';
+    const fullSlug = (item.nama || '').toLowerCase().replace(/['"’`]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+
+    if (slug && LOCAL_TRANSPARENT_LOGOS.has(slug)) return `assets/img/logo_pesantren/${slug}.png`;
+    if (fullSlug && LOCAL_TRANSPARENT_LOGOS.has(fullSlug)) return `assets/img/logo_pesantren/${fullSlug}.png`;
+    if (slug && LOCAL_TRANSPARENT_LOGOS.has(slug + '-2')) return `assets/img/logo_pesantren/${slug}-2.png`;
+    if (fullSlug && LOCAL_TRANSPARENT_LOGOS.has(fullSlug + '-2')) return `assets/img/logo_pesantren/${fullSlug}-2.png`;
+    return '';
+}
+
+// =========================================================================
+// RENDERER ELEMEN LOGO PESANTREN (BEBAS WARNA HITAM, INSTAN & KEBAL CORS)
 // =========================================================================
 function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs') {
+    // 1. Prioritaskan aset berkas .png transparan lokal yang telah dikonversi bersih
+    const localLogo = getLocalTransparentLogoUrl(item);
+    if (localLogo) {
+        return `<img src="${localLogo}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" onerror="this.onerror=null; this.src='${escapeHTML(item.logo_url || '')}';" />`;
+    }
+
+    // 2. Fallback ke URL logo online jika ada
     if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
         return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" />`;
     }
@@ -1590,11 +1628,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 🚀 HASH ROUTER INIT: Baca URL Hash terlebih dahulu, jika deep linking delegasikan ke handleHashRouting
+    let activeInitialPage = 'beranda';
     if (window.location.hash) {
+        activeInitialPage = window.location.hash.replace('#', '').trim().toLowerCase();
         handleHashRouting();
     } else {
-        let initialPage = sessionStorage.getItem('activePage') || 'beranda';
-        navigateTo(initialPage, true);
+        activeInitialPage = sessionStorage.getItem('activePage') || 'beranda';
+        navigateTo(activeInitialPage, true);
     }
 
     // 🚀 KUNCI UPDATE: Nyalakan mesin pencatat waktu shalat otomatis
@@ -1606,7 +1646,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Memuat arsip warta media RMI Demak terkini
     loadBeritaRMI();
 
-    if (initialPage === 'pesantren') {
+    if (activeInitialPage === 'pesantren' || activeInitialPage.startsWith('pesantren/')) {
         setTimeout(initPublicMap, 250);
         setTimeout(() => { if (publicMap) publicMap.invalidateSize(); }, 600);
     }
@@ -3360,7 +3400,7 @@ function getFlyoutPopoverContainer() {
 }
 
 function handlePesantrenCardHover(event, pesantrenId) {
-    if (window.innerWidth < 1024) return; // Hanya aktif pada perangkat desktop / laptop
+    if (window.innerWidth < 768) return; // Hanya aktif pada perangkat tablet, laptop, dan desktop
     
     if (leavePopoverTimer) {
         clearTimeout(leavePopoverTimer);
@@ -3412,8 +3452,9 @@ function hidePesantrenFlyout() {
 }
 
 function showPesantrenFlyout(cardEl, pesantrenId) {
-    const item = allLembagaData.find(l => String(l.id) === String(pesantrenId)) || 
-                 DEFAULT_LEMBAGA_DATA.find(l => String(l.id) === String(pesantrenId));
+    const item = typeof findPesantrenBySlugOrId === 'function' 
+        ? findPesantrenBySlugOrId(pesantrenId)
+        : (allLembagaData.find(l => String(l.id) === String(pesantrenId)) || DEFAULT_LEMBAGA_DATA.find(l => String(l.id) === String(pesantrenId)));
     if (!item) return;
 
     const popover = getFlyoutPopoverContainer();
