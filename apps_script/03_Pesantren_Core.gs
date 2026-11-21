@@ -335,6 +335,51 @@ function handleUpdatePesantrenProfile(payload, lock) {
   if (iden.has_komitmen_pesantren_aman !== undefined && pHeaders.indexOf('has_komitmen_pesantren_aman') !== -1) {
     sheetPesantren.getRange(pRow, pHeaders.indexOf('has_komitmen_pesantren_aman') + 1).setValue(iden.has_komitmen_pesantren_aman);
   }
+
+  // 1.B UPDATE MEDIA DRIVE (LOGO PNG TRANSPARAN & FOTO COVER UTAMA)
+  let updatedLogoUrl = null;
+  let updatedFotoUrl = null;
+
+  if (payload.file_logo && payload.file_logo.base64) {
+    try {
+      const uploadedLogo = uploadBase64FileToDrive(payload.file_logo, 'Logo_Pesantren');
+      if (uploadedLogo && (uploadedLogo.directUrl || uploadedLogo.url)) {
+        updatedLogoUrl = uploadedLogo.directUrl || uploadedLogo.url;
+        if (pHeaders.indexOf('logo_url') !== -1) {
+          sheetPesantren.getRange(pRow, pHeaders.indexOf('logo_url') + 1).setValue(updatedLogoUrl);
+        }
+      }
+    } catch (lErr) {
+      Logger.log('Gagal upload logo ke Drive: ' + lErr.message);
+    }
+  }
+
+  if (payload.file_cover && payload.file_cover.base64) {
+    try {
+      const uploadedCover = uploadBase64FileToDrive(payload.file_cover, 'Foto_Lokasi');
+      if (uploadedCover && (uploadedCover.directUrl || uploadedCover.url)) {
+        updatedFotoUrl = uploadedCover.directUrl || uploadedCover.url;
+        if (pHeaders.indexOf('foto_url') !== -1) {
+          sheetPesantren.getRange(pRow, pHeaders.indexOf('foto_url') + 1).setValue(updatedFotoUrl);
+        }
+      }
+    } catch (cErr) {
+      Logger.log('Gagal upload cover ke Drive: ' + cErr.message);
+    }
+  }
+
+  // 1.C UPDATE KLASIFIKASI OTOMATIS
+  let finalKlasifikasi = payload.klasifikasi || '';
+  if (!finalKlasifikasi && payload.program_unggulan) {
+    finalKlasifikasi = derivePesantrenClassification({
+      nama_resmi: currentNama,
+      program_unggulan: payload.program_unggulan
+    });
+  }
+  if (finalKlasifikasi && pHeaders.indexOf('klasifikasi') !== -1) {
+    sheetPesantren.getRange(pRow, pHeaders.indexOf('klasifikasi') + 1).setValue(finalKlasifikasi);
+  }
+
   if (pHeaders.indexOf('updated_at') !== -1) {
     sheetPesantren.getRange(pRow, pHeaders.indexOf('updated_at') + 1).setValue(now);
   }
@@ -486,14 +531,51 @@ function handleUpdatePesantrenProfile(payload, lock) {
     }
   }
 
-  // 6. CATAT AUDIT LOG
+  // 6. UPDATE TABEL pesantren_flagship_programs (PROGRAM UNGGULAN & PRESTASI)
+  let savedPrograms = [];
+  if (Array.isArray(payload.program_unggulan)) {
+    const sheetProg = ss.getSheetByName('pesantren_flagship_programs');
+    if (sheetProg) {
+      const progData = sheetProg.getDataRange().getValues();
+      // Hapus data lama milik pesantren ini dari bawah ke atas
+      for (let pg = progData.length - 1; pg >= 1; pg--) {
+        if (isMatchPesantren(progData[pg][1])) {
+          sheetProg.deleteRow(pg + 1);
+        }
+      }
+
+      // Masukkan daftar program baru
+      payload.program_unggulan.forEach(function(item) {
+        const pId = Utilities.getUuid();
+        const pNama = typeof item === 'string' ? item : (item.nama_program || item.nama || '');
+        const pBidang = typeof item === 'object' ? (item.bidang_program || item.kategori || 'Keagamaan') : 'Keagamaan';
+        const pDesk = typeof item === 'object' ? (item.deskripsi || '') : '';
+        const pPrestasi = typeof item === 'object' ? (item.prestasi_terkait || '') : '';
+
+        if (pNama && pNama.trim()) {
+          sheetProg.appendRow([
+            pId, foreignKeyId, pNama.trim(), pBidang.trim(), pDesk.trim(), pPrestasi.trim(), true, now, now
+          ]);
+          savedPrograms.push({
+            id: pId,
+            nama_program: pNama.trim(),
+            bidang_program: pBidang.trim(),
+            deskripsi: pDesk.trim(),
+            prestasi_terkait: pPrestasi.trim()
+          });
+        }
+      });
+    }
+  }
+
+  // 7. CATAT AUDIT LOG
   recordAuditLog(ss, {
     user_id: operator,
     user_role: role,
     event_type: 'UPDATE_PESANTREN_PROFILE',
     entity_type: 'pesantren',
     entity_id: currentKode,
-    action_description: 'Pembaruan data profil Buku Induk: ' + currentNama + ' (' + currentKode + ')',
+    action_description: 'Pembaruan data profil Buku Induk: ' + currentNama + ' (' + currentKode + ') [Klasifikasi: ' + (finalKlasifikasi || '-') + ']',
     status: 'SUCCESS'
   });
 
@@ -501,7 +583,11 @@ function handleUpdatePesantrenProfile(payload, lock) {
     success: true,
     message: 'Data profil pesantren ' + currentNama + ' berhasil diperbarui.',
     pesantrenId: foreignKeyId,
-    kode_pesantren: currentKode
+    kode_pesantren: currentKode,
+    klasifikasi: finalKlasifikasi,
+    logo_url: updatedLogoUrl,
+    foto_url: updatedFotoUrl,
+    program_unggulan: savedPrograms
   };
 }
 
