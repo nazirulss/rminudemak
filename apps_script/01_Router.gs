@@ -70,6 +70,11 @@ function doGet(e) {
     const res = handleFixSpreadsheetLeadersPrimary();
     return createJsonResponse(res);
   }
+
+  if (action === 'CLEANUP_OLD_JPG_LOGOS') {
+    const res = handleCleanupOldJpgInLogoFolder();
+    return createJsonResponse(res);
+  }
   
   return createJsonResponse({
     status: 'ONLINE',
@@ -145,6 +150,10 @@ function doPost(e) {
       result = handleSyncPesantrenMediaUrls(payload);
     } else if (action === 'FIX_LEADERS_PRIMARY') {
       result = handleFixSpreadsheetLeadersPrimary();
+    } else if (action === 'UPLOAD_AND_REPLACE_LOGO_PESANTREN') {
+      result = handleUploadAndReplaceLogoPesantren(payload);
+    } else if (action === 'CLEANUP_OLD_JPG_LOGOS') {
+      result = handleCleanupOldJpgInLogoFolder();
     }
     
     return createJsonResponse(result);

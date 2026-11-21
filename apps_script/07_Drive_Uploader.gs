@@ -199,3 +199,191 @@ function handleMigrateAssetsToDrive(payload) {
   }
 }
 
+/**
+ * =========================================================================
+ * BATCH UPLOAD LOGO PESANTREN (.PNG TRANSPARAN) & GANTIKAN .JPG LAMA DI DRIVE
+ * =========================================================================
+ */
+function handleUploadAndReplaceLogoPesantren(payload) {
+  if (!payload || !payload.files || !Array.isArray(payload.files)) {
+    return { success: false, message: 'Payload files tidak valid' };
+  }
+
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('pesantren');
+  if (!sheet) return { success: false, message: 'Sheet pesantren tidak ditemukan' };
+
+  // Dapatkan folder Logo_Pesantren
+  let rootFolder;
+  try {
+    if (CONFIG.DRIVE_FOLDER_ID) {
+      rootFolder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+    }
+  } catch (e) {
+    Logger.log('Drive folder fallback: ' + e.message);
+  }
+  if (!rootFolder) {
+    const folders = DriveApp.getFoldersByName("RMINU_DEMAK_WEB_ASSETS");
+    rootFolder = folders.hasNext() ? folders.next() : DriveApp.createFolder("RMINU_DEMAK_WEB_ASSETS");
+  }
+
+  let logoFolder;
+  const subFolders = rootFolder.getFoldersByName('Logo_Pesantren');
+  if (subFolders.hasNext()) {
+    logoFolder = subFolders.next();
+  } else {
+    logoFolder = rootFolder.createFolder('Logo_Pesantren');
+  }
+  logoFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  // Ambil data pesantren untuk pencocokan row
+  const pData = sheet.getDataRange().getValues();
+  const pHeaders = pData[0];
+  let colLogo = pHeaders.indexOf('logo_url') + 1;
+  if (colLogo === 0) {
+    colLogo = pHeaders.length + 1;
+    sheet.getRange(1, colLogo).setValue('logo_url').setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
+  }
+
+  // Map baris berdasarkan id, kode_pesantren, dan slug nama
+  const rowMap = {};
+  for (let r = 1; r < pData.length; r++) {
+    const id = String(pData[r][0]);
+    const kode = String(pData[r][1]);
+    const namaResmi = String(pData[r][2] || '').toLowerCase();
+    const namaPopuler = String(pData[r][3] || '').toLowerCase();
+    rowMap[id] = r + 1;
+    rowMap[kode] = r + 1;
+    
+    // Slugs
+    const clean1 = namaResmi.replace(/^(pondok\s+pesantren|ponpes|pp)\s+/i, '').trim();
+    const s1 = clean1.replace(/['"’`]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    const s2 = namaResmi.replace(/['"’`]/g, '').replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    if (s1) rowMap['slug:' + s1] = r + 1;
+    if (s2) rowMap['slug:' + s2] = r + 1;
+    if (s1) rowMap['slug:' + s1 + '-2'] = r + 1;
+    if (s2) rowMap['slug:' + s2 + '-2'] = r + 1;
+    if (s1) rowMap['slug:' + s1 + '-3'] = r + 1;
+    if (s2) rowMap['slug:' + s2 + '-3'] = r + 1;
+    if (s1) rowMap['slug:' + s1 + '-8'] = r + 1;
+    if (s1) rowMap['slug:' + s1 + '-11'] = r + 1;
+  }
+
+  const results = {};
+  let updatedCount = 0;
+  let deletedJpgCount = 0;
+
+  for (let i = 0; i < payload.files.length; i++) {
+    const item = payload.files[i];
+    const slug = item.slug || (item.name || '').replace(/\.png$/i, '');
+    const filename = item.filename || item.name || (slug + '.png');
+    const pesantrenId = item.pesantrenId || item.kode_pesantren;
+
+    // 1. Cari dan hapus file .jpg (atau .png duplikat lama) di folder Drive
+    const possibleOldNames = [
+      'logo_' + slug + '.jpg',
+      slug + '.jpg',
+      'logo_' + slug + '.png',
+      filename
+    ];
+
+    for (let k = 0; k < possibleOldNames.length; k++) {
+      const oldFiles = logoFolder.getFilesByName(possibleOldNames[k]);
+      while (oldFiles.hasNext()) {
+        const oldFile = oldFiles.next();
+        try {
+          oldFile.setTrashed(true);
+          deletedJpgCount++;
+        } catch (delErr) {
+          Logger.log('Gagal trash file: ' + delErr.message);
+        }
+      }
+    }
+
+    // 2. Simpan file .png baru ke folder Logo_Pesantren
+    const bytes = Utilities.base64Decode(item.base64);
+    const blob = Utilities.newBlob(bytes, 'image/png', filename);
+    const newFile = logoFolder.createFile(blob);
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    const fileId = newFile.getId();
+    const directUrl = "https://lh3.googleusercontent.com/d/" + fileId;
+
+    // 3. Update database spreadsheet
+    let targetRow = null;
+    if (pesantrenId && rowMap[pesantrenId]) {
+      targetRow = rowMap[pesantrenId];
+    } else if (rowMap['slug:' + slug]) {
+      targetRow = rowMap['slug:' + slug];
+    } else if (slug.indexOf('hisnun-naja') !== -1 && rowMap['RMI-DMK-000004']) {
+      targetRow = rowMap['RMI-DMK-000004'];
+    }
+
+    if (targetRow) {
+      sheet.getRange(targetRow, colLogo).setValue(directUrl);
+      updatedCount++;
+    }
+
+    results[slug] = {
+      slug: slug,
+      filename: filename,
+      fileId: fileId,
+      directUrl: directUrl,
+      updatedRow: targetRow || null
+    };
+  }
+
+  return {
+    success: true,
+    totalFiles: payload.files.length,
+    updatedDatabaseRows: updatedCount,
+    deletedOldFiles: deletedJpgCount,
+    results: results
+  };
+}
+
+/**
+ * Pembersihan massal berkas .jpg lama di folder Logo_Pesantren
+ */
+function handleCleanupOldJpgInLogoFolder() {
+  let rootFolder;
+  try {
+    if (CONFIG.DRIVE_FOLDER_ID) {
+      rootFolder = DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
+    }
+  } catch (e) {}
+  if (!rootFolder) {
+    const folders = DriveApp.getFoldersByName("RMINU_DEMAK_WEB_ASSETS");
+    if (folders.hasNext()) rootFolder = folders.next();
+  }
+  if (!rootFolder) return { success: false, message: 'Root folder not found' };
+
+  const subFolders = rootFolder.getFoldersByName('Logo_Pesantren');
+  if (!subFolders.hasNext()) return { success: false, message: 'Logo_Pesantren folder not found' };
+  const logoFolder = subFolders.next();
+
+  const files = logoFolder.getFiles();
+  let trashedJpg = 0;
+  let remainingPng = 0;
+  const trashedNames = [];
+
+  while (files.hasNext()) {
+    const f = files.next();
+    const name = f.getName().toLowerCase();
+    if (name.endsWith('.jpg') || name.endsWith('.jpeg')) {
+      trashedNames.push(f.getName());
+      f.setTrashed(true);
+      trashedJpg++;
+    } else if (name.endsWith('.png')) {
+      remainingPng++;
+    }
+  }
+
+  return {
+    success: true,
+    trashedJpg: trashedJpg,
+    trashedNames: trashedNames,
+    remainingPng: remainingPng
+  };
+}
+
