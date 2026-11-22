@@ -2112,66 +2112,68 @@
                     <!-- SUB-VIEW 1: SCANNER MEJA TAMU (LIVE QR & MANUAL ID)      -->
                     <!-- ======================================================== -->
                     <div id="sambang-sub-scanner" class="sambang-sub-view space-y-4">
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
                             
-                            <!-- Kiri: Kamera Scanner & Kontrol (col-span-12 lg:col-span-7) -->
-                            <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                                            <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                            <!-- Kiri: Kamera Scanner & Kontrol (col-span-12 lg:col-span-5) -->
+                            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                                                <span class="material-symbols-outlined text-[18px]">qr_code_scanner</span>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-sm font-black text-slate-800 leading-tight">Live Camera QR Code Scanner</h3>
+                                                <p class="text-[11px] text-slate-500">Arahkan kamera ke Kode QR pada Kartu Absensi tamu</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 class="text-sm font-black text-slate-800 leading-tight">Live Camera QR Code Scanner</h3>
-                                            <p class="text-[11px] text-slate-500">Arahkan kamera ke Kode QR pada Kartu Absensi tamu</p>
+                                        <span id="scanner-live-badge" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 animate-pulse border border-rose-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Live Scanning
+                                        </span>
+                                    </div>
+
+                                    <!-- Kamera Viewport Frame -->
+                                    <div class="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-inner min-h-[280px] sm:min-h-[320px] flex flex-col items-center justify-center" style="background-color: #020617; border: 2px solid #1e293b;">
+                                        <div id="qr-reader" class="w-full"></div>
+                                        
+                                        <!-- Placeholder saat kamera off -->
+                                        <div id="qr-scanner-placeholder" class="p-8 text-center space-y-3">
+                                            <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-slate-400" style="background-color: #0f172a; border: 1px solid #334155;">
+                                                <span class="material-symbols-outlined text-[32px]">videocam_off</span>
+                                            </div>
+                                            <div class="space-y-1">
+                                                <p class="text-xs font-bold" style="color: #e2e8f0;">Kamera Scanner Belum Aktif</p>
+                                                <p class="text-[11px] max-w-xs mx-auto" style="color: #94a3b8;">Klik tombol "Mulai Kamera" di bawah atau gunakan verifikasi ID manual jika kamera tidak tersedia.</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <span id="scanner-live-badge" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 animate-pulse border border-rose-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span> Live Scanning
-                                    </span>
-                                </div>
 
-                                <!-- Kamera Viewport Frame -->
-                                <div class="relative w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-inner min-h-[300px] flex flex-col items-center justify-center" style="background-color: #020617; border: 2px solid #1e293b;">
-                                    <div id="qr-reader" class="w-full"></div>
-                                    
-                                    <!-- Placeholder saat kamera off -->
-                                    <div id="qr-scanner-placeholder" class="p-8 text-center space-y-3">
-                                        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-slate-400" style="background-color: #0f172a; border: 1px solid #334155;">
-                                            <span class="material-symbols-outlined text-[32px]">videocam_off</span>
-                                        </div>
-                                        <div class="space-y-1">
-                                            <p class="text-xs font-bold" style="color: #e2e8f0;">Kamera Scanner Belum Aktif</p>
-                                            <p class="text-[11px] max-w-xs mx-auto" style="color: #94a3b8;">Klik tombol "Mulai Kamera" di bawah atau gunakan verifikasi ID manual jika kamera tidak tersedia.</p>
-                                        </div>
+                                    <!-- Scanner Buttons -->
+                                    <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                                        <button type="button" id="btn-start-scanner" onclick="startSambangScanner()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
+                                            <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+                                            <span>Mulai Kamera Scanner</span>
+                                        </button>
+                                        <button type="button" id="btn-stop-scanner" onclick="stopSambangScanner()" class="hidden items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all cursor-pointer">
+                                            <span class="material-symbols-outlined text-[18px]">stop_circle</span>
+                                            <span>Hentikan Kamera</span>
+                                        </button>
+                                        <button type="button" id="btn-flip-camera" onclick="flipSambangCamera()" class="hidden items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer" title="Ganti Kamera Depan/Belakang">
+                                            <span class="material-symbols-outlined text-[18px]">flip_camera_android</span>
+                                        </button>
                                     </div>
-                                </div>
-
-                                <!-- Scanner Buttons -->
-                                <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
-                                    <button type="button" id="btn-start-scanner" onclick="startSambangScanner()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md transition-all cursor-pointer">
-                                        <span class="material-symbols-outlined text-[18px]">photo_camera</span>
-                                        <span>Mulai Kamera Scanner</span>
-                                    </button>
-                                    <button type="button" id="btn-stop-scanner" onclick="stopSambangScanner()" class="hidden items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all cursor-pointer">
-                                        <span class="material-symbols-outlined text-[18px]">stop_circle</span>
-                                        <span>Hentikan Kamera</span>
-                                    </button>
-                                    <button type="button" id="btn-flip-camera" onclick="flipSambangCamera()" class="hidden items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer" title="Ganti Kamera Depan/Belakang">
-                                        <span class="material-symbols-outlined text-[18px]">flip_camera_android</span>
-                                    </button>
                                 </div>
 
                                 <!-- Manual ID Check-In Input Fallback -->
                                 <div class="pt-4 border-t border-slate-100">
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                                        <span>Verifikasi Cepat via ID Delegasi (Manual Check-In):</span>
-                                        <span class="text-[10px] text-slate-400 font-normal">Contoh: SBP-2026-001</span>
+                                        <span>Verifikasi Cepat via ID Delegasi (Manual):</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">Cth: SBP-2026-001</span>
                                     </label>
                                     <form onsubmit="event.preventDefault(); submitManualCheckin();" class="flex items-center gap-2">
                                         <div class="relative flex-1">
                                             <span class="material-symbols-outlined text-slate-400 absolute left-3 top-2.5 text-[18px]">search</span>
-                                            <input type="text" id="sambang-manual-id" placeholder="Masukkan ID Delegasi (cth: SBP-2026-001)" uppercase
+                                            <input type="text" id="sambang-manual-id" placeholder="ID Delegasi (cth: SBP-2026-001)" uppercase
                                                 class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 uppercase">
                                         </div>
                                         <button type="submit" id="btn-submit-manual-id" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer shrink-0">
@@ -2182,84 +2184,157 @@
                                 </div>
                             </div>
 
-                            <!-- Kanan: Hasil Verifikasi & Ringkasan Presensi (col-span-12 lg:col-span-5) -->
-                            <div class="lg:col-span-5 space-y-4">
+                            <!-- Kanan: Hasil Verifikasi & Ringkasan Presensi (col-span-12 lg:col-span-7) -->
+                            <div class="lg:col-span-7 space-y-4">
                                 
-                                <!-- Scan Result Card -->
-                                <div id="scan-result-card" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3 min-h-[260px] flex flex-col justify-between">
-                                    <div>
-                                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                                            <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                                                <span class="material-symbols-outlined text-emerald-700 text-[18px]">verified</span>
-                                                <span>Hasil Verifikasi Tamu</span>
+                                <!-- Scan Result Card (Redesigned "Digital Reception Board") -->
+                                <div id="scan-result-card" class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 min-h-[380px] flex flex-col justify-between">
+                                    <div class="space-y-4">
+                                        <!-- Top Header Bar -->
+                                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+                                                    <span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-sm font-black text-slate-900 leading-tight">Hasil Verifikasi &amp; Informasi Tamu</h3>
+                                                    <p class="text-[11px] text-slate-500">Keterangan resmi delegasi yang siap diarahkan ke ruangan</p>
+                                                </div>
                                             </div>
-                                            <span id="scan-badge-status" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500">
+                                            <span id="scan-badge-status" class="px-3 py-1 rounded-full text-xs font-black uppercase bg-slate-100 text-slate-500 transition-all shadow-2xs">
                                                 Menunggu Scan
                                             </span>
                                         </div>
 
-                                        <div id="scan-result-placeholder" class="py-8 text-center space-y-2">
-                                            <span class="material-symbols-outlined text-slate-300 text-[42px]">barcode_scanner</span>
-                                            <p class="text-xs text-slate-400 font-medium">Belum ada barcode yang discan.<br>Scan barcode atau input ID delegasi untuk memproses kehadiran.</p>
+                                        <!-- Placeholder saat belum ada data yang discan -->
+                                        <div id="scan-result-placeholder" class="py-12 sm:py-16 text-center space-y-3">
+                                            <div class="w-20 h-20 mx-auto rounded-full bg-emerald-50 border-2 border-emerald-200/80 flex items-center justify-center text-emerald-700 shadow-xs">
+                                                <span class="material-symbols-outlined text-[42px]">qr_code_scanner</span>
+                                            </div>
+                                            <div class="space-y-1 max-w-sm mx-auto">
+                                                <h4 class="text-base font-black text-slate-800">Menunggu Pemindaian Kode QR Tamu</h4>
+                                                <p class="text-xs text-slate-500 leading-relaxed">
+                                                    Arahkan kamera ke Kode QR pada Kartu Hadir peserta di ponsel, atau masukkan ID Delegasi secara manual di kolom sebelah kiri.
+                                                </p>
+                                            </div>
+                                            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-mono font-medium">
+                                                <span>Contoh Format ID:</span>
+                                                <span class="font-bold text-slate-700">SBP-2026-001</span>
+                                            </div>
                                         </div>
 
-                                        <!-- Scan Result Detail Container (Hidden by default) -->
-                                        <div id="scan-result-detail" class="hidden pt-3 space-y-3">
-                                            <div class="p-3.5 rounded-xl border" id="scan-status-alert-box">
-                                                <div class="text-xs font-black" id="scan-status-title">PRESENSI BERHASIL</div>
-                                                <p class="text-[11px] mt-0.5" id="scan-status-desc">-</p>
+                                        <!-- Scan Result Detail Container (Hidden by default, shown when verified) -->
+                                        <div id="scan-result-detail" class="hidden space-y-4">
+                                            
+                                            <!-- Status Alert Header Banner -->
+                                            <div class="p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs" id="scan-status-alert-box">
+                                                <div class="space-y-0.5">
+                                                    <div class="text-sm sm:text-base font-black tracking-tight flex items-center gap-1.5" id="scan-status-title">
+                                                        PRESENSI BERHASIL
+                                                    </div>
+                                                    <p class="text-xs sm:text-sm font-medium leading-relaxed" id="scan-status-desc">-</p>
+                                                </div>
+                                                <div class="flex items-center gap-2 sm:flex-col sm:items-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/50">
+                                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">WAKTU SCAN :</span>
+                                                    <span class="font-mono text-xs sm:text-sm font-black text-slate-800" id="res-waktu-kehadiran">-</span>
+                                                </div>
                                             </div>
 
-                                            <div class="space-y-1.5 text-xs">
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">ID Delegasi:</span>
-                                                    <span class="font-mono font-bold text-slate-900" id="res-delegate-id">-</span>
+                                            <!-- Hero Guest Identity Card (Nama & Pesantren Besar) -->
+                                            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-50 via-white to-slate-50/50 border border-slate-200 shadow-xs space-y-3">
+                                                <!-- Top Bar: ID Delegasi & Jabatan -->
+                                                <div class="flex items-center justify-between">
+                                                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-900 text-white font-mono text-xs sm:text-sm font-black tracking-wider shadow-xs">
+                                                        <span class="text-slate-400 font-sans text-[10px] font-bold uppercase">ID :</span>
+                                                        <span id="res-delegate-id">-</span>
+                                                    </div>
+                                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200">
+                                                        <span class="material-symbols-outlined text-[15px] text-slate-500">person</span>
+                                                        <span id="res-jabatan-preview">Delegasi Resmi</span>
+                                                    </span>
                                                 </div>
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">Nama Peserta:</span>
-                                                    <span class="font-bold text-slate-900" id="res-nama-peserta">-</span>
+
+                                                <!-- Nama Peserta (Ukuran Sangat Besar & Tebal) -->
+                                                <div class="pt-0.5">
+                                                    <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider block mb-1">NAMA TAMU / DELEGASI RESMI :</span>
+                                                    <h2 class="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight leading-tight" id="res-nama-peserta">
+                                                        -
+                                                    </h2>
                                                 </div>
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">Pondok Pesantren:</span>
-                                                    <span class="font-bold text-slate-800" id="res-nama-pesantren">-</span>
+
+                                                <!-- Asal Pondok Pesantren & Kecamatan (Kontras Tinggi) -->
+                                                <div class="flex flex-wrap items-center gap-2.5 pt-2 border-t border-slate-100">
+                                                    <div class="flex items-center gap-1.5 text-base sm:text-lg font-bold text-slate-800">
+                                                        <span class="material-symbols-outlined text-emerald-700 text-[22px]">mosque</span>
+                                                        <span id="res-nama-pesantren">-</span>
+                                                    </div>
+                                                    <span class="text-slate-300 font-bold">•</span>
+                                                    <div class="flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-600 bg-slate-100 px-3 py-0.5 rounded-lg border border-slate-200/80">
+                                                        <span class="material-symbols-outlined text-slate-400 text-[16px]">location_on</span>
+                                                        <span id="res-kecamatan">-</span>
+                                                    </div>
                                                 </div>
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">Kecamatan:</span>
-                                                    <span class="font-semibold text-slate-700" id="res-kecamatan">-</span>
+                                            </div>
+
+                                            <!-- Halaqah Mandat Spotlight Card (Jelas & Berwarna Dinamis) -->
+                                            <div id="res-halaqah-card-box" class="p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-emerald-50/70 border-emerald-300">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-[11px] font-black uppercase tracking-wider text-emerald-900 flex items-center gap-1.5">
+                                                        <span class="material-symbols-outlined text-[18px]">meeting_room</span>
+                                                        <span>MANDAT KEGIATAN &amp; RUANGAN :</span>
+                                                    </span>
+                                                    <span id="res-halaqah-room-pill" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-950 uppercase border border-emerald-400">
+                                                        Ruang Acara
+                                                    </span>
                                                 </div>
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">Halaqah Mandat:</span>
-                                                    <span class="font-bold text-emerald-800" id="res-kategori-halaqah">-</span>
+                                                
+                                                <div class="text-lg sm:text-xl font-black text-emerald-950 leading-snug tracking-tight" id="res-kategori-halaqah">
+                                                    -
                                                 </div>
-                                                <div class="flex justify-between py-1 border-b border-slate-50">
-                                                    <span class="text-slate-400 text-[11px]">Waktu Presensi:</span>
-                                                    <span class="font-mono text-[11px] text-slate-800" id="res-waktu-kehadiran">-</span>
-                                                </div>
-                                                <div class="flex justify-between py-1">
-                                                    <span class="text-slate-400 text-[11px]">Petugas Penerima:</span>
-                                                    <span class="text-slate-600 text-[11px]" id="res-petugas">-</span>
+                                                
+                                                <div class="text-xs sm:text-sm text-emerald-900 font-semibold flex items-center gap-1.5 pt-1.5 border-t border-emerald-200/60" id="res-halaqah-guidance">
+                                                    <span>👉</span> Silakan serahkan seminar kit &amp; arahkan tamu ke ruang halaqah ini.
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                                        <span>Front-Desk PP. Futuhiyyah</span>
-                                        <button type="button" onclick="clearScanResult()" class="text-slate-500 hover:text-slate-800 font-semibold text-[10px]">Bersihkan Layar</button>
+                                    <!-- Footer Desk Info & Reset Button -->
+                                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                                        <div class="flex items-center gap-2">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            <span class="text-[11px] text-slate-400">Front-Desk PP. Futuhiyyah</span>
+                                            <span class="text-slate-300">•</span>
+                                            <span class="text-[11px]">Petugas: <strong class="text-slate-700" id="res-petugas">-</strong></span>
+                                        </div>
+                                        <button type="button" onclick="clearScanResult()" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-xs font-bold transition-all cursor-pointer">
+                                            <span class="material-symbols-outlined text-[16px]">refresh</span>
+                                            <span>Bersihkan Layar</span>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Quick Counter Widget -->
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80">
-                                        <div class="text-[10px] font-bold text-emerald-800 uppercase">Tamu Telah Hadir</div>
-                                        <div class="text-2xl font-black text-emerald-950 mt-0.5" id="mini-stat-hadir">0</div>
-                                        <div class="text-[10px] text-emerald-700 mt-0.5">dari total terdaftar</div>
+                                <!-- Quick Counter Widget (Live Attendance Status) -->
+                                <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                                    <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 shadow-xs flex items-center justify-between">
+                                        <div>
+                                            <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Tamu Telah Hadir</div>
+                                            <div class="text-3xl font-black text-emerald-950 mt-1 leading-none" id="mini-stat-hadir">0</div>
+                                            <div class="text-[11px] text-emerald-700 mt-1 font-medium">dari total terdaftar</div>
+                                        </div>
+                                        <div class="w-12 h-12 rounded-xl bg-emerald-200/60 text-emerald-800 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-[28px]">how_to_reg</span>
+                                        </div>
                                     </div>
-                                    <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80">
-                                        <div class="text-[10px] font-bold text-amber-800 uppercase">Belum Hadir</div>
-                                        <div class="text-2xl font-black text-amber-950 mt-0.5" id="mini-stat-belum-hadir">0</div>
-                                        <div class="text-[10px] text-amber-700 mt-0.5">dalam antrean</div>
+                                    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 shadow-xs flex items-center justify-between">
+                                        <div>
+                                            <div class="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Belum Hadir</div>
+                                            <div class="text-3xl font-black text-amber-950 mt-1 leading-none" id="mini-stat-belum-hadir">0</div>
+                                            <div class="text-[11px] text-amber-700 mt-1 font-medium">dalam antrean</div>
+                                        </div>
+                                        <div class="w-12 h-12 rounded-xl bg-amber-200/60 text-amber-800 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-[28px]">pending_actions</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -10274,7 +10349,7 @@ async function processCheckinApi(rawInput) {
     }
 }
 
-// Display Helpers for Scan Result
+// Display Helpers for Scan Result (Enhanced Receptionist UX)
 function displayScanLoading(id) {
     const placeholder = document.getElementById('scan-result-placeholder');
     const detail = document.getElementById('scan-result-detail');
@@ -10286,11 +10361,13 @@ function displayScanLoading(id) {
     if (placeholder) placeholder.classList.add('hidden');
     if (detail) detail.classList.remove('hidden');
     if (badge) {
-        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-800';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-blue-600 text-white animate-pulse shadow-xs';
         badge.textContent = 'Memverifikasi...';
     }
-    if (alertBox) alertBox.className = 'p-3.5 rounded-xl border bg-blue-50 border-blue-200 text-blue-900';
-    if (title) title.textContent = 'MEMPROSES VERIFIKASI...';
+    if (alertBox) {
+        alertBox.className = 'p-3.5 sm:p-4 rounded-2xl border bg-blue-50 border-blue-200 text-blue-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs';
+    }
+    if (title) title.innerHTML = '<span class="material-symbols-outlined text-[20px] text-blue-700 animate-spin">sync</span> <span>MEMPROSES VERIFIKASI...</span>';
     if (desc) desc.textContent = 'Memvalidasi ID ' + id + ' ke database Cloud Google Spreadsheet...';
 }
 
@@ -10299,16 +10376,20 @@ function displayScanResultSuccess(data) {
     const alertBox = document.getElementById('scan-status-alert-box');
     const title = document.getElementById('scan-status-title');
     const desc = document.getElementById('scan-status-desc');
+    const halaqahBox = document.getElementById('res-halaqah-card-box');
+    const roomPill = document.getElementById('res-halaqah-room-pill');
+    const halaqahGuide = document.getElementById('res-halaqah-guidance');
+    const jabatanPreview = document.getElementById('res-jabatan-preview');
 
     if (badge) {
-        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-emerald-600 text-white shadow-xs';
         badge.textContent = 'CHECK-IN SUKSES';
     }
     if (alertBox) {
-        alertBox.className = 'p-3.5 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-950 space-y-0.5';
+        alertBox.className = 'p-3.5 sm:p-4 rounded-2xl border bg-emerald-50 border-emerald-300 text-emerald-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs';
     }
-    if (title) title.textContent = '✅ PRESENSI BERHASIL DIVERIFIKASI';
-    if (desc) desc.textContent = data.message || 'Delegasi resmi terdaftar.';
+    if (title) title.innerHTML = '<span class="material-symbols-outlined text-[20px] text-emerald-700">verified</span> <span>PRESENSI BERHASIL DIVERIFIKASI</span>';
+    if (desc) desc.textContent = data.message || 'Delegasi resmi terdaftar & kehadiran telah dicatat.';
 
     document.getElementById('res-delegate-id').textContent = data.delegate_id || '-';
     document.getElementById('res-nama-peserta').textContent = data.nama_peserta || '-';
@@ -10317,6 +10398,40 @@ function displayScanResultSuccess(data) {
     document.getElementById('res-kategori-halaqah').textContent = data.kategori_halaqah || '-';
     document.getElementById('res-waktu-kehadiran').textContent = data.waktu_kehadiran || '-';
     document.getElementById('res-petugas').textContent = data.petugas_scan || '-';
+
+    if (jabatanPreview) {
+        jabatanPreview.textContent = data.jabatan_peran || 'Delegasi Resmi';
+    }
+
+    // Dynamic Color Styling for Halaqah Spotlight Box
+    if (halaqahBox) {
+        const textH = (data.kategori_halaqah || '').toLowerCase();
+        if (textH.includes('1') || textH.includes('pw-pc') || textH.includes('pwnu')) {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-emerald-50 border-emerald-300 text-emerald-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-950 uppercase border border-emerald-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>🟢</span> <strong>Halaqah 1:</strong> Serahkan Kit &amp; Lanyard <strong>Hijau Zamrud</strong>. Ruang Konsolidasi PW-PC.';
+        } else if (textH.includes('2') || textH.includes('madin')) {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-teal-50 border-teal-300 text-teal-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-teal-200 text-teal-950 uppercase border border-teal-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>🔵</span> <strong>Halaqah 2:</strong> Serahkan Kit &amp; Lanyard <strong>Toska</strong>. Ruang Bidang Madin &amp; Kepala Madin.';
+        } else if (textH.includes('3') || textH.includes('pengasuh')) {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-amber-50 border-amber-300 text-amber-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950 uppercase border border-amber-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>🟡</span> <strong>Halaqah 3:</strong> Sowan Masyayikh. Kit &amp; Lanyard <strong>Kuning Emas</strong>. Ruang Pengasuh Pesantren.';
+        } else if (textH.includes('4') || textH.includes('musyrif')) {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-blue-50 border-blue-300 text-blue-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-blue-200 text-blue-950 uppercase border border-blue-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>🔷</span> <strong>Halaqah 4:</strong> Pelatihan Musyrif Asrama 2 Hari. Kit &amp; Lanyard <strong>Biru Safir</strong>.';
+        } else if (textH.includes('5') || textH.includes('media')) {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-purple-50 border-purple-300 text-purple-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-purple-200 text-purple-950 uppercase border border-purple-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>🟣</span> <strong>Halaqah 5:</strong> Pelatihan Media &amp; Kreator Dakwah. Kit &amp; Lanyard <strong>Ungu</strong>.';
+        } else {
+            halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-emerald-50 border-emerald-300 text-emerald-950';
+            if (roomPill) roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-950 uppercase border border-emerald-400';
+            if (halaqahGuide) halaqahGuide.innerHTML = '<span>👉</span> Arahkan tamu ke ruang halaqah sesuai mandat resmi.';
+        }
+    }
 }
 
 function displayScanResultWarning(data) {
@@ -10324,15 +10439,19 @@ function displayScanResultWarning(data) {
     const alertBox = document.getElementById('scan-status-alert-box');
     const title = document.getElementById('scan-status-title');
     const desc = document.getElementById('scan-status-desc');
+    const halaqahBox = document.getElementById('res-halaqah-card-box');
+    const roomPill = document.getElementById('res-halaqah-room-pill');
+    const halaqahGuide = document.getElementById('res-halaqah-guidance');
+    const jabatanPreview = document.getElementById('res-jabatan-preview');
 
     if (badge) {
-        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-100 text-amber-800';
-        badge.textContent = 'DUPLIKAT / SUDAH CHECK-IN';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-500 text-slate-950 shadow-xs';
+        badge.textContent = 'SUDAH PERNAH CHECK-IN';
     }
     if (alertBox) {
-        alertBox.className = 'p-3.5 rounded-xl border bg-amber-50 border-amber-300 text-amber-950 space-y-0.5';
+        alertBox.className = 'p-3.5 sm:p-4 rounded-2xl border bg-amber-50 border-amber-300 text-amber-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs';
     }
-    if (title) title.textContent = '⚠️ PERINGATAN: SUDAH CHECK-IN SEBELUMNYA';
+    if (title) title.innerHTML = '<span class="material-symbols-outlined text-[20px] text-amber-700">warning</span> <span>PERINGATAN: SUDAH CHECK-IN SEBELUMNYA</span>';
     if (desc) desc.textContent = data.message || 'Tamu ini sudah pernah memindai barcode sebelumnya.';
 
     document.getElementById('res-delegate-id').textContent = data.delegate_id || '-';
@@ -10342,6 +10461,20 @@ function displayScanResultWarning(data) {
     document.getElementById('res-kategori-halaqah').textContent = data.kategori_halaqah || '-';
     document.getElementById('res-waktu-kehadiran').textContent = data.waktu_kehadiran || '-';
     document.getElementById('res-petugas').textContent = data.petugas_scan || '-';
+
+    if (jabatanPreview) {
+        jabatanPreview.textContent = data.jabatan_peran || 'Delegasi Resmi';
+    }
+
+    if (halaqahBox) {
+        halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-amber-50/80 border-amber-300 text-amber-950';
+    }
+    if (roomPill) {
+        roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950 uppercase border border-amber-400';
+    }
+    if (halaqahGuide) {
+        halaqahGuide.innerHTML = '<span>⚠️</span> Tamu telah tercatat hadir pada jam di atas. Pastikan tamu tidak mengambil seminar kit ganda.';
+    }
 }
 
 function displayScanResultError(errMsg) {
@@ -10349,24 +10482,41 @@ function displayScanResultError(errMsg) {
     const alertBox = document.getElementById('scan-status-alert-box');
     const title = document.getElementById('scan-status-title');
     const desc = document.getElementById('scan-status-desc');
+    const halaqahBox = document.getElementById('res-halaqah-card-box');
+    const roomPill = document.getElementById('res-halaqah-room-pill');
+    const halaqahGuide = document.getElementById('res-halaqah-guidance');
+    const jabatanPreview = document.getElementById('res-jabatan-preview');
 
     if (badge) {
-        badge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-100 text-rose-800';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-black uppercase bg-rose-600 text-white shadow-xs';
         badge.textContent = 'TIDAK TERDAFTAR';
     }
     if (alertBox) {
-        alertBox.className = 'p-3.5 rounded-xl border bg-rose-50 border-rose-300 text-rose-950 space-y-0.5';
+        alertBox.className = 'p-3.5 sm:p-4 rounded-2xl border bg-rose-50 border-rose-300 text-rose-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs';
     }
-    if (title) title.textContent = '❌ KODE QR / ID TIDAK DITEMUKAN';
-    if (desc) desc.textContent = errMsg;
+    if (title) title.innerHTML = '<span class="material-symbols-outlined text-[20px] text-rose-700">cancel</span> <span>KODE QR / ID TIDAK DITEMUKAN</span>';
+    if (desc) desc.textContent = errMsg || 'ID tidak terdaftar dalam database presensi resmi.';
 
-    document.getElementById('res-delegate-id').textContent = '-';
-    document.getElementById('res-nama-peserta').textContent = '-';
-    document.getElementById('res-nama-pesantren').textContent = '-';
+    document.getElementById('res-delegate-id').textContent = 'TIDAK VALID';
+    document.getElementById('res-nama-peserta').textContent = 'Data Tidak Ditemukan';
+    document.getElementById('res-nama-pesantren').textContent = 'Periksa keabsahan kartu absensi tamu';
     document.getElementById('res-kecamatan').textContent = '-';
-    document.getElementById('res-kategori-halaqah').textContent = '-';
+    document.getElementById('res-kategori-halaqah').textContent = 'Belum Ada Mandat Terdaftar';
     document.getElementById('res-waktu-kehadiran').textContent = '-';
     document.getElementById('res-petugas').textContent = '-';
+
+    if (jabatanPreview) {
+        jabatanPreview.textContent = 'Tidak Terverifikasi';
+    }
+    if (halaqahBox) {
+        halaqahBox.className = 'p-4 sm:p-5 rounded-2xl border-2 transition-all shadow-sm space-y-2 bg-rose-50 border-rose-200 text-rose-950';
+    }
+    if (roomPill) {
+        roomPill.className = 'text-[11px] font-black px-2.5 py-0.5 rounded-full bg-rose-200 text-rose-950 uppercase border border-rose-300';
+    }
+    if (halaqahGuide) {
+        halaqahGuide.innerHTML = '<span>❌</span> Silakan arahkan tamu ke <strong>Meja Pusat Informasi &amp; Pendaftaran Manual</strong>.';
+    }
 }
 
 function clearScanResult() {
