@@ -241,6 +241,7 @@ function handleSubmitSambangDelegate(payload, lock) {
     const lastRow = sheet.getLastRow();
     const delegateId = 'SBP-2026-' + Utilities.formatString('%03d', Math.max(1, lastRow));
     const kategoriHalaqah = payload.kategori_halaqah || payload.kategori_majlis || '-';
+    const cleanWa = cleanPhoneNumberString(payload.whatsapp || payload.no_whatsapp || '-');
 
     const rowData = [
       delegateId,
@@ -249,13 +250,15 @@ function handleSubmitSambangDelegate(payload, lock) {
       payload.nama_pesantren || '-',
       kategoriHalaqah,
       payload.nama_peserta || '-',
-      payload.whatsapp || payload.no_whatsapp || '-',
+      cleanWa,
       payload.jabatan || payload.jabatan_peran || '-',
       payload.catatan || payload.catatan_khusus || '-',
       'TERDAFTAR'
     ];
 
     sheet.appendRow(rowData);
+    // Pastikan format cell nomor WA adalah Plain Text (@) agar tidak terjadi parsing formula atau zero-drop
+    sheet.getRange(sheet.getLastRow(), 7).setNumberFormat('@');
 
     return {
       success: true,
@@ -422,6 +425,10 @@ function getSambangDelegatesData() {
         }
         item[h] = val;
       });
+      // Bersihkan juga nomor whatsapp pada payload output
+      if (item.no_whatsapp) {
+        item.no_whatsapp = cleanPhoneNumberString(item.no_whatsapp);
+      }
       delegates.push(item);
 
       const kat = String(item.kategori_halaqah || item.kategori_majlis || 'Lainnya');
@@ -680,6 +687,116 @@ function handleCleanDummyBerita() {
       success: true,
       message: 'Berhasil membersihkan ' + deletedCount + ' data dummy/mock dari tab web_berita!',
       deletedCount: deletedCount
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Helper pembersih format nomor WhatsApp/telepon
+ * - Menghilangkan '=', '+', '-', dan seluruh jenis spasi
+ * - Menangani formula Google Sheets yang error
+ * - Menstandarkan nomor telepon ke format E.164 seluler Indonesia (628xxxxxxxxxx)
+ */
+function cleanPhoneNumberString(rawVal, rawFormula) {
+  let str = '';
+  if (rawFormula && String(rawFormula).trim().startsWith('=')) {
+    str = String(rawFormula).replace(/^=/, '');
+  } else if (rawVal && String(rawVal).includes('#ERROR')) {
+    str = String(rawFormula || rawVal || '');
+  } else {
+    str = String(rawVal !== null && rawVal !== undefined ? rawVal : '');
+  }
+
+  str = str.trim();
+  if (!str || str === '-' || str.toLowerCase() === 'null' || str.toLowerCase() === 'undefined') {
+    return '-';
+  }
+
+  // Hapus karakter formula, +, -, dan seluruh spasi
+  str = str.replace(/[=\+\-\s]/g, '');
+
+  // Ambil hanya digit angka
+  let digits = str.replace(/\D/g, '');
+  if (!digits || digits.length < 5) return '-';
+
+  // Normalisasi standar seluler Indonesia (628xxxxxxxxxx)
+  if (digits.startsWith('6208')) {
+    digits = '628' + digits.substring(4);
+  } else if (digits.startsWith('08')) {
+    digits = '628' + digits.substring(2);
+  } else if (digits.startsWith('8')) {
+    digits = '628' + digits.substring(1);
+  } else if (!digits.startsWith('62') && digits.length >= 9) {
+    digits = '62' + digits;
+  }
+
+  return digits;
+}
+
+/**
+ * Menertibkan seluruh nomor WhatsApp pada sheet 'sambang_delegates'
+ * - Membaca seluruh data delegasi
+ * - Memperbaiki sel #ERROR! akibat formula '= +62 ...'
+ * - Menghapus '+', '-', spasi ganda & tunggal
+ * - Mengubah number format kolom menjadi Plain Text (@)
+ */
+function handleCleanSambangDelegatesPhoneNumbers() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('sambang_delegates');
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return { success: false, error: 'Sheet sambang_delegates kosong atau belum ada data.' };
+    }
+
+    const lastRow = sheet.getLastRow();
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    // Cari index kolom no_whatsapp
+    let phoneColIndex = -1;
+    for (let c = 0; c < headers.length; c++) {
+      const h = String(headers[c] || '').toLowerCase().trim();
+      if (h === 'no_whatsapp' || h === 'whatsapp' || h.startsWith('no_whats')) {
+        phoneColIndex = c + 1; // 1-based index
+        break;
+      }
+    }
+
+    if (phoneColIndex === -1) {
+      phoneColIndex = 7; // Fallback ke kolom G
+    }
+
+    const numRows = lastRow - 1;
+    const phoneRange = sheet.getRange(2, phoneColIndex, numRows, 1);
+    
+    // Ambil values, formulas, dan displayValues
+    const values = phoneRange.getValues();
+    const formulas = phoneRange.getFormulas();
+
+    let cleanedCount = 0;
+    const newValues = [];
+
+    for (let i = 0; i < numRows; i++) {
+      const rawVal = values[i][0];
+      const rawFormula = formulas[i][0];
+
+      const cleaned = cleanPhoneNumberString(rawVal, rawFormula);
+      if (cleaned !== String(rawVal) || (rawFormula && String(rawFormula).length > 0)) {
+        cleanedCount++;
+      }
+      newValues.push([cleaned]);
+    }
+
+    // Set seluruh format kolom menjadi Plain Text (@) agar tidak terjadi formula parsing error
+    phoneRange.setNumberFormat('@');
+    phoneRange.setValues(newValues);
+
+    return {
+      success: true,
+      message: 'Berhasil menertibkan format nomor WhatsApp pada sheet sambang_delegates. Total ' + cleanedCount + ' baris diperbarui dari ' + numRows + ' delegasi.',
+      total_rows: numRows,
+      updated_rows: cleanedCount
     };
   } catch (err) {
     return { success: false, error: err.message };

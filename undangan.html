@@ -1487,8 +1487,21 @@
             const namaPesantren = document.getElementById('undangan-nama-pesantren').value.trim();
             const kategoriHalaqah = document.getElementById('undangan-kategori-halaqah').value;
             const namaPeserta = document.getElementById('undangan-nama-peserta').value.trim();
-            const whatsapp = document.getElementById('undangan-whatsapp').value.trim();
+            let whatsapp = document.getElementById('undangan-whatsapp').value.trim();
             const jabatan = document.getElementById('undangan-jabatan').value.trim() || '-';
+
+            // Bersihkan format nomor WhatsApp dari karakter '=', '+', '-', serta seluruh spasi
+            let waDigits = whatsapp.replace(/[=\+\-\s]/g, '').replace(/\D/g, '');
+            if (waDigits.startsWith('6208')) {
+                waDigits = '628' + waDigits.substring(4);
+            } else if (waDigits.startsWith('08')) {
+                waDigits = '628' + waDigits.substring(2);
+            } else if (waDigits.startsWith('8')) {
+                waDigits = '628' + waDigits.substring(1);
+            }
+            if (waDigits.length >= 8) {
+                whatsapp = waDigits;
+            }
 
             const alertBox = document.getElementById('undangan-alert-box');
             const submitBtn = document.getElementById('btn-submit-undangan');

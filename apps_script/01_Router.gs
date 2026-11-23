@@ -66,6 +66,11 @@ function doGet(e) {
     return createJsonResponse(res);
   }
 
+  if (action === 'CLEAN_SAMBANG_PHONE_NUMBERS') {
+    const res = handleCleanSambangDelegatesPhoneNumbers();
+    return createJsonResponse(res);
+  }
+
   if (action === 'FIX_LEADERS_PRIMARY') {
     const res = handleFixSpreadsheetLeadersPrimary();
     return createJsonResponse(res);
@@ -139,6 +144,8 @@ function doPost(e) {
       result = handleSaveBerita(payload);
     } else if (action === 'CLEAN_DUMMY_BERITA') {
       result = handleCleanDummyBerita();
+    } else if (action === 'CLEAN_SAMBANG_PHONE_NUMBERS') {
+      result = handleCleanSambangDelegatesPhoneNumbers();
     } else if (action === 'SUBMIT_SAMBANG_DELEGATE') {
       result = handleSubmitSambangDelegate(payload, lock);
     } else if (action === 'SCAN_CHECKIN_SAMBANG') {
