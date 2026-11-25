@@ -1067,6 +1067,117 @@ function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs
 }
 
 // Merender daftar lembaga ke masing-masing grid
+// ==========================================
+// HELPER FAVORIT (WISHLIST) & STANDAR KARTU PESANTREN.NU.ID
+// ==========================================
+const RMI_FAVORITES_KEY = 'rmi_user_favorites';
+
+function getPesantrenFavorites() {
+    try {
+        const raw = localStorage.getItem(RMI_FAVORITES_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function togglePesantrenFavorite(event, pesantrenId) {
+    if (event) event.stopPropagation();
+    const idStr = String(pesantrenId);
+    const favs = getPesantrenFavorites();
+    const idx = favs.indexOf(idStr);
+    let isFav = false;
+    if (idx === -1) {
+        favs.push(idStr);
+        isFav = true;
+    } else {
+        favs.splice(idx, 1);
+        isFav = false;
+    }
+    try {
+        localStorage.setItem(RMI_FAVORITES_KEY, JSON.stringify(favs));
+    } catch (e) {}
+
+    // Update UI icon state across all matching buttons
+    document.querySelectorAll(`[data-fav-btn="${idStr}"]`).forEach(btn => {
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon) {
+            icon.innerText = isFav ? 'favorite' : 'favorite_border';
+            if (isFav) {
+                btn.classList.remove('bg-black/30', 'text-white');
+                btn.classList.add('bg-white', 'text-rose-500', 'shadow-md');
+            } else {
+                btn.classList.add('bg-black/30', 'text-white');
+                btn.classList.remove('bg-white', 'text-rose-500', 'shadow-md');
+            }
+        }
+    });
+}
+window.togglePesantrenFavorite = togglePesantrenFavorite;
+
+function getSantriGenderBadge(item) {
+    const text = `${item.nama || ''} ${item.kategori_atau_metode || ''} ${item.klasifikasi || ''}`.toLowerCase();
+    const hasPutri = /\bputri\b|\bbanat\b|\bnisa\b|\bmuslimat\b/.test(text);
+    const hasPutra = /\bputra\b|\bbanin\b|\brijal\b/.test(text);
+    if (hasPutri && !hasPutra) {
+        return { label: 'Putri', bgClass: 'bg-[#047857]' };
+    }
+    if (hasPutra && !hasPutri) {
+        return { label: 'Putra', bgClass: 'bg-[#0369a1]' };
+    }
+    return { label: 'Putra & Putri', bgClass: 'bg-[#005c55]' };
+}
+
+function getLembagaFacilityPills(item) {
+    const tags = [];
+    if (Array.isArray(item.fasilitas) && item.fasilitas.length > 0) {
+        item.fasilitas.forEach(f => {
+            const label = typeof f === 'string' ? f : (f.nama || f.nama_fasilitas);
+            if (label) tags.push(label);
+        });
+    } else {
+        tags.push('Perpustakaan');
+        if (item.has_komitmen_pesantren_aman) {
+            tags.push('UKS / Poskestren');
+        } else {
+            tags.push('Asrama Santri');
+        }
+        if (item.kurikulum_kitab && item.kurikulum_kitab.length > 0) {
+            tags.push(`${item.kurikulum_kitab.length} Kitab Turots`);
+        }
+        if (item.badan_usaha && item.badan_usaha.length > 0) {
+            tags.push('Kopontren');
+        }
+        tags.push('Masjid Jami\'');
+    }
+    return tags;
+}
+
+function buildMadinTpqEmptyNotice(jenisLabel) {
+    return `
+        <div class="col-span-full bg-white rounded-3xl border border-emerald-100 shadow-sm p-8 md:p-10 text-center max-w-2xl mx-auto my-4">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/70 flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <span class="material-symbols-outlined text-[32px]">menu_book</span>
+            </div>
+            <h3 class="text-lg md:text-xl font-extrabold text-slate-900 mb-2">Pangkalan Data ${escapeHTML(jenisLabel)} Se-Kabupaten Demak</h3>
+            <p class="text-xs md:text-sm text-slate-600 leading-relaxed mb-6">
+                Saat ini pangkalan data resmi <strong>${escapeHTML(jenisLabel)}</strong> sedang dalam proses kurasi dan verifikasi bertahap bersama Koordinator MWC NU di 14 Kecamatan. Bagi pengelola atau operator lembaga, silakan ajukan pendataan mandiri agar lembaga Anda tampil di Direktori Resmi PC RMI NU Demak.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="admin.html#daftar-mandiri" class="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">app_registration</span>
+                    <span>Ajukan Pendataan Mandiri</span>
+                </a>
+                <button type="button" onclick="document.getElementById('btn-pesantren')?.click()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                    <span>Lihat 293 Pondok Pesantren</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
 function renderLembagaCards(lembagaList) {
     try {
         const gridPesantren = document.getElementById('grid-pesantren');
@@ -1078,17 +1189,27 @@ function renderLembagaCards(lembagaList) {
         if (gridTpq) gridTpq.innerHTML = '';
 
         if (!lembagaList || lembagaList.length === 0) {
-            console.log("Tidak ada data lembaga yang cocok untuk ditampilkan.");
+            if (gridPesantren) {
+                gridPesantren.innerHTML = `
+                    <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-4">
+                        <span class="material-symbols-outlined text-[40px] text-slate-300 mb-2">search_off</span>
+                        <h3 class="text-base font-bold text-slate-800">Tidak Ada Lembaga Ditemukan</h3>
+                        <p class="text-xs text-slate-500 mt-1">Coba sesuaikan kata kunci pencarian atau pilih kecamatan lain.</p>
+                    </div>
+                `;
+            }
+            if (gridMadin) gridMadin.innerHTML = buildMadinTpqEmptyNotice('Madrasah Diniyah (Madin)');
+            if (gridTpq) gridTpq.innerHTML = buildMadinTpqEmptyNotice("Taman Pendidikan Al-Qur'an (TPQ)");
             return;
         }
 
+        const favorites = getPesantrenFavorites();
         const htmlPesantren = [];
         const htmlMadin = [];
         const htmlTpq = [];
 
         lembagaList.forEach(item => {
             let badgeColor = 'bg-primary';
-            let btnTextColor = 'text-primary';
             let badgeLabel = '';
             let badgeTooltip = '';
             let targetList = null;
@@ -1096,100 +1217,110 @@ function renderLembagaCards(lembagaList) {
             if (item.jenis === 'Pesantren') {
                 const bInfo = getClassificationBadge(item.klasifikasi || item.kategori_atau_metode);
                 badgeColor = bInfo.color;
-                btnTextColor = 'text-emerald-800';
                 badgeLabel = bInfo.label;
                 badgeTooltip = `${bInfo.label} (${bInfo.sublabel})`;
                 targetList = htmlPesantren;
             } else if (item.jenis === 'Madin') {
                 badgeColor = 'bg-secondary';
-                btnTextColor = 'text-secondary';
                 badgeLabel = escapeHTML(item.kategori_atau_metode || 'Madin');
                 badgeTooltip = badgeLabel;
                 targetList = htmlMadin;
             } else if (item.jenis === 'TPQ') {
                 badgeColor = 'bg-tertiary';
-                btnTextColor = 'text-tertiary';
                 badgeLabel = escapeHTML(item.kategori_atau_metode || 'TPQ');
                 badgeTooltip = badgeLabel;
                 targetList = htmlTpq;
             }
-
 
             if (targetList) {
                 const fallbackFoto = (item.foto_url && String(item.foto_url).trim().startsWith('http')) ? item.foto_url : getIslamicFallbackPhoto(item.id || item.nama);
 
                 const safeFoto = escapeHTML(fallbackFoto);
                 const safeNama = escapeHTML(item.nama);
-                const safeKategori = escapeHTML(badgeLabel || item.kategori_atau_metode || 'Lembaga');
                 const safePengasuh = escapeHTML(item.pengasuh_atau_kepala || '-');
-                const safeAlamat = escapeHTML(item.alamat_detail || '');
-                const safeKecamatan = escapeHTML(item.kecamatan);
+                const safeKecamatan = escapeHTML(item.kecamatan || 'Demak');
                 const safeId = escapeHTML(item.id || '');
-                const logoHtml = getPesantrenLogoHtml(item, 'w-12 h-12', 'text-xs');
+                const logoHtml = getPesantrenLogoHtml(item, 'w-11 h-11', 'text-xs');
 
-                // Standar Digdaya PBNU Badges
-                let amanBadgeHtml = '';
-                if (item.jenis === 'Pesantren') {
-                    if (item.has_komitmen_pesantren_aman) {
-                        amanBadgeHtml = `
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-xs" title="Terverifikasi Komitmen Ramah Santri & Anti-Kekerasan Anak">
-                                <span class="material-symbols-outlined text-[13px]">verified_user</span> Pesantren Ramah Santri
-                            </span>
-                        `;
-                    }
-                }
+                const genderInfo = getSantriGenderBadge(item);
+                const isFav = favorites.includes(String(item.id));
+                const favBtnClass = isFav ? 'bg-white text-rose-500 shadow-md' : 'bg-black/30 text-white hover:bg-black/50';
+                const favIconName = isFav ? 'favorite' : 'favorite_border';
 
-                // Hitung marhalah kitab jika ada
-                let marhalahPillHtml = '';
-                if (item.kurikulum_kitab && item.kurikulum_kitab.length > 0) {
-                    marhalahPillHtml = `
-                        <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                            <span class="material-symbols-outlined text-[12px]">menu_book</span> ${item.kurikulum_kitab.length} Kitab Turots
-                        </span>
-                    `;
-                }
+                const facilities = getLembagaFacilityPills(item);
+                const visibleFacilities = facilities.slice(0, 2);
+                const extraCount = facilities.length > 2 ? facilities.length - 2 : 0;
+
+                const facilityPillsHtml = visibleFacilities.map(f =>
+                    `<span class="text-[10px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md truncate max-w-[125px]">${escapeHTML(f)}</span>`
+                ).join('') + (extraCount > 0 ? `<span class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-md">+${extraCount}</span>` : '');
+
+                const lat = item.latitude || -6.8944;
+                const lng = item.longitude || 110.6386;
+                const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
 
                 const cardHTML = `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group relative"
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col group relative"
                          data-pesantren-id="${safeId}"
                          onmouseenter="handlePesantrenCardHover(event, '${safeId}')" 
                          onmouseleave="handlePesantrenCardLeave()">
                         
-                        <!-- Area Foto Cover & Logo Melayang -->
-                        <div class="h-44 relative bg-slate-100 shrink-0">
-                            <div class="w-full h-full overflow-hidden">
-                                <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${safeNama}" />
-                            </div>
-                            <span class="absolute top-3 left-3 ${badgeColor} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md" title="${badgeTooltip}">${badgeLabel}</span>
+                        <!-- Area Foto Cover 16:9 ala pesantren.nu.id -->
+                        <div class="h-48 relative bg-slate-100 shrink-0 overflow-hidden cursor-pointer" onclick="bukaModalDetailLembaga('${safeId}')">
+                            <img src="${safeFoto}" onerror="this.onerror=null;this.src='https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${safeNama}" />
                             
-                            <!-- BADGE LOGO MELAYANG POJOK KANAN BAWAH FOTO (OVERLAPPING 50% FOTO, 50% KONTEN PUTIH) -->
-                            <div class="absolute -bottom-5 right-4 z-10 w-12 h-12 rounded-2xl bg-white border-2 border-white shadow-md p-0.5 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-110">
+                            <!-- Badge Gender Santri (Pojok Kiri Atas) -->
+                            <span class="absolute top-3 left-3 ${item.jenis === 'Pesantren' ? genderInfo.bgClass : badgeColor} text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md tracking-wide" title="${badgeTooltip}">
+                                ${item.jenis === 'Pesantren' ? genderInfo.label : badgeLabel}
+                            </span>
+
+                            <!-- Tombol Favorit / Wishlist (Pojok Kanan Atas) -->
+                            <button type="button" data-fav-btn="${safeId}" onclick="togglePesantrenFavorite(event, '${safeId}')" title="Simpan ke Daftar Favorit"
+                                class="absolute top-3 right-3 w-8 h-8 rounded-full ${favBtnClass} backdrop-blur-xs flex items-center justify-center transition-all cursor-pointer z-10">
+                                <span class="material-symbols-outlined text-[18px]">${favIconName}</span>
+                            </button>
+
+                            <!-- Badge Logo Melayang di Pojok Kiri Bawah Foto -->
+                            <div class="absolute bottom-2.5 left-3 z-10 w-11 h-11 rounded-xl bg-white border-2 border-white shadow-md p-0.5 flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
                                 ${logoHtml}
                             </div>
+
+                            ${item.has_komitmen_pesantren_aman ? `
+                            <span class="absolute bottom-2.5 right-3 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-white/95 text-emerald-800 shadow-sm border border-emerald-200/70" title="Terverifikasi Komitmen Pesantren Ramah Santri">
+                                <span class="material-symbols-outlined text-[12px] text-emerald-600">verified_user</span> Ramah Santri
+                            </span>` : ''}
                         </div>
 
                         <!-- Area Konten Kartu -->
-                        <div class="p-6 flex flex-col flex-grow pt-7">
-                            <div class="mb-2">
-                                ${amanBadgeHtml}
-                            </div>
-                            <h3 class="font-bold text-lg text-on-surface mb-2 leading-snug group-hover:${btnTextColor} transition-colors">${safeNama}</h3>
-                            <p class="text-xs text-on-surface-variant mb-1 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[14px]">${item.jenis === 'Pesantren' ? 'person' : 'supervisor_account'}</span> 
-                                ${item.jenis === 'Pesantren' ? 'Pengasuh: ' : 'Kepala: '} ${safePengasuh}
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h3 onclick="bukaModalDetailLembaga('${safeId}')" class="font-extrabold text-[15px] text-slate-900 mb-1 leading-snug line-clamp-1 group-hover:text-emerald-700 transition-colors cursor-pointer" title="${safeNama}">
+                                ${safeNama}
+                            </h3>
+                            <p class="text-xs font-medium text-slate-500 flex items-center gap-1 mb-1">
+                                <span class="material-symbols-outlined text-[14px] text-emerald-600 shrink-0">location_on</span>
+                                <span class="truncate">Kec. ${safeKecamatan}, Kab. Demak</span>
                             </p>
-                            <p class="text-xs text-on-surface-variant mb-4 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[14px]">location_on</span> 
-                                ${safeAlamat ? safeAlamat + ', ' : ''}Kec. ${safeKecamatan}
+                            <p class="text-[11px] text-slate-500 flex items-center gap-1 mb-3 truncate" title="${safePengasuh}">
+                                <span class="material-symbols-outlined text-[14px] text-slate-400 shrink-0">${item.jenis === 'Pesantren' ? 'person' : 'supervisor_account'}</span>
+                                <span class="truncate">${safePengasuh}</span>
                             </p>
-                            <div class="flex items-center gap-2 mb-4 flex-wrap">
-                                ${marhalahPillHtml}
-                                ${item.santri_mukim ? `<span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[11px]">groups</span> ${(item.santri_mukim + (item.santri_nonmukim || 0)).toLocaleString()} Santri</span>` : ''}
+
+                            <!-- Pills Fasilitas ala pesantren.nu.id -->
+                            <div class="flex items-center gap-1.5 flex-wrap mb-4">
+                                ${facilityPillsHtml}
                             </div>
-                            <button onclick="bukaModalDetailLembaga('${safeId}')" class="mt-auto w-full bg-slate-50 ${btnTextColor} border border-slate-200 font-bold text-xs py-2.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                                <span>Lihat Profil Lengkap</span>
-                                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                            </button>
+
+                            <!-- Action Bar -->
+                            <div class="mt-auto pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
+                                <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="px-2.5 py-2 bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200/90 hover:border-rose-200 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 transition-colors">
+                                    <span class="material-symbols-outlined text-[14px] text-rose-500">map</span>
+                                    <span>Buka Maps</span>
+                                </a>
+                                <button type="button" onclick="bukaModalDetailLembaga('${safeId}')" class="px-2.5 py-2 bg-emerald-50/70 hover:bg-emerald-700 text-emerald-800 hover:text-white border border-emerald-200/80 hover:border-emerald-700 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                                    <span class="material-symbols-outlined text-[14px]">visibility</span>
+                                    <span>Detail Profil</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1197,9 +1328,21 @@ function renderLembagaCards(lembagaList) {
             }
         });
 
-        if (gridPesantren) gridPesantren.innerHTML = htmlPesantren.join('');
-        if (gridMadin) gridMadin.innerHTML = htmlMadin.join('');
-        if (gridTpq) gridTpq.innerHTML = htmlTpq.join('');
+        if (gridPesantren) {
+            gridPesantren.innerHTML = htmlPesantren.length > 0 ? htmlPesantren.join('') : `
+                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-4">
+                    <span class="material-symbols-outlined text-[40px] text-slate-300 mb-2">search_off</span>
+                    <h3 class="text-base font-bold text-slate-800">Tidak Ada Pesantren Cocok</h3>
+                    <p class="text-xs text-slate-500 mt-1">Coba bersihkan filter kecamatan atau ubah kata kunci pencarian.</p>
+                </div>
+            `;
+        }
+        if (gridMadin) {
+            gridMadin.innerHTML = (htmlMadin.length > 2) ? htmlMadin.join('') : buildMadinTpqEmptyNotice('Madrasah Diniyah (Madin)');
+        }
+        if (gridTpq) {
+            gridTpq.innerHTML = (htmlTpq.length > 2) ? htmlTpq.join('') : buildMadinTpqEmptyNotice("Taman Pendidikan Al-Qur'an (TPQ)");
+        }
     } catch (catchedError) {
         console.error("Sistem mengalami kendala saat me-render data:", catchedError);
     }
@@ -1703,7 +1846,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if(mapIcon) mapIcon.classList.add('text-primary');
             if(mapTitle) mapTitle.classList.add('text-primary');
             if(mapTitle) mapTitle.innerText = 'Pondok Pesantren';
-            if(mapDesc) mapDesc.innerHTML = 'Menampilkan <span class="text-on-surface font-extrabold text-base">380+</span> titik pesantren di seluruh wilayah Kabupaten Demak.';
+            const pesantrenCount = (Array.isArray(allLembagaData) && allLembagaData.filter(l => l.jenis === 'Pesantren').length) || 293;
+            if(mapDesc) mapDesc.innerHTML = `Menampilkan <span class="text-on-surface font-extrabold text-base">${pesantrenCount}</span> titik pesantren di seluruh wilayah Kabupaten Demak.`;
             
             if(filterKategori) filterKategori.innerHTML = '<option value="">Klasifikasi (Semua)</option><option value="SALAF">SALAF (Kitab Kuning)</option><option value="TAHFIDZ">TAHFIDZ (Al-Qur\'an)</option><option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option><option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option><option value="MODERN">MODERN (Sistem Modern)</option>';
             if(btnSearch) btnSearch.classList.add('bg-primary');
@@ -1734,7 +1878,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(mapIcon) mapIcon.className = 'material-symbols-outlined text-secondary transition-colors duration-500';
             if(mapTitle) mapTitle.className = 'text-xl font-bold text-secondary transition-colors duration-500';
             if(mapTitle) mapTitle.innerText = 'Madrasah Diniyah';
-            if(mapDesc) mapDesc.innerHTML = 'Menampilkan <span class="text-on-surface font-extrabold text-base">540+</span> titik madrasah diniyah di seluruh wilayah Demak.';
+            if(mapDesc) mapDesc.innerHTML = 'Pangkalan data Madrasah Diniyah sedang dalam kurasi & verifikasi bertahap bersama MWC NU.';
             
             if(filterKategori) filterKategori.innerHTML = '<option>Jenjang (Semua)</option><option>Ula</option><option>Wustho</option><option>Ulya</option>';
             if(btnSearch) btnSearch.className = 'bg-secondary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors';
@@ -1765,7 +1909,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(mapIcon) mapIcon.className = 'material-symbols-outlined text-tertiary transition-colors duration-500';
             if(mapTitle) mapTitle.className = 'text-xl font-bold text-tertiary transition-colors duration-500';
             if(mapTitle) mapTitle.innerText = "Taman Pendidikan Al-Qur'an";
-            if(mapDesc) mapDesc.innerHTML = 'Menampilkan <span class="text-on-surface font-extrabold text-base">850+</span> titik TPQ di wilayah Demak.';
+            if(mapDesc) mapDesc.innerHTML = 'Pangkalan data TPQ sedang dalam kurasi & verifikasi bertahap bersama MWC NU.';
             
             if(filterKategori) filterKategori.innerHTML = '<option>Metode (Semua)</option><option>Yanbu\'a</option><option>Qira\'ati</option><option>Iqro\'</option><option>Ummi</option>';
             if(btnSearch) btnSearch.className = 'bg-tertiary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors';
