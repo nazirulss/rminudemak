@@ -21,7 +21,7 @@ function setupWebCmsSheets() {
       'id', 'kategori_layanan', 'judul_langkah', 'deskripsi_syarat', 'hotline_wa', 'email_resmi', 'updated_at'
     ],
     web_berita: [
-      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+      'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 'is_featured', 'status', 'published_at', 'views_count', 'updated_at', 'keywords'
     ],
     app_pengurus: [
       'id', 'tingkat_hirarki', 'jabatan', 'nama_lengkap', 'gelar_depan', 'gelar_belakang', 'foto_drive_url', 'parent_id', 'tipe_garis', 'tupoksi', 'urutan', 'is_active', 'updated_at'
@@ -479,7 +479,7 @@ function getPublicBeritaList(params) {
     const headers = [
       'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 
       'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 
-      'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+      'is_featured', 'status', 'published_at', 'views_count', 'updated_at', 'keywords'
     ];
 
     if (!sheet) {
@@ -488,9 +488,9 @@ function getPublicBeritaList(params) {
       sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
       sheet.setFrozenRows(1);
     } else {
-      // Self-healing header: pastikan kolom sumber_media dan url_sumber ada
+      // Self-healing header: pastikan kolom sumber_media, url_sumber, dan keywords ada
       const curFirstRow = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-      if (curFirstRow[8] !== 'sumber_media' || curFirstRow[9] !== 'url_sumber') {
+      if (curFirstRow[8] !== 'sumber_media' || curFirstRow[9] !== 'url_sumber' || curFirstRow[15] !== 'keywords') {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
         sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#005c55').setFontColor('#ffffff');
       }
@@ -594,7 +594,7 @@ function handleSaveBerita(payload) {
     const headers = [
       'id', 'judul', 'slug', 'kategori', 'ringkasan', 'isi_lengkap', 
       'cover_image_url', 'penulis', 'sumber_media', 'url_sumber', 
-      'is_featured', 'status', 'published_at', 'views_count', 'updated_at'
+      'is_featured', 'status', 'published_at', 'views_count', 'updated_at', 'keywords'
     ];
 
     if (!sheet) {
@@ -645,7 +645,8 @@ function handleSaveBerita(payload) {
       item.status || (isFeatured ? 'Sorotan Utama' : 'Terbit'),
       item.published_at || item.tanggal || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
       Number(item.views_count) || 0,
-      now
+      now,
+      item.keywords || ''
     ];
 
     if (rowIndex > 0) {
@@ -693,7 +694,8 @@ function handleSyncBatchBerita(sheet, items, headers) {
         item.status || (isFeatured ? 'Sorotan Utama' : 'Terbit'),
         item.published_at || item.tanggal || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
         Number(item.views_count) || 0,
-        now
+        now,
+        item.keywords || ''
       ];
     });
 

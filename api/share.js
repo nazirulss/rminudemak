@@ -67,7 +67,7 @@ async function getArticlesFromBackend() {
 }
 
 export default async function handler(req, res) {
-  const { id, slug, t, img, desc } = req.query;
+  const { id, slug, t, img, desc, kw } = req.query;
   const lookupKey = slug || id;
 
   const defaultTitle = "RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali";
@@ -96,6 +96,8 @@ export default async function handler(req, res) {
   const title = t || (article && article.judul) || defaultTitle;
   const description = desc || (article && (article.ringkasan || article.isi_lengkap)) || defaultDesc;
   const image = img || (article && article.cover_image_url) || defaultImg;
+  const keywords = kw || (article && article.keywords) || (article ? `${article.kategori || 'Warta'}, RMI PCNU Demak, Pesantren Demak, Santri Kota Wali` : "RMI NU Demak, Pondok Pesantren Demak, Madrasah Diniyah Demak, Santri Kota Wali");
+  const penulis = (article && article.penulis) || "Tim Media RMI PCNU Demak";
   const finalSlug = (article && article.slug) ? article.slug : (lookupKey || '');
 
   // URL kanonikal bersih berbasis slug dan rute SPA tujuan
@@ -119,6 +121,9 @@ export default async function handler(req, res) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title)}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="keywords" content="${escapeHtml(keywords)}" />
+  <meta name="author" content="${escapeHtml(penulis)}" />
   
   <!-- Open Graph / WhatsApp Preview Dinamis Sesuai Berita & Thumbnail -->
   <meta property="og:type" content="article" />
@@ -132,6 +137,7 @@ export default async function handler(req, res) {
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="${escapeHtml(title)}" />
   <meta property="og:url" content="${canonicalUrl}" />
+  <meta property="article:tag" content="${escapeHtml(keywords)}" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />

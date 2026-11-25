@@ -27,6 +27,10 @@
     <!-- HTML5 QR Code Scanner Library for Meja Tamu Presensi -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     
+    <!-- Cropper.js (Interactive Image Cropping untuk Cover 16:9 & Foto Tengah) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    
     
     
     <style>
@@ -1879,21 +1883,52 @@
                                 </div>
                             </div>
 
-                            <!-- 2. Kategori / Rubrik & Penulis / Sumber Redaksi -->
+                            <!-- 1b. Kata Kunci / Keyword SEO Google -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                                        KATA KUNCI / KEYWORD SEO GOOGLE
+                                    </label>
+                                    <span class="text-[10px] text-slate-400">Pisahkan dengan tanda koma (,) untuk indexing mesin pencari</span>
+                                </div>
+                                <div class="relative">
+                                    <input type="text" id="cms-berita-keywords" placeholder="Contoh: rmi nu demak, sambang pesantren, futuhiyyah mranggen, santri kota wali, pwnu jateng" class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition shadow-xs" />
+                                    <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">tag</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. Kategori / Rubrik (Pilihan Dropdown + Ketik Manual) & Penulis / Sumber Redaksi -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                        KATEGORI / RUBRIK <span class="text-rose-500">*</span>
-                                    </label>
-                                    <select id="cms-berita-kategori" class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
-                                        <option value="Dawuh Pengasuh">Dawuh Pengasuh</option>
-                                        <option value="Pendidikan">Pendidikan</option>
-                                        <option value="Ekonomi">Ekonomi</option>
-                                        <option value="Organisasi">Organisasi</option>
-                                        <option value="Pesantren">Pesantren</option>
-                                        <option value="Sosial">Sosial</option>
-                                        <option value="Warta Khazanah">Warta Khazanah</option>
-                                    </select>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                                            KATEGORI / RUBRIK <span class="text-rose-500">*</span>
+                                        </label>
+                                        <button type="button" id="btn-toggle-kategori-manual" onclick="toggleKategoriManual()" class="text-[10px] font-bold text-emerald-800 hover:text-emerald-950 underline flex items-center gap-1 cursor-pointer">
+                                            <span class="material-symbols-outlined text-[13px]">edit_note</span>
+                                            <span id="label-toggle-kategori">Ketik Manual</span>
+                                        </button>
+                                    </div>
+                                    <div id="container-kategori-select">
+                                        <select id="cms-berita-kategori" onchange="handleKategoriSelectChange(this)" class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition">
+                                            <option value="Warta Organisasi">Warta Organisasi</option>
+                                            <option value="Dawuh Pengasuh">Dawuh Pengasuh</option>
+                                            <option value="Pendidikan & Madin">Pendidikan & Madin</option>
+                                            <option value="Ekonomi & Kemandirian">Ekonomi & Kemandirian</option>
+                                            <option value="Pesantren Ramah Anak">Pesantren Ramah Anak</option>
+                                            <option value="Sosial Kemasyarakatan">Sosial Kemasyarakatan</option>
+                                            <option value="Warta Khazanah">Warta Khazanah</option>
+                                            <option value="__custom__">➕ + Ketik Kategori Baru (Manual)...</option>
+                                        </select>
+                                    </div>
+                                    <div id="container-kategori-manual" class="hidden mt-1.5">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" id="cms-berita-kategori-manual" placeholder="Ketik nama kategori / rubrik baru..." class="flex-1 px-3.5 py-2.5 bg-emerald-50/50 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-950 placeholder:font-normal placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 transition" />
+                                            <button type="button" onclick="batalKategoriManual()" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition cursor-pointer" title="Kembali ke pilihan dropdown">
+                                                Batal
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -1920,7 +1955,7 @@
                                             <input type="url" id="cms-berita-cover" placeholder="https://lh3.googleusercontent.com/..." oninput="previewCoverInput()" class="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 focus:outline-none focus:border-emerald-600 transition" />
                                         </div>
                                         <p class="text-[11px] text-slate-400 italic">
-                                            *Pilih gambar untuk membuka dialog Crop 16:9 & kompresi otomatis ke format WebP (≤ 250 KB).
+                                            *Pilih gambar untuk membuka dialog interaktif Crop 16:9 & kompresi otomatis ke Google Drive.
                                         </p>
                                     </div>
 
@@ -1933,6 +1968,16 @@
                                                 <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider block">Pratinjau 16:9</span>
                                                 <span class="text-[9px] text-slate-400 block mt-0.5">Belum ada foto dipilih</span>
                                             </div>
+                                        </div>
+                                        <div id="cms-berita-cover-actions" class="hidden mt-2 flex items-center justify-between">
+                                            <button type="button" onclick="bukaCropUlangCover()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold transition cursor-pointer">
+                                                <span class="material-symbols-outlined text-[15px]">crop</span>
+                                                <span>Crop Ulang Cover</span>
+                                            </button>
+                                            <button type="button" onclick="hapusFotoCover()" class="inline-flex items-center gap-1 text-xs text-rose-600 hover:text-rose-800 font-medium">
+                                                <span class="material-symbols-outlined text-[15px]">delete</span>
+                                                <span>Hapus</span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -2835,7 +2880,12 @@
                     </div>
                     <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
                         <span id="foto-tengah-file-info" class="font-medium text-emerald-800">Foto siap diunggah</span>
-                        <button type="button" onclick="document.getElementById('input-foto-tengah-file').click()" class="text-emerald-700 hover:underline font-bold">Ganti Foto</button>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="bukaCropUlangFotoTengah()" class="text-emerald-700 hover:text-emerald-950 font-bold flex items-center gap-0.5 cursor-pointer">
+                                <span class="material-symbols-outlined text-[14px]">crop</span> Crop Foto
+                            </button>
+                            <button type="button" onclick="document.getElementById('input-foto-tengah-file').click()" class="text-slate-600 hover:text-slate-900 font-bold cursor-pointer">Ganti</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2895,6 +2945,79 @@
                     <span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
                     <span id="btn-submit-foto-tengah-text">Sisipkan ke Naskah</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL INTERAKTIF CROP GAMBAR (FOTO UTAMA & FOTO TENGAH)   -->
+    <!-- ======================================================== -->
+    <div id="modal-crop-gambar" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 z-[9999] select-none">
+        <div class="bg-white rounded-3xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-slideFadeIn">
+            <!-- Header Modal -->
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[22px]">crop</span>
+                    </span>
+                    <div>
+                        <h3 id="modal-crop-title" class="text-sm font-bold text-slate-900">Sesuaikan & Crop Foto</h3>
+                        <p id="modal-crop-subtitle" class="text-[11px] text-slate-500">Geser atau ubah ukuran kotak potong sesuai komposisi terbaik</p>
+                    </div>
+                </div>
+                <button type="button" onclick="batalCropGambar()" class="w-8 h-8 rounded-full hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Toolbar Pengaturan Crop & Rasio -->
+            <div class="px-6 py-2.5 bg-slate-100/90 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <!-- Pilihan Rasio -->
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase mr-1">Rasio:</span>
+                    <button type="button" onclick="setCropRatio(16/9, this)" id="crop-ratio-16-9" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-700 text-white shadow-xs transition cursor-pointer">16:9</button>
+                    <button type="button" onclick="setCropRatio(4/3, this)" id="crop-ratio-4-3" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-200 shadow-2xs transition cursor-pointer">4:3</button>
+                    <button type="button" onclick="setCropRatio(1, this)" id="crop-ratio-1-1" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-200 shadow-2xs transition cursor-pointer">1:1</button>
+                    <button type="button" onclick="setCropRatio(NaN, this)" id="crop-ratio-free" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-200 shadow-2xs transition cursor-pointer">Bebas</button>
+                </div>
+
+                <!-- Alat Transformasi (Zoom, Rotate, Reset) -->
+                <div class="flex items-center gap-1">
+                    <button type="button" onclick="zoomCropper(0.1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-2xs cursor-pointer" title="Perbesar (Zoom In)">
+                        <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                    </button>
+                    <button type="button" onclick="zoomCropper(-0.1)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-2xs cursor-pointer" title="Perkecil (Zoom Out)">
+                        <span class="material-symbols-outlined text-[18px]">zoom_out</span>
+                    </button>
+                    <button type="button" onclick="rotateCropper(-90)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-2xs cursor-pointer" title="Putar Kiri 90°">
+                        <span class="material-symbols-outlined text-[18px]">rotate_left</span>
+                    </button>
+                    <button type="button" onclick="rotateCropper(90)" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-2xs cursor-pointer" title="Putar Kanan 90°">
+                        <span class="material-symbols-outlined text-[18px]">rotate_right</span>
+                    </button>
+                    <button type="button" onclick="resetCropper()" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shadow-2xs cursor-pointer" title="Reset Pemotongan">
+                        <span class="material-symbols-outlined text-[18px]">restart_alt</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workspace Gambar (Container Cropper.js) -->
+            <div class="relative bg-slate-900 flex-1 min-h-[300px] max-h-[55vh] flex items-center justify-center overflow-hidden p-2">
+                <img id="image-to-crop" src="" alt="Area Potong Gambar" class="max-w-full max-h-full block" />
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <span id="crop-target-info" class="text-xs text-slate-500 font-medium">Target: Foto Utama Berita</span>
+                <div class="flex items-center gap-2.5">
+                    <button type="button" onclick="batalCropGambar()" class="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" onclick="terapkanCropGambar()" id="btn-apply-crop" class="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs rounded-xl shadow-md hover:shadow-lg transition flex items-center gap-2 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">check</span>
+                        <span>Terapkan Hasil Crop</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -9537,8 +9660,16 @@ function bukaInlineTambahBerita() {
     document.getElementById('form-inline-cms-berita').reset();
     const slugEl = document.getElementById('cms-berita-slug');
     if (slugEl) slugEl.value = '';
+    const kwEl = document.getElementById('cms-berita-keywords');
+    if (kwEl) kwEl.value = '';
+    batalKategoriManual();
     document.getElementById('cms-berita-penulis').value = 'Redaksi RMI PCNU Demak';
     document.getElementById('cms-berita-tanggal').value = new Date().toISOString().split('T')[0];
+    
+    const coverActions = document.getElementById('cms-berita-cover-actions');
+    if (coverActions) coverActions.classList.add('hidden');
+    _cachedOriginalCoverDataUrl = null;
+
     previewCoverInput();
 
     editor.classList.remove('hidden');
@@ -9561,13 +9692,24 @@ function bukaInlineEditBerita(id) {
     if (slugEl) {
         slugEl.value = item.slug || (item.judul ? item.judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : '');
     }
-    document.getElementById('cms-berita-kategori').value = item.kategori || 'Pendidikan';
+    const kwEl = document.getElementById('cms-berita-keywords');
+    if (kwEl) kwEl.value = item.keywords || '';
+
+    setKategoriValueInForm(item.kategori || 'Warta Organisasi');
+
     document.getElementById('cms-berita-penulis').value = item.penulis || 'Redaksi RMI PCNU Demak';
-    document.getElementById('cms-berita-tanggal').value = item.tanggal || '';
-    document.getElementById('cms-berita-cover').value = item.cover || '';
+    document.getElementById('cms-berita-tanggal').value = item.tanggal || item.published_at || '';
+    document.getElementById('cms-berita-cover').value = item.cover || item.cover_image_url || '';
     document.getElementById('cms-berita-ringkasan').value = item.ringkasan || '';
-    document.getElementById('cms-berita-isi').value = item.isi || '';
-    document.getElementById('cms-berita-is-featured').checked = !!item.isFeatured;
+    document.getElementById('cms-berita-isi').value = item.isi || item.isi_lengkap || '';
+    document.getElementById('cms-berita-is-featured').checked = !!(item.isFeatured || item.is_featured);
+
+    const coverActions = document.getElementById('cms-berita-cover-actions');
+    if (coverActions) {
+        if (item.cover || item.cover_image_url) coverActions.classList.remove('hidden');
+        else coverActions.classList.add('hidden');
+    }
+    _cachedOriginalCoverDataUrl = item.cover || item.cover_image_url || null;
 
     previewCoverInput();
 
@@ -9614,59 +9756,312 @@ function generateSlugBeritaLive() {
     slugInput.value = slug;
 }
 
-// Upload file cover lokal, kompres otomatis via Canvas & unggah ke Google Drive
-async function handleFileCoverBerita(event) {
+// =========================================================================
+// FITUR KATEGORI / RUBRIK (DROPDOWN + KETIK MANUAL)
+// =========================================================================
+function toggleKategoriManual(forceManual) {
+    const selContainer = document.getElementById('container-kategori-select');
+    const manualContainer = document.getElementById('container-kategori-manual');
+    const labelToggle = document.getElementById('label-toggle-kategori');
+    const inputManual = document.getElementById('cms-berita-kategori-manual');
+
+    const shouldShowManual = (typeof forceManual === 'boolean') 
+        ? forceManual 
+        : manualContainer.classList.contains('hidden');
+
+    if (shouldShowManual) {
+        selContainer.classList.add('hidden');
+        manualContainer.classList.remove('hidden');
+        if (labelToggle) labelToggle.textContent = 'Pilih Dropdown';
+        if (inputManual) inputManual.focus();
+    } else {
+        manualContainer.classList.add('hidden');
+        selContainer.classList.remove('hidden');
+        if (labelToggle) labelToggle.textContent = 'Ketik Manual';
+        const sel = document.getElementById('cms-berita-kategori');
+        if (sel && sel.value === '__custom__') {
+            sel.value = 'Warta Organisasi';
+        }
+    }
+}
+
+function handleKategoriSelectChange(sel) {
+    if (sel && sel.value === '__custom__') {
+        toggleKategoriManual(true);
+    }
+}
+
+function batalKategoriManual() {
+    toggleKategoriManual(false);
+}
+
+function getSelectedKategori() {
+    const manualContainer = document.getElementById('container-kategori-manual');
+    const isManual = manualContainer && !manualContainer.classList.contains('hidden');
+    const manualVal = document.getElementById('cms-berita-kategori-manual')?.value?.trim();
+    const selVal = document.getElementById('cms-berita-kategori')?.value;
+
+    if (isManual && manualVal) return manualVal;
+    if (selVal && selVal !== '__custom__') return selVal;
+    return manualVal || selVal || 'Warta Organisasi';
+}
+
+function setKategoriValueInForm(kat) {
+    const target = kat || 'Warta Organisasi';
+    const sel = document.getElementById('cms-berita-kategori');
+    if (!sel) return;
+    const options = Array.from(sel.options).map(o => o.value);
+
+    if (options.includes(target) && target !== '__custom__') {
+        sel.value = target;
+        batalKategoriManual();
+    } else {
+        toggleKategoriManual(true);
+        const inputManual = document.getElementById('cms-berita-kategori-manual');
+        if (inputManual) inputManual.value = target;
+    }
+}
+
+// =========================================================================
+// SISTEM INTERAKTIF CROP GAMBAR (CROPPER.JS)
+// =========================================================================
+let _activeCropper = null;
+let _cropTarget = null; // 'cover' atau 'foto-tengah'
+let _cachedOriginalCoverDataUrl = null;
+let _cachedOriginalFotoTengahDataUrl = null;
+
+function bukaModalCrop(imageSource, target = 'cover', defaultRatio = 16/9) {
+    _cropTarget = target;
+    const modal = document.getElementById('modal-crop-gambar');
+    const imageEl = document.getElementById('image-to-crop');
+    const titleEl = document.getElementById('modal-crop-title');
+    const subTitleEl = document.getElementById('modal-crop-subtitle');
+    const targetInfoEl = document.getElementById('crop-target-info');
+
+    if (target === 'cover') {
+        titleEl.textContent = 'Crop & Sesuaikan Foto Cover Berita';
+        subTitleEl.textContent = 'Standar rasio 16:9 untuk tampilan kartu berita, pratinjau WhatsApp, dan banner beranda.';
+        targetInfoEl.textContent = 'Target: Foto Utama Berita (16:9)';
+        setCropRatio(16/9, document.getElementById('crop-ratio-16-9'));
+    } else {
+        titleEl.textContent = 'Crop & Sesuaikan Foto Dokumentasi Naskah';
+        subTitleEl.textContent = 'Atur bingkai foto sesuai tata letak naskah artikel berita.';
+        targetInfoEl.textContent = 'Target: Foto Tengah Naskah';
+        setCropRatio(NaN, document.getElementById('crop-ratio-free'));
+    }
+
+    imageEl.src = imageSource;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    if (_activeCropper) {
+        _activeCropper.destroy();
+        _activeCropper = null;
+    }
+
+    imageEl.onload = function() {
+        if (typeof Cropper !== 'undefined') {
+            _activeCropper = new Cropper(imageEl, {
+                aspectRatio: (target === 'cover' ? 16 / 9 : NaN),
+                viewMode: 1,
+                autoCropArea: 0.95,
+                responsive: true,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        }
+    };
+}
+
+function setCropRatio(ratio, btnElement) {
+    if (_activeCropper) {
+        _activeCropper.setAspectRatio(ratio);
+    }
+    const ratioBtns = [
+        document.getElementById('crop-ratio-16-9'),
+        document.getElementById('crop-ratio-4-3'),
+        document.getElementById('crop-ratio-1-1'),
+        document.getElementById('crop-ratio-free')
+    ];
+    ratioBtns.forEach(b => {
+        if (!b) return;
+        b.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-200 shadow-2xs transition cursor-pointer';
+    });
+    if (btnElement) {
+        btnElement.className = 'px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-700 text-white shadow-xs transition cursor-pointer';
+    }
+}
+
+function zoomCropper(delta) {
+    if (_activeCropper) _activeCropper.zoom(delta);
+}
+
+function rotateCropper(degree) {
+    if (_activeCropper) _activeCropper.rotate(degree);
+}
+
+function resetCropper() {
+    if (_activeCropper) _activeCropper.reset();
+}
+
+function batalCropGambar() {
+    if (_activeCropper) {
+        _activeCropper.destroy();
+        _activeCropper = null;
+    }
+    const modal = document.getElementById('modal-crop-gambar');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function terapkanCropGambar() {
+    if (!_activeCropper) {
+        batalCropGambar();
+        return;
+    }
+
+    const applyBtn = document.getElementById('btn-apply-crop');
+    if (applyBtn) applyBtn.disabled = true;
+
+    try {
+        const maxWidth = (_cropTarget === 'cover' ? 1600 : 1280);
+        const maxHeight = (_cropTarget === 'cover' ? 900 : 1280);
+        const croppedCanvas = _activeCropper.getCroppedCanvas({
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        if (!croppedCanvas) {
+            throw new Error('Gagal memproses kanvas hasil pemotongan.');
+        }
+
+        const compressed = await kompresGambarClientSide(croppedCanvas, 1280, 0.85);
+        batalCropGambar();
+
+        if (_cropTarget === 'cover') {
+            const img = document.getElementById('cms-berita-cover-preview');
+            const placeholder = document.getElementById('cms-berita-cover-placeholder');
+            const actions = document.getElementById('cms-berita-cover-actions');
+            if (img) {
+                img.src = compressed.dataUrl;
+                img.classList.remove('hidden');
+            }
+            if (placeholder) placeholder.classList.add('hidden');
+            if (actions) actions.classList.remove('hidden');
+
+            document.getElementById('cms-berita-cover').value = compressed.dataUrl;
+
+            // Unggah otomatis hasil crop ke Google Drive
+            showToast('info', 'Mengunggah hasil crop cover ke Google Drive...');
+            const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+            const res = await fetch(gasUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'UPLOAD_ASSET',
+                    files: [{
+                        name: ('cover_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
+                        key: 'cover_berita_' + Date.now(),
+                        base64: compressed.base64,
+                        mimeType: compressed.mimeType
+                    }]
+                })
+            });
+
+            const json = await res.json();
+            let coverUrl = '';
+            if (json && json.success && json.assets) {
+                const first = Object.values(json.assets)[0];
+                coverUrl = first.url || ('https://lh3.googleusercontent.com/d/' + first.id);
+            } else if (json && (json.directUrl || json.fileId)) {
+                coverUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
+            }
+
+            if (coverUrl) {
+                document.getElementById('cms-berita-cover').value = coverUrl;
+                showToast('success', `Foto cover berhasil di-crop & diunggah (~${compressed.sizeKb} KB)!`);
+            } else {
+                showToast('success', `Foto cover berhasil di-crop (~${compressed.sizeKb} KB)!`);
+            }
+        } else if (_cropTarget === 'foto-tengah') {
+            _fotoTengahUploadPayload = {
+                base64: compressed.base64,
+                mimeType: compressed.mimeType,
+                filename: ('berita_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
+                sizeKb: compressed.sizeKb
+            };
+
+            const previewImg = document.getElementById('foto-tengah-preview-img');
+            if (previewImg) previewImg.src = compressed.dataUrl;
+
+            const dropzone = document.getElementById('foto-tengah-dropzone');
+            const previewContainer = document.getElementById('foto-tengah-preview-container');
+            if (dropzone) dropzone.classList.add('hidden');
+            if (previewContainer) previewContainer.classList.remove('hidden');
+
+            const infoEl = document.getElementById('foto-tengah-file-info');
+            if (infoEl) {
+                infoEl.textContent = `Foto siap: ${compressed.width}x${compressed.height} px (~${compressed.sizeKb} KB)`;
+            }
+            showToast('success', 'Foto dokumentasi berhasil di-crop!');
+        }
+    } catch (err) {
+        showToast('error', 'Gagal menerapkan crop: ' + err.message);
+    } finally {
+        if (applyBtn) applyBtn.disabled = false;
+    }
+}
+
+function bukaCropUlangCover() {
+    const src = _cachedOriginalCoverDataUrl || document.getElementById('cms-berita-cover-preview')?.src || document.getElementById('cms-berita-cover')?.value?.trim();
+    if (src) {
+        bukaModalCrop(src, 'cover', 16/9);
+    } else {
+        showToast('info', 'Pilih foto cover terlebih dahulu.');
+    }
+}
+
+function hapusFotoCover() {
+    document.getElementById('cms-berita-cover').value = '';
+    const img = document.getElementById('cms-berita-cover-preview');
+    const placeholder = document.getElementById('cms-berita-cover-placeholder');
+    const actions = document.getElementById('cms-berita-cover-actions');
+    const fileInput = document.getElementById('cms-berita-file');
+    if (fileInput) fileInput.value = '';
+    if (img) { img.src = ''; img.classList.add('hidden'); }
+    if (placeholder) placeholder.classList.remove('hidden');
+    if (actions) actions.classList.add('hidden');
+    _cachedOriginalCoverDataUrl = null;
+}
+
+function bukaCropUlangFotoTengah() {
+    const src = _cachedOriginalFotoTengahDataUrl || document.getElementById('foto-tengah-preview-img')?.src;
+    if (src) {
+        bukaModalCrop(src, 'foto-tengah', NaN);
+    }
+}
+
+// Upload file cover lokal, buka dialog crop interaktif 16:9
+function handleFileCoverBerita(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
 
-    showToast('info', 'Mengompres foto cover 16:9...');
-    try {
-        const compressed = await kompresGambarClientSide(file, 1280, 0.85);
-        const img = document.getElementById('cms-berita-cover-preview');
-        const placeholder = document.getElementById('cms-berita-cover-placeholder');
-        if (img) {
-            img.src = compressed.dataUrl;
-            img.classList.remove('hidden');
-        }
-        if (placeholder) placeholder.classList.add('hidden');
-
-        // Unggah otomatis ke Google Drive
-        showToast('info', 'Mengunggah cover ke Google Drive...');
-        const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
-        const res = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-                action: 'UPLOAD_ASSET',
-                files: [{
-                    name: ('cover_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
-                    key: 'cover_berita_' + Date.now(),
-                    base64: compressed.base64,
-                    mimeType: compressed.mimeType
-                }]
-            })
-        });
-
-        const json = await res.json();
-        let coverUrl = '';
-        if (json && json.success && json.assets) {
-            const first = Object.values(json.assets)[0];
-            coverUrl = first.url || ('https://lh3.googleusercontent.com/d/' + first.id);
-        } else if (json && (json.directUrl || json.fileId)) {
-            coverUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
-        }
-
-        if (coverUrl) {
-            document.getElementById('cms-berita-cover').value = coverUrl;
-            showToast('success', `Foto cover berhasil diunggah ke Google Drive (~${compressed.sizeKb} KB)!`);
-        } else {
-            // Fallback preview dataUrl jika server drive tidak mengembalikan URL
-            document.getElementById('cms-berita-cover').value = compressed.dataUrl;
-            showToast('success', 'Foto cover berhasil dimuat & dikompres!');
-        }
-    } catch (err) {
-        showToast('error', 'Gagal memproses cover: ' + err.message);
-    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        _cachedOriginalCoverDataUrl = e.target.result;
+        bukaModalCrop(e.target.result, 'cover', 16/9);
+    };
+    reader.readAsDataURL(file);
 }
 
 // Formatting Toolbar Handler (Bold, Italic, Lists, Align)
@@ -9773,9 +10168,69 @@ function switchTabFotoTengah(mode) {
     }
 }
 
-// Kompresi Gambar Otomatis di Browser via Canvas HTML5 (Maksimal 1280px & ≤ 300 KB)
-function kompresGambarClientSide(file, maxWidth = 1280, quality = 0.85) {
+// Kompresi Gambar Otomatis di Browser via Canvas HTML5 (Mendukung File, Blob, maupun HTMLCanvasElement)
+function kompresGambarClientSide(source, maxWidth = 1280, quality = 0.85) {
     return new Promise((resolve, reject) => {
+        // Jika source adalah HTMLCanvasElement langsung (dari Cropper.js)
+        if (typeof HTMLCanvasElement !== 'undefined' && source instanceof HTMLCanvasElement) {
+            let canvas = source;
+            let w = canvas.width;
+            let h = canvas.height;
+            if (w > maxWidth) {
+                const scaledCanvas = document.createElement('canvas');
+                scaledCanvas.width = maxWidth;
+                scaledCanvas.height = Math.round((h * maxWidth) / w);
+                const ctx = scaledCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+                canvas = scaledCanvas;
+                w = scaledCanvas.width;
+                h = scaledCanvas.height;
+            }
+            let mimeType = 'image/webp';
+            let dataUrl = canvas.toDataURL(mimeType, quality);
+            if (!dataUrl.startsWith('data:image/webp')) {
+                mimeType = 'image/jpeg';
+                dataUrl = canvas.toDataURL(mimeType, quality);
+            }
+            const base64 = dataUrl.split(',')[1];
+            const approxSizeKb = Math.round((base64.length * 3) / 4 / 1024);
+            resolve({ base64, dataUrl, mimeType, width: w, height: h, sizeKb: approxSizeKb });
+            return;
+        }
+
+        // Jika source berupa string dataUrl atau URL
+        if (typeof source === 'string') {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function() {
+                let w = img.width;
+                let h = img.height;
+                if (w > maxWidth) {
+                    h = Math.round((h * maxWidth) / w);
+                    w = maxWidth;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                let mimeType = 'image/webp';
+                let dataUrl = canvas.toDataURL(mimeType, quality);
+                if (!dataUrl.startsWith('data:image/webp')) {
+                    mimeType = 'image/jpeg';
+                    dataUrl = canvas.toDataURL(mimeType, quality);
+                }
+                const base64 = dataUrl.split(',')[1];
+                const approxSizeKb = Math.round((base64.length * 3) / 4 / 1024);
+                resolve({ base64, dataUrl, mimeType, width: w, height: h, sizeKb: approxSizeKb });
+            };
+            img.onerror = () => reject(new Error('Gagal memproses gambar dari sumber string.'));
+            img.src = source;
+            return;
+        }
+
+        // Jika source adalah File atau Blob
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image();
@@ -9793,7 +10248,6 @@ function kompresGambarClientSide(file, maxWidth = 1280, quality = 0.85) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, w, h);
 
-                // Coba WebP terlebih dahulu, fallback ke JPEG
                 let mimeType = 'image/webp';
                 let dataUrl = canvas.toDataURL(mimeType, quality);
                 if (!dataUrl.startsWith('data:image/webp')) {
@@ -9809,39 +10263,20 @@ function kompresGambarClientSide(file, maxWidth = 1280, quality = 0.85) {
             img.src = e.target.result;
         };
         reader.onerror = () => reject(new Error('Gagal membaca file.'));
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(source);
     });
 }
 
-async function handlePilihFotoTengah(event) {
+function handlePilihFotoTengah(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
 
-    const infoEl = document.getElementById('foto-tengah-file-info');
-    if (infoEl) infoEl.textContent = 'Mengompres foto untuk efisiensi naskah...';
-
-    try {
-        const compressed = await kompresGambarClientSide(file, 1280, 0.85);
-        _fotoTengahUploadPayload = {
-            base64: compressed.base64,
-            mimeType: compressed.mimeType,
-            filename: ('berita_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
-            sizeKb: compressed.sizeKb
-        };
-
-        const previewImg = document.getElementById('foto-tengah-preview-img');
-        if (previewImg) previewImg.src = compressed.dataUrl;
-
-        document.getElementById('foto-tengah-dropzone').classList.add('hidden');
-        document.getElementById('foto-tengah-preview-container').classList.remove('hidden');
-
-        if (infoEl) {
-            infoEl.textContent = `Foto siap: ${compressed.width}x${compressed.height} px (~${compressed.sizeKb} KB)`;
-        }
-    } catch (err) {
-        showToast('error', 'Gagal memproses foto: ' + err.message);
-        resetPilihFotoTengah();
-    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        _cachedOriginalFotoTengahDataUrl = e.target.result;
+        bukaModalCrop(e.target.result, 'foto-tengah', NaN);
+    };
+    reader.readAsDataURL(file);
 }
 
 function resetPilihFotoTengah() {
@@ -9972,7 +10407,8 @@ async function submitSisipkanFotoTengah() {
 async function simpanArtikelBerita() {
     const id = document.getElementById('cms-berita-id').value;
     const judul = document.getElementById('cms-berita-judul').value.trim();
-    const kategori = document.getElementById('cms-berita-kategori').value;
+    const kategori = getSelectedKategori();
+    const keywords = document.getElementById('cms-berita-keywords')?.value?.trim() || '';
     const penulis = document.getElementById('cms-berita-penulis').value.trim() || 'Redaksi RMI PCNU Demak';
     const tanggal = document.getElementById('cms-berita-tanggal').value;
     const cover = document.getElementById('cms-berita-cover').value.trim();
@@ -10008,6 +10444,7 @@ async function simpanArtikelBerita() {
         judul: judul,
         slug: finalSlug,
         kategori: kategori,
+        keywords: keywords,
         penulis: penulis,
         tanggal: finalDate,
         published_at: finalDate,
@@ -10045,6 +10482,7 @@ async function simpanArtikelBerita() {
             judul: judul,
             slug: finalSlug,
             kategori: kategori,
+            keywords: keywords,
             penulis: penulis,
             published_at: finalDate,
             tanggal: finalDate,

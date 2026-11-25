@@ -3080,6 +3080,20 @@ function renderBeritaDetailPage(idOrSlug) {
             </div>
             ` : ''}
 
+            <!-- KEYWORDS / TAGS SEO GOOGLE -->
+            ${(item.keywords) ? `
+            <div class="flex flex-wrap items-center gap-2 mb-8 pt-2">
+                <span class="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mr-1">
+                    <span class="material-symbols-outlined text-[16px] text-emerald-700">sell</span> Kata Kunci SEO:
+                </span>
+                ${item.keywords.split(',').map(kw => kw.trim()).filter(Boolean).map(kw => `
+                    <span class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 rounded-full border border-slate-200/80 transition-colors">
+                        #${escapeHTML(kw)}
+                    </span>
+                `).join('')}
+            </div>
+            ` : ''}
+
             <!-- SHARE BAR: Tombol Bagikan Khusus dengan Warna Solid & Jelas -->
             <div class="bg-slate-50 rounded-2xl border border-slate-200/80 p-5 sm:p-6 mb-8">
                 <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
