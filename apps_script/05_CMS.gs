@@ -604,9 +604,18 @@ function handleSaveBerita(payload) {
       sheet.setFrozenRows(1);
     }
 
+    // Jika payload berupa array list data (Batch Sync dari CMS)
+    if (payload && (Array.isArray(payload.data) || Array.isArray(payload))) {
+      const items = Array.isArray(payload.data) ? payload.data : payload;
+      return handleSyncBatchBerita(sheet, items, headers);
+    }
+
+    const item = (payload && payload.berita) ? payload.berita : payload;
+    if (!item) return { success: false, error: 'Data berita tidak boleh kosong.' };
+
     const now = new Date().toISOString();
     const data = sheet.getDataRange().getValues();
-    let id = payload.id;
+    let id = item.id;
     let rowIndex = -1;
 
     if (id) {
@@ -620,21 +629,22 @@ function handleSaveBerita(payload) {
       id = 'BRT-' + Utilities.formatDate(new Date(), 'GMT+7', 'yyyy') + '-' + Utilities.formatString('%03d', data.length);
     }
 
+    const isFeatured = (item.is_featured === true || item.is_featured === 'true' || item.isFeatured === true);
     const rowData = [
       id,
-      payload.judul || 'Tanpa Judul',
-      payload.slug || '',
-      payload.kategori || 'Warta Organisasi',
-      payload.ringkasan || '',
-      payload.isi_lengkap || '',
-      payload.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
-      payload.penulis || 'Tim Media RMI NU Demak',
-      payload.sumber_media || 'Media Online',
-      payload.url_sumber || '',
-      payload.is_featured === true,
-      payload.status || 'published',
-      payload.published_at || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
-      Number(payload.views_count) || 0,
+      item.judul || 'Tanpa Judul',
+      item.slug || '',
+      item.kategori || 'Warta Organisasi',
+      item.ringkasan || '',
+      item.isi_lengkap || item.isi || '',
+      item.cover_image_url || item.cover || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+      item.penulis || 'Redaksi RMI PCNU Demak',
+      item.sumber_media || 'Media Online',
+      item.url_sumber || '',
+      isFeatured,
+      item.status || (isFeatured ? 'Sorotan Utama' : 'Terbit'),
+      item.published_at || item.tanggal || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
+      Number(item.views_count) || 0,
       now
     ];
 
@@ -646,11 +656,93 @@ function handleSaveBerita(payload) {
 
     return {
       success: true,
-      message: 'Berita "' + payload.judul + '" berhasil disimpan!',
-      id: id
+      message: 'Berita "' + (item.judul || id) + '" berhasil disimpan di database!',
+      id: id,
+      berita: {
+        id: id,
+        judul: rowData[1],
+        kategori: rowData[3],
+        cover_image_url: rowData[6],
+        published_at: rowData[12]
+      }
     };
   } catch (err) {
-    return { success: false, error: err.message };
+    return { success: false, error: 'Gagal menyimpan berita: ' + err.message };
+  }
+}
+
+// Sinkronisasi Batch Berita (Replace/Merge)
+function handleSyncBatchBerita(sheet, items, headers) {
+  try {
+    const now = new Date().toISOString();
+    const rows = items.map(function(item, idx) {
+      const isFeatured = (item.is_featured === true || item.is_featured === 'true' || item.isFeatured === true);
+      const id = item.id || ('BRT-' + Utilities.formatDate(new Date(), 'GMT+7', 'yyyy') + '-' + Utilities.formatString('%03d', idx + 1));
+      return [
+        id,
+        item.judul || 'Tanpa Judul',
+        item.slug || '',
+        item.kategori || 'Warta Organisasi',
+        item.ringkasan || '',
+        item.isi_lengkap || item.isi || '',
+        item.cover_image_url || item.cover || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+        item.penulis || 'Redaksi RMI PCNU Demak',
+        item.sumber_media || 'Media Online',
+        item.url_sumber || '',
+        isFeatured,
+        item.status || (isFeatured ? 'Sorotan Utama' : 'Terbit'),
+        item.published_at || item.tanggal || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
+        Number(item.views_count) || 0,
+        now
+      ];
+    });
+
+    if (rows.length > 0) {
+      // Hapus data lama (kecuali baris header) lalu tulis data baru
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.getRange(2, 1, lastRow - 1, headers.length).clearContent();
+      }
+      sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+    }
+
+    return {
+      success: true,
+      message: 'Berhasil menyinkronkan ' + rows.length + ' berita ke database!',
+      count: rows.length
+    };
+  } catch (err) {
+    return { success: false, error: 'Gagal sinkronisasi batch berita: ' + err.message };
+  }
+}
+
+// Hapus Berita dari Tab web_berita
+function handleDeleteBerita(payload) {
+  try {
+    const id = payload.id;
+    if (!id) return { success: false, error: 'ID berita yang akan dihapus tidak disertakan.' };
+
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('web_berita');
+    if (!sheet) return { success: false, error: 'Sheet web_berita tidak ditemukan.' };
+
+    const data = sheet.getDataRange().getValues();
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]).toUpperCase() === String(id).toUpperCase()) {
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (rowIndex > 0) {
+      sheet.deleteRow(rowIndex);
+      return { success: true, message: 'Berita ID ' + id + ' berhasil dihapus dari database!' };
+    } else {
+      return { success: false, error: 'Berita ID ' + id + ' tidak ditemukan di database.' };
+    }
+  } catch (err) {
+    return { success: false, error: 'Gagal menghapus berita: ' + err.message };
   }
 }
 

@@ -140,8 +140,12 @@ function doPost(e) {
       result = handleSavePengurusRecord(payload);
     } else if (action === 'DELETE_PENGURUS_RECORD' || action === 'DELETE_PENGURUS') {
       result = handleDeletePengurusRecord(payload);
-    } else if (action === 'SAVE_BERITA' || action === 'SYNC_BERITA') {
+    } else if (action === 'SAVE_BERITA' || action === 'SYNC_BERITA' || action === 'SYNC_WEB_CMS') {
       result = handleSaveBerita(payload);
+    } else if (action === 'DELETE_BERITA') {
+      result = handleDeleteBerita(payload);
+    } else if (action === 'UPLOAD_BERITA_IMAGE' || action === 'UPLOAD_IMAGE') {
+      result = handleUploadBeritaImage(payload);
     } else if (action === 'CLEAN_DUMMY_BERITA') {
       result = handleCleanDummyBerita();
     } else if (action === 'CLEAN_SAMBANG_PHONE_NUMBERS') {

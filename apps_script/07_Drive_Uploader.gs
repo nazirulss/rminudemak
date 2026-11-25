@@ -387,3 +387,38 @@ function handleCleanupOldJpgInLogoFolder() {
   };
 }
 
+// =========================================================================
+// UPLOAD FOTO/GAMBAR BERITA KE GOOGLE DRIVE
+// =========================================================================
+function handleUploadBeritaImage(payload) {
+  try {
+    if (!payload || !payload.base64) {
+      return { success: false, error: 'Data gambar (base64) tidak ditemukan.' };
+    }
+
+    const timestamp = Utilities.formatDate(new Date(), 'GMT+7', 'yyyyMMdd_HHmmss');
+    const safeName = (payload.filename || ('berita_' + timestamp + '.jpg')).replace(/[^a-zA-Z0-9._-]/g, '_');
+    const fileObj = {
+      base64: payload.base64,
+      filename: safeName,
+      mimeType: payload.mimeType || 'image/jpeg'
+    };
+
+    const uploadRes = uploadBase64FileToDrive(fileObj, 'Foto_Berita');
+    if (!uploadRes || !uploadRes.fileId) {
+      return { success: false, error: 'Gagal mengunggah gambar ke Google Drive.' };
+    }
+
+    return {
+      success: true,
+      message: 'Foto berita berhasil diunggah ke Google Drive!',
+      fileId: uploadRes.fileId,
+      url: uploadRes.url,
+      directUrl: uploadRes.directUrl,
+      filename: safeName
+    };
+  } catch (err) {
+    return { success: false, error: 'Kesalahan server unggah foto berita: ' + err.message };
+  }
+}
+

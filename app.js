@@ -2944,6 +2944,32 @@ function openBeritaDetailModal(id) {
     }
 }
 
+function formatIsiBeritaHtml(rawText) {
+    if (!rawText) return '';
+    let text = String(rawText);
+
+    // 1. Bersihkan potensi script berbahaya (Sanitasi XSS)
+    text = text.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    text = text.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+    text = text.replace(/javascript\s*:/gi, '');
+
+    // 2. Dukung konversi Markdown Image: ![caption](url) -> Komponen Foto Responsif
+    text = text.replace(/!\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, function(match, caption, url) {
+        const safeUrl = encodeURI(url);
+        const safeCap = escapeHTML(caption || '');
+        return `\n<div class="my-6 text-center">
+            <img src="${safeUrl}" alt="${safeCap || 'Foto Berita'}" class="rounded-2xl mx-auto shadow-md max-w-full h-auto" />
+            ${safeCap ? `<p class="text-xs text-slate-500 mt-2 italic font-medium">📸 ${safeCap}</p>` : ''}
+        </div>\n`;
+    });
+
+    // 3. Format markdown standar (Bold & Italic)
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/(?<!\*)\*(?!\*)([^\*\n]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+    return text;
+}
+
 function renderBeritaDetailPage(id) {
     const item = allBeritaData.find(b => b.id === id);
     const container = document.getElementById('berita-detail-content');
@@ -2952,7 +2978,7 @@ function renderBeritaDetailPage(id) {
     const safeJudul = escapeHTML(item.judul);
     const safeRingkasan = escapeHTML(item.ringkasan);
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
-    const safeIsi = escapeHTML(item.isi_lengkap || item.ringkasan || '');
+    const formattedIsi = formatIsiBeritaHtml(item.isi_lengkap || item.ringkasan || '');
     const formattedDate = formatTanggalIndonesia(item.published_at);
     const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
     const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
@@ -3004,7 +3030,7 @@ function renderBeritaDetailPage(id) {
 
             <!-- Isi Lengkap Artikel -->
             <div class="max-w-none mb-10 text-slate-800 text-base sm:text-lg leading-relaxed whitespace-pre-line selection:bg-emerald-100">
-                ${safeIsi}
+                ${formattedIsi}
             </div>
 
             <!-- Tombol Baca di Sumber Asli -->

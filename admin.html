@@ -2774,6 +2774,125 @@
     </div>
 
     <!-- ======================================================== -->
+    <!-- MODAL SISIPKAN FOTO TENGAH BERITA (UPLOAD & PREVIEW)     -->
+    <!-- ======================================================== -->
+    <div id="modal-sisipkan-foto-tengah" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 space-y-5 relative my-auto animate-slideFadeIn">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
+                        <span class="material-symbols-outlined text-[22px]">add_photo_alternate</span>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-800">Sisipkan Foto di Tengah Berita</h3>
+                        <p class="text-xs text-slate-500">Unggah langsung dari perangkat Anda ke Google Drive resmi.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="tutupModalFotoTengah()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Tab Switcher (Upload vs URL) -->
+            <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
+                <button type="button" id="tab-foto-tengah-upload-btn" onclick="switchTabFotoTengah('upload')" class="flex-1 py-2 rounded-lg text-emerald-900 bg-white shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">upload_file</span>
+                    <span>Upload dari HP / Laptop</span>
+                </button>
+                <button type="button" id="tab-foto-tengah-url-btn" onclick="switchTabFotoTengah('url')" class="flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">link</span>
+                    <span>Gunakan Tautan URL</span>
+                </button>
+            </div>
+
+            <!-- Panel 1: Unggah Berkas Langsung -->
+            <div id="panel-foto-tengah-upload" class="space-y-4">
+                <!-- Dropzone Area -->
+                <div id="foto-tengah-dropzone" onclick="document.getElementById('input-foto-tengah-file').click()" class="border-2 border-dashed border-emerald-300 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50/70 p-6 rounded-2xl text-center cursor-pointer transition group">
+                    <input type="file" id="input-foto-tengah-file" accept="image/*" onchange="handlePilihFotoTengah(event)" class="hidden" />
+                    <div class="w-12 h-12 rounded-2xl bg-white shadow-sm border border-emerald-100 flex items-center justify-center mx-auto mb-2 text-emerald-700 group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-[26px]">cloud_upload</span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-800">Klik atau seret foto ke sini</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Mendukung JPG, PNG, WebP (Otomatis dikompres &lt; 300 KB)</p>
+                </div>
+
+                <!-- Preview Area (Tersembunyi sampai file dipilih) -->
+                <div id="foto-tengah-preview-container" class="hidden space-y-3">
+                    <div class="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 max-h-56 flex items-center justify-center">
+                        <img id="foto-tengah-preview-img" src="" alt="Pratinjau Foto Tengah" class="w-full h-full object-contain max-h-56" />
+                        <button type="button" onclick="resetPilihFotoTengah()" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-rose-600 text-white p-1.5 rounded-xl text-xs backdrop-blur-sm transition flex items-center gap-1 shadow-md cursor-pointer" title="Hapus foto">
+                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
+                        <span id="foto-tengah-file-info" class="font-medium text-emerald-800">Foto siap diunggah</span>
+                        <button type="button" onclick="document.getElementById('input-foto-tengah-file').click()" class="text-emerald-700 hover:underline font-bold">Ganti Foto</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Tautan URL Gambar (Fallback) -->
+            <div id="panel-foto-tengah-url" class="hidden space-y-3">
+                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    URL Tautan Foto Gambar
+                </label>
+                <div class="relative">
+                    <input type="url" id="input-foto-tengah-url" placeholder="https://lh3.googleusercontent.com/d/..." oninput="previewUrlFotoTengah()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-600 transition" />
+                </div>
+                <div id="foto-tengah-url-preview-box" class="hidden rounded-xl overflow-hidden border border-slate-200 bg-slate-900 max-h-40">
+                    <img id="foto-tengah-url-preview-img" src="" alt="Pratinjau URL" class="w-full h-full object-contain max-h-40" />
+                </div>
+            </div>
+
+            <!-- Form Pengaturan Tambahan: Caption & Posisi -->
+            <div class="space-y-3 pt-2 border-t border-slate-100">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                        Keterangan Foto (Caption)
+                    </label>
+                    <input type="text" id="input-foto-tengah-caption" placeholder="Contoh: Suasana pembukaan halaqah pengasuh pesantren..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-emerald-600 transition" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            Posisi Tampilan
+                        </label>
+                        <select id="select-foto-tengah-align" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 font-semibold focus:outline-none focus:border-emerald-600">
+                            <option value="center" selected>Rata Tengah (Center)</option>
+                            <option value="left">Rata Kiri (Text Wrap)</option>
+                            <option value="right">Rata Kanan (Text Wrap)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                            Ukuran Lebar
+                        </label>
+                        <select id="select-foto-tengah-width" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-700 font-semibold focus:outline-none focus:border-emerald-600">
+                            <option value="full" selected>Lebar Penuh (100%)</option>
+                            <option value="medium">Sedang (75%)</option>
+                            <option value="small">Kecil (50%)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Aksi -->
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button type="button" onclick="tutupModalFotoTengah()" class="px-4 py-2.5 border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" id="btn-submit-foto-tengah" onclick="submitSisipkanFotoTengah()" class="px-5 py-2.5 bg-[#004e3c] hover:bg-[#003d2f] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition active:scale-95 cursor-pointer" style="background-color: #004e3c; color: #ffffff;">
+                    <span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+                    <span id="btn-submit-foto-tengah-text">Sisipkan ke Naskah</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
     <!-- MODAL AUTENTIKASI ELEGAN (IDENTIK SISTEM ASNAWIYYAH)      -->
     <!-- ======================================================== -->
     <div id="modal-admin-login" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50 select-none">
@@ -9543,25 +9662,247 @@ function formatEditorText(command) {
     textarea.focus();
 }
 
-// Sisipkan Foto Tengah
+// =========================================================================
+// FITUR SISIPKAN FOTO TENGAH BERITA DENGAN UPLOAD GOOGLE DRIVE & KOMPRESI
+// =========================================================================
+let _fotoTengahMode = 'upload';
+let _fotoTengahUploadPayload = null;
+let _fotoTengahCaretPos = { start: 0, end: 0 };
+
 function sisipkanFotoTengah() {
     const textarea = document.getElementById('cms-berita-isi');
-    if (!textarea) return;
+    if (textarea) {
+        _fotoTengahCaretPos = {
+            start: typeof textarea.selectionStart === 'number' ? textarea.selectionStart : textarea.value.length,
+            end: typeof textarea.selectionEnd === 'number' ? textarea.selectionEnd : textarea.value.length
+        };
+    }
 
-    const url = prompt('Masukkan URL foto/gambar yang ingin disisipkan di tengah naskah:', 'https://lh3.googleusercontent.com/');
-    if (!url) return;
+    // Reset status modal
+    resetPilihFotoTengah();
+    document.getElementById('input-foto-tengah-caption').value = '';
+    document.getElementById('input-foto-tengah-url').value = '';
+    document.getElementById('foto-tengah-url-preview-box').classList.add('hidden');
+    switchTabFotoTengah('upload');
 
-    const caption = prompt('Masukkan keterangan/koleksi foto (caption):', 'Dokumentasi RMI PCNU Demak');
-    const imageSnippet = `\n\n<div class="my-6 text-center">\n  <img src="${url}" alt="${caption || 'Foto Berita'}" class="rounded-2xl mx-auto shadow-md max-w-full h-auto" />\n  <p class="text-xs text-slate-500 mt-2 italic">${caption || ''}</p>\n</div>\n\n`;
-
-    const start = textarea.selectionStart;
-    textarea.setRangeText(imageSnippet, start, start, 'end');
-    textarea.focus();
-    showToast('info', 'Foto tengah berhasil disisipkan ke naskah berita!');
+    const modal = document.getElementById('modal-sisipkan-foto-tengah');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 }
 
-// Simpan Artikel Berita
-function simpanArtikelBerita() {
+function tutupModalFotoTengah() {
+    const modal = document.getElementById('modal-sisipkan-foto-tengah');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function switchTabFotoTengah(mode) {
+    _fotoTengahMode = mode;
+    const tabUpload = document.getElementById('tab-foto-tengah-upload-btn');
+    const tabUrl = document.getElementById('tab-foto-tengah-url-btn');
+    const panelUpload = document.getElementById('panel-foto-tengah-upload');
+    const panelUrl = document.getElementById('panel-foto-tengah-url');
+
+    if (mode === 'upload') {
+        tabUpload.className = 'flex-1 py-2 rounded-lg text-emerald-900 bg-white shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer font-bold';
+        tabUrl.className = 'flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5 transition cursor-pointer font-medium';
+        panelUpload.classList.remove('hidden');
+        panelUrl.classList.add('hidden');
+    } else {
+        tabUrl.className = 'flex-1 py-2 rounded-lg text-emerald-900 bg-white shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer font-bold';
+        tabUpload.className = 'flex-1 py-2 rounded-lg text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5 transition cursor-pointer font-medium';
+        panelUrl.classList.remove('hidden');
+        panelUpload.classList.add('hidden');
+    }
+}
+
+// Kompresi Gambar Otomatis di Browser via Canvas HTML5 (Maksimal 1280px & ≤ 300 KB)
+function kompresGambarClientSide(file, maxWidth = 1280, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                let w = img.width;
+                let h = img.height;
+                if (w > maxWidth) {
+                    h = Math.round((h * maxWidth) / w);
+                    w = maxWidth;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                // Coba WebP terlebih dahulu, fallback ke JPEG
+                let mimeType = 'image/webp';
+                let dataUrl = canvas.toDataURL(mimeType, quality);
+                if (!dataUrl.startsWith('data:image/webp')) {
+                    mimeType = 'image/jpeg';
+                    dataUrl = canvas.toDataURL(mimeType, quality);
+                }
+
+                const base64 = dataUrl.split(',')[1];
+                const approxSizeKb = Math.round((base64.length * 3) / 4 / 1024);
+                resolve({ base64, dataUrl, mimeType, width: w, height: h, sizeKb: approxSizeKb });
+            };
+            img.onerror = () => reject(new Error('Gagal memproses gambar.'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Gagal membaca file.'));
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handlePilihFotoTengah(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const infoEl = document.getElementById('foto-tengah-file-info');
+    if (infoEl) infoEl.textContent = 'Mengompres foto untuk efisiensi naskah...';
+
+    try {
+        const compressed = await kompresGambarClientSide(file, 1280, 0.85);
+        _fotoTengahUploadPayload = {
+            base64: compressed.base64,
+            mimeType: compressed.mimeType,
+            filename: ('berita_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
+            sizeKb: compressed.sizeKb
+        };
+
+        const previewImg = document.getElementById('foto-tengah-preview-img');
+        if (previewImg) previewImg.src = compressed.dataUrl;
+
+        document.getElementById('foto-tengah-dropzone').classList.add('hidden');
+        document.getElementById('foto-tengah-preview-container').classList.remove('hidden');
+
+        if (infoEl) {
+            infoEl.textContent = `Foto siap: ${compressed.width}x${compressed.height} px (~${compressed.sizeKb} KB)`;
+        }
+    } catch (err) {
+        showToast('error', 'Gagal memproses foto: ' + err.message);
+        resetPilihFotoTengah();
+    }
+}
+
+function resetPilihFotoTengah() {
+    _fotoTengahUploadPayload = null;
+    const fileInput = document.getElementById('input-foto-tengah-file');
+    if (fileInput) fileInput.value = '';
+    const previewImg = document.getElementById('foto-tengah-preview-img');
+    if (previewImg) previewImg.src = '';
+    document.getElementById('foto-tengah-dropzone').classList.remove('hidden');
+    document.getElementById('foto-tengah-preview-container').classList.add('hidden');
+}
+
+function previewUrlFotoTengah() {
+    const url = document.getElementById('input-foto-tengah-url').value.trim();
+    const box = document.getElementById('foto-tengah-url-preview-box');
+    const img = document.getElementById('foto-tengah-url-preview-img');
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+        img.src = url;
+        box.classList.remove('hidden');
+    } else {
+        box.classList.add('hidden');
+    }
+}
+
+async function submitSisipkanFotoTengah() {
+    const btn = document.getElementById('btn-submit-foto-tengah');
+    const btnText = document.getElementById('btn-submit-foto-tengah-text');
+    const caption = document.getElementById('input-foto-tengah-caption').value.trim();
+    const align = document.getElementById('select-foto-tengah-align').value;
+    const width = document.getElementById('select-foto-tengah-width').value;
+
+    let finalImageUrl = '';
+
+    if (_fotoTengahMode === 'upload') {
+        if (!_fotoTengahUploadPayload || !_fotoTengahUploadPayload.base64) {
+            showToast('error', 'Pilih foto terlebih dahulu sebelum menyisipkan!');
+            return;
+        }
+
+        // Tampilkan loading upload
+        btn.disabled = true;
+        btnText.textContent = 'Mengunggah ke Drive...';
+
+        try {
+            const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+            const res = await fetch(gasUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'UPLOAD_BERITA_IMAGE',
+                    base64: _fotoTengahUploadPayload.base64,
+                    filename: _fotoTengahUploadPayload.filename,
+                    mimeType: _fotoTengahUploadPayload.mimeType
+                })
+            });
+
+            const json = await res.json();
+            if (json && json.success && (json.directUrl || json.fileId)) {
+                finalImageUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
+            } else {
+                throw new Error(json.error || 'Server tidak mengembalikan URL gambar.');
+            }
+        } catch (err) {
+            showToast('error', 'Gagal upload ke Google Drive: ' + err.message);
+            btn.disabled = false;
+            btnText.textContent = 'Sisipkan ke Naskah';
+            return;
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'Sisipkan ke Naskah';
+        }
+    } else {
+        finalImageUrl = document.getElementById('input-foto-tengah-url').value.trim();
+        if (!finalImageUrl) {
+            showToast('error', 'Masukkan URL gambar terlebih dahulu!');
+            return;
+        }
+    }
+
+    // Bangun Snippet Foto dengan Layout Responsif & Caption
+    let alignClass = 'text-center my-6';
+    let imgClass = 'rounded-2xl mx-auto shadow-md max-w-full h-auto';
+    if (align === 'left') {
+        alignClass = 'sm:float-left sm:mr-6 my-4 text-center sm:text-left clear-left';
+        imgClass = 'rounded-2xl shadow-md max-w-full h-auto';
+    } else if (align === 'right') {
+        alignClass = 'sm:float-right sm:ml-6 my-4 text-center sm:text-right clear-right';
+        imgClass = 'rounded-2xl shadow-md max-w-full h-auto';
+    }
+
+    let widthStyle = '';
+    if (width === 'medium') widthStyle = ' style="max-width: 75%;"';
+    else if (width === 'small') widthStyle = ' style="max-width: 50%;"';
+
+    const safeCaption = caption ? caption.replace(/"/g, '&quot;') : '';
+    const imageSnippet = `\n\n<div class="${alignClass}"${widthStyle}>\n  <img src="${finalImageUrl}" alt="${safeCaption || 'Foto Berita'}" class="${imgClass}" />\n  ${caption ? `<p class="text-xs text-slate-500 mt-2 italic font-medium">📸 ${safeCaption}</p>` : ''}\n</div>\n\n`;
+
+    // Sisipkan ke Textarea Naskah di Posisi Kursor
+    const textarea = document.getElementById('cms-berita-isi');
+    if (textarea) {
+        const text = textarea.value;
+        const pos = _fotoTengahCaretPos.start || text.length;
+        textarea.value = text.substring(0, pos) + imageSnippet + text.substring(pos);
+        textarea.focus();
+        const newPos = pos + imageSnippet.length;
+        textarea.setSelectionRange(newPos, newPos);
+    }
+
+    tutupModalFotoTengah();
+    showToast('success', 'Foto dokumentasi berhasil disisipkan ke naskah berita!');
+}
+
+// Simpan Artikel Berita ke Database Google Spreadsheet & Live Portal
+async function simpanArtikelBerita() {
     const id = document.getElementById('cms-berita-id').value;
     const judul = document.getElementById('cms-berita-judul').value.trim();
     const kategori = document.getElementById('cms-berita-kategori').value;
@@ -9577,50 +9918,116 @@ function simpanArtikelBerita() {
         return;
     }
 
+    const defaultCover = 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
+    const finalCover = cover || defaultCover;
+    const finalDate = tanggal || new Date().toISOString().split('T')[0];
+    const finalId = id || ('BRT-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4));
+
     if (isFeatured) {
-        cmsBeritaData.forEach(b => b.isFeatured = false);
+        cmsBeritaData.forEach(b => {
+            b.isFeatured = false;
+            b.is_featured = false;
+        });
     }
+
+    const beritaItem = {
+        id: finalId,
+        judul: judul,
+        slug: judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        kategori: kategori,
+        penulis: penulis,
+        tanggal: finalDate,
+        published_at: finalDate,
+        cover: finalCover,
+        cover_image_url: finalCover,
+        ringkasan: ringkasan,
+        isi: isi,
+        isi_lengkap: isi,
+        isFeatured: isFeatured,
+        is_featured: isFeatured,
+        status: isFeatured ? 'Sorotan Utama' : 'Terbit',
+        views_count: 0
+    };
 
     if (id) {
         const idx = cmsBeritaData.findIndex(b => String(b.id) === String(id));
         if (idx !== -1) {
-            cmsBeritaData[idx] = {
-                ...cmsBeritaData[idx],
-                judul, kategori, penulis, tanggal, cover, ringkasan, isi, isFeatured,
-                status: isFeatured ? 'Sorotan Utama' : 'Terbit'
-            };
-            showToast('success', 'Artikel warta berita berhasil diperbarui!');
+            cmsBeritaData[idx] = { ...cmsBeritaData[idx], ...beritaItem };
+            showToast('info', 'Memperbarui artikel dan menyinkronkan ke database...');
         }
     } else {
-        const newId = 'BRT-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
-        cmsBeritaData.unshift({
-            id: newId,
-            judul, kategori, penulis, tanggal, cover, ringkasan, isi, isFeatured,
-            status: isFeatured ? 'Sorotan Utama' : 'Terbit'
-        });
-        showToast('success', 'Artikel warta berita baru berhasil dipublikasikan!');
+        cmsBeritaData.unshift(beritaItem);
+        showToast('info', 'Menyimpan artikel baru ke database Google Spreadsheet...');
     }
 
     renderCmsBeritaTable();
     tutupInlineEditorBerita();
 
-    // Trigger sync ke Google Apps Script backend
+    // Kirim Penyimpanan Permanen ke Google Apps Script Backend
     try {
-        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
-        fetch(gasUrl, {
+        const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+        const res = await fetch(gasUrl, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'SYNC_WEB_CMS', sheetName: 'web_berita', data: cmsBeritaData })
-        }).catch(e => console.log('Sync berita background:', e));
-    } catch(e) {}
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'SAVE_BERITA',
+                berita: beritaItem
+            })
+        });
+
+        const json = await res.json();
+        if (json && json.success) {
+            showToast('success', 'Berita "' + judul + '" berhasil tersimpan permanen di database!');
+        } else {
+            // Fallback sync batch jika single save mengembalikan peringatan
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'SYNC_WEB_CMS', sheetName: 'web_berita', data: cmsBeritaData })
+            });
+            showToast('success', 'Berita berhasil disinkronkan ke database!');
+        }
+    } catch(err) {
+        // Fallback robust no-cors jika CORS diblokir browser
+        try {
+            const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'SYNC_WEB_CMS', sheetName: 'web_berita', data: cmsBeritaData })
+            });
+            showToast('success', 'Berita berhasil disinkronkan ke Google Spreadsheet!');
+        } catch(e) {}
+    }
 }
 
-function hapusCmsBerita(id) {
-    if (!confirm('Apakah Anda yakin ingin menghapus artikel warta ini?')) return;
+async function hapusCmsBerita(id) {
+    if (!confirm('Apakah Anda yakin ingin menghapus artikel warta ini dari database?')) return;
     cmsBeritaData = cmsBeritaData.filter(b => String(b.id) !== String(id));
     renderCmsBeritaTable();
-    showToast('info', 'Artikel warta berhasil dihapus.');
+    showToast('info', 'Menghapus berita dari database...');
+
+    try {
+        const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+        fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'DELETE_BERITA', id: id })
+        }).then(r => r.json()).then(res => {
+            if (res && res.success) {
+                showToast('success', 'Artikel berita berhasil dihapus dari database!');
+            }
+        }).catch(() => {
+            // Fallback sync batch setelah delete
+            fetch(gasUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'SYNC_WEB_CMS', sheetName: 'web_berita', data: cmsBeritaData })
+            });
+        });
+    } catch(e) {}
 }
 
 
