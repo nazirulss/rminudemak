@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard MVP — Pesantren Data Center RMI NU Demak</title>
     
-    <!-- Favicon -->
+    <!-- Favicon & PWA Manifest -->
     <link rel="icon" type="image/png" href="assets/img/logo_rmi.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#005c55" />
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1049,6 +1051,28 @@
                             <button onclick="exportData('rekap_potensi')" class="mt-4 w-full py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5">
                                 <span class="material-symbols-outlined text-[16px]">file_download</span> Unduh Format CSV
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Grafik Analitik Eksekutif (Fase 4 Bagian II) -->
+                    <div id="laporan-charts-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-sm">Distribusi &amp; Verifikasi 14 Kecamatan</h3>
+                                    <p class="text-[11px] text-slate-500">Perbandingan total pesantren terdaftar vs terverifikasi (Data Live)</p>
+                                </div>
+                                <span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-[10px] font-bold border border-emerald-200">14 Wilayah MWC</span>
+                            </div>
+                            <div id="laporan-chart-kecamatan" class="space-y-2.5 max-h-[340px] overflow-y-auto pr-1"></div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-sm">Komposisi Santri &amp; Tipologi Pesantren</h3>
+                                <p class="text-[11px] text-slate-500 mb-4">Proporsi santri mukim vs non-mukim serta klasifikasi lembaga</p>
+                            </div>
+                            <div id="laporan-chart-santri" class="flex-1 flex flex-col justify-center space-y-5"></div>
                         </div>
                     </div>
 
@@ -2164,7 +2188,11 @@
                         </div>
 
                         <!-- Right Actions -->
-                        <div class="flex items-center gap-2 shrink-0">
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            <button type="button" id="btn-sambang-offline-sync" onclick="RmiOfflineQueue.syncAll()" class="hidden items-center gap-1.5 px-3 py-2 rounded-xl text-amber-950 text-xs font-black transition-all shadow-md cursor-pointer animate-pulse" style="background-color: #fde047;">
+                                <span class="material-symbols-outlined text-[16px]">cloud_upload</span>
+                                <span>Antrean Offline (<span id="sambang-offline-count">0</span>)</span>
+                            </button>
                             <a href="undangan.html" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs hover:bg-white/20" style="background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #ffffff;">
                                 <span class="material-symbols-outlined text-[16px] text-amber-300">open_in_new</span>
                                 <span>Web Undangan</span>
@@ -6092,6 +6120,57 @@
             }
         }
 
+        // Helper Kompresi Gambar Client-Side Otomatis (HTML5 Canvas) + Base64 Encoder
+        function compressImageClientSide(file, isLogo = false) {
+            return new Promise((resolve) => {
+                const maxDim = isLogo ? 512 : 1200;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxDim || h > maxDim) {
+                            if (w > h) {
+                                h = Math.round((h * maxDim) / w);
+                                w = maxDim;
+                            } else {
+                                w = Math.round((w * maxDim) / h);
+                                h = maxDim;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+
+                        const outputMime = (file.type === 'image/png' || isLogo) ? 'image/png' : 'image/jpeg';
+                        const quality = outputMime === 'image/jpeg' ? 0.82 : undefined;
+                        const dataUrl = canvas.toDataURL(outputMime, quality);
+                        const base64 = dataUrl.split(',')[1];
+                        const compressedBytes = Math.round((base64.length * 3) / 4);
+
+                        if (file.size > 1024 * 1024 && typeof showToast === 'function') {
+                            const origMB = (file.size / (1024 * 1024)).toFixed(1);
+                            const compKB = Math.round(compressedBytes / 1024);
+                            showToast('info', `Gambar dikompresi otomatis (${origMB} MB → ${compKB} KB) untuk unggahan cepat.`);
+                        }
+
+                        resolve({
+                            filename: file.name,
+                            mimeType: outputMime,
+                            base64: base64
+                        });
+                    };
+                    img.onerror = () => resolve(null);
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(file);
+            });
+        }
+
         // Helper Konversi File Input ke Base64 (untuk Google Drive upload via Apps Script)
         function readFileAsBase64(fileInput) {
             return new Promise((resolve) => {
@@ -6100,6 +6179,24 @@
                     return;
                 }
                 const file = fileInput.files[0];
+                const isLogoInput = (fileInput.id && fileInput.id.toLowerCase().includes('logo'));
+
+                // Kompresi otomatis jika file adalah gambar berukuran > 350 KB atau logo
+                if (file.type && file.type.startsWith('image/') && (file.size > 350 * 1024 || isLogoInput)) {
+                    compressImageClientSide(file, isLogoInput).then(res => {
+                        if (res) {
+                            resolve(res);
+                        } else {
+                            // Fallback ke pembacaan standar bila canvas gagal
+                            const reader = new FileReader();
+                            reader.onload = () => resolve({ filename: file.name, mimeType: file.type, base64: reader.result.split(',')[1] });
+                            reader.onerror = () => resolve(null);
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = () => {
                     resolve({
@@ -6183,6 +6280,7 @@
                     renderDashboardBars(currentDashboardKecamatan);
                     renderPriorityQueue();
                     renderDirektoriTable(PESANTREN_DATA);
+                    renderRekapPreview();
                     renderVerifikasiCards('under_review');
                     populateBukuIndukSelector();
                     loadBukuInduk(PESANTREN_DATA[0].id);
@@ -9005,26 +9103,150 @@
         }
 
         // ==========================================
-        // 13. LAPORAN & EKSPOR
+        // 13. LAPORAN, GRAFIK ANALITIK & EKSPOR
         // ==========================================
+        function renderLaporanCharts(districtRows, totalMukim, totalNonMukim, typologyCounts) {
+            const chartKecEl = document.getElementById('laporan-chart-kecamatan');
+            const chartSantriEl = document.getElementById('laporan-chart-santri');
+
+            if (chartKecEl) {
+                const maxTotal = Math.max(1, ...districtRows.map(r => r.total));
+                chartKecEl.innerHTML = districtRows.map(r => {
+                    const totalPct = Math.round((r.total / maxTotal) * 100);
+                    const verifPct = r.total > 0 ? Math.round((r.verified / r.total) * 100) : 0;
+                    return `
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-bold text-slate-700">${escapeHTML(r.name)}</span>
+                                <span class="font-mono text-slate-500"><strong class="text-emerald-700">${r.verified}</strong> / ${r.total} (${verifPct}%)</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                                <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" style="width: ${totalPct}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            if (chartSantriEl) {
+                const grandTotal = totalMukim + totalNonMukim;
+                const mukimPct = grandTotal > 0 ? Math.round((totalMukim / grandTotal) * 100) : 0;
+                const nonMukimPct = grandTotal > 0 ? 100 - mukimPct : 0;
+                const typologyEntries = Object.entries(typologyCounts).sort((a, b) => b[1] - a[1]);
+                const totalTypo = Math.max(1, typologyEntries.reduce((acc, [, v]) => acc + v, 0));
+
+                chartSantriEl.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                            <span>Rasio Santri Mukim vs Non-Mukim</span>
+                            <span class="font-mono text-emerald-700">${grandTotal.toLocaleString('id-ID')} Total</span>
+                        </div>
+                        <div class="w-full h-4 bg-slate-200 rounded-full overflow-hidden flex">
+                            <div class="h-full bg-emerald-700 transition-all duration-500" style="width: ${mukimPct}%" title="Mukim ${mukimPct}%"></div>
+                            <div class="h-full bg-amber-500 transition-all duration-500" style="width: ${nonMukimPct}%" title="Non-Mukim ${nonMukimPct}%"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-semibold">
+                            <span class="flex items-center gap-1.5 text-emerald-800"><span class="w-2.5 h-2.5 rounded-full bg-emerald-700"></span> Mukim: ${totalMukim.toLocaleString('id-ID')} (${mukimPct}%)</span>
+                            <span class="flex items-center gap-1.5 text-amber-800"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Kalong: ${totalNonMukim.toLocaleString('id-ID')} (${nonMukimPct}%)</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Klasifikasi Tipologi</h4>
+                        ${typologyEntries.map(([label, val]) => {
+                            const pct = Math.round((val / totalTypo) * 100);
+                            return `
+                                <div class="flex items-center gap-3 text-xs">
+                                    <span class="w-28 truncate font-semibold text-slate-600">${escapeHTML(label)}</span>
+                                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-teal-600 rounded-full" style="width: ${pct}%"></div>
+                                    </div>
+                                    <span class="w-12 text-right font-mono font-bold text-slate-700">${val}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+        }
+
         function renderRekapPreview() {
             const tbody = document.getElementById('rekap-preview-tbody');
             if (!tbody) return;
 
-            let rows = '';
-            DEMAK_DISTRICTS.forEach(d => {
-                rows += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="py-2.5 px-4 font-bold text-slate-800 text-xs">${d.name}</td>
-                        <td class="py-2.5 px-4 text-center font-semibold text-xs">${d.count}</td>
-                        <td class="py-2.5 px-4 text-center text-xs text-emerald-700 font-semibold">${Math.round(d.count * 0.72)}</td>
-                        <td class="py-2.5 px-4 text-center text-xs text-blue-700 font-semibold">${Math.round(d.count * 0.65)}</td>
-                        <td class="py-2.5 px-4 text-center text-xs">${(d.count * 115).toLocaleString()}</td>
-                        <td class="py-2.5 px-4 text-center text-xs">${(d.count * 45).toLocaleString()}</td>
-                    </tr>
-                `;
+            const useLive = Array.isArray(PESANTREN_DATA) && PESANTREN_DATA.length > 0;
+            let totalMukimAll = 0;
+            let totalNonMukimAll = 0;
+            const typologyCounts = {};
+
+            const districtRows = DEMAK_DISTRICTS.map(d => {
+                if (!useLive) {
+                    const m = d.count * 115;
+                    const nm = d.count * 45;
+                    totalMukimAll += m;
+                    totalNonMukimAll += nm;
+                    return {
+                        name: d.name,
+                        total: d.count,
+                        verified: Math.round(d.count * 0.72),
+                        nspp: Math.round(d.count * 0.65),
+                        mukim: m,
+                        nonMukim: nm
+                    };
+                }
+
+                const normD = normalizeAdminKecamatanName(d.name).toLowerCase();
+                const items = PESANTREN_DATA.filter(p => normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase() === normD);
+                let verified = 0;
+                let nspp = 0;
+                let mukim = 0;
+                let nonMukim = 0;
+
+                items.forEach(p => {
+                    if (p.status_verifikasi === 'verified') verified++;
+                    if (p.nspp && String(p.nspp).trim() !== '') nspp++;
+                    const sm = parseInt(String(p.santri_mukim || '0').replace(/[^\d]/g, ''), 10) || 0;
+                    const snm = parseInt(String(p.santri_nonmukim || '0').replace(/[^\d]/g, ''), 10) || 0;
+                    mukim += sm;
+                    nonMukim += snm;
+                });
+
+                totalMukimAll += mukim;
+                totalNonMukimAll += nonMukim;
+
+                return {
+                    name: d.name,
+                    total: items.length,
+                    verified,
+                    nspp,
+                    mukim,
+                    nonMukim
+                };
             });
-            tbody.innerHTML = rows;
+
+            if (useLive) {
+                PESANTREN_DATA.forEach(p => {
+                    const k = String(p.klasifikasi || 'SALAF').trim().toUpperCase();
+                    typologyCounts[k] = (typologyCounts[k] || 0) + 1;
+                });
+            } else {
+                typologyCounts['SALAF'] = 180;
+                typologyCounts['TAHFIDZ'] = 65;
+                typologyCounts['KOMBINASI'] = 48;
+            }
+
+            tbody.innerHTML = districtRows.map(r => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 px-4 font-bold text-slate-800 text-xs">${escapeHTML(r.name)}</td>
+                    <td class="py-2.5 px-4 text-center font-semibold text-xs">${r.total}</td>
+                    <td class="py-2.5 px-4 text-center text-xs text-emerald-700 font-semibold">${r.verified}</td>
+                    <td class="py-2.5 px-4 text-center text-xs text-blue-700 font-semibold">${r.nspp}</td>
+                    <td class="py-2.5 px-4 text-center text-xs">${r.mukim.toLocaleString('id-ID')}</td>
+                    <td class="py-2.5 px-4 text-center text-xs">${r.nonMukim.toLocaleString('id-ID')}</td>
+                </tr>
+            `).join('');
+
+            renderLaporanCharts(districtRows, totalMukimAll, totalNonMukimAll, typologyCounts);
         }
 
         function exportData(type) {
@@ -11588,12 +11810,141 @@ function submitManualCheckin() {
     input.value = '';
 }
 
+// Antrean Offline IndexedDB untuk Presensi Meja Tamu (Fase 3 Bagian II)
+const RmiOfflineQueue = {
+    DB_NAME: 'rmi_sambang_offline_db',
+    STORE_NAME: 'checkin_queue',
+    FALLBACK_KEY: 'rmi_sambang_offline_fallback',
+
+    _openDB() {
+        return new Promise((resolve, reject) => {
+            if (!window.indexedDB) return reject(new Error('IndexedDB unavailable'));
+            const req = indexedDB.open(this.DB_NAME, 1);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+                    db.createObjectStore(this.STORE_NAME, { keyPath: 'localId', autoIncrement: true });
+                }
+            };
+            req.onsuccess = (e) => resolve(e.target.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    },
+
+    async enqueue(delegateId, petugas) {
+        const record = { delegate_id: delegateId, petugas, queued_at: new Date().toISOString() };
+        try {
+            const db = await this._openDB();
+            await new Promise((res, rej) => {
+                const tx = db.transaction(this.STORE_NAME, 'readwrite');
+                tx.objectStore(this.STORE_NAME).add(record);
+                tx.oncomplete = () => res();
+                tx.onerror = (e) => rej(e.target.error);
+            });
+        } catch (e) {
+            const list = JSON.parse(localStorage.getItem(this.FALLBACK_KEY) || '[]');
+            record.localId = Date.now();
+            list.push(record);
+            localStorage.setItem(this.FALLBACK_KEY, JSON.stringify(list));
+        }
+        await this.updateBadge();
+    },
+
+    async getAll() {
+        try {
+            const db = await this._openDB();
+            return await new Promise((res, rej) => {
+                const tx = db.transaction(this.STORE_NAME, 'readonly');
+                const req = tx.objectStore(this.STORE_NAME).getAll();
+                req.onsuccess = () => res(req.result || []);
+                req.onerror = (e) => rej(e.target.error);
+            });
+        } catch (e) {
+            return JSON.parse(localStorage.getItem(this.FALLBACK_KEY) || '[]');
+        }
+    },
+
+    async remove(localId) {
+        try {
+            const db = await this._openDB();
+            await new Promise((res, rej) => {
+                const tx = db.transaction(this.STORE_NAME, 'readwrite');
+                tx.objectStore(this.STORE_NAME).delete(localId);
+                tx.oncomplete = () => res();
+                tx.onerror = (e) => rej(e.target.error);
+            });
+        } catch (e) {
+            const list = JSON.parse(localStorage.getItem(this.FALLBACK_KEY) || '[]').filter(x => x.localId !== localId);
+            localStorage.setItem(this.FALLBACK_KEY, JSON.stringify(list));
+        }
+    },
+
+    async updateBadge() {
+        const items = await this.getAll();
+        const btn = document.getElementById('btn-sambang-offline-sync');
+        const countEl = document.getElementById('sambang-offline-count');
+        if (countEl) countEl.innerText = items.length;
+        if (btn) {
+            if (items.length > 0) {
+                btn.classList.remove('hidden');
+                btn.classList.add('inline-flex');
+            } else {
+                btn.classList.add('hidden');
+                btn.classList.remove('inline-flex');
+            }
+        }
+    },
+
+    async syncAll() {
+        const items = await this.getAll();
+        if (!items.length) return;
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
+        let synced = 0;
+        for (const item of items) {
+            try {
+                const res = await fetch(gasUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'SCAN_CHECKIN_SAMBANG',
+                        delegate_id: item.delegate_id,
+                        petugas: item.petugas
+                    })
+                });
+                const json = await res.json();
+                if (json) {
+                    await this.remove(item.localId);
+                    synced++;
+                }
+            } catch (e) {
+                break; // Masih offline, hentikan loop sementara
+            }
+        }
+        await this.updateBadge();
+        if (synced > 0) {
+            showToast('success', `${synced} antrean presensi offline berhasil disinkronkan ke Cloud.`);
+            if (typeof loadSambangAdminData === 'function') loadSambangAdminData(false);
+        }
+    }
+};
+
+window.addEventListener('online', () => RmiOfflineQueue.syncAll());
+document.addEventListener('DOMContentLoaded', () => RmiOfflineQueue.updateBadge());
+
 // Eksekusi API Check-In ke Apps Script
 async function processCheckinApi(rawInput) {
     const petugasName = CURRENT_AUTH_USER?.nama_lengkap || CURRENT_AUTH_USER?.nama || 'Petugas Meja Tamu';
     
     // Tampilkan loading di result card
     displayScanLoading(rawInput);
+
+    if (!navigator.onLine) {
+        await RmiOfflineQueue.enqueue(rawInput, petugasName);
+        playScanAudio('warning');
+        displayScanResultError(`Mode Offline: ID ${rawInput} masuk antrean lokal & akan disinkronkan saat online.`);
+        showToast('warning', `Offline: ID ${rawInput} disimpan di antrean lokal.`);
+        return;
+    }
 
     try {
         const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
@@ -11651,10 +12002,11 @@ async function processCheckinApi(rawInput) {
             showToast('error', result.error || 'ID tidak terdaftar.');
         }
     } catch (err) {
-        console.error('Error processCheckinApi:', err);
-        playScanAudio('error');
-        displayScanResultError('Koneksi server terganggu: ' + err.message);
-        showToast('error', 'Gagal memproses check-in. Periksa jaringan.');
+        console.error('Error processCheckinApi (saving to offline queue):', err);
+        await RmiOfflineQueue.enqueue(rawInput, petugasName);
+        playScanAudio('warning');
+        displayScanResultError(`Jaringan terputus: ID ${rawInput} disimpan ke antrean lokal untuk sinkronisasi otomatis.`);
+        showToast('warning', `Jaringan terputus. ID ${rawInput} masuk antrean offline.`);
     }
 }
 

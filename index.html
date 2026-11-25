@@ -22,6 +22,10 @@
 
     <link rel="apple-touch-icon" href="assets/img/logo_rmi.png" />
 
+    <link rel="manifest" href="manifest.json" />
+
+    <meta name="theme-color" content="#005c55" />
+
     <!-- Preload Critical LCP Hero Image (Sub-300ms Hero Paint) -->
     <link rel="preload" as="image" href="assets/img/hero_slide_1.webp" type="image/webp" fetchpriority="high" />
 
@@ -1304,9 +1308,33 @@
                         </div>
                     </div>
 
-                    <!-- KONTEN BAGAN POHON ORGANOGRAM (RESPONSIF MOBILE & DESKTOP) -->
-                    <div class="relative w-full max-w-5xl mx-auto pb-6 px-1 sm:px-4">
-                        <div id="organogram-tree-container" class="w-full space-y-6 sm:space-y-10">
+                    <!-- TOOLBAR KONTROL ZOOM-PAN ORGANOGRAM -->
+                    <div class="max-w-5xl mx-auto mb-4 px-1 sm:px-4 flex flex-wrap items-center justify-between gap-3">
+                        <div class="inline-flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl p-1 shadow-xs">
+                            <button type="button" onclick="zoomOrganogram(-0.15)" title="Perkecil Bagan"
+                                class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-700 transition cursor-pointer flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[18px]">zoom_out</span>
+                            </button>
+                            <span id="organogram-zoom-label" class="px-2 text-xs font-mono font-bold text-slate-700 min-w-[48px] text-center">100%</span>
+                            <button type="button" onclick="zoomOrganogram(0.15)" title="Perbesar Bagan"
+                                class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-700 transition cursor-pointer flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[18px]">zoom_in</span>
+                            </button>
+                            <button type="button" onclick="resetOrganogramView()" title="Reset Tampilan"
+                                class="px-2.5 py-1 rounded-lg hover:bg-slate-100 text-xs font-bold text-emerald-700 transition cursor-pointer">
+                                Reset
+                            </button>
+                        </div>
+                        <button type="button" onclick="window.print()"
+                            class="px-3.5 py-2 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition cursor-pointer">
+                            <span class="material-symbols-outlined text-[16px]">print</span>
+                            <span>Cetak Bagan</span>
+                        </button>
+                    </div>
+
+                    <!-- KONTEN BAGAN POHON ORGANOGRAM (RESPONSIF MOBILE & DESKTOP + ZOOM-PAN) -->
+                    <div id="organogram-viewport" class="relative w-full max-w-5xl mx-auto pb-6 px-2 sm:px-6 pt-4 overflow-hidden rounded-3xl border border-slate-200/70 bg-slate-50/40 cursor-grab active:cursor-grabbing select-none">
+                        <div id="organogram-tree-container" class="w-full space-y-6 sm:space-y-10 transition-transform duration-150 origin-top-center">
 
                             <!-- LEVEL 0: DEWAN PELINDUNG & PENASIHAT (PCNU DEMAK) -->
                             <div class="relative flex flex-col items-center">
@@ -1763,38 +1791,52 @@
                 </div>
 
                 <div
-                    class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row gap-4 mb-10">
+                    class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3 mb-10">
+                    <div class="flex flex-col lg:flex-row gap-4">
+                        <div class="flex-1 relative">
+                            <span
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+                            <input id="search-nama"
+                                class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-primary focus:bg-white transition-all"
+                                placeholder="Cari nama lembaga atau nama pengasuh..." type="text" />
+                        </div>
 
-                    <div class="flex-1 relative">
+                        <select id="filter-kecamatan"
+                            class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-on-surface-variant font-medium">
+                            <option value="">Semua Kecamatan (14)</option>
+                        </select>
 
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant">search</span>
+                        <select id="filter-kategori"
+                            class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-on-surface-variant font-medium">
+                            <option value="">Klasifikasi (Semua)</option>
+                            <option value="SALAF">SALAF (Kitab Kuning)</option>
+                            <option value="TAHFIDZ">TAHFIDZ (Al-Qur'an)</option>
+                            <option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option>
+                            <option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option>
+                            <option value="MODERN">MODERN (Sistem Modern)</option>
+                        </select>
 
-                        <input id="search-nama"
-                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-primary focus:bg-white transition-all"
-                            placeholder="Cari nama lembaga atau nama pengasuh..." type="text" />
-
+                        <button id="btn-search"
+                            class="bg-primary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer">Cari
+                            Data</button>
                     </div>
 
-                    <select id="filter-kecamatan"
-                        class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-on-surface-variant font-medium">
-                        <option value="">Semua Kecamatan (14)</option>
-                    </select>
-
-                    <select id="filter-kategori"
-                        class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-on-surface-variant font-medium">
-                        <option value="">Klasifikasi (Semua)</option>
-                        <option value="SALAF">SALAF (Kitab Kuning)</option>
-                        <option value="TAHFIDZ">TAHFIDZ (Al-Qur'an)</option>
-                        <option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option>
-                        <option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option>
-                        <option value="MODERN">MODERN (Sistem Modern)</option>
-                    </select>
-
-                    <button id="btn-search"
-                        class="bg-primary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors">Cari
-                        Data</button>
-
+                    <!-- Baris Filter Favorit & Bagikan ke WhatsApp -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" id="btn-filter-favorites" onclick="toggleFavoriteFilter()"
+                                class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+                                <span class="material-symbols-outlined text-[15px] text-rose-500">favorite</span>
+                                <span>Favorit Saya (<span id="fav-count-badge">0</span>)</span>
+                            </button>
+                            <button type="button" id="btn-share-favorites" onclick="shareFavoritesViaWhatsApp()"
+                                class="hidden px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold items-center gap-1.5 transition cursor-pointer">
+                                <span class="material-symbols-outlined text-[15px]">share</span>
+                                <span>Bagikan Pilihan ke WhatsApp</span>
+                            </button>
+                        </div>
+                        <span class="text-[11px] text-slate-400">Klik ikon hati pada kartu untuk menyimpan daftar pondok pilihan.</span>
+                    </div>
                 </div>
 
                 <div id="grid-pesantren"
@@ -4006,110 +4048,140 @@
         </div>
         <!-- ========================================================================= -->
 
-        <div id="page-berita" class="page-section">
+        <div id="page-berita" class="page-section bg-[#f8fafc] min-h-screen">
 
-            <section class="py-12 px-6 md:px-16 max-w-[1280px] mx-auto">
+            <!-- 1. TOP BAR ISLAMI KHAS NU ONLINE (Tanggal Hijriah & Masehi, Jadwal Shalat Demak, Ticker) -->
+            <div class="bg-white border-b border-slate-200/90 shadow-2xs">
+                <div class="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs">
+                    <!-- Tanggal Masehi & Hijriah -->
+                    <div id="berita-datetime-display" class="flex items-center gap-2 text-slate-600 font-medium flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/60">
+                            <span class="material-symbols-outlined text-[15px] text-emerald-700">calendar_month</span>
+                            <span id="berita-hijri-date">16 Jumadil Ula 1448 H</span>
+                        </span>
+                        <span class="text-slate-400 hidden sm:inline">•</span>
+                        <span id="berita-masehi-date" class="text-slate-700 font-semibold">Kamis, 26 November 2026</span>
+                    </div>
 
-                <div class="mb-8">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b-2 border-primary/20 pb-4">
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-primary block mb-1">Pusat Publikasi & Media</span>
-                            <h1 class="text-3xl md:text-4xl font-extrabold text-on-surface">Warta & Kabar Pesantren Demak</h1>
+                    <!-- Jadwal Shalat Demak & Status -->
+                    <div class="hidden lg:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+                        <span class="font-bold text-slate-700 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[15px] text-amber-600">mosque</span> Waktu Shalat Demak:
+                        </span>
+                        <span class="hover:text-emerald-700 transition-colors">Subuh 04:02</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="hover:text-emerald-700 transition-colors">Dzuhur 11:38</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="hover:text-emerald-700 transition-colors">Ashar 14:58</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="hover:text-emerald-700 transition-colors font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/50">Maghrib 17:50</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="hover:text-emerald-700 transition-colors">Isya 19:04</span>
+                    </div>
+
+                    <!-- Ticker Warta Kilat / Breaking News -->
+                    <div class="flex items-center gap-2 w-full md:w-auto overflow-hidden">
+                        <span class="bg-[#008444] text-white font-extrabold uppercase text-[10px] px-2.5 py-1 rounded tracking-wider flex-shrink-0 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> WARTA KILAT
+                        </span>
+                        <div id="berita-ticker-container" class="overflow-hidden whitespace-nowrap text-slate-700 font-medium text-xs flex-1 md:max-w-xs lg:max-w-sm truncate">
+                            <!-- Diisi oleh app.js -->
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. BRANDING KANAL WARTA & SEARCH -->
+            <div class="bg-white border-b border-slate-200">
+                <div class="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-12 py-5 sm:py-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <img src="assets/img/logo_rmi.png" alt="Logo RMI PCNU Demak" class="w-12 h-12 object-contain flex-shrink-0" onerror="this.style.display='none'">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">WARTA PESANTREN</h1>
+                                    <span class="hidden sm:inline-block px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full uppercase tracking-wider">KOTA WALI</span>
+                                </div>
+                                <p class="text-xs sm:text-sm text-slate-500 font-medium">Portal Berita Resmi & Khazanah Intelektual PC RMI NU Kabupaten Demak</p>
+                            </div>
+                        </div>
+
+                        <!-- Search Bar Khusus Berita -->
                         <div class="relative w-full md:w-80">
                             <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-                            <input type="text" id="berita-search-input" oninput="handleBeritaSearch(this.value)" placeholder="Cari berita atau media..." class="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary shadow-xs transition-all">
+                            <input type="text" id="berita-search-input" oninput="handleBeritaSearch(this.value)" placeholder="Cari warta, topik, kiai, atau keyword..." class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#008444] shadow-2xs transition-all">
                         </div>
                     </div>
 
-                    <div id="berita-category-filters" class="flex overflow-x-auto gap-2.5 pb-2 scrollbar-hide">
+                    <!-- KANAL RUBRIK FILTER PILLS (Ala Tab NU Online) -->
+                    <div class="mt-5 pt-3 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide" id="berita-category-filters">
                         <!-- Diisi otomatis oleh app.js -->
                     </div>
                 </div>
+            </div>
 
-                <!-- Featured Grid Dinamis -->
-                <div id="berita-page-featured" class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
-                    <!-- Diisi otomatis oleh app.js -->
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- 3. MAIN EDITORIAL CONTENT GRID (Asimetris 8 Kolom : 4 Kolom) -->
+            <section class="py-8 md:py-10 px-4 sm:px-6 md:px-12 max-w-[1280px] mx-auto">
+                
+                <!-- Headline Area Dinamis (1 Headline 16:9 + 3 Sub-headline + 1 Sidebar Terpopuler) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                    <!-- Kolom Kiri: Editorial Hero (Headline Utama + 3 Sub-Headline) -->
                     <div class="lg:col-span-8 flex flex-col gap-6">
-                        <div class="flex items-center justify-between border-b-2 border-primary/20 pb-2">
-                            <h3 id="berita-list-heading" class="text-xl font-bold text-on-surface">Semua Liputan Berita</h3>
-                            <span id="berita-count-badge" class="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">16 Berita</span>
+                        <!-- Headline Utama (16:9) -->
+                        <div id="berita-page-featured">
+                            <!-- Diisi oleh app.js -->
                         </div>
-                        <div id="berita-page-list" class="flex flex-col gap-6">
-                            <!-- Diisi otomatis oleh app.js -->
+
+                        <!-- 3 Sub-Headline Berdampingan -->
+                        <div id="berita-sub-featured-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Diisi oleh app.js -->
                         </div>
                     </div>
 
-                    <aside class="lg:col-span-4 space-y-10">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2 border-b border-slate-100 pb-3">
-                                <span class="material-symbols-outlined text-primary">local_fire_department</span>
-                                Terpopuler & Pilihan
-                            </h3>
-                            <div id="berita-page-trending" class="space-y-6">
+                    <!-- Kolom Kanan: Sidebar Khas NU Online (Terpopuler 1-5 & Khazanah) -->
+                    <aside class="lg:col-span-4 space-y-6">
+                        <!-- Widget Terpopuler 1-5 dengan Angka Bold Khas NU Online -->
+                        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                    TERPOPULER
+                                </h3>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">RMI DEMAK</span>
+                            </div>
+                            <div id="berita-page-trending" class="space-y-4">
                                 <!-- Diisi otomatis oleh app.js -->
                             </div>
                         </div>
 
-                        <div class="bg-primary text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
-                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                            <h3 class="text-xl font-bold mb-2 relative z-10">Warta Media RMI Demak</h3>
-                            <p class="text-xs text-white/80 mb-5 relative z-10 leading-relaxed">Arsip liputan resmi kegiatan pesantren dan madrasah diniyah dari berbagai media nasional dan regional Jawa Tengah.</p>
-                            <a href="#berita" onclick="filterBeritaCategory('Semua')" class="relative z-10 inline-flex items-center gap-2 bg-secondary text-slate-900 font-bold px-4 py-2.5 rounded-xl text-xs hover:bg-white transition-colors shadow-sm">
-                                <span class="material-symbols-outlined text-[16px]">newspaper</span>
-                                Lihat Semua Arsip
-                            </a>
-                        </div>
-
-                        <div class="bg-surface-container-low p-6 rounded-2xl border border-slate-100">
-
-                            <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
-
-                                <span class="material-symbols-outlined text-tertiary">menu_book</span> Kolom Kajian
-
-                            </h3>
-
-                            <div class="space-y-4">
-
-                                <div class="border-b border-slate-200 pb-3 group cursor-pointer" onclick="handleBeritaSearch('kitab')">
-
-                                    <span
-                                        class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-1 block">FIQIH
-                                        KONTEMPORER</span>
-
-                                    <h5
-                                        class="text-sm font-bold text-on-surface leading-snug group-hover:text-primary transition-colors">
-                                        Hukum Transaksi Paylater dalam Tinjauan Kitab Salaf</h5>
-
-                                    <p class="text-[11px] text-on-surface-variant mt-1">Oleh: KH. Ahmad Badhawi</p>
-
-                                </div>
-
-                                <div class="border-b border-slate-200 pb-3 group cursor-pointer" onclick="handleBeritaSearch('digital')">
-
-                                    <span
-                                        class="text-[10px] font-bold text-tertiary uppercase tracking-wider mb-1 block">MANAJEMEN</span>
-
-                                    <h5
-                                        class="text-sm font-bold text-on-surface leading-snug group-hover:text-primary transition-colors">
-                                        Transparansi Keuangan Pesantren Berbasis Digitalisasi</h5>
-
-                                    <p class="text-[11px] text-on-surface-variant mt-1">Oleh: LBM PCNU Demak</p>
-
-                                </div>
-
+                        <!-- Widget Khazanah Pesantren & Sambang Masyayikh -->
+                        <div class="bg-gradient-to-br from-[#005c55] to-[#003831] text-white p-6 rounded-2xl shadow-md relative overflow-hidden">
+                            <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                            <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">
+                                <span class="material-symbols-outlined text-[18px]">verified</span> Khazanah Santri
                             </div>
-
-                            <button type="button" onclick="filterBeritaCategory('Pendidikan & Madin')" class="w-full text-center text-xs font-bold text-primary hover:underline mt-2 cursor-pointer">Lihat
-                                Semua Kajian</button>
-
+                            <h4 class="text-lg font-bold mb-2 leading-snug">Sambang Pesantren & Direktori Satu Data</h4>
+                            <p class="text-xs text-white/80 leading-relaxed mb-4">Informasi terpadu direktori pesantren, madrasah diniyah, dan hasil halaqah masyayikh se-Kabupaten Demak.</p>
+                            <button type="button" onclick="navigateTo('direktori')" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs transition-colors shadow-sm cursor-pointer">
+                                <span class="material-symbols-outlined text-[16px]">menu_book</span> Jelajahi Direktori
+                            </button>
                         </div>
-
                     </aside>
+                </div>
 
+                <!-- 4. SECTION ARSIP WARTA TERBARU & DAFTAR LENGKAP -->
+                <div class="border-t-2 border-emerald-800/20 pt-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 block mb-0.5">ARSIP WARTA</span>
+                            <h3 id="berita-list-heading" class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Kabar Pesantren Terkini</h3>
+                        </div>
+                        <span id="berita-count-badge" class="self-start sm:self-auto text-xs font-bold text-emerald-900 bg-emerald-100 px-3.5 py-1.5 rounded-full border border-emerald-200">16 Berita</span>
+                    </div>
+
+                    <div id="berita-page-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Diisi otomatis oleh app.js -->
+                    </div>
                 </div>
 
             </section>

@@ -1068,9 +1068,117 @@ function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs
 
 // Merender daftar lembaga ke masing-masing grid
 // ==========================================
+// FASE 1: ORGANOGRAM ZOOM-PAN CONTROLLER
+// ==========================================
+let organogramScale = 1;
+let organogramPanX = 0;
+let organogramPanY = 0;
+
+function applyOrganogramTransform() {
+    const tree = document.getElementById('organogram-tree-container');
+    const label = document.getElementById('organogram-zoom-label');
+    if (tree) {
+        tree.style.transform = `translate(${organogramPanX}px, ${organogramPanY}px) scale(${organogramScale})`;
+    }
+    if (label) {
+        label.innerText = `${Math.round(organogramScale * 100)}%`;
+    }
+}
+
+function zoomOrganogram(delta) {
+    organogramScale = Math.min(1.75, Math.max(0.55, +(organogramScale + delta).toFixed(2)));
+    applyOrganogramTransform();
+}
+
+function resetOrganogramView() {
+    organogramScale = 1;
+    organogramPanX = 0;
+    organogramPanY = 0;
+    applyOrganogramTransform();
+}
+
+window.zoomOrganogram = zoomOrganogram;
+window.resetOrganogramView = resetOrganogramView;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const viewport = document.getElementById('organogram-viewport');
+    if (!viewport) return;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    viewport.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('[onclick]') || e.target.closest('button')) return;
+        isDragging = true;
+        startX = e.clientX - organogramPanX;
+        startY = e.clientY - organogramPanY;
+    });
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        organogramPanX = e.clientX - startX;
+        organogramPanY = e.clientY - startY;
+        applyOrganogramTransform();
+    });
+    window.addEventListener('pointerup', () => {
+        isDragging = false;
+    });
+});
+
+// ==========================================
 // HELPER FAVORIT (WISHLIST) & STANDAR KARTU PESANTREN.NU.ID
 // ==========================================
 const RMI_FAVORITES_KEY = 'rmi_user_favorites';
+let isFavoriteFilterActive = false;
+
+function updateFavoriteCountBadge() {
+    const favs = getPesantrenFavorites();
+    const badge = document.getElementById('fav-count-badge');
+    const shareBtn = document.getElementById('btn-share-favorites');
+    if (badge) badge.innerText = favs.length;
+    if (shareBtn) {
+        if (favs.length > 0) {
+            shareBtn.classList.remove('hidden');
+            shareBtn.classList.add('inline-flex');
+        } else {
+            shareBtn.classList.add('hidden');
+            shareBtn.classList.remove('inline-flex');
+        }
+    }
+}
+
+function toggleFavoriteFilter() {
+    isFavoriteFilterActive = !isFavoriteFilterActive;
+    const btn = document.getElementById('btn-filter-favorites');
+    if (btn) {
+        if (isFavoriteFilterActive) {
+            btn.className = 'px-3.5 py-1.5 rounded-xl bg-rose-600 text-white border border-rose-600 text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer';
+            const ic = btn.querySelector('.material-symbols-outlined');
+            if (ic) ic.classList.replace('text-rose-500', 'text-white');
+        } else {
+            btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer';
+            const ic = btn.querySelector('.material-symbols-outlined');
+            if (ic) ic.classList.replace('text-white', 'text-rose-500');
+        }
+    }
+    applyLembagaFilter();
+}
+
+function shareFavoritesViaWhatsApp() {
+    const favIds = getPesantrenFavorites();
+    if (!favIds.length) return;
+    const favItems = (allLembagaData || []).filter(item => favIds.includes(String(item.id)));
+    if (!favItems.length) return;
+
+    let lines = favItems.slice(0, 15).map((p, idx) =>
+        `${idx + 1}. *${p.nama}* (Kec. ${p.kecamatan || 'Demak'}) — Pengasuh: ${p.pengasuh_atau_kepala || '-'}`
+    );
+    const text = `*DAFTAR PONDOK PESANTREN PILIHAN (RMI PCNU DEMAK)*\n\n${lines.join('\n')}\n\nLihat direktori lengkap di:\n👉 https://rminudemak.org/#pesantren`;
+    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+}
+
+window.toggleFavoriteFilter = toggleFavoriteFilter;
+window.shareFavoritesViaWhatsApp = shareFavoritesViaWhatsApp;
+window.updateFavoriteCountBadge = updateFavoriteCountBadge;
 
 function getPesantrenFavorites() {
     try {
@@ -1113,6 +1221,8 @@ function togglePesantrenFavorite(event, pesantrenId) {
             }
         }
     });
+    updateFavoriteCountBadge();
+    if (isFavoriteFilterActive) applyLembagaFilter();
 }
 window.togglePesantrenFavorite = togglePesantrenFavorite;
 
@@ -1359,8 +1469,10 @@ function applyLembagaFilter() {
     const kategoriValue = kategoriSelect ? kategoriSelect.value : '';
 
     const normalizedFilterKec = normalizeKecamatanName(kecamatanValue);
+    const favIds = isFavoriteFilterActive ? getPesantrenFavorites() : null;
 
     const filtered = allLembagaData.filter(item => {
+        const matchFav = !isFavoriteFilterActive || (favIds && favIds.includes(String(item.id)));
         const matchKeyword = !keyword ||
             (item.nama && item.nama.toLowerCase().includes(keyword)) ||
             (item.pengasuh_atau_kepala && item.pengasuh_atau_kepala.toLowerCase().includes(keyword));
@@ -1375,7 +1487,7 @@ function applyLembagaFilter() {
             String(item.klasifikasi || '').toUpperCase() === String(kategoriValue).toUpperCase() ||
             String(item.kategori_atau_metode || '').toLowerCase().includes(String(kategoriValue).toLowerCase());
 
-        return matchKeyword && matchKecamatan && matchKategori;
+        return matchFav && matchKeyword && matchKecamatan && matchKategori;
     });
 
     renderLembagaCards(filtered);
@@ -2936,26 +3048,101 @@ function renderBeritaBeranda() {
     }
 }
 
+// Helper Penanggalan Masehi & Hijriah Islami Otomatis Khas NU Online
+function getIslamicAndMasehiDate() {
+    const now = new Date();
+    const masehiDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const masehiMonths = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const masehiStr = `${masehiDays[now.getDay()]}, ${now.getDate()} ${masehiMonths[now.getMonth()]} ${now.getFullYear()}`;
+    
+    let hijriStr = '';
+    try {
+        const hf = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        hijriStr = hf.format(now);
+    } catch (e) {
+        hijriStr = '16 Jumadilakhir 1448 H';
+    }
+    return { masehi: masehiStr, hijri: hijriStr };
+}
+
+// State & Fungsi Kontrol Ukuran Teks Naskah Berita (A- / A / A+)
+let currentArticleFontSize = 'normal';
+function setArticleFontSize(size) {
+    currentArticleFontSize = size;
+    const bodyEl = document.getElementById('berita-article-body');
+    const btns = document.querySelectorAll('.font-size-btn');
+    if (!bodyEl) return;
+
+    bodyEl.classList.remove('text-base', 'text-lg', 'text-xl', 'text-2xl', 'leading-relaxed', 'leading-loose');
+    if (size === 'small') {
+        bodyEl.classList.add('text-base', 'leading-relaxed');
+    } else if (size === 'large') {
+        bodyEl.classList.add('text-xl', 'leading-loose');
+    } else if (size === 'xl') {
+        bodyEl.classList.add('text-2xl', 'leading-loose');
+    } else {
+        bodyEl.classList.add('text-lg', 'leading-relaxed');
+    }
+
+    btns.forEach(b => {
+        if (b.dataset.size === size) {
+            b.className = 'font-size-btn px-2.5 py-1 text-xs font-bold bg-[#008444] text-white rounded-md shadow-xs transition-colors cursor-pointer';
+        } else {
+            b.className = 'font-size-btn px-2.5 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md transition-colors cursor-pointer';
+        }
+    });
+}
+window.setArticleFontSize = setArticleFontSize;
+
 function renderBeritaFullPage() {
     if (!allBeritaData || allBeritaData.length === 0) return;
 
-    // Filter Kategori Dinamis (Preset + Kategori Kustom Database)
+    // 1. Update Tanggal Islami & Masehi di Top Bar
+    const dates = getIslamicAndMasehiDate();
+    const hijriEl = document.getElementById('berita-hijri-date');
+    const masehiEl = document.getElementById('berita-masehi-date');
+    if (hijriEl) hijriEl.textContent = dates.hijri;
+    if (masehiEl) masehiEl.textContent = dates.masehi;
+
+    // 2. Ticker Warta Kilat / Breaking News
+    const tickerContainer = document.getElementById('berita-ticker-container');
+    if (tickerContainer) {
+        const headlines = allBeritaData.slice(0, 5);
+        tickerContainer.innerHTML = `
+            <div class="flex items-center gap-6 overflow-hidden">
+                ${headlines.map(t => `
+                    <span class="inline-flex items-center gap-2 cursor-pointer hover:text-emerald-800 transition-colors" onclick="openBeritaDetailModal('${t.slug || t.id}')">
+                        <span class="text-amber-500 font-bold">•</span>
+                        <span class="truncate max-w-xs md:max-w-sm">${escapeHTML(t.judul)}</span>
+                    </span>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // 3. Filter Kategori Dinamis Khas NU Online (Pills Berborder Halus)
     const categoryContainer = document.getElementById('berita-category-filters');
     if (categoryContainer) {
-        const defaultPreset = ['Pesantren Ramah Anak', 'Pendidikan & Madin', 'Ekonomi & Kemandirian', 'Warta Organisasi'];
+        const defaultPreset = ['Sambang & Organisasi', 'Pesantren Ramah Anak', 'Pendidikan & Madin', 'Advokasi & Kebijakan', 'Ekonomi & Kemandirian'];
         const existingCats = Array.isArray(allBeritaData) 
             ? allBeritaData.map(b => b.kategori).filter(Boolean)
             : [];
-        const categories = ['Semua', ...new Set([...defaultPreset, ...existingCats])];
+        const categories = ['Semua Warta', ...new Set([...defaultPreset, ...existingCats])];
 
         categoryContainer.innerHTML = categories.map(cat => {
-            const isActive = activeBeritaCategory === cat;
+            const isAll = (cat === 'Semua Warta' && (activeBeritaCategory === 'Semua' || activeBeritaCategory === 'Semua Warta'));
+            const isActive = isAll || activeBeritaCategory === cat;
+            const targetCat = (cat === 'Semua Warta') ? 'Semua' : cat;
             return `
-                <button type="button" onclick="filterBeritaCategory('${cat}')"
-                    class="whitespace-nowrap px-5 py-2 rounded-full font-bold text-xs transition-all shadow-xs cursor-pointer border ${
+                <button type="button" onclick="filterBeritaCategory('${targetCat}')"
+                    class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold text-xs transition-all shadow-2xs cursor-pointer border ${
                         isActive
-                            ? 'bg-primary text-white border-primary shadow-sm'
-                            : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+                            ? 'bg-[#008444] text-white border-[#008444] shadow-xs'
+                            : 'bg-slate-50 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border-slate-200'
                     }">
                     ${cat}
                 </button>
@@ -2963,9 +3150,9 @@ function renderBeritaFullPage() {
         }).join('');
     }
 
-    // Filter Data Berdasarkan Kategori & Pencarian (Mendukung Judul, Ringkasan, Kategori, Keyword SEO & Penulis)
+    // 4. Filter Data Berdasarkan Kategori & Pencarian
     let filtered = allBeritaData.filter(item => {
-        const matchCategory = activeBeritaCategory === 'Semua' || (item.kategori || '') === activeBeritaCategory;
+        const matchCategory = activeBeritaCategory === 'Semua' || activeBeritaCategory === 'Semua Warta' || (item.kategori || '') === activeBeritaCategory;
         const query = beritaSearchQuery.toLowerCase().trim();
         const matchSearch = !query || 
             (item.judul || '').toLowerCase().includes(query) || 
@@ -2983,79 +3170,146 @@ function renderBeritaFullPage() {
         countBadge.innerText = `${filtered.length} Berita`;
     }
 
-    // Featured di Halaman Berita (Top 1 atau 2)
+    // 5. Featured Headline Utama 16:9 Editorial Khas NU Online
     const pageFeaturedContainer = document.getElementById('berita-page-featured');
-    if (pageFeaturedContainer) {
-        if (filtered.length > 0) {
-            const f1 = filtered[0];
-            const safeJudul = escapeHTML(f1.judul);
-            const safeMedia = escapeHTML(f1.sumber_media || 'Media Online');
-            const formattedDate = formatTanggalIndonesia(f1.published_at);
+    const subFeaturedGrid = document.getElementById('berita-sub-featured-grid');
 
-            pageFeaturedContainer.innerHTML = `
-                <div class="lg:col-span-8 relative group rounded-2xl overflow-hidden shadow-lg h-[380px] md:h-[450px] cursor-pointer"
-                    onclick="openBeritaDetailModal('${f1.slug || f1.id}')">
+    if (pageFeaturedContainer && filtered.length > 0) {
+        const f1 = filtered[0];
+        const safeJudul = escapeHTML(f1.judul);
+        const safeMedia = escapeHTML(f1.sumber_media || 'Media Online');
+        const safeRingkasan = escapeHTML(f1.ringkasan || '');
+        const formattedDate = formatTanggalIndonesia(f1.published_at);
+        const viewsCount = f1.views_count ? (f1.views_count >= 1000 ? (f1.views_count / 1000).toFixed(1) + 'k' : f1.views_count) : '1.2k';
+
+        pageFeaturedContainer.innerHTML = `
+            <div class="group bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
+                onclick="openBeritaDetailModal('${f1.slug || f1.id}')">
+                <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
                     <img src="${f1.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
                         alt="${safeJudul}"
-                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 w-full p-6 md:p-8 flex flex-col justify-end text-white">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="bg-primary/95 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider">${escapeHTML(f1.kategori || 'Warta')}</span>
-                            <span class="bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">${safeMedia}</span>
-                        </div>
-                        <h2 class="text-xl md:text-3xl font-bold leading-tight mb-3 group-hover:text-secondary-container transition-colors drop-shadow-md">
-                            ${safeJudul}
-                        </h2>
-                        <div class="flex items-center gap-4 text-xs font-medium text-white/80">
-                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
-                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${f1.views_count || 1200} Views</span>
-                        </div>
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                    <div class="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+                        <span class="bg-[#008444] text-white text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                            ${escapeHTML(f1.kategori || 'Warta')}
+                        </span>
+                        <span class="bg-amber-400 text-slate-950 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm">
+                            ${safeMedia}
+                        </span>
+                    </div>
+                    <div class="absolute bottom-3 left-4 right-4 text-white text-xs flex items-center justify-between font-medium">
+                        <span class="flex items-center gap-1.5 opacity-90"><span class="material-symbols-outlined text-[15px]">calendar_today</span> ${formattedDate}</span>
+                        <span class="flex items-center gap-1.5 opacity-90"><span class="material-symbols-outlined text-[15px]">visibility</span> ${viewsCount} Views</span>
                     </div>
                 </div>
+                <div class="p-6 md:p-7">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-[#008444] transition-colors">
+                        ${safeJudul}
+                    </h2>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed line-clamp-2 mb-4 font-normal">
+                        ${safeRingkasan}
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs">
+                        <span class="text-slate-500 font-semibold flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-[#008444]">edit_note</span> Redaksi: ${escapeHTML(f1.penulis || 'Tim Media RMI')}
+                        </span>
+                        <span class="text-[#008444] font-bold inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            Baca Naskah Lengkap &rarr;
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
 
-                <div class="lg:col-span-4 flex flex-col gap-5">
-                    ${(filtered.slice(1, 3)).map(sub => {
-                        const subJudul = escapeHTML(sub.judul);
-                        const subMedia = escapeHTML(sub.sumber_media || 'Media');
-                        return `
-                            <div class="relative group rounded-2xl overflow-hidden shadow-md h-[180px] md:h-[215px] cursor-pointer"
-                                onclick="openBeritaDetailModal('${sub.slug || sub.id}')">
-                                <img src="${sub.cover_image_url || 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58'}"
+        // 3 Sub-Headline Berdampingan
+        if (subFeaturedGrid) {
+            const subHeadlines = filtered.slice(1, 4);
+            if (subHeadlines.length > 0) {
+                subFeaturedGrid.innerHTML = subHeadlines.map(sub => {
+                    const subJudul = escapeHTML(sub.judul);
+                    const subMedia = escapeHTML(sub.sumber_media || 'Media');
+                    const subDate = formatTanggalIndonesia(sub.published_at);
+                    return `
+                        <div class="group bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+                            onclick="openBeritaDetailModal('${sub.slug || sub.id}')">
+                            <div class="aspect-video w-full overflow-hidden bg-slate-900 relative">
+                                <img src="${sub.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
                                     alt="${subJudul}"
-                                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
-                                <div class="absolute bottom-0 left-0 w-full p-4 text-white">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-secondary-container text-[10px] font-bold uppercase tracking-wider drop-shadow-md">${escapeHTML(sub.kategori || 'Warta')}</span>
-                                        <span class="text-amber-300 text-[10px] font-bold">${subMedia}</span>
-                                    </div>
-                                    <h3 class="text-sm md:text-base font-bold leading-snug group-hover:text-primary-container transition-colors line-clamp-2">
-                                        ${subJudul}
-                                    </h3>
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <span class="absolute top-2 left-2 bg-[#008444] text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                    ${escapeHTML(sub.kategori || 'Warta')}
+                                </span>
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col justify-between">
+                                <h3 class="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2 mb-3">
+                                    ${subJudul}
+                                </h3>
+                                <div class="flex items-center justify-between text-[10px] text-slate-500 font-medium pt-2 border-t border-slate-100">
+                                    <span>${subDate}</span>
+                                    <span class="text-amber-800 font-semibold">${subMedia}</span>
                                 </div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        } else {
-            pageFeaturedContainer.innerHTML = '';
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                subFeaturedGrid.innerHTML = '';
+            }
         }
+    } else if (pageFeaturedContainer) {
+        pageFeaturedContainer.innerHTML = '';
+        if (subFeaturedGrid) subFeaturedGrid.innerHTML = '';
     }
 
-    // List Berita Lengkap
+    // 6. Sidebar Terpopuler Ranking 1–5 Berbobot Khas NU Online
+    const trendingContainer = document.getElementById('berita-page-trending');
+    if (trendingContainer) {
+        const sortedByViews = [...allBeritaData].sort((a, b) => Number(b.views_count || 0) - Number(a.views_count || 0)).slice(0, 5);
+        trendingContainer.innerHTML = sortedByViews.map((item, idx) => {
+            const safeJudul = escapeHTML(item.judul);
+            const safeMedia = escapeHTML(item.sumber_media || 'Media');
+            const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
+            const rankBadgeClass = idx === 0 ? 'bg-amber-400 text-slate-950 font-black' : 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold';
+
+            return `
+                <div class="flex items-start gap-3.5 group cursor-pointer py-2 border-b border-slate-100 last:border-b-0"
+                    onclick="openBeritaDetailModal('${item.slug || item.id}')">
+                    <span class="w-7 h-7 rounded-lg ${rankBadgeClass} flex items-center justify-center text-sm flex-shrink-0 shadow-2xs">
+                        ${idx + 1}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 text-[10px] text-slate-400 mb-0.5">
+                            <span class="text-[#008444] font-bold uppercase">${escapeHTML(item.kategori || 'Warta')}</span>
+                            <span>•</span>
+                            <span>${safeMedia}</span>
+                        </div>
+                        <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2">
+                            ${safeJudul}
+                        </h4>
+                        <span class="text-[10px] text-slate-400 font-medium mt-1 block">${viewsText} Views</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 7. Arsip Berita Terkini & Daftar Lengkap (Grid 2 Kolom Bersih)
     const pageListContainer = document.getElementById('berita-page-list');
     if (pageListContainer) {
-        if (filtered.length === 0) {
+        const itemsToDisplay = (activeBeritaCategory !== 'Semua' && activeBeritaCategory !== 'Semua Warta') || beritaSearchQuery
+            ? filtered
+            : filtered.slice(4);
+
+        if (itemsToDisplay.length === 0) {
             pageListContainer.innerHTML = `
-                <div class="p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-500">
+                <div class="col-span-full p-8 text-center bg-white rounded-2xl border border-slate-200 text-slate-500">
                     <span class="material-symbols-outlined text-4xl text-slate-400 mb-2">newspaper</span>
                     <p class="font-bold">Tidak ada berita yang sesuai dengan filter atau kata kunci pencarian.</p>
                 </div>
             `;
         } else {
-            pageListContainer.innerHTML = filtered.map(item => {
+            pageListContainer.innerHTML = itemsToDisplay.map(item => {
                 const safeJudul = escapeHTML(item.judul);
                 const safeRingkasan = escapeHTML(item.ringkasan);
                 const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
@@ -3063,32 +3317,29 @@ function renderBeritaFullPage() {
                 const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '750';
 
                 return `
-                    <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer"
+                    <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 cursor-pointer"
                         onclick="openBeritaDetailModal('${item.slug || item.id}')">
-                        <div class="sm:w-2/5 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
+                        <div class="sm:w-2/5 h-48 sm:h-auto relative overflow-hidden flex-shrink-0 bg-slate-900">
                             <img src="${item.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
                                 alt="${safeJudul}"
                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         </div>
-                        <div class="sm:w-3/5 p-6 flex flex-col justify-between">
+                        <div class="sm:w-3/5 p-5 flex flex-col justify-between">
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-primary text-[10px] font-bold uppercase tracking-wider">${escapeHTML(item.kategori || 'Warta')}</span>
+                                    <span class="text-[#008444] text-[10px] font-bold uppercase tracking-wider">${escapeHTML(item.kategori || 'Warta')}</span>
                                     <span class="text-slate-300">•</span>
-                                    <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${safeMedia}</span>
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${safeMedia}</span>
                                 </div>
-                                <h4 class="text-base md:text-lg font-bold text-on-surface mb-2 leading-snug group-hover:text-primary transition-colors">
+                                <h4 class="text-sm sm:text-base font-bold text-slate-900 mb-2 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2">
                                     ${safeJudul}
                                 </h4>
-                                <p class="text-xs md:text-sm text-on-surface-variant line-clamp-2 mb-4 leading-relaxed">
+                                <p class="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
                                     ${safeRingkasan}
                                 </p>
                             </div>
-                            <div class="flex items-center justify-between text-[11px] font-medium text-on-surface-variant pt-2 border-t border-slate-100">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
-                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${viewsCount} Views</span>
-                                </div>
+                            <div class="flex items-center justify-between text-[11px] font-medium text-slate-400 pt-2 border-t border-slate-100">
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span> ${formattedDate}</span>
                                 <button type="button"
                                     onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.slug || item.id}')"
                                     class="w-7 h-7 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
@@ -3101,30 +3352,6 @@ function renderBeritaFullPage() {
                 `;
             }).join('');
         }
-    }
-
-    // Trending Sidebar (Urutkan dari view terbanyak)
-    const trendingContainer = document.getElementById('berita-page-trending');
-    if (trendingContainer) {
-        const sortedByViews = [...allBeritaData].sort((a, b) => Number(b.views_count || 0) - Number(a.views_count || 0)).slice(0, 4);
-        trendingContainer.innerHTML = sortedByViews.map((item, idx) => {
-            const safeJudul = escapeHTML(item.judul);
-            const safeMedia = escapeHTML(item.sumber_media || 'Media');
-            const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
-
-            return `
-                <div class="relative flex items-center gap-4 group cursor-pointer" onclick="openBeritaDetailModal('${item.slug || item.id}')">
-                    <span class="text-5xl font-black text-slate-100 absolute -left-1 top-1/2 -translate-y-1/2 -z-10 group-hover:text-primary/15 transition-colors">${idx + 1}</span>
-                    <div class="pl-6 relative z-10">
-                        <div class="text-[10px] text-amber-800 font-bold mb-0.5">${safeMedia}</div>
-                        <h5 class="text-xs md:text-sm font-bold leading-snug text-slate-800 group-hover:text-primary transition-colors line-clamp-2">
-                            ${safeJudul}
-                        </h5>
-                        <span class="text-[10px] text-on-surface-variant font-medium mt-1 block">${viewsText} Views</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 }
 
@@ -3269,155 +3496,288 @@ function renderBeritaDetailPage(idOrSlug) {
     document.title = `${item.judul} — RMI PCNU Kabupaten Demak`;
     const safeRingkasan = escapeHTML(item.ringkasan);
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
-    const formattedIsi = formatIsiBeritaHtml(item.isi_lengkap || item.ringkasan || '');
     const formattedDate = formatTanggalIndonesia(item.published_at);
+    const dates = getIslamicAndMasehiDate();
     const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
     const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
 
-    // Ambil 3 berita terkait (sesama kategori, bukan dirinya sendiri)
-    const relatedNews = allBeritaData.filter(b => b.id !== item.id && b.kategori === item.kategori).slice(0, 3);
-    const otherRelated = relatedNews.length < 3 
-        ? allBeritaData.filter(b => b.id !== item.id && !relatedNews.find(r => r.id === b.id)).slice(0, 3 - relatedNews.length)
+    // Berita terkait & rekomendasi bacaan
+    const relatedNews = allBeritaData.filter(b => b.id !== item.id && b.kategori === item.kategori).slice(0, 4);
+    const otherRelated = relatedNews.length < 4 
+        ? allBeritaData.filter(b => b.id !== item.id && !relatedNews.find(r => r.id === b.id)).slice(0, 4 - relatedNews.length)
         : [];
     const allRelated = [...relatedNews, ...otherRelated];
+    const firstRelated = allRelated[0] || null;
+
+    // Format isi berita & sisipkan kotak "Baca Juga"
+    let rawFormattedIsi = formatIsiBeritaHtml(item.isi_lengkap || item.ringkasan || '');
+    if (firstRelated) {
+        const bacaJugaBox = `
+            <div class="my-6 p-4 rounded-xl bg-amber-50/80 border-l-4 border-amber-500 shadow-2xs">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 block mb-1">BACA JUGA:</span>
+                <span class="text-sm sm:text-base font-bold text-slate-900 hover:text-[#008444] transition-colors leading-snug block cursor-pointer"
+                    onclick="openBeritaDetailModal('${firstRelated.slug || firstRelated.id}')">
+                    ${escapeHTML(firstRelated.judul)} &rarr;
+                </span>
+            </div>
+        `;
+        let pCount = 0;
+        let injected = false;
+        rawFormattedIsi = rawFormattedIsi.replace(/<\/p>/gi, (match) => {
+            pCount++;
+            if (pCount === 2 && !injected) {
+                injected = true;
+                return match + bacaJugaBox;
+            }
+            return match;
+        });
+        if (!injected && pCount > 0) {
+            rawFormattedIsi = rawFormattedIsi + bacaJugaBox;
+        }
+    }
+
+    // Terpopuler untuk sidebar naskah
+    const sidebarTrending = [...allBeritaData].sort((a, b) => Number(b.views_count || 0) - Number(a.views_count || 0)).slice(0, 5);
 
     container.innerHTML = `
-        <!-- Breadcrumb Navigasi Kembali -->
-        <div class="mb-6">
-            <button type="button" onclick="navigateTo('berita')" class="inline-flex items-center gap-2 text-sm font-bold text-emerald-800 hover:text-emerald-950 bg-white px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-xs transition-all cursor-pointer group">
-                <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                <span>Kembali ke Halaman Berita</span>
+        <!-- Breadcrumb Navigasi Khas NU Online -->
+        <nav class="mb-6 flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium overflow-x-auto whitespace-nowrap pb-1">
+                <button type="button" onclick="navigateTo('berita')" class="hover:text-emerald-800 font-semibold transition-colors cursor-pointer flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">newspaper</span> Warta
+                </button>
+                <span>&rsaquo;</span>
+                <span class="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">${escapeHTML(item.kategori || 'Warta')}</span>
+                <span class="hidden md:inline">&rsaquo;</span>
+                <span class="hidden md:inline text-slate-400 truncate max-w-xs">${safeJudul}</span>
+            </div>
+
+            <button type="button" onclick="navigateTo('berita')" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer group">
+                <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                <span>Kembali ke Warta</span>
             </button>
-        </div>
+        </nav>
 
-        <!-- ARTICLE LAYOUT: Full-width modern magazine with Clean White Container -->
-        <article class="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/80 mb-12">
-            <!-- Cover Image Hero -->
-            <div class="relative rounded-2xl overflow-hidden mb-8 shadow-md aspect-video max-h-[480px] bg-slate-900">
-                <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" onerror="this.src='https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-                <div class="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
-                    <span class="bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow-md">${escapeHTML(item.kategori || 'Warta')}</span>
-                    <span class="bg-amber-400 text-slate-900 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-md">${safeMedia}</span>
-                </div>
-            </div>
-
-            <!-- Judul & Meta -->
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-4">${safeJudul}</h1>
+        <!-- LAYOUT 2 KOLOM (8 Kolom Naskah Utama + 4 Kolom Sidebar Khas Media Berita) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
             
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-slate-500 font-medium mb-6 pb-6 border-b border-slate-100">
-                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-emerald-700">calendar_today</span> ${formattedDate}</span>
-                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-emerald-700">person</span> ${escapeHTML(item.penulis || 'Tim Media RMI NU Demak')}</span>
-                <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px] text-emerald-700">visibility</span> ${viewsCount} Views</span>
-            </div>
-
-            <!-- Ringkasan / Lead -->
-            <div class="p-5 sm:p-6 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-emerald-950 font-medium text-sm sm:text-base leading-relaxed mb-8">
-                <div class="flex items-start gap-3">
-                    <span class="material-symbols-outlined text-emerald-700 text-[22px] flex-shrink-0 mt-0.5">format_quote</span>
-                    <div>${safeRingkasan}</div>
-                </div>
-            </div>
-
-            <!-- Isi Lengkap Artikel -->
-            <div class="max-w-none mb-10 text-slate-800 text-base sm:text-lg leading-relaxed selection:bg-emerald-100 article-content">
-                ${formattedIsi}
-            </div>
-
-            <!-- Tombol Baca di Sumber Asli -->
-            ${item.url_sumber ? `
-            <div class="flex flex-wrap gap-3 mb-8">
-                <a href="${escapeHTML(item.url_sumber)}" target="_blank" rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95">
-                    <span class="material-symbols-outlined text-[20px]">open_in_new</span>
-                    Baca Selengkapnya di ${safeMedia}
-                </a>
-            </div>
-            ` : ''}
-
-            <!-- KEYWORDS / TAGS SEO GOOGLE -->
-            ${(item.keywords) ? `
-            <div class="flex flex-wrap items-center gap-2 mb-8 pt-2">
-                <span class="text-xs font-bold text-slate-500 uppercase flex items-center gap-1 mr-1">
-                    <span class="material-symbols-outlined text-[16px] text-emerald-700">sell</span> Kata Kunci SEO:
-                </span>
-                ${item.keywords.split(',').map(kw => kw.trim()).filter(Boolean).map(kw => `
-                    <span class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 rounded-full border border-slate-200/80 transition-colors">
-                        #${escapeHTML(kw)}
+            <!-- KOLOM KIRI: NASKAH LENGKAP ARTIKEL -->
+            <article class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 shadow-xs border border-slate-200/90">
+                
+                <!-- 1. Kategori & Tanggal Islami -->
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="bg-[#008444] text-white text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider shadow-2xs">
+                        ${escapeHTML(item.kategori || 'Warta')}
                     </span>
-                `).join('')}
-            </div>
-            ` : ''}
-
-            <!-- SHARE BAR: Tombol Bagikan Khusus dengan Warna Solid & Jelas -->
-            <div class="bg-slate-50 rounded-2xl border border-slate-200/80 p-5 sm:p-6 mb-8">
-                <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[20px] text-emerald-700">share</span>
-                    Bagikan Berita Ini ke Media Sosial
-                </h4>
-                <div class="flex flex-wrap gap-3">
-                    <button type="button" onclick="shareBeritaWhatsApp('${item.slug || item.id}')"
-                        class="flex items-center gap-2.5 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
-                        style="background-color: #25D366;">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                        <span>Kirim via WhatsApp</span>
-                    </button>
-                    <button type="button" onclick="salinLinkBerita('${item.slug || item.id}')"
-                        class="flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl shadow-sm border border-slate-200 active:scale-95 transition-all cursor-pointer">
-                        <span class="material-symbols-outlined text-[20px]">content_copy</span>
-                        <span>Salin Tautan</span>
-                    </button>
-                    <button type="button" onclick="shareBeritaFacebook('${item.slug || item.id}')"
-                        class="flex items-center gap-2 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
-                        style="background-color: #1877F2;">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        <span>Facebook</span>
-                    </button>
-                    <button type="button" onclick="shareBeritaTelegram('${item.slug || item.id}')"
-                        class="flex items-center gap-2 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
-                        style="background-color: #229ED9;">
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                        <span>Telegram</span>
-                    </button>
+                    <span class="bg-amber-400 text-slate-950 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-2xs">
+                        ${safeMedia}
+                    </span>
+                    <span class="text-slate-400 hidden sm:inline">•</span>
+                    <span class="text-xs text-slate-500 font-medium hidden sm:inline">${dates.hijri}</span>
                 </div>
-            </div>
 
-            <!-- Berita Terkait -->
-            ${allRelated.length > 0 ? `
-            <div class="border-t border-slate-100 pt-8">
-                <h3 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-emerald-700">recommend</span>
-                    Berita Terkait Lainnya
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    ${allRelated.map(rel => {
-                        const relJudul = escapeHTML(rel.judul);
-                        const relMedia = escapeHTML(rel.sumber_media || 'Media');
-                        const relDate = formatTanggalIndonesia(rel.published_at);
-                        return `
-                        <div class="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300"
-                            onclick="openBeritaDetailModal('${rel.slug || rel.id}')">
-                            <div class="h-40 overflow-hidden relative bg-slate-900">
-                                <img src="${rel.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
-                                    alt="${relJudul}"
-                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            </div>
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-emerald-700 text-[10px] font-bold uppercase tracking-wider">${escapeHTML(rel.kategori || 'Warta')}</span>
-                                    <span class="text-slate-300">•</span>
-                                    <span class="text-amber-700 text-[10px] font-bold">${relMedia}</span>
+                <!-- 2. Judul Utama (Besar & Menonjol) -->
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 leading-tight mb-4 tracking-tight">
+                    ${safeJudul}
+                </h1>
+
+                <!-- 3. Lead / Paragraf Pembuka Ringkas -->
+                ${safeRingkasan ? `
+                <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 border border-emerald-100 text-emerald-950 font-medium text-sm sm:text-base leading-relaxed mb-6">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[#008444] text-[22px] flex-shrink-0 mt-0.5">format_quote</span>
+                        <div class="italic">${safeRingkasan}</div>
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- 4. Meta Bar Penulis, Editor, Tanggal & Pengatur Ukuran Font (A- / A / A+) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500 font-medium py-3.5 mb-6 border-y border-slate-100">
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                        <span class="flex items-center gap-1.5 text-slate-700 font-bold">
+                            <span class="material-symbols-outlined text-[16px] text-[#008444]">person</span>
+                            ${escapeHTML(item.penulis || 'Tim Redaksi RMI PCNU Demak')}
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">calendar_today</span>
+                            ${formattedDate}
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">visibility</span>
+                            ${viewsCount} Views
+                        </span>
+                    </div>
+
+                    <!-- Tombol Pengatur Ukuran Huruf Khas Pembaca Berita Modern -->
+                    <div class="flex items-center gap-1.5 self-start sm:self-auto bg-slate-50 p-1 rounded-lg border border-slate-200/80">
+                        <span class="text-[10px] text-slate-400 font-bold px-1 uppercase tracking-wider">Teks:</span>
+                        <button type="button" data-size="small" onclick="setArticleFontSize('small')" class="font-size-btn px-2 py-0.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors cursor-pointer" title="Perkecil Huruf">A-</button>
+                        <button type="button" data-size="normal" onclick="setArticleFontSize('normal')" class="font-size-btn px-2 py-0.5 text-xs font-bold bg-[#008444] text-white rounded shadow-xs transition-colors cursor-pointer" title="Ukuran Standar">A</button>
+                        <button type="button" data-size="large" onclick="setArticleFontSize('large')" class="font-size-btn px-2 py-0.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors cursor-pointer" title="Perbesar Huruf">A+</button>
+                    </div>
+                </div>
+
+                <!-- 5. Foto Utama 16:9 dengan Caption Resmi di Bawahnya -->
+                <div class="mb-8">
+                    <div class="relative rounded-2xl overflow-hidden shadow-md aspect-video max-h-[460px] bg-slate-900">
+                        <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" onerror="this.src='https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'" />
+                    </div>
+                    <p class="text-xs text-slate-500 italic mt-2.5 px-2 flex items-center justify-between">
+                        <span>📸 Dokumentasi Kegiatan / Liputan Berita</span>
+                        <span class="font-medium text-slate-400">(Dok. Tim Media RMI PCNU Demak)</span>
+                    </p>
+                </div>
+
+                <!-- 6. Badan Naskah Artikel (Dukungan Responsif Font Size) -->
+                <div id="berita-article-body" class="mb-10 text-slate-800 text-lg leading-relaxed selection:bg-emerald-100 article-content">
+                    ${rawFormattedIsi}
+                </div>
+
+                <!-- 7. Tombol Baca di Sumber Asli (Jika Tersedia) -->
+                ${item.url_sumber ? `
+                <div class="mb-8 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-xs text-slate-600">
+                        <span class="font-bold text-slate-800 block">Diterbitkan Pertama Kali di: ${safeMedia}</span>
+                        <span>Klik tombol berikut untuk membuka tautan berita resmi di media rujukan.</span>
+                    </div>
+                    <a href="${escapeHTML(item.url_sumber)}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#008444] hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all flex-shrink-0 cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        Kunjungi Sumber Asli
+                    </a>
+                </div>
+                ` : ''}
+
+                <!-- 8. Tagar / Keyword SEO Google -->
+                ${(item.keywords) ? `
+                <div class="flex flex-wrap items-center gap-2 mb-8 pt-4 border-t border-slate-100">
+                    <span class="text-xs font-bold text-slate-400 uppercase flex items-center gap-1 mr-1">
+                        <span class="material-symbols-outlined text-[15px] text-[#008444]">sell</span> Topik Terkait:
+                    </span>
+                    ${item.keywords.split(',').map(kw => kw.trim()).filter(Boolean).map(kw => `
+                        <span class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 rounded-full border border-slate-200 transition-colors cursor-pointer" onclick="handleBeritaSearch('${escapeHTML(kw)}')">
+                            #${escapeHTML(kw)}
+                        </span>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                <!-- 9. Kotak Redaksi Resmi RMI PCNU Demak -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200/90 mb-8 flex items-center gap-4">
+                    <img src="assets/img/logo_rmi.png" alt="RMI Demak" class="w-12 h-12 object-contain flex-shrink-0" onerror="this.style.display='none'">
+                    <div class="text-xs">
+                        <h4 class="font-bold text-slate-900 text-sm">Tim Redaksi & Media RMI PCNU Demak</h4>
+                        <p class="text-slate-500 leading-relaxed mt-0.5">Warta resmi PC Rabithah Ma'ahid Islamiyah Nahdlatul Ulama Kabupaten Demak, Jawa Tengah.</p>
+                    </div>
+                </div>
+
+                <!-- 10. Social Share Bar -->
+                <div class="bg-emerald-50/50 rounded-2xl border border-emerald-100 p-5 sm:p-6">
+                    <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] text-[#008444]">share</span>
+                        Sebarkan Warta Ini ke Umat & Santri
+                    </h4>
+                    <div class="flex flex-wrap gap-2.5">
+                        <button type="button" onclick="shareBeritaWhatsApp('${item.slug || item.id}')"
+                            class="flex items-center gap-2 px-4 py-2.5 text-white font-bold text-xs rounded-xl shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer"
+                            style="background-color: #25D366;">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            <span>Bagikan ke WhatsApp</span>
+                        </button>
+                        <button type="button" onclick="salinLinkBerita('${item.slug || item.id}')"
+                            class="flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl shadow-2xs border border-slate-200 active:scale-95 transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+                            <span>Salin Tautan</span>
+                        </button>
+                        <button type="button" onclick="shareBeritaFacebook('${item.slug || item.id}')"
+                            class="flex items-center gap-1.5 px-4 py-2.5 text-white font-bold text-xs rounded-xl shadow-2xs hover:shadow-md active:scale-95 transition-all cursor-pointer"
+                            style="background-color: #1877F2;">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            <span>Facebook</span>
+                        </button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- KOLOM KANAN: STICKY SIDEBAR (Terpopuler 1-5 + Terkait + Direktori) -->
+            <aside class="lg:col-span-4 space-y-6 sticky top-24">
+                
+                <!-- Widget Terpopuler 1-5 Khas NU Online -->
+                <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            TERPOPULER
+                        </h3>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MINGGU INI</span>
+                    </div>
+                    <div class="space-y-4">
+                        ${sidebarTrending.map((tItem, idx) => {
+                            const tJudul = escapeHTML(tItem.judul);
+                            const tMedia = escapeHTML(tItem.sumber_media || 'Media');
+                            const tViews = tItem.views_count ? (tItem.views_count >= 1000 ? (tItem.views_count / 1000).toFixed(1) + 'k' : tItem.views_count) : '1.2k';
+                            const badgeColor = idx === 0 ? 'bg-amber-400 text-slate-950 font-black' : 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold';
+
+                            return `
+                                <div class="flex items-start gap-3.5 group cursor-pointer py-2 border-b border-slate-100 last:border-b-0"
+                                    onclick="openBeritaDetailModal('${tItem.slug || tItem.id}')">
+                                    <span class="w-7 h-7 rounded-lg ${badgeColor} flex items-center justify-center text-sm flex-shrink-0 shadow-2xs">
+                                        ${idx + 1}
+                                    </span>
+                                    <div class="flex-1 min-w-0">
+                                        <span class="text-[10px] text-[#008444] font-bold uppercase block mb-0.5">${escapeHTML(tItem.kategori || 'Warta')}</span>
+                                        <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2">
+                                            ${tJudul}
+                                        </h4>
+                                        <span class="text-[10px] text-slate-400 font-medium mt-1 block">${tViews} Views</span>
+                                    </div>
                                 </div>
-                                <h4 class="text-sm font-bold text-slate-900 leading-snug group-hover:text-emerald-700 transition-colors line-clamp-2 mb-2">${relJudul}</h4>
-                                <span class="text-[11px] text-slate-500 font-medium">${relDate}</span>
-                            </div>
-                        </div>
-                        `;
-                    }).join('')}
+                            `;
+                        }).join('')}
+                    </div>
                 </div>
-            </div>
-            ` : ''}
-        </article>
+
+                <!-- Widget Warta Terkait Kategori yang Sama -->
+                ${allRelated.length > 0 ? `
+                <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6">
+                    <h3 class="text-base font-extrabold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#008444] text-[20px]">recommend</span>
+                        WARTA TERKAIT
+                    </h3>
+                    <div class="space-y-4">
+                        ${allRelated.slice(0, 3).map(rel => {
+                            const relJudul = escapeHTML(rel.judul);
+                            const relDate = formatTanggalIndonesia(rel.published_at);
+                            return `
+                                <div class="flex gap-3 group cursor-pointer" onclick="openBeritaDetailModal('${rel.slug || rel.id}')">
+                                    <div class="w-20 h-16 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 relative">
+                                        <img src="${rel.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                                            alt="${relJudul}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-xs font-bold text-slate-800 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2 mb-1">
+                                            ${relJudul}
+                                        </h4>
+                                        <span class="text-[10px] text-slate-400 font-medium block">${relDate}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Widget Ajakan Eksplorasi Direktori Pesantren -->
+                <div class="bg-gradient-to-br from-[#005c55] to-[#003831] text-white p-6 rounded-2xl shadow-sm text-center">
+                    <span class="material-symbols-outlined text-4xl text-amber-400 mb-2">account_balance</span>
+                    <h4 class="text-base font-bold mb-1.5">Direktori Pesantren Demak</h4>
+                    <p class="text-xs text-white/80 leading-relaxed mb-4">Cari data profil, kurikulum turots, dan lokasi pesantren se-Kabupaten Demak.</p>
+                    <button type="button" onclick="navigateTo('direktori')" class="w-full py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-xs cursor-pointer">
+                        Buka Direktori Lengkap &rarr;
+                    </button>
+                </div>
+            </aside>
+        </div>
     `;
 }
 
@@ -4010,3 +4370,17 @@ function showPesantrenFlyout(cardEl, pesantrenId) {
         popover.classList.add('opacity-100', 'pointer-events-auto');
     });
 }
+
+// ==========================================
+// FASE 6: PWA SERVICE WORKER & INIT FAVORITE BADGE
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.warn('PWA ServiceWorker registration skipped/failed:', err.message);
+        });
+    });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof updateFavoriteCountBadge === 'function') updateFavoriteCountBadge();
+});
