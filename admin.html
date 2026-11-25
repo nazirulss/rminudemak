@@ -10565,7 +10565,7 @@ async function simpanArtikelBerita() {
     const keywords = document.getElementById('cms-berita-keywords')?.value?.trim() || '';
     const penulis = document.getElementById('cms-berita-penulis').value.trim() || 'Redaksi RMI PCNU Demak';
     const tanggal = document.getElementById('cms-berita-tanggal').value;
-    const cover = document.getElementById('cms-berita-cover').value.trim();
+    let cover = document.getElementById('cms-berita-cover').value.trim();
     const ringkasan = document.getElementById('cms-berita-ringkasan').value.trim();
     const isi = document.getElementById('cms-berita-isi').value.trim();
     const isFeatured = document.getElementById('cms-berita-is-featured').checked;
@@ -10576,7 +10576,39 @@ async function simpanArtikelBerita() {
     }
 
     const defaultCover = 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
-    const finalCover = cover || defaultCover;
+
+    // Jika cover masih berupa base64 data:image, unggah ke Google Drive terlebih dahulu
+    if (cover && cover.startsWith('data:image/')) {
+        showToast('info', 'Mengunggah foto cover ke Google Drive...');
+        try {
+            const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+            const base64Data = cover.split(',')[1];
+            const mime = cover.split(';')[0].split(':')[1] || 'image/webp';
+            const upRes = await fetch(gasUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({
+                    action: 'UPLOAD_ASSET',
+                    files: [{
+                        name: ('cover_' + Date.now() + (mime.includes('webp') ? '.webp' : '.jpg')),
+                        key: 'cover_' + Date.now(),
+                        base64: base64Data,
+                        mimeType: mime
+                    }]
+                })
+            });
+            const upJson = await upRes.json();
+            if (upJson && upJson.success && upJson.assets) {
+                const first = Object.values(upJson.assets)[0];
+                cover = first.url || ('https://lh3.googleusercontent.com/d/' + first.id);
+                document.getElementById('cms-berita-cover').value = cover;
+            }
+        } catch (e) {
+            console.warn('Gagal upload cover sebelum simpan:', e);
+        }
+    }
+
+    const finalCover = (cover && !cover.startsWith('data:')) ? cover : defaultCover;
     const finalDate = tanggal || new Date().toISOString().split('T')[0];
     const finalId = id || ('BRT-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4));
     

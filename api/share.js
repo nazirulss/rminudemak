@@ -8,6 +8,13 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 // Fallback artikel bawaan jika koneksi API sedang lambat atau offline
 const fallbackArticles = [
   {
+    id: "BRT-2026-0073",
+    slug: "rmi-pcnu-demak-genjot-digitalisasi-pesantren-dari-sistem-scan-barcode-hingga-direktori-online-di-rminudemak-org",
+    judul: "RMI PCNU Demak Genjot Digitalisasi Pesantren: Dari Sistem Scan Barcode hingga Direktori Online di rminudemak.org",
+    ringkasan: "RMI PCNU Demak genjot digitalisasi pesantren lewat sistem scan barcode dan pendataan ulang. Simak rencana peluncuran Direktori Pesantren & Madin di www.rminudemak.org.",
+    cover_image_url: "https://lh3.googleusercontent.com/d/1FMmgwwtrDfEWFmysUIMfA_Sp2zHJI8en"
+  },
+  {
     id: "BRT-2026-016",
     slug: "rmi-pwnu-jateng-dan-pcnu-demak-gelar-sambang-pesantren",
     judul: "RMI PWNU Jateng dan PCNU Demak Gelar Sambang Pesantren: Sinergi Kebangsaan, Tata Kelola Hukum, dan Transformasi Digital Pesantren",
@@ -95,7 +102,12 @@ export default async function handler(req, res) {
 
   const title = t || (article && article.judul) || defaultTitle;
   const description = desc || (article && (article.ringkasan || article.isi_lengkap)) || defaultDesc;
-  const image = img || (article && article.cover_image_url) || defaultImg;
+  let rawImage = img || (article && article.cover_image_url) || defaultImg;
+  // Pastikan URL gambar adalah HTTP/HTTPS publik, bukan base64 data URI karena WhatsApp scraper mereject base64
+  if (!rawImage || String(rawImage).startsWith('data:') || !String(rawImage).startsWith('http')) {
+    rawImage = defaultImg;
+  }
+  const image = rawImage;
   const keywords = kw || (article && article.keywords) || (article ? `${article.kategori || 'Warta'}, RMI PCNU Demak, Pesantren Demak, Santri Kota Wali` : "RMI NU Demak, Pondok Pesantren Demak, Madrasah Diniyah Demak, Santri Kota Wali");
   const penulis = (article && article.penulis) || "Tim Media RMI PCNU Demak";
   const finalSlug = (article && article.slug) ? article.slug : (lookupKey || '');
