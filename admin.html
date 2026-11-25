@@ -9977,16 +9977,33 @@ async function simpanArtikelBerita() {
     renderCmsBeritaTable();
     tutupInlineEditorBerita();
 
-    // Kirim Penyimpanan Permanen ke Google Apps Script Backend
+    // Kirim Penyimpanan Permanen ke Google Apps Script Backend (Flat Payload agar terbaca oleh Database)
     try {
         const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+        const payloadData = {
+            action: 'SAVE_BERITA',
+            id: finalId,
+            judul: judul,
+            slug: judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+            kategori: kategori,
+            penulis: penulis,
+            published_at: finalDate,
+            tanggal: finalDate,
+            cover_image_url: finalCover,
+            cover: finalCover,
+            ringkasan: ringkasan,
+            isi_lengkap: isi,
+            isi: isi,
+            is_featured: isFeatured,
+            status: 'published',
+            views_count: 0,
+            berita: beritaItem
+        };
+
         const res = await fetch(gasUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-                action: 'SAVE_BERITA',
-                berita: beritaItem
-            })
+            body: JSON.stringify(payloadData)
         });
 
         const json = await res.json();
