@@ -1464,7 +1464,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Deep linking untuk Halaman Berita Detail (e.g. #berita-detail?id=BRT-2026-001)
+        // Deep linking untuk Halaman Berita Detail:
+        // 1. Format Bersih & SEO-friendly berbasis slug: #berita/slug-berita-anda
+        // 2. Format Kompatibilitas Legacy: #berita-detail?id=BRT-2026-001
+        if (currentHash.startsWith('berita/')) {
+            const slugPart = rawHash.substring(rawHash.indexOf('/') + 1).trim();
+            if (slugPart && typeof openBeritaDetailModal === 'function') {
+                openBeritaDetailModal(slugPart);
+                return;
+            } else {
+                navigateTo('berita', false);
+                return;
+            }
+        }
         if (currentHash.startsWith('berita-detail')) {
             const hashParts = rawHash.split('?');
             const searchParams = new URLSearchParams(hashParts[1] || '');
@@ -2638,12 +2650,12 @@ function renderBeritaBeranda() {
                     <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> ${viewsCount} Views</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" onclick="openBeritaDetailModal('${featured.id}')"
+                    <button type="button" onclick="openBeritaDetailModal('${featured.slug || featured.id}')"
                         class="bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit cursor-pointer shadow-md">
                         Lihat Detail Berita <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                     <button type="button"
-                        onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.id}', '${safeJudul.replace(/'/g, "\\'")}', '${featured.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                        onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.slug || featured.id}', '${safeJudul.replace(/'/g, "\\'")}', '${featured.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
                         class="px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
                         title="Bagikan Berita ini ke WhatsApp">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -2667,7 +2679,7 @@ function renderBeritaBeranda() {
 
             return `
                 <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
-                    onclick="openBeritaDetailModal('${art.id}')">
+                    onclick="openBeritaDetailModal('${art.slug || art.id}')">
                     <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
                         <img src="${art.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
                             alt="${safeJudul}"
@@ -2691,7 +2703,7 @@ function renderBeritaBeranda() {
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <button type="button"
-                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${art.id}', '${safeJudul.replace(/'/g, "\\'")}', '${art.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${art.slug || art.id}', '${safeJudul.replace(/'/g, "\\'")}', '${art.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
                                     class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                                     title="Bagikan ke WhatsApp">
                                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -2758,7 +2770,7 @@ function renderBeritaFullPage() {
 
             pageFeaturedContainer.innerHTML = `
                 <div class="lg:col-span-8 relative group rounded-2xl overflow-hidden shadow-lg h-[380px] md:h-[450px] cursor-pointer"
-                    onclick="openBeritaDetailModal('${f1.id}')">
+                    onclick="openBeritaDetailModal('${f1.slug || f1.id}')">
                     <img src="${f1.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
                         alt="${safeJudul}"
                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -2784,7 +2796,7 @@ function renderBeritaFullPage() {
                         const subMedia = escapeHTML(sub.sumber_media || 'Media');
                         return `
                             <div class="relative group rounded-2xl overflow-hidden shadow-md h-[180px] md:h-[215px] cursor-pointer"
-                                onclick="openBeritaDetailModal('${sub.id}')">
+                                onclick="openBeritaDetailModal('${sub.slug || sub.id}')">
                                 <img src="${sub.cover_image_url || 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58'}"
                                     alt="${subJudul}"
                                     class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -2828,7 +2840,7 @@ function renderBeritaFullPage() {
 
                 return `
                     <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 cursor-pointer"
-                        onclick="openBeritaDetailModal('${item.id}')">
+                        onclick="openBeritaDetailModal('${item.slug || item.id}')">
                         <div class="sm:w-2/5 h-48 sm:h-auto relative overflow-hidden flex-shrink-0">
                             <img src="${item.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
                                 alt="${safeJudul}"
@@ -2854,7 +2866,7 @@ function renderBeritaFullPage() {
                                     <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${viewsCount} Views</span>
                                 </div>
                                 <button type="button"
-                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.id}', '${safeJudul.replace(/'/g, "\\'")}', '${item.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.slug || item.id}', '${safeJudul.replace(/'/g, "\\'")}', '${item.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
                                     class="w-7 h-7 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs"
                                     title="Bagikan ke WhatsApp">
                                     <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -2877,7 +2889,7 @@ function renderBeritaFullPage() {
             const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
 
             return `
-                <div class="relative flex items-center gap-4 group cursor-pointer" onclick="openBeritaDetailModal('${item.id}')">
+                <div class="relative flex items-center gap-4 group cursor-pointer" onclick="openBeritaDetailModal('${item.slug || item.id}')">
                     <span class="text-5xl font-black text-slate-100 absolute -left-1 top-1/2 -translate-y-1/2 -z-10 group-hover:text-primary/15 transition-colors">${idx + 1}</span>
                     <div class="pl-6 relative z-10">
                         <div class="text-[10px] text-amber-800 font-bold mb-0.5">${safeMedia}</div>
@@ -2902,10 +2914,14 @@ function handleBeritaSearch(query) {
     renderBeritaFullPage();
 }
 
-function openBeritaDetailModal(id) {
-    const targetHash = '#berita-detail?id=' + encodeURIComponent(id);
+function openBeritaDetailModal(idOrSlug) {
+    const item = (typeof allBeritaData !== 'undefined' && Array.isArray(allBeritaData))
+        ? allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug)
+        : null;
+    const activeSlug = (item && item.slug) ? item.slug : idOrSlug;
+    const targetHash = '#berita/' + encodeURIComponent(activeSlug);
     if (window.location.hash !== targetHash) {
-        history.pushState({ page: 'berita-detail', id: id }, '', targetHash);
+        history.pushState({ page: 'berita-detail', id: (item ? item.id : idOrSlug), slug: activeSlug }, '', targetHash);
     }
     sessionStorage.setItem('activePage', 'berita-detail');
     
@@ -2938,9 +2954,15 @@ function openBeritaDetailModal(id) {
                 </div>
             `;
         }
-        loadBeritaRMI().then(() => renderBeritaDetailPage(id));
+        loadBeritaRMI().then(() => {
+            renderBeritaDetailPage(idOrSlug);
+            const found = allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+            if (found && found.slug && window.location.hash !== '#berita/' + encodeURIComponent(found.slug)) {
+                history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', '#berita/' + encodeURIComponent(found.slug));
+            }
+        });
     } else {
-        renderBeritaDetailPage(id);
+        renderBeritaDetailPage(idOrSlug);
     }
 }
 
@@ -2970,10 +2992,24 @@ function formatIsiBeritaHtml(rawText) {
     return text;
 }
 
-function renderBeritaDetailPage(id) {
-    const item = allBeritaData.find(b => b.id === id);
+function renderBeritaDetailPage(idOrSlug) {
+    const item = allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
     const container = document.getElementById('berita-detail-content');
-    if (!item || !container) return;
+    if (!item || !container) {
+        if (container && allBeritaData.length > 0) {
+            container.innerHTML = `
+                <div class="py-16 text-center max-w-lg mx-auto bg-white rounded-3xl p-8 border border-slate-200">
+                    <span class="material-symbols-outlined text-4xl text-amber-500 mb-2">article</span>
+                    <h3 class="text-lg font-bold text-slate-800">Berita Tidak Ditemukan</h3>
+                    <p class="text-sm text-slate-500 mt-1 mb-6">Artikel warta berita yang Anda cari mungkin telah diperbarui atau dipindahkan.</p>
+                    <button type="button" onclick="navigateTo('berita')" class="px-5 py-2.5 bg-emerald-700 text-white text-xs font-bold rounded-xl hover:bg-emerald-800 transition-all cursor-pointer">
+                        Kembali ke Halaman Berita
+                    </button>
+                </div>
+            `;
+        }
+        return;
+    }
 
     const safeJudul = escapeHTML(item.judul);
     const safeRingkasan = escapeHTML(item.ringkasan);
@@ -3051,24 +3087,24 @@ function renderBeritaDetailPage(id) {
                     Bagikan Berita Ini ke Media Sosial
                 </h4>
                 <div class="flex flex-wrap gap-3">
-                    <button type="button" onclick="shareBeritaWhatsApp('${item.id}')"
+                    <button type="button" onclick="shareBeritaWhatsApp('${item.slug || item.id}')"
                         class="flex items-center gap-2.5 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
                         style="background-color: #25D366;">
                         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                         <span>Kirim via WhatsApp</span>
                     </button>
-                    <button type="button" onclick="salinLinkBerita('${item.id}')"
+                    <button type="button" onclick="salinLinkBerita('${item.slug || item.id}')"
                         class="flex items-center gap-2 px-5 py-3 bg-white hover:bg-slate-100 text-slate-800 font-bold text-xs rounded-xl shadow-sm border border-slate-200 active:scale-95 transition-all cursor-pointer">
                         <span class="material-symbols-outlined text-[20px]">content_copy</span>
                         <span>Salin Tautan</span>
                     </button>
-                    <button type="button" onclick="shareBeritaFacebook('${item.id}')"
+                    <button type="button" onclick="shareBeritaFacebook('${item.slug || item.id}')"
                         class="flex items-center gap-2 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
                         style="background-color: #1877F2;">
                         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                         <span>Facebook</span>
                     </button>
-                    <button type="button" onclick="shareBeritaTelegram('${item.id}')"
+                    <button type="button" onclick="shareBeritaTelegram('${item.slug || item.id}')"
                         class="flex items-center gap-2 px-5 py-3 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow-md active:scale-95 transition-all cursor-pointer"
                         style="background-color: #229ED9;">
                         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
@@ -3091,7 +3127,7 @@ function renderBeritaDetailPage(id) {
                         const relDate = formatTanggalIndonesia(rel.published_at);
                         return `
                         <div class="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300"
-                            onclick="openBeritaDetailModal('${rel.id}')">
+                            onclick="openBeritaDetailModal('${rel.slug || rel.id}')">
                             <div class="h-40 overflow-hidden relative bg-slate-900">
                                 <img src="${rel.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
                                     alt="${relJudul}"
@@ -3143,19 +3179,22 @@ window.renderBeritaDetailPage = renderBeritaDetailPage;
 // ==================================================================
 // FITUR SHARE BERITA MULTI-PLATFORM (WA, FB, TELEGRAM, SALIN TAUTAN)
 // ==================================================================
-function getBeritaSharePayload(id, fallbackJudul, fallbackCover, fallbackRingkasan) {
+function getBeritaSharePayload(idOrSlug, fallbackJudul, fallbackCover, fallbackRingkasan) {
     const item = (typeof allBeritaData !== 'undefined' && Array.isArray(allBeritaData)) 
-        ? allBeritaData.find(b => b.id === id) 
+        ? allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug) 
         : null;
     
+    const id = item ? item.id : idOrSlug;
+    const slug = (item && item.slug) ? item.slug : (idOrSlug || id);
     const judul = item ? (item.judul || '') : (fallbackJudul || '');
     const ringkasan = item ? (item.ringkasan || '') : (fallbackRingkasan || '');
     const cover = item ? (item.cover_image_url || '') : (fallbackCover || '');
     const media = item ? (item.sumber_media || 'Media Online') : 'Media Online';
     const tanggal = item ? formatTanggalIndonesia(item.published_at) : '';
-    const shareUrl = "https://rminudemak.org/#berita-detail?id=" + encodeURIComponent(id);
+    // Domain URL berita bersih berbasis slug resmi https://rminudemak.org/berita/{slug}
+    const shareUrl = "https://rminudemak.org/berita/" + encodeURIComponent(slug);
 
-    return { id, judul, ringkasan, cover, media, tanggal, shareUrl };
+    return { id, slug, judul, ringkasan, cover, media, tanggal, shareUrl };
 }
 
 function shareBeritaWhatsApp(id, customJudul, customCover, customRingkasan) {
