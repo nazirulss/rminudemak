@@ -26,6 +26,61 @@ html {
 }
 
 /* ======================================================== */
+/* TYPOGRAPHY & ARTICLE CONTENT STYLING (ALA NU ONLINE)     */
+/* ======================================================== */
+.article-content {
+  color: #1e293b;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.article-content p {
+  margin-bottom: 1.25rem;
+  line-height: 1.85;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #008444;
+  background-color: #f0fdf4;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-style: italic;
+  color: #0f172a;
+}
+
+.article-content h2, .article-content h3, .article-content h4 {
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+}
+
+.article-content h2 { font-size: 1.5rem; }
+.article-content h3 { font-size: 1.25rem; }
+.article-content h4 { font-size: 1.125rem; }
+
+.article-content img {
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.article-content ul, .article-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.article-content ul { list-style-type: disc; }
+.article-content ol { list-style-type: decimal; }
+
+.article-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+/* ======================================================== */
 /* MEDIA PRINT KHUSUS DOKUMEN PANDUAN RESMI RMI NU DEMAK    */
 /* ======================================================== */
 @media print {
