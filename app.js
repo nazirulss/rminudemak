@@ -1357,6 +1357,10 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        if (targetId !== 'berita-detail') {
+            document.title = 'RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali';
+        }
+
         if (targetId === 'sambang-pesantren-pwrminu-jateng') {
             initSambangCountdown();
         }
@@ -2655,7 +2659,7 @@ function renderBeritaBeranda() {
                         Lihat Detail Berita <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                     <button type="button"
-                        onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.slug || featured.id}', '${safeJudul.replace(/'/g, "\\'")}', '${featured.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                        onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.slug || featured.id}')"
                         class="px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
                         title="Bagikan Berita ini ke WhatsApp">
                         <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -2703,7 +2707,7 @@ function renderBeritaBeranda() {
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <button type="button"
-                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${art.slug || art.id}', '${safeJudul.replace(/'/g, "\\'")}', '${art.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${art.slug || art.id}')"
                                     class="w-8 h-8 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                                     title="Bagikan ke WhatsApp">
                                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
@@ -2723,10 +2727,15 @@ function renderBeritaBeranda() {
 function renderBeritaFullPage() {
     if (!allBeritaData || allBeritaData.length === 0) return;
 
-    // Filter Kategori
+    // Filter Kategori Dinamis (Preset + Kategori Kustom Database)
     const categoryContainer = document.getElementById('berita-category-filters');
     if (categoryContainer) {
-        const categories = ['Semua', 'Pesantren Ramah Anak', 'Pendidikan & Madin', 'Ekonomi & Kemandirian', 'Warta Organisasi'];
+        const defaultPreset = ['Pesantren Ramah Anak', 'Pendidikan & Madin', 'Ekonomi & Kemandirian', 'Warta Organisasi'];
+        const existingCats = Array.isArray(allBeritaData) 
+            ? allBeritaData.map(b => b.kategori).filter(Boolean)
+            : [];
+        const categories = ['Semua', ...new Set([...defaultPreset, ...existingCats])];
+
         categoryContainer.innerHTML = categories.map(cat => {
             const isActive = activeBeritaCategory === cat;
             return `
@@ -2742,13 +2751,16 @@ function renderBeritaFullPage() {
         }).join('');
     }
 
-    // Filter Data Berdasarkan Kategori & Pencarian
+    // Filter Data Berdasarkan Kategori & Pencarian (Mendukung Judul, Ringkasan, Kategori, Keyword SEO & Penulis)
     let filtered = allBeritaData.filter(item => {
         const matchCategory = activeBeritaCategory === 'Semua' || (item.kategori || '') === activeBeritaCategory;
-        const query = beritaSearchQuery.toLowerCase();
+        const query = beritaSearchQuery.toLowerCase().trim();
         const matchSearch = !query || 
             (item.judul || '').toLowerCase().includes(query) || 
             (item.ringkasan || '').toLowerCase().includes(query) ||
+            (item.kategori || '').toLowerCase().includes(query) ||
+            (item.keywords || '').toLowerCase().includes(query) ||
+            (item.penulis || '').toLowerCase().includes(query) ||
             (item.sumber_media || '').toLowerCase().includes(query);
         return matchCategory && matchSearch;
     });
@@ -2866,8 +2878,8 @@ function renderBeritaFullPage() {
                                     <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">visibility</span> ${viewsCount} Views</span>
                                 </div>
                                 <button type="button"
-                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.slug || item.id}', '${safeJudul.replace(/'/g, "\\'")}', '${item.cover_image_url}', '${safeRingkasan.replace(/'/g, "\\'")}')"
-                                    class="w-7 h-7 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                                    onclick="event.stopPropagation(); bagikanBeritaKeWA('${item.slug || item.id}')"
+                                    class="w-7 h-7 rounded-full bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                                     title="Bagikan ke WhatsApp">
                                     <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                                 </button>
@@ -2928,8 +2940,20 @@ function findBeritaItem(idOrSlug) {
     ) || null;
 }
 
+function incrementBeritaView(idOrSlug) {
+    if (!idOrSlug) return;
+    try {
+        const gasUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=INCREMENT_BERITA_VIEW&id=' + encodeURIComponent(idOrSlug);
+        fetch(gasUrl, { mode: 'no-cors' }).catch(() => {});
+    } catch(e) {}
+}
+
 function openBeritaDetailModal(idOrSlug) {
     const item = findBeritaItem(idOrSlug);
+    if (item) {
+        item.views_count = (Number(item.views_count) || 0) + 1;
+        incrementBeritaView(item.id || item.slug || idOrSlug);
+    }
     const activeSlug = (item && item.slug) ? item.slug : idOrSlug;
     const targetHash = '#berita/' + encodeURIComponent(activeSlug);
     if (window.location.hash !== targetHash) {
@@ -3001,6 +3025,12 @@ function formatIsiBeritaHtml(rawText) {
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/(?<!\*)\*(?!\*)([^\*\n]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
 
+    // 4. Konversi paragraf teks biasa jika tidak terdapat blok HTML (P, DIV, dll)
+    const hasHtmlBlocks = /<(p|div|h[1-6]|ul|ol|li|table|blockquote)\b/i.test(text);
+    if (!hasHtmlBlocks) {
+        text = text.split(/\n\s*\n/).map(para => `<p class="mb-4 leading-relaxed">${para.replace(/\n/g, '<br />')}</p>`).join('');
+    }
+
     return text;
 }
 
@@ -3024,6 +3054,7 @@ function renderBeritaDetailPage(idOrSlug) {
     }
 
     const safeJudul = escapeHTML(item.judul);
+    document.title = `${item.judul} — RMI PCNU Kabupaten Demak`;
     const safeRingkasan = escapeHTML(item.ringkasan);
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
     const formattedIsi = formatIsiBeritaHtml(item.isi_lengkap || item.ringkasan || '');
@@ -3051,7 +3082,7 @@ function renderBeritaDetailPage(idOrSlug) {
         <article class="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200/80 mb-12">
             <!-- Cover Image Hero -->
             <div class="relative rounded-2xl overflow-hidden mb-8 shadow-md aspect-video max-h-[480px] bg-slate-900">
-                <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" />
+                <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" onerror="this.src='https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
                 <div class="absolute bottom-4 left-4 flex flex-wrap items-center gap-2">
                     <span class="bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow-md">${escapeHTML(item.kategori || 'Warta')}</span>
@@ -3077,7 +3108,7 @@ function renderBeritaDetailPage(idOrSlug) {
             </div>
 
             <!-- Isi Lengkap Artikel -->
-            <div class="max-w-none mb-10 text-slate-800 text-base sm:text-lg leading-relaxed whitespace-pre-line selection:bg-emerald-100">
+            <div class="max-w-none mb-10 text-slate-800 text-base sm:text-lg leading-relaxed selection:bg-emerald-100 article-content">
                 ${formattedIsi}
             </div>
 
@@ -3179,7 +3210,7 @@ function renderBeritaDetailPage(idOrSlug) {
 }
 
 function closeBeritaDetailModal() {
-    // Fallback: kembali ke halaman berita
+    document.title = 'RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali';
     navigateTo('berita');
 }
 

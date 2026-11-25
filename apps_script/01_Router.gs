@@ -61,6 +61,11 @@ function doGet(e) {
     return createJsonResponse(res);
   }
 
+  if (action === 'INCREMENT_BERITA_VIEW' || action === 'VIEW_BERITA') {
+    const res = handleIncrementBeritaView(e ? e.parameter : {});
+    return createJsonResponse(res);
+  }
+
   if (action === 'CLEAN_DUMMY_BERITA') {
     const res = handleCleanDummyBerita();
     return createJsonResponse(res);
@@ -144,6 +149,8 @@ function doPost(e) {
       result = handleSaveBerita(payload);
     } else if (action === 'DELETE_BERITA') {
       result = handleDeleteBerita(payload);
+    } else if (action === 'INCREMENT_BERITA_VIEW' || action === 'VIEW_BERITA') {
+      result = handleIncrementBeritaView(payload);
     } else if (action === 'UPLOAD_BERITA_IMAGE' || action === 'UPLOAD_IMAGE') {
       result = handleUploadBeritaImage(payload);
     } else if (action === 'CLEAN_DUMMY_BERITA') {

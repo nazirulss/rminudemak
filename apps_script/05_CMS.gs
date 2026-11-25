@@ -512,8 +512,8 @@ function getPublicBeritaList(params) {
       return obj;
     }).filter(b => {
       if (!b.id || !b.judul) return false;
-      const st = String(b.status || 'published').toLowerCase();
-      return st === 'published' || st === 'terbit' || st === 'true' || !b.status;
+      const st = String(b.status || 'published').toLowerCase().trim();
+      return st === 'published' || st === 'terbit' || st === 'true' || st.includes('sorotan') || st.includes('utama') || !b.status;
     });
 
     // Sort descending berdasarkan published_at
@@ -630,10 +630,14 @@ function handleSaveBerita(payload) {
     }
 
     const isFeatured = (item.is_featured === true || item.is_featured === 'true' || item.isFeatured === true);
+    const safeSlug = (item.slug && String(item.slug).trim()) 
+      ? String(item.slug).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      : String(item.judul || id).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
     const rowData = [
       id,
       item.judul || 'Tanpa Judul',
-      item.slug || '',
+      safeSlug,
       item.kategori || 'Warta Organisasi',
       item.ringkasan || '',
       item.isi_lengkap || item.isi || '',
@@ -679,10 +683,14 @@ function handleSyncBatchBerita(sheet, items, headers) {
     const rows = items.map(function(item, idx) {
       const isFeatured = (item.is_featured === true || item.is_featured === 'true' || item.isFeatured === true);
       const id = item.id || ('BRT-' + Utilities.formatDate(new Date(), 'GMT+7', 'yyyy') + '-' + Utilities.formatString('%03d', idx + 1));
+      const safeSlug = (item.slug && String(item.slug).trim()) 
+        ? String(item.slug).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        : String(item.judul || id).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
       return [
         id,
         item.judul || 'Tanpa Judul',
-        item.slug || '',
+        safeSlug,
         item.kategori || 'Warta Organisasi',
         item.ringkasan || '',
         item.isi_lengkap || item.isi || '',
@@ -745,6 +753,35 @@ function handleDeleteBerita(payload) {
     }
   } catch (err) {
     return { success: false, error: 'Gagal menghapus berita: ' + err.message };
+  }
+}
+
+// Menambahkan view count artikel berita secara atomik
+function handleIncrementBeritaView(payload) {
+  try {
+    const idOrSlug = payload ? (payload.id || payload.slug) : '';
+    if (!idOrSlug) return { success: false, error: 'ID atau slug berita wajib diisi.' };
+
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('web_berita');
+    if (!sheet) return { success: false, error: 'Sheet web_berita tidak ditemukan.' };
+
+    const data = sheet.getDataRange().getValues();
+    const cleanLookup = String(idOrSlug).toLowerCase().trim();
+
+    for (let i = 1; i < data.length; i++) {
+      const rowId = String(data[i][0]).toLowerCase().trim();
+      const rowSlug = String(data[i][2]).toLowerCase().trim();
+      if (rowId === cleanLookup || rowSlug === cleanLookup) {
+        const curViews = Number(data[i][13]) || 0;
+        const newViews = curViews + 1;
+        sheet.getRange(i + 1, 14).setValue(newViews);
+        return { success: true, id: data[i][0], slug: data[i][2], views_count: newViews };
+      }
+    }
+    return { success: false, error: 'Berita tidak ditemukan untuk increment view.' };
+  } catch (err) {
+    return { success: false, error: err.message };
   }
 }
 

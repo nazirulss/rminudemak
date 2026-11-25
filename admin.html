@@ -9638,6 +9638,8 @@ function renderCmsBeritaTable(filteredData = null) {
             ? '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[9px] uppercase tracking-wider">Sorotan Utama</span>'
             : '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[9px] uppercase tracking-wider">Terbit</span>';
 
+        const cleanTanggal = item.tanggal ? String(item.tanggal).split('T')[0] : '-';
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition';
         tr.innerHTML = `
@@ -9649,7 +9651,7 @@ function renderCmsBeritaTable(filteredData = null) {
             <td class="p-3.5 font-bold text-slate-900 max-w-xs truncate" title="${escapeHTML(item.judul)}">${escapeHTML(item.judul)}</td>
             <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-bold text-[10px]">${escapeHTML(item.kategori || 'Pendidikan')}</span></td>
             <td class="p-3.5 text-slate-600 font-medium text-[11px]">${escapeHTML(item.penulis || 'Redaksi RMI')}</td>
-            <td class="p-3.5 text-slate-500">${item.tanggal || '-'}</td>
+            <td class="p-3.5 text-slate-500 text-xs">${cleanTanggal}</td>
             <td class="p-3.5">${badgeStatus}</td>
             <td class="p-3.5 text-right pr-5">
                 <div class="inline-flex items-center gap-1.5">
@@ -10685,29 +10687,36 @@ async function simpanArtikelBerita() {
 
 async function hapusCmsBerita(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus artikel warta ini dari database?')) return;
+    const backupData = [...cmsBeritaData];
     cmsBeritaData = cmsBeritaData.filter(b => String(b.id) !== String(id));
     renderCmsBeritaTable();
     showToast('info', 'Menghapus berita dari database...');
 
     try {
         const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
-        fetch(gasUrl, {
+        const res = await fetch(gasUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'DELETE_BERITA', id: id })
-        }).then(r => r.json()).then(res => {
-            if (res && res.success) {
-                showToast('success', 'Artikel berita berhasil dihapus dari database!');
-            }
-        }).catch(() => {
-            // Fallback sync batch setelah delete
-            fetch(gasUrl, {
+        });
+        const json = await res.json().catch(() => null);
+        if (json && json.success) {
+            showToast('success', 'Artikel berita berhasil dihapus dari database!');
+        } else {
+            // Fallback sync batch jika delete endpoint spesifik mengembalikan peringatan
+            await fetch(gasUrl, {
                 method: 'POST',
-                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ action: 'SYNC_WEB_CMS', sheetName: 'web_berita', data: cmsBeritaData })
             });
-        });
-    } catch(e) {}
+            showToast('success', 'Database berhasil disinkronkan!');
+        }
+    } catch(e) {
+        showToast('error', 'Gagal menghapus berita: ' + (e.message || 'Koneksi terganggu'));
+        // Rollback jika gagal
+        cmsBeritaData = backupData;
+        renderCmsBeritaTable();
+    }
 }
 
 
@@ -10718,20 +10727,26 @@ async function loadCmsBeritaFromApi() {
         const res = await fetch(gasUrl);
         const json = await res.json();
         if (json && (json.success || json.status === 'success') && Array.isArray(json.data) && json.data.length > 0) {
-            cmsBeritaData = json.data.map(b => ({
-                id: b.id,
-                judul: b.judul,
-                kategori: b.kategori || 'Pendidikan',
-                penulis: b.penulis || 'Redaksi RMI PCNU Demak',
-                tanggal: b.published_at || b.tanggal || '',
-                status: (b.is_featured === true || b.is_featured === 'true') ? 'Sorotan Utama' : 'Terbit',
-                isFeatured: (b.is_featured === true || b.is_featured === 'true'),
-                cover: b.cover_image_url || b.cover || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
-                ringkasan: b.ringkasan || '',
-                isi: b.isi_lengkap || b.isi || '',
-                sumber_media: b.sumber_media || '',
-                url_sumber: b.url_sumber || ''
-            }));
+            cmsBeritaData = json.data.map(b => {
+                const cleanDate = b.published_at ? String(b.published_at).split('T')[0] : (b.tanggal ? String(b.tanggal).split('T')[0] : '');
+                const cleanSlug = b.slug || (b.judul ? String(b.judul).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : '');
+                return {
+                    id: b.id,
+                    judul: b.judul,
+                    slug: cleanSlug,
+                    kategori: b.kategori || 'Warta Organisasi',
+                    keywords: b.keywords || '',
+                    penulis: b.penulis || 'Redaksi RMI PCNU Demak',
+                    tanggal: cleanDate,
+                    status: (b.is_featured === true || b.is_featured === 'true' || b.isFeatured === true) ? 'Sorotan Utama' : 'Terbit',
+                    isFeatured: (b.is_featured === true || b.is_featured === 'true' || b.isFeatured === true),
+                    cover: b.cover_image_url || b.cover || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z',
+                    ringkasan: b.ringkasan || '',
+                    isi: b.isi_lengkap || b.isi || '',
+                    sumber_media: b.sumber_media || '',
+                    url_sumber: b.url_sumber || ''
+                };
+            });
             renderCmsBeritaTable();
             console.log('CMS Berita live sync sukses: ' + cmsBeritaData.length + ' berita');
         }
