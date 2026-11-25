@@ -2095,8 +2095,8 @@
 
                                     </div>
 
-                                    <button
-                                        class="mt-4 sm:mt-0 sm:ml-auto px-6 py-2.5 rounded-lg bg-white border border-slate-200 text-tertiary font-bold text-xs shadow-sm hover:bg-tertiary hover:text-white transition-colors whitespace-nowrap">
+                                    <button type="button" onclick="navigateTo('pesantren')"
+                                        class="mt-4 sm:mt-0 sm:ml-auto px-6 py-2.5 rounded-lg bg-white border border-slate-200 text-tertiary font-bold text-xs shadow-sm hover:bg-tertiary hover:text-white transition-colors whitespace-nowrap cursor-pointer">
 
                                         Lihat Jaringan
 
@@ -2124,13 +2124,14 @@
                                     pengajuan berkas digital atau pembaruan data sistem Digdaya Pesantren? Tim kami siap
                                     membantu.</p>
 
-                                <button
+                                <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Admin%20Helpdesk%20PC%20RMI%20NU%20Demak,%20saya%20memerlukan%20bantuan%20terkait%20layanan%20pendataan%20lembaga."
+                                    target="_blank" rel="noopener noreferrer"
                                     class="w-full bg-white text-primary font-bold text-sm py-3 rounded-xl shadow-md hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 relative z-10">
 
                                     <span class="material-symbols-outlined text-[18px]">support_agent</span> Hubungi
                                     Admin
 
-                                </button>
+                                </a>
 
                             </div>
 
@@ -2145,7 +2146,8 @@
 
                                 <div class="space-y-3">
 
-                                    <a href="#"
+                                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Sekretariat%20RMI%20Demak,%20mohon%20kirimkan%20dokumen%20SOP%20Pengajuan%20IZOP%20Madin%20Baru."
+                                        target="_blank" rel="noopener noreferrer"
                                         class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
 
                                         <span
@@ -2157,13 +2159,14 @@
                                                 class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">
                                                 SOP Pengajuan IZOP Madin Baru</h4>
 
-                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 2.4 MB</p>
+                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 2.4 MB (Request via WA)</p>
 
                                         </div>
 
                                     </a>
 
-                                    <a href="#"
+                                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Sekretariat%20RMI%20Demak,%20mohon%20informasi%20dan%20Formulir%20Pendaftaran%20Beasiswa%202026."
+                                        target="_blank" rel="noopener noreferrer"
                                         class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
 
                                         <span
@@ -2175,7 +2178,7 @@
                                                 class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">
                                                 Formulir Pendaftaran Beasiswa 2026</h4>
 
-                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 1.1 MB</p>
+                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 1.1 MB (Request via WA)</p>
 
                                         </div>
 
@@ -2201,8 +2204,8 @@
 
                                 </div>
 
-                                <button
-                                    class="w-full mt-4 py-2 text-xs font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">
+                                <button type="button" onclick="navigateTo('panduan')"
+                                    class="w-full mt-4 py-2 text-xs font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer">
 
                                     Lihat Semua Berkas
 
@@ -3877,6 +3880,100 @@
                         </div>
                     </div>
 
+                </div>
+            </section>
+
+            <!-- 5B. FORMULIR KONFIRMASI KEHADIRAN (RSVP) DELEGASI -->
+            <section id="sambang-rsvp-form-section" class="py-14 px-6 md:px-12 bg-white border-t border-slate-200">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-8 space-y-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider">
+                            <span class="material-symbols-outlined text-[15px]">how_to_reg</span> Registrasi Delegasi Online
+                        </span>
+                        <h2 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Formulir Konfirmasi Kehadiran (RSVP)</h2>
+                        <p class="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto">
+                            Daftarkan utusan resmi pondok pesantren panjenengan untuk mengikuti salah satu dari 5 Halaqah Tematik Sambang Pesantren PW RMI NU Jawa Tengah di Kab. Demak.
+                        </p>
+                    </div>
+
+                    <form id="form-sambang-rsvp" onsubmit="event.preventDefault(); submitSambangRSVP();" class="bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm space-y-5">
+                        <div id="rsvp-alert-box" class="hidden"></div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="rsvp-kecamatan" class="block text-xs font-bold text-slate-700 mb-1.5">Asal Kecamatan / Wilayah <span class="text-rose-500">*</span></label>
+                                <select id="rsvp-kecamatan" required class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none">
+                                    <option value="">-- Pilih Kecamatan --</option>
+                                    <option value="Mranggen">Mranggen</option>
+                                    <option value="Karangawen">Karangawen</option>
+                                    <option value="Guntur">Guntur</option>
+                                    <option value="Sayung">Sayung</option>
+                                    <option value="Karangtengah">Karangtengah</option>
+                                    <option value="Wonosalam">Wonosalam</option>
+                                    <option value="Dempet">Dempet</option>
+                                    <option value="Gajah">Gajah</option>
+                                    <option value="Karanganyar">Karanganyar</option>
+                                    <option value="Mijen">Mijen</option>
+                                    <option value="Demak Kota">Demak Kota</option>
+                                    <option value="Bonang">Bonang</option>
+                                    <option value="Wedung">Wedung</option>
+                                    <option value="Kebonagung">Kebonagung</option>
+                                    <option value="Luar Kab. Demak / PW Jateng">Luar Kab. Demak / PW Jateng</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="rsvp-nama-pesantren" class="block text-xs font-bold text-slate-700 mb-1.5">Nama Pondok Pesantren <span class="text-rose-500">*</span></label>
+                                <input id="rsvp-nama-pesantren" type="text" required placeholder="cth: PP. Futuhiyyah Suburan"
+                                    class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none" />
+                            </div>
+
+                            <div>
+                                <label for="rsvp-kategori-halaqah" class="block text-xs font-bold text-slate-700 mb-1.5">Pilihan Halaqah Tematik <span class="text-rose-500">*</span></label>
+                                <select id="rsvp-kategori-halaqah" required class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none">
+                                    <option value="">-- Pilih 1 dari 5 Halaqah --</option>
+                                    <option value="Halaqah 1: Masyayikh & Kebijakan Pesantren">Halaqah 1: Masyayikh &amp; Kebijakan Pesantren</option>
+                                    <option value="Halaqah 2: Kurikulum Turots & Muadalah">Halaqah 2: Kurikulum Turots &amp; Muadalah</option>
+                                    <option value="Halaqah 3: Pesantren Ramah Anak & Kesehatan">Halaqah 3: Pesantren Ramah Anak &amp; Kesehatan</option>
+                                    <option value="Halaqah 4: Kemandirian Ekonomi & Kopontren">Halaqah 4: Kemandirian Ekonomi &amp; Kopontren</option>
+                                    <option value="Halaqah 5: Digitalisasi Data & Media Pesantren">Halaqah 5: Digitalisasi Data &amp; Media Pesantren</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="rsvp-nama-peserta" class="block text-xs font-bold text-slate-700 mb-1.5">Nama Lengkap Delegasi / Utusan <span class="text-rose-500">*</span></label>
+                                <input id="rsvp-nama-peserta" type="text" required placeholder="cth: Gus H. Ahmad Faiz, M.Pd"
+                                    class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none" />
+                            </div>
+
+                            <div>
+                                <label for="rsvp-whatsapp" class="block text-xs font-bold text-slate-700 mb-1.5">Nomor WhatsApp Aktif <span class="text-rose-500">*</span></label>
+                                <input id="rsvp-whatsapp" type="tel" required placeholder="cth: 081234567890"
+                                    class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none" />
+                            </div>
+
+                            <div>
+                                <label for="rsvp-jabatan" class="block text-xs font-bold text-slate-700 mb-1.5">Jabatan di Pesantren</label>
+                                <input id="rsvp-jabatan" type="text" placeholder="cth: Pengasuh / Sekretaris / Operator"
+                                    class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="rsvp-catatan" class="block text-xs font-bold text-slate-700 mb-1.5">Catatan / Kebutuhan Khusus</label>
+                            <textarea id="rsvp-catatan" rows="2" placeholder="Opsional: sampaikan informasi tambahan bila ada..."
+                                class="w-full px-4 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-700 outline-none"></textarea>
+                        </div>
+
+                        <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p class="text-[11px] text-slate-500">Data konfirmasi langsung tersinkronisasi ke meja registrasi panitia.</p>
+                            <button id="btn-submit-rsvp" type="submit"
+                                class="w-full sm:w-auto px-7 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <span class="material-symbols-outlined text-[18px]">send</span>
+                                <span>Kirim Konfirmasi Pendaftaran</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </section>
 
