@@ -149,7 +149,7 @@
                         <a href="#direktori" onclick="navigateTo('direktori')" data-module="direktori" title="Direktori Pesantren" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">dataset</span>
                             <span class="sidebar-text flex-1">Direktori Pesantren</span>
-                            <span class="sidebar-text text-[10px] font-bold bg-black/20 text-emerald-200 px-2 py-0.5 rounded-full" id="sidebar-pesantren-count">348</span>
+                            <span class="sidebar-text text-[10px] font-bold bg-black/20 text-emerald-200 px-2 py-0.5 rounded-full" id="sidebar-pesantren-count">293</span>
                         </a>
                         <a href="#tambah" onclick="navigateTo('tambah')" data-module="tambah" title="Inisiasi Record Baru" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">add_circle</span>
@@ -3843,22 +3843,38 @@
         // ==========================================
         // 2. DATASET PESANTREN MODEL (MVP MOCK & REAL)
         // ==========================================
+        const RMI_CACHE_KEY_PESANTREN_V2 = 'rmi_cached_pesantren_v2';
+        const RMI_LEGACY_CACHE_KEYS = ['rmi_cached_pesantren_data', 'pesantren_data_cache'];
+
         /**
          * Pangkalan Data Pesantren (SWR: Stale-While-Revalidate Cache Strategy)
-         * Membaca dari localStorage cache 293 data riil agar saat refresh (Ctrl+R / F5)
-         * data asli langsung tampil seketika (0 ms) tanpa kedipan data dummy.
+         * Membaca dari localStorage cache v2 berisi 293 data riil agar saat refresh (Ctrl+R / F5)
+         * data asli langsung tampil seketika (0 ms) tanpa kedipan data dummy mock.
          */
         function getInitialPesantrenData() {
+            // Pembersihan otomatis cache legacy mock dari versi terdahulu
             try {
-                const cached = localStorage.getItem('rmi_cached_pesantren_data');
+                RMI_LEGACY_CACHE_KEYS.forEach(key => {
+                    if (localStorage.getItem(key)) localStorage.removeItem(key);
+                });
+            } catch (e) {
+                // Abaikan jika storage dinonaktifkan di private browsing
+            }
+
+            try {
+                const cached = localStorage.getItem(RMI_CACHE_KEY_PESANTREN_V2);
                 if (cached) {
                     const parsed = JSON.parse(cached);
-                    if (Array.isArray(parsed) && parsed.length > 0) {
+                    // Validasi integritas: hanya gunakan jika Array riil dengan panjang >= 50
+                    if (Array.isArray(parsed) && parsed.length >= 50 && (parsed[0].nama_resmi || parsed[0].kode_pesantren)) {
                         return parsed;
+                    } else {
+                        // Data mock lama atau korup, bersihkan
+                        localStorage.removeItem(RMI_CACHE_KEY_PESANTREN_V2);
                     }
                 }
             } catch (e) {
-                console.warn('Gagal membaca cache lokal pesantren:', e);
+                console.warn('Gagal membaca cache lokal pesantren v2:', e);
             }
             return [];
         }
@@ -4092,6 +4108,7 @@
             // Update Ringkasan Metrik Hero KPI (Fase 6 & Filter Kecamatan)
             updateDashboardKPISummary(currentDashboardTimeframe, currentDashboardKecamatan);
 
+            updatePesantrenBadgeCounts();
             syncLiveFromGoogleSheets(true);
             renderDashboardBars(currentDashboardKecamatan);
             renderPriorityQueue();
@@ -5238,7 +5255,7 @@
             if (isFiltered) {
                 totalCount = filteredPesantren.length || (distObj ? distObj.count : 0);
             } else {
-                totalCount = PESANTREN_DATA.length || 348;
+                totalCount = PESANTREN_DATA.length || 293;
             }
 
             // 2. Kepatuhan NSPP & Antrean
@@ -5807,6 +5824,56 @@
             `;
         }
 
+        function renderDirektoriSkeletonRows(count = 7) {
+            let rows = '';
+            for (let i = 1; i <= count; i++) {
+                rows += `
+                    <tr class="animate-pulse border-b border-slate-100/80">
+                        <td class="py-3.5 px-3 text-center">
+                            <div class="h-3.5 w-6 bg-slate-200/80 rounded mx-auto"></div>
+                        </td>
+                        <td class="py-2.5 px-2 text-center">
+                            <div class="w-9 h-9 rounded-xl bg-slate-200/80 mx-auto"></div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="space-y-1.5">
+                                <div class="h-3.5 bg-slate-200/80 rounded w-48 max-w-[80%]"></div>
+                                <div class="h-2.5 bg-slate-100 rounded w-28"></div>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="space-y-1">
+                                <div class="h-3 bg-slate-200/80 rounded w-24"></div>
+                                <div class="h-2 bg-slate-100 rounded w-16"></div>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <div class="h-3 bg-slate-200/80 rounded w-36 max-w-[70%]"></div>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <div class="space-y-1 inline-flex flex-col items-center">
+                                <div class="h-3 bg-slate-200/80 rounded w-16"></div>
+                                <div class="h-2.5 bg-slate-100 rounded w-12"></div>
+                            </div>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <div class="h-5 bg-slate-200/80 rounded-full w-20 mx-auto"></div>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <div class="h-5 bg-slate-200/80 rounded-full w-20 mx-auto"></div>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <div class="w-7 h-7 bg-slate-100 rounded"></div>
+                                <div class="w-7 h-7 bg-slate-100 rounded"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            return rows;
+        }
+
         function renderDirektoriTable(dataList) {
             const tbody = document.getElementById('direktori-table-body');
             if (!tbody) return;
@@ -5815,26 +5882,41 @@
                 if (typeof isSyncingLive !== 'undefined' && isSyncingLive) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="9" class="py-12 text-center text-slate-500 text-xs">
-                                <div class="inline-flex items-center gap-2.5 font-bold text-emerald-800 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-200/80 shadow-2xs">
-                                    <span class="material-symbols-outlined animate-spin text-[18px] text-emerald-600">progress_activity</span>
-                                    <span>Menghubungi Google Spreadsheet untuk memuat pangkalan data resmi...</span>
+                            <td colspan="9" class="py-3.5 px-4 bg-emerald-50/70 border-b border-emerald-100/80">
+                                <div class="flex items-center justify-between text-xs text-emerald-900">
+                                    <div class="flex items-center gap-2 font-semibold">
+                                        <span class="material-symbols-outlined text-[18px] text-emerald-600 animate-spin">progress_activity</span>
+                                        <span>Menghubungi Google Spreadsheet untuk memuat 293 data pesantren resmi...</span>
+                                    </div>
+                                    <span class="text-[11px] text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200 font-mono font-medium shadow-2xs">Sinkronisasi Cloud</span>
+                                </div>
+                            </td>
+                        </tr>
+                        ${renderDirektoriSkeletonRows(7)}
+                    `;
+                    const infoEl = document.getElementById('pagination-info');
+                    if (infoEl) infoEl.innerHTML = '<span class="text-slate-400 italic">Memuat pangkalan data resmi...</span>';
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="py-12 text-center text-slate-500">
+                                <div class="max-w-xs mx-auto flex flex-col items-center justify-center space-y-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-[28px]">search_off</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-700">Tidak ada pesantren yang cocok</p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">Coba ubah kata kunci atau bersihkan filter kecamatan & status</p>
+                                    </div>
+                                    <button type="button" onclick="resetFilterDirektori()" class="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                                        <span class="material-symbols-outlined text-[15px]">filter_alt_off</span> Reset Filter & Pencarian
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     `;
                     const infoEl = document.getElementById('pagination-info');
-                    if (infoEl) infoEl.innerText = 'Menghubungi pangkalan data Google Sheets...';
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="9" class="py-8 text-center text-slate-400 text-xs">
-                                Tidak ada data pesantren yang sesuai dengan filter pencarian.
-                            </td>
-                        </tr>
-                    `;
-                    const infoEl = document.getElementById('pagination-info');
-                    if (infoEl) infoEl.innerText = 'Menampilkan 0 dari 0 pesantren';
+                    if (infoEl) infoEl.innerHTML = 'Menampilkan <strong>0</strong> dari <strong>0</strong> pesantren';
                 }
                 const numContainer = document.getElementById('pagination-page-numbers');
                 if (numContainer) numContainer.innerHTML = '';
@@ -5942,7 +6024,6 @@
                 `;
             });
             tbody.innerHTML = rows;
-            document.getElementById('pagination-info').innerText = `Menampilkan 1 - ${dataList.length} dari ${dataList.length} pesantren`;
         }
 
         function handleSearchDirektori() {
@@ -6058,7 +6139,7 @@
                 if (result && result.success && result.data && result.data.length > 0) {
                     PESANTREN_DATA = result.data;
                     try {
-                        localStorage.setItem('rmi_cached_pesantren_data', JSON.stringify(result.data));
+                        localStorage.setItem(RMI_CACHE_KEY_PESANTREN_V2, JSON.stringify(result.data));
                     } catch (cErr) {
                         console.warn('Gagal menyimpan cache pesantren:', cErr);
                     }
@@ -7360,7 +7441,7 @@
                     }
 
                     try {
-                        localStorage.setItem('rmi_cached_pesantren_data', JSON.stringify(PESANTREN_DATA));
+                        localStorage.setItem(RMI_CACHE_KEY_PESANTREN_V2, JSON.stringify(PESANTREN_DATA));
                     } catch (errCache) {
                         console.warn("[saveBukuIndukInPlace] Gagal perbarui localStorage cache:", errCache);
                     }
