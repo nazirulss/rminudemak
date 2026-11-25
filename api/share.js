@@ -150,22 +150,33 @@ export default async function handler(req, res) {
   ${!isCrawler ? `
   <!-- Pengalihan Otomatis untuk Pengunjung Manusia ke Tampilan Penuh SPA -->
   <meta http-equiv="refresh" content="0;url=${spaRedirectUrl}" />
+  ` : ''}
   <script>
+    // Pengalihan instan ke aplikasi SPA (sebelum body dirender)
     window.location.replace("${spaRedirectUrl}");
   </script>
-  ` : ''}
 </head>
-<body style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px 20px; background: #005c55; color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-  <div style="max-width: 600px; background: rgba(255,255,255,0.08); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-    <h1 style="font-size: 20px; font-weight: 800; line-height: 1.4; margin-bottom: 16px; color: #f59e0b;">${escapeHtml(title)}</h1>
-    <p style="font-size: 14px; opacity: 0.9; line-height: 1.6; margin-bottom: 24px;">${escapeHtml(description)}</p>
-    <p><a href="${spaRedirectUrl}" style="display: inline-block; background: #c99a2c; color: #003831; padding: 12px 24px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 14px;">Buka Berita Lengkap &rarr;</a></p>
+<body onload="window.location.replace('${spaRedirectUrl}')" style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px 20px; background: #005c55; color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+  <div style="max-width: 540px; background: rgba(255,255,255,0.08); padding: 32px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <div style="width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.25); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 18px;"></div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    <h2 style="font-size: 17px; font-weight: 800; line-height: 1.4; margin-bottom: 10px; color: #f59e0b;">Membuka Berita...</h2>
+    <p style="font-size: 13px; opacity: 0.9; line-height: 1.5; margin-bottom: 20px;">${escapeHtml(title)}</p>
+    <p><a href="${spaRedirectUrl}" style="display: inline-block; background: #c99a2c; color: #003831; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 13px;">Klik di sini jika tidak beralih otomatis &rarr;</a></p>
   </div>
+  <script>
+    // Cadangan pengalihan jika script head belum dieksekusi
+    setTimeout(function() {
+      window.location.replace("${spaRedirectUrl}");
+    }, 50);
+  </script>
 </body>
 </html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=600, s-maxage=3600, stale-while-revalidate=86400');
+  // Pastikan header bervariasi berdasarkan User-Agent dan tidak membuat CDN menyajikan respon bot crawler ke browser biasa
+  res.setHeader('Vary', 'User-Agent');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.status(200).send(html);
 }
 

@@ -2914,10 +2914,22 @@ function handleBeritaSearch(query) {
     renderBeritaFullPage();
 }
 
+function findBeritaItem(idOrSlug) {
+    if (!idOrSlug || typeof allBeritaData === 'undefined' || !Array.isArray(allBeritaData)) return null;
+    let clean = '';
+    try {
+        clean = decodeURIComponent(String(idOrSlug)).toLowerCase().trim();
+    } catch(e) {
+        clean = String(idOrSlug).toLowerCase().trim();
+    }
+    return allBeritaData.find(b => 
+        (b.id && String(b.id).toLowerCase().trim() === clean) || 
+        (b.slug && String(b.slug).toLowerCase().trim() === clean)
+    ) || null;
+}
+
 function openBeritaDetailModal(idOrSlug) {
-    const item = (typeof allBeritaData !== 'undefined' && Array.isArray(allBeritaData))
-        ? allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug)
-        : null;
+    const item = findBeritaItem(idOrSlug);
     const activeSlug = (item && item.slug) ? item.slug : idOrSlug;
     const targetHash = '#berita/' + encodeURIComponent(activeSlug);
     if (window.location.hash !== targetHash) {
@@ -2956,7 +2968,7 @@ function openBeritaDetailModal(idOrSlug) {
         }
         loadBeritaRMI().then(() => {
             renderBeritaDetailPage(idOrSlug);
-            const found = allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+            const found = findBeritaItem(idOrSlug);
             if (found && found.slug && window.location.hash !== '#berita/' + encodeURIComponent(found.slug)) {
                 history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', '#berita/' + encodeURIComponent(found.slug));
             }
@@ -2993,7 +3005,7 @@ function formatIsiBeritaHtml(rawText) {
 }
 
 function renderBeritaDetailPage(idOrSlug) {
-    const item = allBeritaData.find(b => b.id === idOrSlug || b.slug === idOrSlug);
+    const item = findBeritaItem(idOrSlug);
     const container = document.getElementById('berita-detail-content');
     if (!item || !container) {
         if (container && allBeritaData.length > 0) {

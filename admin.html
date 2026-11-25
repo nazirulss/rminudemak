@@ -2029,15 +2029,47 @@
                                         </button>
                                     </div>
 
-                                    <!-- Tombol Sisipkan Foto Tengah (Green Asnawiyyah) -->
-                                    <button type="button" onclick="sisipkanFotoTengah()" class="px-3.5 py-1.5 bg-[#004e3c] hover:bg-[#003d2f] text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer" style="background-color: #004e3c; color: #ffffff;">
-                                        <span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
-                                        <span>Sisipkan Foto Tengah</span>
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <!-- Mode Switcher Tab (Visual WYSIWYG vs Raw HTML) -->
+                                        <div class="inline-flex p-0.5 bg-slate-200/90 rounded-lg text-[11px] font-bold">
+                                            <button type="button" id="btn-mode-editor-visual" onclick="setModeEditorBerita('visual')" class="px-2.5 py-1 rounded-md bg-white text-emerald-800 shadow-xs transition flex items-center gap-1 cursor-pointer">
+                                                <span class="material-symbols-outlined text-[15px]">visibility</span>
+                                                <span>Visual</span>
+                                            </button>
+                                            <button type="button" id="btn-mode-editor-html" onclick="setModeEditorBerita('html')" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
+                                                <span class="material-symbols-outlined text-[15px]">code</span>
+                                                <span>Kode HTML</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Tombol Sisipkan Foto Tengah (Green Asnawiyyah) -->
+                                        <button type="button" onclick="sisipkanFotoTengah()" class="px-3.5 py-1.5 bg-[#004e3c] hover:bg-[#003d2f] text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer" style="background-color: #004e3c; color: #ffffff;">
+                                            <span class="material-symbols-outlined text-[16px]">add_photo_alternate</span>
+                                            <span>Sisipkan Foto Tengah</span>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <!-- Textarea Naskah Berita -->
-                                <textarea id="cms-berita-isi" rows="8" placeholder="Tuliskan naskah berita lengkap di sini..." class="w-full p-4 bg-white border border-slate-300 rounded-b-xl text-xs text-slate-800 leading-relaxed placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition font-normal"></textarea>
+                                <style>
+                                    #cms-berita-isi-visual:empty:before {
+                                        content: "Tuliskan naskah berita lengkap di sini... (Foto tengah yang disisipkan akan langsung tampil secara visual di sini)";
+                                        color: #94a3b8;
+                                        pointer-events: none;
+                                        display: block;
+                                    }
+                                    #cms-berita-isi-visual img {
+                                        max-width: 100%;
+                                        height: auto;
+                                        border-radius: 0.85rem;
+                                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+                                    }
+                                </style>
+
+                                <!-- Visual WYSIWYG Editor: Foto langsung dirender visual -->
+                                <div id="cms-berita-isi-visual" contenteditable="true" class="w-full min-h-[240px] max-h-[550px] overflow-y-auto p-4 bg-white border border-slate-300 rounded-b-xl text-xs text-slate-800 leading-relaxed focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition font-normal" style="outline: none;"></div>
+
+                                <!-- Textarea Naskah Berita (Hidden saat mode Visual aktif) -->
+                                <textarea id="cms-berita-isi" rows="9" placeholder="Tuliskan naskah berita lengkap di sini..." class="hidden w-full p-4 bg-slate-900 text-slate-100 font-mono text-xs border border-slate-700 rounded-b-xl leading-relaxed focus:outline-none focus:border-emerald-500 transition font-normal"></textarea>
                             </div>
 
                             <!-- 6. Toggle Sorotan Utama & Tanggal -->
@@ -9658,6 +9690,10 @@ function bukaInlineTambahBerita() {
     if (title) title.innerText = 'TAMBAH BERITA BARU';
     document.getElementById('cms-berita-id').value = '';
     document.getElementById('form-inline-cms-berita').reset();
+    document.getElementById('cms-berita-isi').value = '';
+    const visualEl = document.getElementById('cms-berita-isi-visual');
+    if (visualEl) visualEl.innerHTML = '';
+    setModeEditorBerita('visual');
     const slugEl = document.getElementById('cms-berita-slug');
     if (slugEl) slugEl.value = '';
     const kwEl = document.getElementById('cms-berita-keywords');
@@ -9701,7 +9737,11 @@ function bukaInlineEditBerita(id) {
     document.getElementById('cms-berita-tanggal').value = item.tanggal || item.published_at || '';
     document.getElementById('cms-berita-cover').value = item.cover || item.cover_image_url || '';
     document.getElementById('cms-berita-ringkasan').value = item.ringkasan || '';
-    document.getElementById('cms-berita-isi').value = item.isi || item.isi_lengkap || '';
+    const isiText = item.isi || item.isi_lengkap || '';
+    document.getElementById('cms-berita-isi').value = isiText;
+    const visualEl = document.getElementById('cms-berita-isi-visual');
+    if (visualEl) visualEl.innerHTML = isiText;
+    setModeEditorBerita('visual');
     document.getElementById('cms-berita-is-featured').checked = !!(item.isFeatured || item.is_featured);
 
     const coverActions = document.getElementById('cms-berita-cover-actions');
@@ -10064,50 +10104,127 @@ function handleFileCoverBerita(event) {
     reader.readAsDataURL(file);
 }
 
+// =========================================================================
+// SISTEM WYSIWYG & VISUAL EDITOR UNTUK NASKAH BERITA (TAMPILKAN FOTO LANGSUNG)
+// =========================================================================
+let _currentEditorMode = 'visual';
+let _fotoTengahSavedRange = null;
+
+function setModeEditorBerita(mode) {
+    const visualEl = document.getElementById('cms-berita-isi-visual');
+    const textareaEl = document.getElementById('cms-berita-isi');
+    const btnVisual = document.getElementById('btn-mode-editor-visual');
+    const btnHtml = document.getElementById('btn-mode-editor-html');
+    if (!visualEl || !textareaEl) return;
+
+    _currentEditorMode = mode;
+
+    if (mode === 'visual') {
+        // Pindah dari HTML ke Visual: render HTML ke elemen visual
+        visualEl.innerHTML = textareaEl.value;
+        visualEl.classList.remove('hidden');
+        textareaEl.classList.add('hidden');
+        if (btnVisual) btnVisual.className = 'px-2.5 py-1 rounded-md bg-white text-emerald-800 shadow-xs transition flex items-center gap-1 cursor-pointer';
+        if (btnHtml) btnHtml.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer';
+        visualEl.focus();
+    } else {
+        // Pindah dari Visual ke HTML: ambil innerHTML dan taruh di textarea
+        textareaEl.value = visualEl.innerHTML;
+        textareaEl.classList.remove('hidden');
+        visualEl.classList.add('hidden');
+        if (btnHtml) btnHtml.className = 'px-2.5 py-1 rounded-md bg-white text-emerald-800 shadow-xs transition flex items-center gap-1 cursor-pointer';
+        if (btnVisual) btnVisual.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer';
+        textareaEl.focus();
+    }
+}
+
+function syncEditorContent() {
+    const visualEl = document.getElementById('cms-berita-isi-visual');
+    const textareaEl = document.getElementById('cms-berita-isi');
+    if (!visualEl || !textareaEl) return;
+    if (_currentEditorMode === 'visual') {
+        textareaEl.value = visualEl.innerHTML;
+    } else {
+        visualEl.innerHTML = textareaEl.value;
+    }
+}
+
+// Inisialisasi event input agar kedua field selalu sinkron
+document.addEventListener('DOMContentLoaded', function() {
+    const visualEl = document.getElementById('cms-berita-isi-visual');
+    const textareaEl = document.getElementById('cms-berita-isi');
+    if (visualEl && textareaEl) {
+        visualEl.addEventListener('input', function() {
+            textareaEl.value = this.innerHTML;
+        });
+        textareaEl.addEventListener('input', function() {
+            visualEl.innerHTML = this.value;
+        });
+    }
+});
+
 // Formatting Toolbar Handler (Bold, Italic, Lists, Align)
 function formatEditorText(command) {
-    const textarea = document.getElementById('cms-berita-isi');
-    if (!textarea) return;
+    if (_currentEditorMode === 'visual') {
+        const visualEl = document.getElementById('cms-berita-isi-visual');
+        if (!visualEl) return;
+        visualEl.focus();
+        if (command === 'bold') document.execCommand('bold', false, null);
+        else if (command === 'italic') document.execCommand('italic', false, null);
+        else if (command === 'underline') document.execCommand('underline', false, null);
+        else if (command === 'justifyLeft') document.execCommand('justifyLeft', false, null);
+        else if (command === 'justifyCenter') document.execCommand('justifyCenter', false, null);
+        else if (command === 'justifyRight') document.execCommand('justifyRight', false, null);
+        else if (command === 'justifyFull') document.execCommand('justifyFull', false, null);
+        else if (command === 'insertUnorderedList') document.execCommand('insertUnorderedList', false, null);
+        else if (command === 'insertOrderedList') document.execCommand('insertOrderedList', false, null);
+        
+        syncEditorContent();
+    } else {
+        const textarea = document.getElementById('cms-berita-isi');
+        if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selText = textarea.value.substring(start, end);
-    let replacement = '';
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selText = textarea.value.substring(start, end);
+        let replacement = '';
 
-    switch(command) {
-        case 'bold':
-            replacement = `**${selText || 'teks tebal'}**`;
-            break;
-        case 'italic':
-            replacement = `*${selText || 'teks miring'}*`;
-            break;
-        case 'underline':
-            replacement = `<u>${selText || 'teks garis bawah'}</u>`;
-            break;
-        case 'justifyLeft':
-            replacement = `${selText}`;
-            break;
-        case 'justifyCenter':
-            replacement = `<div class="text-center">${selText || 'Teks rata tengah'}</div>`;
-            break;
-        case 'justifyRight':
-            replacement = `<div class="text-right">${selText || 'Teks rata kanan'}</div>`;
-            break;
-        case 'justifyFull':
-            replacement = `<div class="text-justify">${selText || 'Teks rata kanan-kiri'}</div>`;
-            break;
-        case 'insertUnorderedList':
-            replacement = selText ? selText.split('\n').map(l => '- ' + l).join('\n') : '- Poin 1\n- Poin 2';
-            break;
-        case 'insertOrderedList':
-            replacement = selText ? selText.split('\n').map((l, i) => `${i+1}. ${l}`).join('\n') : '1. Langkah 1\n2. Langkah 2';
-            break;
-        default:
-            replacement = selText;
+        switch(command) {
+            case 'bold':
+                replacement = `**${selText || 'teks tebal'}**`;
+                break;
+            case 'italic':
+                replacement = `*${selText || 'teks miring'}*`;
+                break;
+            case 'underline':
+                replacement = `<u>${selText || 'teks garis bawah'}</u>`;
+                break;
+            case 'justifyLeft':
+                replacement = `${selText}`;
+                break;
+            case 'justifyCenter':
+                replacement = `<div class="text-center">${selText || 'Teks rata tengah'}</div>`;
+                break;
+            case 'justifyRight':
+                replacement = `<div class="text-right">${selText || 'Teks rata kanan'}</div>`;
+                break;
+            case 'justifyFull':
+                replacement = `<div class="text-justify">${selText || 'Teks rata kanan-kiri'}</div>`;
+                break;
+            case 'insertUnorderedList':
+                replacement = selText ? selText.split('\n').map(l => '- ' + l).join('\n') : '- Poin 1\n- Poin 2';
+                break;
+            case 'insertOrderedList':
+                replacement = selText ? selText.split('\n').map((l, i) => `${i+1}. ${l}`).join('\n') : '1. Langkah 1\n2. Langkah 2';
+                break;
+            default:
+                replacement = selText;
+        }
+
+        textarea.setRangeText(replacement, start, end, 'select');
+        textarea.focus();
+        syncEditorContent();
     }
-
-    textarea.setRangeText(replacement, start, end, 'select');
-    textarea.focus();
 }
 
 // =========================================================================
@@ -10118,8 +10235,18 @@ let _fotoTengahUploadPayload = null;
 let _fotoTengahCaretPos = { start: 0, end: 0 };
 
 function sisipkanFotoTengah() {
+    const visualEl = document.getElementById('cms-berita-isi-visual');
     const textarea = document.getElementById('cms-berita-isi');
-    if (textarea) {
+
+    if (_currentEditorMode === 'visual' && visualEl) {
+        visualEl.focus();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            _fotoTengahSavedRange = sel.getRangeAt(0).cloneRange();
+        } else {
+            _fotoTengahSavedRange = null;
+        }
+    } else if (textarea) {
         _fotoTengahCaretPos = {
             start: typeof textarea.selectionStart === 'number' ? textarea.selectionStart : textarea.value.length,
             end: typeof textarea.selectionEnd === 'number' ? textarea.selectionEnd : textarea.value.length
@@ -10386,25 +10513,50 @@ async function submitSisipkanFotoTengah() {
     else if (width === 'small') widthStyle = ' style="max-width: 50%;"';
 
     const safeCaption = caption ? caption.replace(/"/g, '&quot;') : '';
-    const imageSnippet = `\n\n<div class="${alignClass}"${widthStyle}>\n  <img src="${finalImageUrl}" alt="${safeCaption || 'Foto Berita'}" class="${imgClass}" />\n  ${caption ? `<p class="text-xs text-slate-500 mt-2 italic font-medium">📸 ${safeCaption}</p>` : ''}\n</div>\n\n`;
+    const imageSnippet = `\n<div class="${alignClass}"${widthStyle}>\n  <img src="${finalImageUrl}" alt="${safeCaption || 'Foto Berita'}" class="${imgClass}" />\n  ${caption ? `<p class="text-xs text-slate-500 mt-2 italic font-medium">📸 ${safeCaption}</p>` : ''}\n</div>\n<p><br></p>\n`;
 
-    // Sisipkan ke Textarea Naskah di Posisi Kursor
+    const visualEl = document.getElementById('cms-berita-isi-visual');
     const textarea = document.getElementById('cms-berita-isi');
-    if (textarea) {
+
+    if (_currentEditorMode === 'visual' && visualEl) {
+        visualEl.focus();
+        let inserted = false;
+        if (_fotoTengahSavedRange) {
+            try {
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(_fotoTengahSavedRange);
+                inserted = document.execCommand('insertHTML', false, imageSnippet);
+            } catch (err) {
+                inserted = false;
+            }
+        }
+        if (!inserted) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = imageSnippet;
+            while (tempDiv.firstChild) {
+                visualEl.appendChild(tempDiv.firstChild);
+            }
+        }
+        if (textarea) textarea.value = visualEl.innerHTML;
+        visualEl.focus();
+    } else if (textarea) {
         const text = textarea.value;
         const pos = _fotoTengahCaretPos.start || text.length;
         textarea.value = text.substring(0, pos) + imageSnippet + text.substring(pos);
+        if (visualEl) visualEl.innerHTML = textarea.value;
         textarea.focus();
         const newPos = pos + imageSnippet.length;
         textarea.setSelectionRange(newPos, newPos);
     }
 
     tutupModalFotoTengah();
-    showToast('success', 'Foto dokumentasi berhasil disisipkan ke naskah berita!');
+    showToast('success', 'Foto dokumentasi berhasil disisipkan dan tampil langsung di naskah!');
 }
 
 // Simpan Artikel Berita ke Database Google Spreadsheet & Live Portal
 async function simpanArtikelBerita() {
+    syncEditorContent();
     const id = document.getElementById('cms-berita-id').value;
     const judul = document.getElementById('cms-berita-judul').value.trim();
     const kategori = getSelectedKategori();
