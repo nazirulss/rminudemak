@@ -9834,22 +9834,36 @@ async function submitSisipkanFotoTengah() {
 
         try {
             const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+            
+            // Coba UPLOAD_ASSET (Live Terverifikasi di Google Apps Script Cloud)
             const res = await fetch(gasUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
-                    action: 'UPLOAD_BERITA_IMAGE',
-                    base64: _fotoTengahUploadPayload.base64,
-                    filename: _fotoTengahUploadPayload.filename,
-                    mimeType: _fotoTengahUploadPayload.mimeType
+                    action: 'UPLOAD_ASSET',
+                    files: [{
+                        name: _fotoTengahUploadPayload.filename || ('berita_' + Date.now() + '.jpg'),
+                        key: 'foto_berita_' + Date.now(),
+                        base64: _fotoTengahUploadPayload.base64,
+                        mimeType: _fotoTengahUploadPayload.mimeType || 'image/jpeg'
+                    }]
                 })
             });
 
             const json = await res.json();
-            if (json && json.success && (json.directUrl || json.fileId)) {
-                finalImageUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
-            } else {
-                throw new Error(json.error || 'Server tidak mengembalikan URL gambar.');
+            if (json && json.success) {
+                if (json.assets) {
+                    const firstAsset = Object.values(json.assets)[0];
+                    if (firstAsset && (firstAsset.url || firstAsset.id)) {
+                        finalImageUrl = firstAsset.url || ('https://lh3.googleusercontent.com/d/' + firstAsset.id);
+                    }
+                } else if (json.directUrl || json.fileId) {
+                    finalImageUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
+                }
+            }
+
+            if (!finalImageUrl) {
+                throw new Error(json && json.message ? json.message : 'Server tidak mengembalikan URL gambar.');
             }
         } catch (err) {
             showToast('error', 'Gagal upload ke Google Drive: ' + err.message);
