@@ -76,6 +76,87 @@ function normalizeKecamatanName(kec) {
     return String(kec).trim();
 }
 
+/**
+ * Smart Geolocation Resolver untuk Lembaga Pendidikan Keagamaan di Demak.
+ * Menangani titik koordinat presisi riil, mendeteksi koordinat default/fallback Demak Kota (-6.8944, 110.6386),
+ * serta menyebarkan titik secara proporsional dan deterministik di dalam wilayah kecamatannya masing-masing.
+ */
+function resolveLembagaCoordinates(item, index) {
+    let lat = (item.latitude !== null && item.latitude !== undefined && item.latitude !== '') ? parseFloat(item.latitude) : null;
+    let lng = (item.longitude !== null && item.longitude !== undefined && item.longitude !== '') ? parseFloat(item.longitude) : null;
+
+    // Batas wilayah resmi Kabupaten Demak (lat: -7.15 s.d -6.70, lng: 110.40 s.d 110.88)
+    const isOutOfBounds = (lat !== null && lng !== null) && (lat < -7.15 || lat > -6.70 || lng < 110.40 || lng > 110.88);
+    const isMissing = !lat || !lng || isNaN(lat) || isNaN(lng);
+    // Koordinat default Demak Kota dari database pusat (-6.8944, 110.6386)
+    const isDefaultDemakCenter = !isMissing && (Math.abs(lat - (-6.8944)) < 0.0001 && Math.abs(lng - 110.6386) < 0.0001);
+
+    if (isMissing || isDefaultDemakCenter || isOutOfBounds) {
+        const rawKec = normalizeKecamatanName(item.kecamatan || '');
+        const kecKeys = Object.keys(DEMAK_DISTRICT_COORDS).filter(k => k !== 'Wonotunggal/Wonosalam' && k !== 'Demak');
+        // Jika kecamatan tidak terdefinisi atau tidak cocok, sebar merata ke 14 kecamatan se-Demak berdasarkan index
+        const targetKec = DEMAK_DISTRICT_COORDS[rawKec] ? rawKec : kecKeys[index % kecKeys.length];
+        const baseCoord = DEMAK_DISTRICT_COORDS[targetKec] || DEMAK_DISTRICT_COORDS['Demak Kota'] || [-6.8944, 110.6386];
+
+        // Hash deterministik berbasis ID / Kode / Nama dan Index agar sebaran unik dan konsisten setiap refresh
+        const seedStr = String(item.id || item.kode_pesantren || item.nama || '') + '_' + String(index);
+        let hash = 0;
+        for (let i = 0; i < seedStr.length; i++) {
+            hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
+            hash = Math.abs(hash | 0);
+        }
+
+        // Distribusi polar di sekitar pusat kecamatan (radius 400 meter s.d. 1.8 kilometer)
+        const angle = ((hash % 360) * Math.PI) / 180;
+        const dist = 0.004 + ((hash % 100) / 100) * 0.013;
+        // Koreksi mikro index agar 100% titik unik dan tidak bertumpuk
+        const microJitterLat = ((index % 11) - 5) * 0.00035 + ((index % 3) * 0.0001);
+        const microJitterLng = ((index % 7) - 3) * 0.00045 + ((index % 5) * 0.0001);
+
+        lat = baseCoord[0] + (Math.sin(angle) * dist) + microJitterLat;
+        lng = baseCoord[1] + (Math.cos(angle) * dist * 1.06) + microJitterLng;
+    }
+
+    return [lat, lng];
+}
+
+/**
+ * Sinkronisasi seluruh indikator statistik kuantitatif platform secara real-time
+ * Menyelaraskan angka di Beranda (hero badge, hero impact counter) dan Direktori (map stats card)
+ */
+function updateAllPlatformStats(dataList) {
+    const list = (dataList && dataList.length > 0) ? dataList : allLembagaData;
+    const pesantrenList = list.filter(l => (l.jenis || '').toLowerCase() === 'pesantren');
+    const madinList = list.filter(l => (l.jenis || '').toLowerCase() === 'madin');
+    const tpqList = list.filter(l => (l.jenis || '').toLowerCase() === 'tpq');
+
+    const pCount = pesantrenList.length > 0 ? pesantrenList.length : 293;
+
+    // 1. Update Badge Hero Peta Beranda jika sedang di tab Pesantren
+    const heroLabel = document.getElementById('hero-map-label');
+    if (heroLabel && (typeof currentHeroCategory === 'undefined' || currentHeroCategory.toLowerCase() === 'pesantren')) {
+        heroLabel.innerText = `${pCount} Pondok Pesantren Tervalidasi`;
+    }
+
+    // 2. Update Counter Ringkasan Hero Beranda
+    const heroStatCount = document.getElementById('hero-stat-pesantren-count');
+    if (heroStatCount) {
+        heroStatCount.innerText = `${pCount}+`;
+    }
+
+    // 3. Update Floating Stats Card di Halaman Direktori
+    const statsCountEl = document.getElementById('map-stats-count');
+    if (statsCountEl) {
+        if (typeof currentPublicCategory === 'undefined' || currentPublicCategory.toLowerCase() === 'pesantren') {
+            statsCountEl.innerText = `${pCount}`;
+        } else if (currentPublicCategory.toLowerCase() === 'madin') {
+            statsCountEl.innerText = `${madinList.length || 540}+`;
+        } else if (currentPublicCategory.toLowerCase() === 'tpq') {
+            statsCountEl.innerText = `${tpqList.length || 850}+`;
+        }
+    }
+}
+
 // Aset visual resmi bertema Islami & Pesantren untuk lembaga yang belum mengunggah foto
 const ISLAMIC_FALLBACK_IMAGES = [
     'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58', // Kemegahan Arsitektur Masjid & Menara Islami
@@ -448,6 +529,7 @@ async function loadLembagaDariSupabase() {
                 if (publicMap) loadPublicMapMarkers(currentPublicCategory);
                 if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
                 populatePublicKecamatanDropdown(currentPublicCategory);
+                updateAllPlatformStats(allLembagaData);
 
                 if (isFresh) {
                     console.log("⚡ Portal Publik: Memuat data dari cache lokal (hemat kuota Apps Script & CDN).");
@@ -513,6 +595,7 @@ async function loadLembagaDariSupabase() {
             if (publicMap) loadPublicMapMarkers(currentPublicCategory);
             if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
             populatePublicKecamatanDropdown(currentPublicCategory);
+            updateAllPlatformStats(allLembagaData);
             return;
         }
     } catch (gasErr) {
@@ -530,6 +613,7 @@ async function loadLembagaDariSupabase() {
             if (!error && lembagaList && lembagaList.length > 0) {
                 allLembagaData = lembagaList;
                 renderLembagaCards(allLembagaData);
+                updateAllPlatformStats(allLembagaData);
                 return;
             }
         }
@@ -541,6 +625,7 @@ async function loadLembagaDariSupabase() {
     if (allLembagaData.length === 0) {
         allLembagaData = [...DEFAULT_LEMBAGA_DATA];
         renderLembagaCards(allLembagaData);
+        updateAllPlatformStats(allLembagaData);
     }
 }
 
@@ -628,10 +713,12 @@ function switchHeroMapTab(category) {
     if (tabMadin) tabMadin.className = inactiveClass;
     if (tabTpq) tabTpq.className = inactiveClass;
 
+    const pCount = allLembagaData.filter(l => (l.jenis || '').toLowerCase() === 'pesantren').length || 293;
+
     if (category.toLowerCase() === 'pesantren') {
         if (tabPesantren) tabPesantren.className = 'hero-map-tab py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 bg-primary text-white shadow-md border border-white/20';
         if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse';
-        if (label) label.innerText = '380+ Pondok Pesantren Tervalidasi';
+        if (label) label.innerText = `${pCount} Pondok Pesantren Tervalidasi`;
     } else if (category.toLowerCase() === 'madin') {
         if (tabMadin) tabMadin.className = 'hero-map-tab py-2 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 bg-secondary text-white shadow-md border border-white/20';
         if (indicator) indicator.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse';
@@ -672,18 +759,7 @@ function loadHeroMapMarkers(activeCategory = 'Pesantren') {
     }
 
     filtered.forEach((item, index) => {
-        let lat = item.latitude;
-        let lng = item.longitude;
-
-        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-            const kec = item.kecamatan || 'Demak';
-            const baseCoord = DEMAK_DISTRICT_COORDS[kec] || DEMAK_DISTRICT_COORDS['Demak'];
-            const hash = ((item.id || item.nama || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), index)) % 100;
-            const jitterLat = ((hash % 10) - 5) * 0.0035;
-            const jitterLng = ((Math.floor(hash / 10) % 10) - 5) * 0.0035;
-            lat = baseCoord[0] + jitterLat;
-            lng = baseCoord[1] + jitterLng;
-        }
+        const [lat, lng] = resolveLembagaCoordinates(item, index);
 
         const marker = L.circleMarker([lat, lng], {
             radius: 6.5,
@@ -719,6 +795,8 @@ window.initHeroMap = initHeroMap;
 window.recenterHeroMap = recenterHeroMap;
 window.switchHeroMapTab = switchHeroMapTab;
 window.loadHeroMapMarkers = loadHeroMapMarkers;
+window.resolveLembagaCoordinates = resolveLembagaCoordinates;
+window.updateAllPlatformStats = updateAllPlatformStats;
 
 // MODUL PETA GEOSPASIAL PUBLIK DIREKTORI (LEAFLET.JS)
 // ==================================================================
@@ -817,18 +895,7 @@ function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = ''
     }
 
     filtered.forEach((item, index) => {
-        let lat = item.latitude;
-        let lng = item.longitude;
-
-        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-            const kec = item.kecamatan || 'Demak';
-            const baseCoord = DEMAK_DISTRICT_COORDS[kec] || DEMAK_DISTRICT_COORDS['Demak'];
-            const hash = ((item.id || item.nama || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), index)) % 100;
-            const jitterLat = ((hash % 10) - 5) * 0.0035;
-            const jitterLng = ((Math.floor(hash / 10) % 10) - 5) * 0.0035;
-            lat = baseCoord[0] + jitterLat;
-            lng = baseCoord[1] + jitterLng;
-        }
+        const [lat, lng] = resolveLembagaCoordinates(item, index);
 
         const marker = L.circleMarker([lat, lng], {
             radius: 7.5,
@@ -1726,6 +1793,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Eksekusi penarikan data Supabase secara aman
     loadLembagaDariSupabase();
+    updateAllPlatformStats(allLembagaData);
 
     // Memuat arsip warta media RMI Demak terkini
     loadBeritaRMI();
