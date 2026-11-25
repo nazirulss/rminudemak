@@ -1866,10 +1866,17 @@
 
                             <!-- 1. Judul Berita / Artikel -->
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                    JUDUL BERITA / ARTIKEL <span class="text-rose-500">*</span>
-                                </label>
-                                <input type="text" id="cms-berita-judul" required placeholder="Masukkan judul berita yang menarik dan informatif..." class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition shadow-xs" />
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                                        JUDUL BERITA / ARTIKEL <span class="text-rose-500">*</span>
+                                    </label>
+                                    <span class="text-[10px] text-slate-400 font-mono">Slug otomatis dihasilkan</span>
+                                </div>
+                                <input type="text" id="cms-berita-judul" required oninput="generateSlugBeritaLive()" placeholder="Masukkan judul berita yang menarik dan informatif..." class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition shadow-xs" />
+                                <div class="mt-1.5 flex items-center gap-2 text-[10px] text-slate-500">
+                                    <span class="font-bold text-slate-600 uppercase">Slug URL:</span>
+                                    <input type="text" id="cms-berita-slug" placeholder="slug-judul-berita" class="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-mono text-emerald-800 focus:bg-white focus:outline-none focus:border-emerald-600 transition" />
+                                </div>
                             </div>
 
                             <!-- 2. Kategori / Rubrik & Penulis / Sumber Redaksi -->
@@ -9528,6 +9535,8 @@ function bukaInlineTambahBerita() {
     if (title) title.innerText = 'TAMBAH BERITA BARU';
     document.getElementById('cms-berita-id').value = '';
     document.getElementById('form-inline-cms-berita').reset();
+    const slugEl = document.getElementById('cms-berita-slug');
+    if (slugEl) slugEl.value = '';
     document.getElementById('cms-berita-penulis').value = 'Redaksi RMI PCNU Demak';
     document.getElementById('cms-berita-tanggal').value = new Date().toISOString().split('T')[0];
     previewCoverInput();
@@ -9548,6 +9557,10 @@ function bukaInlineEditBerita(id) {
     if (title) title.innerText = 'EDIT ARTIKEL BERITA';
     document.getElementById('cms-berita-id').value = item.id;
     document.getElementById('cms-berita-judul').value = item.judul || '';
+    const slugEl = document.getElementById('cms-berita-slug');
+    if (slugEl) {
+        slugEl.value = item.slug || (item.judul ? item.judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : '');
+    }
     document.getElementById('cms-berita-kategori').value = item.kategori || 'Pendidikan';
     document.getElementById('cms-berita-penulis').value = item.penulis || 'Redaksi RMI PCNU Demak';
     document.getElementById('cms-berita-tanggal').value = item.tanggal || '';
@@ -9590,30 +9603,70 @@ function previewCoverInput() {
     }
 }
 
-// Upload file lokal & preview secara instan
-function handleFileCoverBerita(event) {
-    const file = event.target.files[0];
+// Live Generator Slug dari Judul Berita
+function generateSlugBeritaLive() {
+    const judulInput = document.getElementById('cms-berita-judul');
+    const slugInput = document.getElementById('cms-berita-slug');
+    if (!judulInput || !slugInput) return;
+    const slug = judulInput.value.trim().toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    slugInput.value = slug;
+}
+
+// Upload file cover lokal, kompres otomatis via Canvas & unggah ke Google Drive
+async function handleFileCoverBerita(event) {
+    const file = event.target.files && event.target.files[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-        showToast('error', 'Ukuran gambar melebihi 2MB! Silakan kompres terlebih dahulu.');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        document.getElementById('cms-berita-cover').value = dataUrl;
+    showToast('info', 'Mengompres foto cover 16:9...');
+    try {
+        const compressed = await kompresGambarClientSide(file, 1280, 0.85);
         const img = document.getElementById('cms-berita-cover-preview');
         const placeholder = document.getElementById('cms-berita-cover-placeholder');
         if (img) {
-            img.src = dataUrl;
+            img.src = compressed.dataUrl;
             img.classList.remove('hidden');
         }
         if (placeholder) placeholder.classList.add('hidden');
-        showToast('success', 'Foto cover 16:9 berhasil dimuat!');
-    };
-    reader.readAsDataURL(file);
+
+        // Unggah otomatis ke Google Drive
+        showToast('info', 'Mengunggah cover ke Google Drive...');
+        const gasUrl = (typeof APPS_SCRIPT_URL !== 'undefined' ? APPS_SCRIPT_URL : 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec');
+        const res = await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+                action: 'UPLOAD_ASSET',
+                files: [{
+                    name: ('cover_' + Date.now() + (compressed.mimeType.includes('webp') ? '.webp' : '.jpg')),
+                    key: 'cover_berita_' + Date.now(),
+                    base64: compressed.base64,
+                    mimeType: compressed.mimeType
+                }]
+            })
+        });
+
+        const json = await res.json();
+        let coverUrl = '';
+        if (json && json.success && json.assets) {
+            const first = Object.values(json.assets)[0];
+            coverUrl = first.url || ('https://lh3.googleusercontent.com/d/' + first.id);
+        } else if (json && (json.directUrl || json.fileId)) {
+            coverUrl = json.directUrl || ('https://lh3.googleusercontent.com/d/' + json.fileId);
+        }
+
+        if (coverUrl) {
+            document.getElementById('cms-berita-cover').value = coverUrl;
+            showToast('success', `Foto cover berhasil diunggah ke Google Drive (~${compressed.sizeKb} KB)!`);
+        } else {
+            // Fallback preview dataUrl jika server drive tidak mengembalikan URL
+            document.getElementById('cms-berita-cover').value = compressed.dataUrl;
+            showToast('success', 'Foto cover berhasil dimuat & dikompres!');
+        }
+    } catch (err) {
+        showToast('error', 'Gagal memproses cover: ' + err.message);
+    }
 }
 
 // Formatting Toolbar Handler (Bold, Italic, Lists, Align)
@@ -9936,6 +9989,12 @@ async function simpanArtikelBerita() {
     const finalCover = cover || defaultCover;
     const finalDate = tanggal || new Date().toISOString().split('T')[0];
     const finalId = id || ('BRT-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4));
+    
+    // Auto Generate Slug atau ambil dari input
+    const slugInput = document.getElementById('cms-berita-slug');
+    const finalSlug = (slugInput && slugInput.value.trim()) 
+        ? slugInput.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        : judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     if (isFeatured) {
         cmsBeritaData.forEach(b => {
@@ -9947,7 +10006,7 @@ async function simpanArtikelBerita() {
     const beritaItem = {
         id: finalId,
         judul: judul,
-        slug: judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        slug: finalSlug,
         kategori: kategori,
         penulis: penulis,
         tanggal: finalDate,
@@ -9984,7 +10043,7 @@ async function simpanArtikelBerita() {
             action: 'SAVE_BERITA',
             id: finalId,
             judul: judul,
-            slug: judul.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+            slug: finalSlug,
             kategori: kategori,
             penulis: penulis,
             published_at: finalDate,
