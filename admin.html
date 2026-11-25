@@ -6628,50 +6628,128 @@
             loadDashboardMapMarkers(PESANTREN_DATA);
         }
 
+        const ADMIN_DISTRICT_COORDS = {
+            "Mranggen": [-7.0274, 110.5188],
+            "Karangawen": [-7.0514, 110.5847],
+            "Guntur": [-6.9942, 110.6015],
+            "Sayung": [-6.9189, 110.5218],
+            "Karangtengah": [-6.9147, 110.6274],
+            "Wonosalam": [-6.9242, 110.6811],
+            "Wonotunggal/Wonosalam": [-6.9242, 110.6811],
+            "Demak": [-6.8944, 110.6386],
+            "Demak Kota": [-6.8944, 110.6386],
+            "Bonang": [-6.8524, 110.5824],
+            "Wedung": [-6.7824, 110.5614],
+            "Mijen": [-6.8124, 110.7142],
+            "Gajah": [-6.8824, 110.7514],
+            "Karanganyar": [-6.8514, 110.7914],
+            "Dempet": [-6.9814, 110.7124],
+            "Kebonagung": [-7.0314, 110.7412]
+        };
+
+        function normalizeAdminKecamatanName(kec) {
+            if (!kec) return '';
+            const k = String(kec).trim().toLowerCase();
+            if (k === 'demak' || k === 'demak kota') return 'Demak Kota';
+            if (k.includes('wonosalam') || k.includes('wonotunggal')) return 'Wonosalam';
+            if (k.includes('sayung')) return 'Sayung';
+            if (k.includes('mranggen')) return 'Mranggen';
+            if (k.includes('karangawen')) return 'Karangawen';
+            if (k.includes('guntur')) return 'Guntur';
+            if (k.includes('karangtengah')) return 'Karangtengah';
+            if (k.includes('bonang')) return 'Bonang';
+            if (k.includes('wedung')) return 'Wedung';
+            if (k.includes('mijen')) return 'Mijen';
+            if (k.includes('gajah')) return 'Gajah';
+            if (k.includes('karanganyar')) return 'Karanganyar';
+            if (k.includes('dempet')) return 'Dempet';
+            if (k.includes('kebonagung')) return 'Kebonagung';
+            return String(kec).trim();
+        }
+
+        /**
+         * Smart Geolocation Resolver (Sinkron dengan app.js Publik).
+         * Menyebarkan titik secara proporsional dan deterministik di dalam kecamatannya masing-masing
+         * apabila koordinat belum diisi atau masih berupa default pusat Demak Kota (-6.8944, 110.6386).
+         */
+        function resolveAdminPesantrenCoordinates(item, index) {
+            let lat = (item.latitude !== null && item.latitude !== undefined && item.latitude !== '') ? parseFloat(item.latitude) : null;
+            let lng = (item.longitude !== null && item.longitude !== undefined && item.longitude !== '') ? parseFloat(item.longitude) : null;
+
+            const isOutOfBounds = (lat !== null && lng !== null) && (lat < -7.15 || lat > -6.70 || lng < 110.40 || lng > 110.88);
+            const isMissing = !lat || !lng || isNaN(lat) || isNaN(lng);
+            const isDefaultDemakCenter = !isMissing && (Math.abs(lat - (-6.8944)) < 0.0001 && Math.abs(lng - 110.6386) < 0.0001);
+
+            if (isMissing || isDefaultDemakCenter || isOutOfBounds) {
+                const rawKec = normalizeAdminKecamatanName(item.kecamatan || '');
+                const kecKeys = Object.keys(ADMIN_DISTRICT_COORDS).filter(k => k !== 'Wonotunggal/Wonosalam' && k !== 'Demak');
+                const targetKec = ADMIN_DISTRICT_COORDS[rawKec] ? rawKec : kecKeys[index % kecKeys.length];
+                const baseCoord = ADMIN_DISTRICT_COORDS[targetKec] || ADMIN_DISTRICT_COORDS['Demak Kota'] || [-6.8944, 110.6386];
+
+                const seedStr = String(item.id || item.kode_pesantren || item.nama_resmi || '') + '_' + String(index);
+                let hash = 0;
+                for (let i = 0; i < seedStr.length; i++) {
+                    hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
+                    hash = Math.abs(hash | 0);
+                }
+
+                const angle = ((hash % 360) * Math.PI) / 180;
+                const dist = 0.004 + ((hash % 100) / 100) * 0.013;
+                const microJitterLat = ((index % 11) - 5) * 0.00035 + ((index % 3) * 0.0001);
+                const microJitterLng = ((index % 7) - 3) * 0.00045 + ((index % 5) * 0.0001);
+
+                lat = baseCoord[0] + (Math.sin(angle) * dist) + microJitterLat;
+                lng = baseCoord[1] + (Math.cos(angle) * dist * 1.06) + microJitterLng;
+            }
+
+            return [lat, lng];
+        }
+
         function loadDashboardMapMarkers(dataList, activeDistrict = '') {
             if (!dashboardMap) return;
 
             dashboardMapMarkers.forEach(m => dashboardMap.removeLayer(m));
             dashboardMapMarkers = [];
 
-            (dataList || PESANTREN_DATA).forEach(p => {
-                if (p.latitude && p.longitude) {
-                    const isVerified = (p.status_verifikasi === 'verified');
-                    const markerColor = isVerified ? '#005c55' : '#d97706';
+            const normActive = normalizeAdminKecamatanName(activeDistrict);
 
-                    const isMatchDistrict = !activeDistrict || ((p.kecamatan || '').toLowerCase() === activeDistrict.toLowerCase());
-                    const markerRadius = isMatchDistrict ? 8 : 4.5;
-                    const markerOpacity = isMatchDistrict ? 1 : 0.25;
-                    const markerFillOpacity = isMatchDistrict ? 0.92 : 0.15;
-                    const markerWeight = isMatchDistrict ? 2 : 1;
+            (dataList || PESANTREN_DATA).forEach((p, index) => {
+                const [lat, lng] = resolveAdminPesantrenCoordinates(p, index);
+                const isVerified = (p.status_verifikasi === 'verified');
+                const markerColor = isVerified ? '#005c55' : '#d97706';
 
-                    const marker = L.circleMarker([p.latitude, p.longitude], {
-                        radius: markerRadius,
-                        fillColor: markerColor,
-                        color: isMatchDistrict ? '#ffffff' : '#94a3b8',
-                        weight: markerWeight,
-                        opacity: markerOpacity,
-                        fillOpacity: markerFillOpacity
-                    }).addTo(dashboardMap);
+                const isMatchDistrict = !activeDistrict || (normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase() === normActive.toLowerCase());
+                const markerRadius = isMatchDistrict ? 8 : 4.5;
+                const markerOpacity = isMatchDistrict ? 1 : 0.25;
+                const markerFillOpacity = isMatchDistrict ? 0.92 : 0.15;
+                const markerWeight = isMatchDistrict ? 2 : 1;
 
-                    marker.bindPopup(`
-                        <div class="font-sans text-xs p-1" style="min-width: 170px;">
-                            <div class="flex items-center justify-between gap-1 mb-1">
-                                <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200/80">${escapeHTML(p.kode_pesantren)}</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                    ${isVerified ? 'Terverifikasi' : 'Review'}
-                                </span>
-                            </div>
-                            <h4 class="font-bold text-xs text-slate-900 leading-snug">${escapeHTML(p.nama_resmi)}</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Kec. ${escapeHTML(p.kecamatan)}</p>
-                            <button onclick="openBukuIndukWithId('${p.id}')" class="mt-2 w-full py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[10px] font-bold text-center transition-colors shadow-2xs">
-                                Buka Buku Induk
-                            </button>
+                const marker = L.circleMarker([lat, lng], {
+                    radius: markerRadius,
+                    fillColor: markerColor,
+                    color: isMatchDistrict ? '#ffffff' : '#94a3b8',
+                    weight: markerWeight,
+                    opacity: markerOpacity,
+                    fillOpacity: markerFillOpacity
+                }).addTo(dashboardMap);
+
+                marker.bindPopup(`
+                    <div class="font-sans text-xs p-1" style="min-width: 170px;">
+                        <div class="flex items-center justify-between gap-1 mb-1">
+                            <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-200/80">${escapeHTML(p.kode_pesantren)}</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${isVerified ? 'Terverifikasi' : 'Review'}
+                            </span>
                         </div>
-                    `);
+                        <h4 class="font-bold text-xs text-slate-900 leading-snug">${escapeHTML(p.nama_resmi)}</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Kec. ${escapeHTML(p.kecamatan)}</p>
+                        <button onclick="openBukuIndukWithId('${escapeHTML(p.id)}')" class="mt-2 w-full py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[10px] font-bold text-center transition-colors shadow-2xs cursor-pointer">
+                            Buka Buku Induk
+                        </button>
+                    </div>
+                `);
 
-                    dashboardMapMarkers.push(marker);
-                }
+                dashboardMapMarkers.push(marker);
             });
         }
 
@@ -6728,32 +6806,37 @@
             mapMarkers.forEach(m => leafletMap.removeLayer(m));
             mapMarkers = [];
 
-            dataList.forEach(p => {
-                if (p.latitude && p.longitude) {
-                    const markerColor = p.status_verifikasi === 'verified' ? '#005c55' : '#d97706';
-                    
-                    const marker = L.circleMarker([p.latitude, p.longitude], {
-                        radius: 8,
-                        fillColor: markerColor,
-                        color: "#ffffff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.9
-                    }).addTo(leafletMap);
+            (dataList || []).forEach((p, index) => {
+                const [lat, lng] = resolveAdminPesantrenCoordinates(p, index);
+                const isVerified = (p.status_verifikasi === 'verified');
+                const markerColor = isVerified ? '#005c55' : '#d97706';
+                
+                const marker = L.circleMarker([lat, lng], {
+                    radius: 8,
+                    fillColor: markerColor,
+                    color: "#ffffff",
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(leafletMap);
 
-                    marker.bindPopup(`
-                        <div class="font-sans text-xs p-1">
-                            <span class="font-mono text-[10px] font-bold text-emerald-800">${p.kode_pesantren}</span>
-                            <h4 class="font-bold text-sm text-slate-900 mt-0.5">${p.nama_resmi}</h4>
-                            <p class="text-slate-600 mt-1">Kec. ${p.kecamatan} • Pengasuh: ${p.pengasuh_utama}</p>
-                            <span class="inline-block mt-2 px-2 py-0.5 rounded text-[9px] font-bold ${p.status_verifikasi === 'verified' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                                ${p.status_verifikasi === 'verified' ? 'Lokasi Valid' : 'Menunggu Validasi'}
+                marker.bindPopup(`
+                    <div class="font-sans text-xs p-1" style="min-width: 185px;">
+                        <div class="flex items-center justify-between gap-1.5 mb-1">
+                            <span class="font-mono text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/80">${escapeHTML(p.kode_pesantren)}</span>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${isVerified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                ${isVerified ? 'Lokasi Valid' : 'Menunggu Validasi'}
                             </span>
                         </div>
-                    `);
+                        <h4 class="font-bold text-sm text-slate-900 mt-0.5 leading-snug">${escapeHTML(p.nama_resmi)}</h4>
+                        <p class="text-slate-600 mt-1">Kec. ${escapeHTML(p.kecamatan)} • Pengasuh: ${escapeHTML(p.pengasuh_utama || '-')}</p>
+                        <button onclick="openBukuIndukWithId('${escapeHTML(p.id)}')" class="mt-2.5 w-full py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-bold text-center transition-colors shadow-2xs cursor-pointer">
+                            Buka Buku Induk 9 Domain
+                        </button>
+                    </div>
+                `);
 
-                    mapMarkers.push(marker);
-                }
+                mapMarkers.push(marker);
             });
         }
 
