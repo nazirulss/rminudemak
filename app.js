@@ -1680,7 +1680,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (targetId !== 'berita-detail') {
-            document.title = 'RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali';
+            document.title = 'RMI NU Demak — Portal Resmi PC RMINU Kabupaten Demak';
         }
 
         if (targetId === 'sambang-pesantren-pwrminu-jateng') {
@@ -3765,7 +3765,7 @@ function renderBeritaDetailPage(idOrSlug) {
 }
 
 function closeBeritaDetailModal() {
-    document.title = 'RMI PCNU Kabupaten Demak — Pusat Peradaban Santri Kota Wali';
+    document.title = 'RMI NU Demak — Portal Resmi PC RMINU Kabupaten Demak';
     navigateTo('berita');
 }
 
