@@ -217,6 +217,52 @@ window.normalizeKecamatanName = normalizeKecamatanName;
 
 const DEFAULT_LEMBAGA_DATA = [
     {
+        id: "c5f73ede-ee1b-499a-b431-4362da40708d",
+        kode_pesantren: "RMI-DMK-000001",
+        nama: "ROUDLOTUL MUBAROKAH",
+        nama_populer: "PPTQ Roudlotul Mubarokah Rimbukidul",
+        jenis: "Pesantren",
+        klasifikasi: "SALAF",
+        kategori_atau_metode: "Salafiyah & Tahfidz",
+        pengasuh_atau_kepala: "Nyai Hj. Nasichatul Fuadah",
+        kecamatan: "Karangawen",
+        desa: "Rejosari",
+        alamat_detail: "Jl. Kauman Rimbukidul 01/07, Rejosari, Karangawen, Demak",
+        latitude: -7.0543,
+        longitude: 110.5621,
+        nspp: "510033210001",
+        tahun_berdiri: 1983,
+        santri_mukim: 55,
+        santri_nonmukim: 0,
+        has_komitmen_pesantren_aman: true,
+        logo_url: "https://lh3.googleusercontent.com/d/1HaRmJx1vqAT3D_uQ9MZS_rKvCVKHnRSQ",
+        foto_url: "https://lh3.googleusercontent.com/d/139UgfvNclvKK2qokvKfF__6MIC4aaZlF",
+        media_sosial: {
+            website: "https://mubarokah.my.id",
+            instagram: "https://www.instagram.com/pptq.karangawen",
+            youtube: "https://www.youtube.com/@mubarakahTV"
+        },
+        dewan_asatidz: [
+            { nama: "Nyai Hj. Nasichatul Fuadah", jabatan: "PENGASUH", kategori: "ustadzah", spesialisasi: "Dirasah Islamiyah & Turots", pendidikan: "Pondok Pesantren", is_primary: true },
+            { nama: "Robiatul Awaliyah, Ulin Nuha, Nazirul Muhammad, Izza Nazila", jabatan: "Wakil Pengasuh", kategori: "ustadz", spesialisasi: "Turots & Kitab Kuning", pendidikan: "Pesantren", is_primary: false }
+        ],
+        kurikulum_kitab: [
+            { marhalah: "ula", nama_kitab: "Safinatun Najah", pengarang: "Salim bin Samir", bidang_ilmu: "Fiqih Dasar" },
+            { marhalah: "ula", nama_kitab: "Al-Jurumiyah", pengarang: "Ibnu Ajurrum", bidang_ilmu: "Nahwu" }
+        ],
+        fasilitas: [
+            { nama: "Masjid", kategori: "MOSQUE", kondisi: "Baik" },
+            { nama: "Asrama Santri", kategori: "DORMITORY", kondisi: "Baik" },
+            { nama: "Perpustakaan", kategori: "LIBRARY", kondisi: "Baik" },
+            { nama: "Laboratorium Komputer / Multimedia", kategori: "LAB_KOMPUTER", kondisi: "Baik" }
+        ],
+        galeri_foto: [
+            { url: "https://lh3.googleusercontent.com/d/1CxNv4mie966iB62ZvaZg6ZWsByPxn-Ql", judul: "Aula" },
+            { url: "https://lh3.googleusercontent.com/d/1zLwrv-P6rNXL4CCUjF7oOVtntERsxRgM", judul: "Mushola" },
+            { url: "https://lh3.googleusercontent.com/d/1WlqEvQfmHkKuRw4zX4wC1vCRcSG7w6-e", judul: "Gedung Utama" }
+        ]
+    },
+    {
         id: "c1f7b820-9f2d-4e9b-b0b2-7d8b5a1b3c9e",
         nama: "Pondok Pesantren Fathul Huda",
         nama_populer: "PP Fathul Huda Sayung",
@@ -514,119 +560,162 @@ const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v6";
 const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v6";
 const CACHE_TTL_MS = 15 * 60 * 1000; // Cache berlaku 15 menit
 
-async function loadLembagaDariSupabase() {
-    // 0. Cek Cache Lokal Terlebih Dahulu (Instant Load 0ms, hemat CDN/Apps Script)
-    try {
-        const cachedRaw = localStorage.getItem(CACHE_KEY_LEMBAGA);
-        const cachedTime = localStorage.getItem(CACHE_KEY_TIME);
-        const isFresh = cachedTime && (Date.now() - Number(cachedTime) < CACHE_TTL_MS);
+let isLivePesantrenDataLoaded = false;
+let loadLembagaPromise = null;
 
-        if (cachedRaw) {
-            const parsed = JSON.parse(cachedRaw);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                allLembagaData = parsed;
+function reRenderActiveDetailIfNeeded() {
+    const rawHash = (window.location.hash || '').replace('#', '').trim();
+    if (rawHash.startsWith('pesantren/')) {
+        const slug = rawHash.substring(rawHash.indexOf('/') + 1).trim();
+        if (slug && typeof renderPesantrenDetailPage === 'function') {
+            const item = findPesantrenBySlugOrId(slug);
+            if (item) {
+                renderPesantrenDetailPage(slug, false);
+            }
+        }
+    } else if (rawHash.startsWith('pesantren-detail')) {
+        let pId = '';
+        if (rawHash.includes('?id=')) {
+            pId = new URLSearchParams(rawHash.split('?')[1] || '').get('id');
+        } else if (rawHash.includes('/')) {
+            pId = rawHash.split('/')[1];
+        }
+        if (pId && typeof renderPesantrenDetailPage === 'function') {
+            const item = findPesantrenBySlugOrId(pId);
+            if (item) {
+                renderPesantrenDetailPage(pId, false);
+            }
+        }
+    }
+}
+
+function loadLembagaDariSupabase() {
+    if (loadLembagaPromise) return loadLembagaPromise;
+
+    loadLembagaPromise = (async () => {
+        // 0. Cek Cache Lokal Terlebih Dahulu (Instant Load 0ms, hemat CDN/Apps Script)
+        try {
+            const cachedRaw = localStorage.getItem(CACHE_KEY_LEMBAGA);
+            const cachedTime = localStorage.getItem(CACHE_KEY_TIME);
+            const isFresh = cachedTime && (Date.now() - Number(cachedTime) < CACHE_TTL_MS);
+
+            if (cachedRaw) {
+                const parsed = JSON.parse(cachedRaw);
+                if (Array.isArray(parsed) && parsed.length > 20) {
+                    allLembagaData = parsed;
+                    isLivePesantrenDataLoaded = true;
+                    renderLembagaCards(allLembagaData);
+                    if (publicMap) loadPublicMapMarkers(currentPublicCategory);
+                    if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
+                    populatePublicKecamatanDropdown(currentPublicCategory);
+                    updateAllPlatformStats(allLembagaData);
+                    reRenderActiveDetailIfNeeded();
+
+                    if (isFresh) {
+                        console.log("⚡ Portal Publik: Memuat data dari cache lokal (hemat kuota Apps Script & CDN).");
+                        return allLembagaData;
+                    }
+                    console.log("⏳ Portal Publik: Cache lokal kedaluwarsa, memperbarui di latar belakang...");
+                }
+            }
+        } catch(e) {
+            console.warn("Gagal membaca cache lokal:", e);
+        }
+
+        // 1. Coba Tarik Data Live dari Google Spreadsheet Backend
+        try {
+            const gasResponse = await fetch(APPS_SCRIPT_PUBLIC_URL);
+            const gasResult = await gasResponse.json();
+
+            if (gasResult && gasResult.success && gasResult.data && gasResult.data.length > 0) {
+                console.log("Portal Publik: Berhasil memuat", gasResult.data.length, "pesantren live langsung dari Google Spreadsheet.");
+                
+                // Formatkan agar cocok dengan struktur kartu lembaga
+                const livePesantren = gasResult.data.map(p => ({
+                    id: p.id,
+                    kode_pesantren: p.kode_pesantren || '',
+                    nama: p.nama_resmi,
+                    nama_populer: p.nama_populer || '',
+                    jenis: 'Pesantren',
+                    klasifikasi: p.klasifikasi || 'SALAF',
+                    kategori_atau_metode: p.klasifikasi || ((p.jenjang_pendidikan && p.jenjang_pendidikan.length > 0) ? p.jenjang_pendidikan.join(', ') : 'Salafiyah'),
+                    pengasuh_atau_kepala: p.pengasuh_utama || 'Pengasuh',
+                    wakil_pengasuh: p.wakil_pengasuh || [],
+                    kecamatan: p.kecamatan || 'Demak',
+                    desa: p.desa || '',
+                    alamat_detail: p.alamat || '',
+                    nspp: p.nspp || '',
+                    tahun_berdiri: p.tahun_berdiri || '',
+                    santri_mukim: p.santri_mukim || 0,
+                    santri_nonmukim: p.santri_nonmukim || 0,
+                    latitude: (p.latitude !== undefined && p.latitude !== null && p.latitude !== '') ? parseFloat(p.latitude) : null,
+                    longitude: (p.longitude !== undefined && p.longitude !== null && p.longitude !== '') ? parseFloat(p.longitude) : null,
+                    has_komitmen_pesantren_aman: p.has_komitmen_pesantren_aman === true || p.has_komitmen_pesantren_aman === 'true',
+                    foto_url: (p.foto_url && String(p.foto_url).trim().startsWith('http')) ? p.foto_url : getIslamicFallbackPhoto(p.id || p.nama_resmi),
+                    logo_url: (p.logo_url && String(p.logo_url).trim().startsWith('http')) ? p.logo_url : '',
+                    media_sosial: p.media_sosial || {},
+                    dewan_asatidz: p.dewan_asatidz || [],
+                    kurikulum_kitab: p.kurikulum_kitab || [],
+                    badan_usaha: p.badan_usaha || [],
+                    galeri_foto: p.galeri_foto || [],
+                    fasilitas: p.fasilitas || []
+                }));
+
+                // Gabungkan dengan unit Madin dan TPQ lokal non-pesantren
+                const nonPesantren = DEFAULT_LEMBAGA_DATA.filter(l => l.jenis !== 'Pesantren');
+                allLembagaData = [...livePesantren, ...nonPesantren];
+                isLivePesantrenDataLoaded = true;
+                
+                // Simpan ke Cache Lokal dengan Timestamp
+                try {
+                    localStorage.setItem(CACHE_KEY_LEMBAGA, JSON.stringify(allLembagaData));
+                    localStorage.setItem(CACHE_KEY_TIME, String(Date.now()));
+                } catch(e) {}
+
                 renderLembagaCards(allLembagaData);
                 if (publicMap) loadPublicMapMarkers(currentPublicCategory);
                 if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
                 populatePublicKecamatanDropdown(currentPublicCategory);
                 updateAllPlatformStats(allLembagaData);
+                reRenderActiveDetailIfNeeded();
+                return allLembagaData;
+            }
+        } catch (gasErr) {
+            console.warn("Gagal menghubungi Google Apps Script, mencoba jalur Supabase/Cache lokal:", gasErr.message);
+        }
 
-                if (isFresh) {
-                    console.log("⚡ Portal Publik: Memuat data dari cache lokal (hemat kuota Apps Script & CDN).");
-                    return;
+        // 2. Fallback ke Supabase / Master Default jika offline
+        try {
+            if (supabaseClient) {
+                const { data: lembagaList, error } = await supabaseClient
+                    .from('lembaga')
+                    .select('*')
+                    .order('nama', { ascending: true });
+
+                if (!error && lembagaList && lembagaList.length > 0) {
+                    allLembagaData = lembagaList;
+                    isLivePesantrenDataLoaded = true;
+                    renderLembagaCards(allLembagaData);
+                    updateAllPlatformStats(allLembagaData);
+                    reRenderActiveDetailIfNeeded();
+                    return allLembagaData;
                 }
-                console.log("⏳ Portal Publik: Cache lokal kedaluwarsa, memperbarui di latar belakang...");
             }
+        } catch (e) {
+            console.warn("Koneksi cloud offline:", e.message);
         }
-    } catch(e) {
-        console.warn("Gagal membaca cache lokal:", e);
-    }
 
-    // 1. Coba Tarik Data Live dari Google Spreadsheet Backend
-    try {
-        const gasResponse = await fetch(APPS_SCRIPT_PUBLIC_URL);
-        const gasResult = await gasResponse.json();
-
-        if (gasResult && gasResult.success && gasResult.data && gasResult.data.length > 0) {
-            console.log("Portal Publik: Berhasil memuat", gasResult.data.length, "pesantren live langsung dari Google Spreadsheet.");
-            
-            // Formatkan agar cocok dengan struktur kartu lembaga
-            const livePesantren = gasResult.data.map(p => ({
-                id: p.id,
-                kode_pesantren: p.kode_pesantren || '',
-                nama: p.nama_resmi,
-                nama_populer: p.nama_populer || '',
-                jenis: 'Pesantren',
-                klasifikasi: p.klasifikasi || 'SALAF',
-                kategori_atau_metode: p.klasifikasi || ((p.jenjang_pendidikan && p.jenjang_pendidikan.length > 0) ? p.jenjang_pendidikan.join(', ') : 'Salafiyah'),
-                pengasuh_atau_kepala: p.pengasuh_utama || 'Pengasuh',
-                wakil_pengasuh: p.wakil_pengasuh || [],
-                kecamatan: p.kecamatan || 'Demak',
-                desa: p.desa || '',
-                alamat_detail: p.alamat || '',
-                nspp: p.nspp || '',
-                tahun_berdiri: p.tahun_berdiri || '',
-                santri_mukim: p.santri_mukim || 0,
-                santri_nonmukim: p.santri_nonmukim || 0,
-                latitude: (p.latitude !== undefined && p.latitude !== null && p.latitude !== '') ? parseFloat(p.latitude) : null,
-                longitude: (p.longitude !== undefined && p.longitude !== null && p.longitude !== '') ? parseFloat(p.longitude) : null,
-                has_komitmen_pesantren_aman: p.has_komitmen_pesantren_aman === true || p.has_komitmen_pesantren_aman === 'true',
-                foto_url: (p.foto_url && String(p.foto_url).trim().startsWith('http')) ? p.foto_url : getIslamicFallbackPhoto(p.id || p.nama_resmi),
-                logo_url: (p.logo_url && String(p.logo_url).trim().startsWith('http')) ? p.logo_url : '',
-                media_sosial: p.media_sosial || {},
-                dewan_asatidz: p.dewan_asatidz || [],
-                kurikulum_kitab: p.kurikulum_kitab || [],
-                badan_usaha: p.badan_usaha || [],
-                galeri_foto: p.galeri_foto || [],
-                fasilitas: p.fasilitas || []
-            }));
-
-            // Gabungkan dengan unit Madin dan TPQ lokal non-pesantren
-            const nonPesantren = DEFAULT_LEMBAGA_DATA.filter(l => l.jenis !== 'Pesantren');
-            allLembagaData = [...livePesantren, ...nonPesantren];
-            
-            // Simpan ke Cache Lokal dengan Timestamp
-            try {
-                localStorage.setItem(CACHE_KEY_LEMBAGA, JSON.stringify(allLembagaData));
-                localStorage.setItem(CACHE_KEY_TIME, String(Date.now()));
-            } catch(e) {}
-
+        // 3. Fallback Terakhir ke Master Seed Lokal jika belum ada data
+        if (allLembagaData.length === 0) {
+            allLembagaData = [...DEFAULT_LEMBAGA_DATA];
             renderLembagaCards(allLembagaData);
-            if (publicMap) loadPublicMapMarkers(currentPublicCategory);
-            if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
-            populatePublicKecamatanDropdown(currentPublicCategory);
             updateAllPlatformStats(allLembagaData);
-            return;
         }
-    } catch (gasErr) {
-        console.warn("Gagal menghubungi Google Apps Script, mencoba jalur Supabase/Cache lokal:", gasErr.message);
-    }
+        reRenderActiveDetailIfNeeded();
+        return allLembagaData;
+    })();
 
-    // 2. Fallback ke Supabase / Master Default jika offline
-    try {
-        if (supabaseClient) {
-            const { data: lembagaList, error } = await supabaseClient
-                .from('lembaga')
-                .select('*')
-                .order('nama', { ascending: true });
-
-            if (!error && lembagaList && lembagaList.length > 0) {
-                allLembagaData = lembagaList;
-                renderLembagaCards(allLembagaData);
-                updateAllPlatformStats(allLembagaData);
-                return;
-            }
-        }
-    } catch (e) {
-        console.warn("Koneksi cloud offline:", e.message);
-    }
-
-    // 3. Fallback Terakhir ke Master Seed Lokal jika belum ada data
-    if (allLembagaData.length === 0) {
-        allLembagaData = [...DEFAULT_LEMBAGA_DATA];
-        renderLembagaCards(allLembagaData);
-        updateAllPlatformStats(allLembagaData);
-    }
+    return loadLembagaPromise;
 }
 
 
@@ -2213,13 +2302,26 @@ function findPesantrenBySlugOrId(param) {
         const cleanName = (l.nama || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         return cleanName.includes(cleanTarget) || cleanTarget.includes(cleanName);
     });
+    if (found) return found;
+
+    // 5. Cek apakah cocok dengan slug nama populer
+    found = list.find(l => {
+        if (!l.nama_populer) return false;
+        const popSlug = l.nama_populer.toLowerCase()
+            .replace(/^(pondok\s+pesantren|pesantren|ponpes|pp\.|pp|pptq)\s+/i, '')
+            .replace(/['"’`]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        return popSlug === target;
+    });
     return found || null;
 }
 
 // =========================================================================
 // SUBPAGE DETAIL PROFIL PESANTREN (STANDAR DIGDAYA PESANTREN.NU.ID 10 SEKSI)
 // =========================================================================
-function bukaProfilPesantren(pesantrenId, updateHash = true) {
+async function bukaProfilPesantren(pesantrenId, updateHash = true) {
     if (typeof hidePesantrenFlyout === 'function') {
         hidePesantrenFlyout();
     }
@@ -2231,8 +2333,10 @@ function bukaProfilPesantren(pesantrenId, updateHash = true) {
 
     const container = document.getElementById('pesantren-detail-content');
 
-    // Jika data lembaga belum dimuat, tampilkan loader lalu muat data
-    if (!allLembagaData || allLembagaData.length === 0) {
+    let item = findPesantrenBySlugOrId(pesantrenId);
+
+    // Jika data belum ditemukan atau dataset riil (293 pesantren) belum selesai dimuat
+    if (!item && !isLivePesantrenDataLoaded) {
         navigateTo('pesantren-detail', false);
         if (container) {
             container.innerHTML = `
@@ -2243,10 +2347,8 @@ function bukaProfilPesantren(pesantrenId, updateHash = true) {
                 </div>
             `;
         }
-        loadLembagaDariSupabase().then(() => {
-            renderPesantrenDetailPage(pesantrenId, updateHash);
-        });
-        return;
+        await loadLembagaDariSupabase();
+        item = findPesantrenBySlugOrId(pesantrenId);
     }
 
     renderPesantrenDetailPage(pesantrenId, updateHash);
