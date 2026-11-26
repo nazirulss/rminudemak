@@ -25,6 +25,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/favicon.ico", "destination": "/assets/img/logo_rmi.png" },
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/share", "destination": "/api/share" },
     { "source": "/berita/share", "destination": "/api/share" },
