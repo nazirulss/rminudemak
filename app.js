@@ -2475,7 +2475,7 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
             { url: safeFoto, judul: 'Gedung Asrama & Lingkungan Utama', kategori: 'Gedung Utama' },
             { url: 'https://lh3.googleusercontent.com/d/1NCvPdIz8-DUjz2dDCD5zLKYUA3n34agP', judul: 'Masjid & Sarana Ibadah Santri', kategori: 'Mushola / Masjid' },
             { url: 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58', judul: 'Ruang Belajar Madrasah Diniyyah', kategori: 'Ruang Belajar' },
-            { url: 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z', judul: 'Halaqah Pengajian Kitab Kuning', kategori: 'Halaqah Turots' }
+            { url: 'https://lh3.googleusercontent.com/d/1Ni4-uJmQxdAj8k-LWNLlxcgsBOaHFm9k', judul: 'Halaqah Pengajian Kitab Kuning', kategori: 'Halaqah Turots' }
         ];
     }
 
@@ -3013,6 +3013,7 @@ function tutupModalDetailLembaga() {
 // ==================================================================
 // MODUL WARTA & BERITA MEDIA RMI NU DEMAK (DINAMIS 1 TAHUN TERAKHIR)
 // ==================================================================
+const DEFAULT_BERITA_COVER = 'https://lh3.googleusercontent.com/d/1hhcOX6cN4G89hP0d0Ap3_YNf4-uN1Xzl'; // Dokumentasi resmi Sambang Pesantren PW-PC RMI NU Demak
 let allBeritaData = [];
 let activeBeritaCategory = 'Semua';
 let beritaSearchQuery = '';
@@ -3072,7 +3073,7 @@ function renderBeritaBeranda() {
         const viewsCount = formatViewsCount(featured.views_count);
 
         featuredContainer.innerHTML = `
-            <img src="${featured.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
+            <img src="${featured.cover_image_url || DEFAULT_BERITA_COVER}"
                 alt="${safeJudul}"
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none"></div>
@@ -3120,7 +3121,7 @@ function renderBeritaBeranda() {
                 <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
                     onclick="openBeritaDetailModal('${art.slug || art.id}')">
                     <div class="w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex-shrink-0 relative">
-                        <img src="${art.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                        <img src="${art.cover_image_url || DEFAULT_BERITA_COVER}"
                             alt="${safeJudul}"
                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     </div>
@@ -3274,7 +3275,7 @@ function renderBeritaFullPage() {
             <div class="group bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
                 onclick="openBeritaDetailModal('${f1.slug || f1.id}')">
                 <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
-                    <img src="${f1.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
+                    <img src="${f1.cover_image_url || DEFAULT_BERITA_COVER}"
                         alt="${safeJudul}"
                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
@@ -3322,7 +3323,7 @@ function renderBeritaFullPage() {
                         <div class="group bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
                             onclick="openBeritaDetailModal('${sub.slug || sub.id}')">
                             <div class="aspect-video w-full overflow-hidden bg-slate-900 relative">
-                                <img src="${sub.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                                <img src="${sub.cover_image_url || DEFAULT_BERITA_COVER}"
                                     alt="${subJudul}"
                                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                 <span class="absolute top-2 left-2 bg-[#008444] text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm">
@@ -3408,7 +3409,7 @@ function renderBeritaFullPage() {
                     <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 cursor-pointer"
                         onclick="openBeritaDetailModal('${item.slug || item.id}')">
                         <div class="sm:w-2/5 h-48 sm:h-auto relative overflow-hidden flex-shrink-0 bg-slate-900">
-                            <img src="${item.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                            <img src="${item.cover_image_url || DEFAULT_BERITA_COVER}"
                                 alt="${safeJudul}"
                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         </div>
@@ -3586,7 +3587,7 @@ function renderBeritaDetailPage(idOrSlug) {
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
     const formattedDate = formatTanggalIndonesia(item.published_at);
     const viewsCount = formatViewsCount(item.views_count);
-    const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
+    const coverUrl = item.cover_image_url || DEFAULT_BERITA_COVER;
 
     // Berita terkait & rekomendasi bacaan
     const relatedNews = allBeritaData.filter(b => b.id !== item.id && b.kategori === item.kategori).slice(0, 4);
@@ -3705,7 +3706,7 @@ function renderBeritaDetailPage(idOrSlug) {
                 <!-- 5. Foto Utama 16:9 dengan Caption Resmi di Bawahnya -->
                 <div class="mb-8">
                     <div class="relative rounded-2xl overflow-hidden shadow-md aspect-video max-h-[460px] bg-slate-900">
-                        <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" onerror="this.src='https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'" />
+                        <img src="${coverUrl}" alt="${safeJudul}" class="w-full h-full object-cover" onerror="this.src=DEFAULT_BERITA_COVER" />
                     </div>
                     <p class="text-xs text-slate-500 italic mt-2.5 px-2 flex items-center justify-between">
                         <span>📸 Dokumentasi Kegiatan / Liputan Berita</span>
@@ -3836,7 +3837,7 @@ function renderBeritaDetailPage(idOrSlug) {
                             return `
                                 <div class="flex gap-3 group cursor-pointer" onclick="openBeritaDetailModal('${rel.slug || rel.id}')">
                                     <div class="w-20 h-16 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 relative">
-                                        <img src="${rel.cover_image_url || 'https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21'}"
+                                        <img src="${rel.cover_image_url || DEFAULT_BERITA_COVER}"
                                             alt="${relJudul}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                     </div>
                                     <div class="flex-1 min-w-0">

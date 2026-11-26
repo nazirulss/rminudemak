@@ -8,6 +8,20 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 // Fallback artikel bawaan jika koneksi API sedang lambat atau offline
 const fallbackArticles = [
   {
+    id: "BRT-2026-7521",
+    slug: "perkuat-pola-pengasuhan-dan-manajemen-rmi-siap-rilis-3-buku-panduan-pesantren-di-awal-2027",
+    judul: "Perkuat Pola Pengasuhan dan Manajemen, RMI Siap Rilis 3 Buku Panduan Pesantren di Awal 2027",
+    ringkasan: "RMI siap rilis 3 buku panduan tata kelola dan pola pengasuhan ramah santri.",
+    cover_image_url: "https://lh3.googleusercontent.com/d/1DWP7K-L4YPZZBGAdZ7DZROcaeot_lzJU"
+  },
+  {
+    id: "BRT-2026-7879",
+    slug: "menyongsong-kebijakan-ditjen-pesantren-rmi-dorong-kemudahan-imb-dan-tata-kelola-pondok-yang-bermarwah",
+    judul: "Menyongsong Kebijakan Ditjen Pesantren: RMI Dorong Kemudahan IMB dan Tata Kelola Pondok yang Bermarwah",
+    ringkasan: "RMI dorong kemudahan regulasi IMB dan tata kelola pesantren berbadan hukum.",
+    cover_image_url: "https://lh3.googleusercontent.com/d/1Ni4-uJmQxdAj8k-LWNLlxcgsBOaHFm9k"
+  },
+  {
     id: "BRT-2026-0073",
     slug: "rmi-pcnu-demak-genjot-digitalisasi-pesantren-dari-sistem-scan-barcode-hingga-direktori-online-di-rminudemak-org",
     judul: "RMI PCNU Demak Genjot Digitalisasi Pesantren: Dari Sistem Scan Barcode hingga Direktori Online di rminudemak.org",
@@ -19,28 +33,28 @@ const fallbackArticles = [
     slug: "rmi-pwnu-jateng-dan-pcnu-demak-gelar-sambang-pesantren",
     judul: "RMI PWNU Jateng dan PCNU Demak Gelar Sambang Pesantren: Sinergi Kebangsaan, Tata Kelola Hukum, dan Transformasi Digital Pesantren",
     ringkasan: "RMI PWNU Jateng dan PCNU Demak bersinergi perkuat ekosistem, sinergi digital, dan mitigasi dinamika pesantren.",
-    cover_image_url: "https://lh3.googleusercontent.com/d/1op1Mz5qR68xBHgtr6lg6b7dp_GqZkd8k"
+    cover_image_url: "https://lh3.googleusercontent.com/d/1hhcOX6cN4G89hP0d0Ap3_YNf4-uN1Xzl"
   },
   {
     id: "BRT-2026-001",
     slug: "jaga-marwah-pesantren-rminu-demak-perkuat-peran-bu-nyai",
     judul: "Jaga Marwah Pesantren, RMINU Demak Perkuat Peran Bu Nyai dalam Perlindungan Santri",
     ringkasan: "RMI NU Demak memperkuat peran Bu Nyai dan pengasuh pondok pesantren putri dalam menciptakan lingkungan asrama yang aman, ramah anak, serta mandiri secara ekonomi.",
-    cover_image_url: "https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z"
+    cover_image_url: "https://lh3.googleusercontent.com/d/19HayeLVWKBo-2Nf-1udr_qUop41nIkme"
   },
   {
     id: "BRT-2026-002",
     slug: "dorong-penguatan-peran-bu-nyai-ikhtiar-rmi-demak-wujudkan-pesantren-ramah-anak",
     judul: "Dorong Penguatan Peran Bu Nyai, Ikhtiar RMI Demak Wujudkan Pesantren Ramah Anak",
     ringkasan: "Pelatihan fasilitator pesantren ramah anak membekali para Bu Nyai instrumen pencegahan dan mitigasi kekerasan.",
-    cover_image_url: "https://lh3.googleusercontent.com/d/1cXO8QC16Fe2VA147fgjeI49uwIWEpM21"
+    cover_image_url: "https://lh3.googleusercontent.com/d/1yhOTSVJJlbhdVVyIBbGwV8mMc0QtSfiU"
   },
   {
     id: "BRT-2026-003",
     slug: "kolaborasi-rmi-pcnu-dan-pemkab-demak-dorong-kemandirian-ekonomi-pesantren",
     judul: "Kolaborasi RMI PCNU dan Pemkab Demak Dorong Kemandirian Ekonomi Pesantren",
     ringkasan: "Sinergi pembinaan unit usaha pondok pesantren dan inkubasi bisnis santri se-Kabupaten Demak.",
-    cover_image_url: "https://lh3.googleusercontent.com/d/1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb"
+    cover_image_url: "https://lh3.googleusercontent.com/d/1hZP8AoIA6xwZRJyA16WmuruJpHGmPF-v"
   }
 ];
 
