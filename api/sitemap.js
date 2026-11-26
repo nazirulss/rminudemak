@@ -1,6 +1,9 @@
 // Serverless Sitemap Generator untuk Google Search Console (https://rminudemak.org/sitemap.xml)
 
-let cachedUrls = null;
+import { GAS_API_URL, escapeXml, generatePesantrenSlug } from './_utils.js';
+
+let cachedBerita = null;
+let cachedPesantren = null;
 let lastCacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 
@@ -27,15 +30,6 @@ const fallbackSlugs = [
   }
 ];
 
-function escapeXml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
-
 function formatIsoDate(rawDate) {
   if (!rawDate) return null;
   const d = new Date(rawDate);
@@ -43,66 +37,97 @@ function formatIsoDate(rawDate) {
   return d.toISOString().split('T')[0];
 }
 
-async function getPublishedBeritaEntries() {
-  const now = Date.now();
-  if (cachedUrls && (now - lastCacheTime < CACHE_TTL)) {
-    return cachedUrls;
-  }
-
+async function fetchActionData(actionName, timeoutMs = 9200) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
-
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_BERITA';
-    const response = await fetch(apiUrl, { signal: controller.signal, redirect: 'follow' });
-    clearTimeout(timeout);
-
+    const response = await fetch(`${GAS_API_URL}?action=${actionName}`, {
+      signal: controller.signal,
+      redirect: 'follow'
+    });
     if (response.ok) {
       const json = await response.json();
       if (json && Array.isArray(json.data) && json.data.length > 0) {
-        const entries = json.data
-          .filter((item) => {
-            if (!item || !item.slug) return false;
-            const status = String(item.status || 'published').toLowerCase().trim();
-            return status === 'published' || status === 'publish' || status === 'aktif';
-          })
-          .map((item) => ({
-            slug: String(item.slug).trim(),
-            lastmod: formatIsoDate(item.updated_at || item.published_at)
-          }));
-
-        if (entries.length > 0) {
-          cachedUrls = entries;
-          lastCacheTime = now;
-          return cachedUrls;
-        }
+        return json.data;
       }
     }
-  } catch (err) {
-    // Gunakan cache lama atau fallback jika API Apps Script timeout
+  } finally {
+    clearTimeout(timeout);
+  }
+  return null;
+}
+
+async function getSitemapEntries() {
+  const now = Date.now();
+  if (cachedBerita && cachedPesantren && (now - lastCacheTime < CACHE_TTL)) {
+    return { berita: cachedBerita, pesantren: cachedPesantren };
   }
 
-  return cachedUrls || fallbackSlugs;
+  const [beritaRes, pesantrenRes] = await Promise.allSettled([
+    fetchActionData('GET_BERITA'),
+    fetchActionData('GET_ALL_PESANTREN')
+  ]);
+
+  if (beritaRes.status === 'fulfilled' && beritaRes.value) {
+    const entries = beritaRes.value
+      .filter((item) => {
+        if (!item || !item.slug) return false;
+        const status = String(item.status || 'published').toLowerCase().trim();
+        return status === 'published' || status === 'publish' || status === 'aktif';
+      })
+      .map((item) => ({
+        slug: String(item.slug).trim(),
+        lastmod: formatIsoDate(item.updated_at || item.published_at)
+      }));
+    if (entries.length > 0) cachedBerita = entries;
+  }
+
+  if (pesantrenRes.status === 'fulfilled' && pesantrenRes.value) {
+    const entries = pesantrenRes.value
+      .filter((p) => {
+        if (!p) return false;
+        const pub = String(p.status_publikasi || p.visibilitas || 'public').toLowerCase().trim();
+        return pub !== 'private' && pub !== 'draft';
+      })
+      .map((p) => ({
+        slug: generatePesantrenSlug(p),
+        lastmod: formatIsoDate(p.updated_at)
+      }))
+      .filter((e) => Boolean(e.slug));
+    if (entries.length > 0) cachedPesantren = entries;
+  }
+
+  lastCacheTime = now;
+  return {
+    berita: cachedBerita || fallbackSlugs,
+    pesantren: cachedPesantren || []
+  };
+}
+
+function appendUrls(urlBlocks, seenLocs, baseUrl, prefix, entries, changefreq, priority) {
+  for (const entry of entries) {
+    if (!entry.slug) continue;
+    const loc = `${baseUrl}${prefix}${encodeURIComponent(entry.slug)}`;
+    if (seenLocs.has(loc)) continue;
+    seenLocs.add(loc);
+    const lastmodTag = entry.lastmod ? `\n    <lastmod>${escapeXml(entry.lastmod)}</lastmod>` : '';
+    urlBlocks.push(
+      `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmodTag}\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`
+    );
+  }
 }
 
 export default async function handler(req, res) {
   const baseUrl = 'https://rminudemak.org';
-  const beritaEntries = await getPublishedBeritaEntries();
+  const { berita, pesantren } = await getSitemapEntries();
 
   const urlBlocks = [
     `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`
   ];
+  const seenLocs = new Set([`${baseUrl}/`]);
 
-  const seenSlugs = new Set();
-  for (const entry of beritaEntries) {
-    if (!entry.slug || seenSlugs.has(entry.slug)) continue;
-    seenSlugs.add(entry.slug);
-    const loc = `${baseUrl}/berita/${encodeURIComponent(entry.slug)}`;
-    const lastmodTag = entry.lastmod ? `\n    <lastmod>${escapeXml(entry.lastmod)}</lastmod>` : '';
-    urlBlocks.push(
-      `  <url>\n    <loc>${escapeXml(loc)}</loc>${lastmodTag}\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
-    );
-  }
+  appendUrls(urlBlocks, seenLocs, baseUrl, '/berita/', berita, 'weekly', '0.8');
+  appendUrls(urlBlocks, seenLocs, baseUrl, '/pesantren/', pesantren, 'monthly', '0.7');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlBlocks.join('\n')}\n</urlset>\n`;
 

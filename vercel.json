@@ -29,6 +29,7 @@
     { "source": "/share", "destination": "/api/share" },
     { "source": "/berita/share", "destination": "/api/share" },
     { "source": "/berita/:slug", "destination": "/api/share?slug=:slug" },
+    { "source": "/pesantren/:slug", "destination": "/api/pesantren?slug=:slug" },
     { "source": "/admin", "destination": "/admin.html" }
   ]
 }

@@ -2349,8 +2349,8 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
         ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` 
         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.nama + ' ' + (item.desa || '') + ' ' + item.kecamatan + ' Demak')}`;
     
-    // Tautan Share WhatsApp dengan Slug Bersih ala pesantren.nu.id
-    const shareProfileUrl = `${window.location.origin}${window.location.pathname}#pesantren/${slug}`;
+    // Tautan Share WhatsApp dengan Clean URL SEO-friendly (/pesantren/{slug})
+    const shareProfileUrl = `${window.location.origin}/pesantren/${encodeURIComponent(slug)}`;
     const waShareText = `Assalamu'alaikum. Simak profil resmi ${item.nama} (${safeKode}) di Direktori Resmi PC RMI NU Kabupaten Demak:\n${shareProfileUrl}`;
     const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waShareText)}`;
     const waPsbUrl = soc.hotline_psb ? `https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Panitia PSB ' + item.nama + ', saya ingin bertanya mengenai pendaftaran santri baru.')}` : '';
