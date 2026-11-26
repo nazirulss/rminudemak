@@ -3101,14 +3101,7 @@ window.setArticleFontSize = setArticleFontSize;
 function renderBeritaFullPage() {
     if (!allBeritaData || allBeritaData.length === 0) return;
 
-    // 1. Update Tanggal Islami & Masehi di Top Bar
-    const dates = getIslamicAndMasehiDate();
-    const hijriEl = document.getElementById('berita-hijri-date');
-    const masehiEl = document.getElementById('berita-masehi-date');
-    if (hijriEl) hijriEl.textContent = dates.hijri;
-    if (masehiEl) masehiEl.textContent = dates.masehi;
-
-    // 2. Ticker Warta Kilat / Breaking News
+    // 1. Ticker Warta Kilat / Breaking News
     const tickerContainer = document.getElementById('berita-ticker-container');
     if (tickerContainer) {
         const headlines = allBeritaData.slice(0, 5);
@@ -3497,7 +3490,6 @@ function renderBeritaDetailPage(idOrSlug) {
     const safeRingkasan = escapeHTML(item.ringkasan);
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
     const formattedDate = formatTanggalIndonesia(item.published_at);
-    const dates = getIslamicAndMasehiDate();
     const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
     const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
 
@@ -3564,7 +3556,7 @@ function renderBeritaDetailPage(idOrSlug) {
             <!-- KOLOM KIRI: NASKAH LENGKAP ARTIKEL -->
             <article class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 shadow-xs border border-slate-200/90">
                 
-                <!-- 1. Kategori & Tanggal Islami -->
+                <!-- 1. Kategori & Sumber Media -->
                 <div class="flex items-center gap-2 mb-3">
                     <span class="bg-[#008444] text-white text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider shadow-2xs">
                         ${escapeHTML(item.kategori || 'Warta')}
@@ -3572,8 +3564,6 @@ function renderBeritaDetailPage(idOrSlug) {
                     <span class="bg-amber-400 text-slate-950 text-[11px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-2xs">
                         ${safeMedia}
                     </span>
-                    <span class="text-slate-400 hidden sm:inline">•</span>
-                    <span class="text-xs text-slate-500 font-medium hidden sm:inline">${dates.hijri}</span>
                 </div>
 
                 <!-- 2. Judul Utama (Besar & Menonjol) -->
