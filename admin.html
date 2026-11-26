@@ -152,7 +152,7 @@
                         <a href="#direktori" onclick="navigateTo('direktori')" data-module="direktori" title="Direktori Pesantren" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">dataset</span>
                             <span class="sidebar-text flex-1">Direktori Pesantren</span>
-                            <span class="sidebar-text text-[10px] font-bold bg-black/20 text-emerald-200 px-2 py-0.5 rounded-full" id="sidebar-pesantren-count">293</span>
+                            <span class="sidebar-text text-[10px] font-bold bg-emerald-900 text-emerald-100 border border-emerald-700/50 px-2 py-0.5 rounded-full" id="sidebar-pesantren-count">293</span>
                         </a>
                         <a href="#tambah" onclick="navigateTo('tambah')" data-module="tambah" title="Inisiasi Record Baru" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">add_circle</span>
@@ -5637,8 +5637,20 @@
                 document.getElementById('dash-filter-kecamatan')
             ];
 
+            // Hitung jumlah pesantren riil per kecamatan dari PESANTREN_DATA
+            const realCounts = {};
+            if (Array.isArray(PESANTREN_DATA) && PESANTREN_DATA.length > 0) {
+                PESANTREN_DATA.forEach(p => {
+                    const normK = normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase();
+                    if (normK) {
+                        realCounts[normK] = (realCounts[normK] || 0) + 1;
+                    }
+                });
+            }
+
             selects.forEach(select => {
                 if (!select) return;
+                const previousVal = select.value;
                 // Kosongkan opsi lama kecuali opsi default pertama
                 while (select.options.length > 1) {
                     select.remove(1);
@@ -5646,11 +5658,21 @@
                 DEMAK_DISTRICTS.forEach(d => {
                     const opt = document.createElement('option');
                     opt.value = d.name;
-                    opt.innerText = select.id === 'dash-filter-kecamatan'
-                        ? `Kec. ${d.name} (${d.count} Pesantren)`
-                        : `${d.name} (${d.villages} Desa)`;
+                    const normName = normalizeAdminKecamatanName(d.name).toLowerCase();
+                    const count = realCounts[normName] || 0;
+
+                    if (select.id === 'dash-filter-kecamatan') {
+                        opt.innerText = `Kec. ${d.name} (${count} Pesantren)`;
+                    } else if (select.id === 'dir-filter-district' || select.id === 'map-filter-district') {
+                        opt.innerText = `${d.name} (${count} Pesantren)`;
+                    } else {
+                        opt.innerText = `${d.name} (${d.villages} Desa)`;
+                    }
                     select.appendChild(opt);
                 });
+                if (previousVal) {
+                    select.value = previousVal;
+                }
             });
         }
 
@@ -6281,6 +6303,7 @@
                     }
                     
                     // Render ulang seluruh komponen UI
+                    populateDistrictDropdowns();
                     updateDashboardKPISummary(currentDashboardTimeframe, currentDashboardKecamatan);
                     renderDashboardBars(currentDashboardKecamatan);
                     renderPriorityQueue();
@@ -9260,9 +9283,23 @@
             let csvContent = "data:text/csv;charset=utf-8,";
 
             if (type === 'rekap_wilayah') {
-                csvContent += "Kecamatan,Total_Pesantren,Terverifikasi,Punya_NSPP,Estimasi_Santri\n";
+                csvContent += "Kecamatan,Total_Pesantren,Terverifikasi,Punya_NSPP,Total_Santri\n";
                 DEMAK_DISTRICTS.forEach(d => {
-                    csvContent += `${d.name},${d.count},${Math.round(d.count * 0.72)},${Math.round(d.count * 0.65)},${d.count * 160}\n`;
+                    const normD = normalizeAdminKecamatanName(d.name).toLowerCase();
+                    const items = Array.isArray(PESANTREN_DATA)
+                        ? PESANTREN_DATA.filter(p => normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase() === normD)
+                        : [];
+                    let verified = 0;
+                    let nspp = 0;
+                    let totalSantri = 0;
+                    items.forEach(p => {
+                        if (p.status_verifikasi === 'verified') verified++;
+                        if (p.nspp && String(p.nspp).trim() !== '') nspp++;
+                        const sm = parseInt(String(p.santri_mukim || '0').replace(/[^\d]/g, ''), 10) || 0;
+                        const snm = parseInt(String(p.santri_nonmukim || '0').replace(/[^\d]/g, ''), 10) || 0;
+                        totalSantri += (sm + snm);
+                    });
+                    csvContent += `${d.name},${items.length},${verified},${nspp},${totalSantri}\n`;
                 });
             } else {
                 csvContent += "Kode_RMI,Nama_Pesantren,Kecamatan,Pengasuh,Status_Verifikasi,Santri_Mukim\n";
