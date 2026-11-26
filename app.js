@@ -2947,6 +2947,15 @@ async function loadBeritaRMI() {
     }
 }
 
+function formatViewsCount(count) {
+    const num = Number(count);
+    if (isNaN(num) || num <= 0) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(num);
+}
+window.formatViewsCount = formatViewsCount;
+
 function renderBeritaBeranda() {
     if (!allBeritaData || allBeritaData.length === 0) return;
 
@@ -2958,7 +2967,7 @@ function renderBeritaBeranda() {
         const safeRingkasan = escapeHTML(featured.ringkasan);
         const safeMedia = escapeHTML(featured.sumber_media || 'Media Online');
         const formattedDate = formatTanggalIndonesia(featured.published_at);
-        const viewsCount = featured.views_count ? (featured.views_count >= 1000 ? (featured.views_count / 1000).toFixed(1) + 'k' : featured.views_count) : '1.2k';
+        const viewsCount = formatViewsCount(featured.views_count);
 
         featuredContainer.innerHTML = `
             <img src="${featured.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z'}"
@@ -3003,7 +3012,7 @@ function renderBeritaBeranda() {
             const safeRingkasan = escapeHTML(art.ringkasan);
             const safeMedia = escapeHTML(art.sumber_media || 'Media Online');
             const formattedDate = formatTanggalIndonesia(art.published_at);
-            const viewsCount = art.views_count ? (art.views_count >= 1000 ? (art.views_count / 1000).toFixed(1) + 'k' : art.views_count) : '850';
+            const viewsCount = formatViewsCount(art.views_count);
 
             return `
                 <div class="group cursor-pointer flex gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 hover:shadow-lg hover:border-primary/30 transition-all duration-300"
@@ -3157,7 +3166,7 @@ function renderBeritaFullPage() {
         const safeMedia = escapeHTML(f1.sumber_media || 'Media Online');
         const safeRingkasan = escapeHTML(f1.ringkasan || '');
         const formattedDate = formatTanggalIndonesia(f1.published_at);
-        const viewsCount = f1.views_count ? (f1.views_count >= 1000 ? (f1.views_count / 1000).toFixed(1) + 'k' : f1.views_count) : '1.2k';
+        const viewsCount = formatViewsCount(f1.views_count);
 
         pageFeaturedContainer.innerHTML = `
             <div class="group bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer"
@@ -3246,7 +3255,7 @@ function renderBeritaFullPage() {
         trendingContainer.innerHTML = sortedByViews.map((item, idx) => {
             const safeJudul = escapeHTML(item.judul);
             const safeMedia = escapeHTML(item.sumber_media || 'Media');
-            const viewsText = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
+            const viewsText = formatViewsCount(item.views_count);
             const rankBadgeClass = idx === 0 ? 'bg-amber-400 text-slate-950 font-black' : 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold';
 
             return `
@@ -3291,7 +3300,7 @@ function renderBeritaFullPage() {
                 const safeRingkasan = escapeHTML(item.ringkasan);
                 const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
                 const formattedDate = formatTanggalIndonesia(item.published_at);
-                const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '750';
+                const viewsCount = formatViewsCount(item.views_count);
 
                 return `
                     <div class="group flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xs hover:shadow-md transition-all duration-300 cursor-pointer"
@@ -3474,7 +3483,7 @@ function renderBeritaDetailPage(idOrSlug) {
     const safeRingkasan = escapeHTML(item.ringkasan);
     const safeMedia = escapeHTML(item.sumber_media || 'Media Online');
     const formattedDate = formatTanggalIndonesia(item.published_at);
-    const viewsCount = item.views_count ? (item.views_count >= 1000 ? (item.views_count / 1000).toFixed(1) + 'k' : item.views_count) : '1.2k';
+    const viewsCount = formatViewsCount(item.views_count);
     const coverUrl = item.cover_image_url || 'https://lh3.googleusercontent.com/d/1mOekcQhUGD2eqHMy-8AmEua9BrJK-06Z';
 
     // Berita terkait & rekomendasi bacaan
@@ -3689,7 +3698,7 @@ function renderBeritaDetailPage(idOrSlug) {
                         ${sidebarTrending.map((tItem, idx) => {
                             const tJudul = escapeHTML(tItem.judul);
                             const tMedia = escapeHTML(tItem.sumber_media || 'Media');
-                            const tViews = tItem.views_count ? (tItem.views_count >= 1000 ? (tItem.views_count / 1000).toFixed(1) + 'k' : tItem.views_count) : '1.2k';
+                            const tViews = formatViewsCount(tItem.views_count);
                             const badgeColor = idx === 0 ? 'bg-amber-400 text-slate-950 font-black' : 'bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold';
 
                             return `

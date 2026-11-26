@@ -634,6 +634,16 @@ function handleSaveBerita(payload) {
       ? String(item.slug).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
       : String(item.judul || id).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+    let finalViews = 0;
+    if (rowIndex > 0) {
+      const existingViews = Number(data[rowIndex - 1][13]) || 0;
+      finalViews = (item.views_count !== undefined && item.views_count !== null && item.views_count !== '')
+        ? Math.max(Number(item.views_count) || 0, existingViews)
+        : existingViews;
+    } else {
+      finalViews = Number(item.views_count) || 0;
+    }
+
     const rowData = [
       id,
       item.judul || 'Tanpa Judul',
@@ -648,7 +658,7 @@ function handleSaveBerita(payload) {
       isFeatured,
       item.status || (isFeatured ? 'Sorotan Utama' : 'Terbit'),
       item.published_at || item.tanggal || Utilities.formatDate(new Date(), 'GMT+7', 'yyyy-MM-dd'),
-      Number(item.views_count) || 0,
+      finalViews,
       now,
       item.keywords || ''
     ];

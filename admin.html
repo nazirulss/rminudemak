@@ -2152,6 +2152,7 @@
                                         <th class="p-3.5">Kategori</th>
                                         <th class="p-3.5">Penulis</th>
                                         <th class="p-3.5">Tanggal</th>
+                                        <th class="p-3.5">Views</th>
                                         <th class="p-3.5">Status</th>
                                         <th class="p-3.5 text-right pr-5">Aksi</th>
                                     </tr>
@@ -10003,6 +10004,14 @@ let cmsBeritaData = [
     }
 ];
 
+function formatViewsCount(count) {
+    const num = Number(count);
+    if (isNaN(num) || num <= 0) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(num);
+}
+
 function renderCmsBeritaTable(filteredData = null) {
     const tbody = document.getElementById('cms-berita-table-body');
     if (!tbody) return;
@@ -10015,7 +10024,7 @@ function renderCmsBeritaTable(filteredData = null) {
     }
 
     if (dataToRender.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400 italic">Tidak ada artikel berita yang cocok.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="p-6 text-center text-slate-400 italic">Tidak ada artikel berita yang cocok.</td></tr>';
         return;
     }
 
@@ -10025,6 +10034,7 @@ function renderCmsBeritaTable(filteredData = null) {
             : '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[9px] uppercase tracking-wider">Terbit</span>';
 
         const cleanTanggal = item.tanggal ? String(item.tanggal).split('T')[0] : '-';
+        const formattedViews = formatViewsCount(item.views_count);
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition';
@@ -10038,6 +10048,12 @@ function renderCmsBeritaTable(filteredData = null) {
             <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-bold text-[10px]">${escapeHTML(item.kategori || 'Pendidikan')}</span></td>
             <td class="p-3.5 text-slate-600 font-medium text-[11px]">${escapeHTML(item.penulis || 'Redaksi RMI')}</td>
             <td class="p-3.5 text-slate-500 text-xs">${cleanTanggal}</td>
+            <td class="p-3.5">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px]" title="${item.views_count || 0} tayangan">
+                    <span class="material-symbols-outlined text-[13px] text-slate-400">visibility</span>
+                    ${formattedViews}
+                </span>
+            </td>
             <td class="p-3.5">${badgeStatus}</td>
             <td class="p-3.5 text-right pr-5">
                 <div class="inline-flex items-center gap-1.5">
@@ -11011,6 +11027,10 @@ async function simpanArtikelBerita() {
         });
     }
 
+    // Pertahankan views_count jika sedang mengedit artikel yang sudah ada
+    const existingBerita = id ? cmsBeritaData.find(b => String(b.id) === String(id)) : null;
+    const currentViews = existingBerita ? (Number(existingBerita.views_count) || 0) : 0;
+
     const beritaItem = {
         id: finalId,
         judul: judul,
@@ -11028,7 +11048,7 @@ async function simpanArtikelBerita() {
         isFeatured: isFeatured,
         is_featured: isFeatured,
         status: isFeatured ? 'Sorotan Utama' : 'Terbit',
-        views_count: 0
+        views_count: currentViews
     };
 
     if (id) {
@@ -11065,7 +11085,7 @@ async function simpanArtikelBerita() {
             isi: isi,
             is_featured: isFeatured,
             status: 'published',
-            views_count: 0,
+            views_count: currentViews,
             berita: beritaItem
         };
 
@@ -11162,7 +11182,8 @@ async function loadCmsBeritaFromApi() {
                     ringkasan: b.ringkasan || '',
                     isi: b.isi_lengkap || b.isi || '',
                     sumber_media: b.sumber_media || '',
-                    url_sumber: b.url_sumber || ''
+                    url_sumber: b.url_sumber || '',
+                    views_count: Number(b.views_count) || 0
                 };
             });
             renderCmsBeritaTable();
