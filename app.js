@@ -3101,23 +3101,7 @@ window.setArticleFontSize = setArticleFontSize;
 function renderBeritaFullPage() {
     if (!allBeritaData || allBeritaData.length === 0) return;
 
-    // 1. Ticker Warta Kilat / Breaking News
-    const tickerContainer = document.getElementById('berita-ticker-container');
-    if (tickerContainer) {
-        const headlines = allBeritaData.slice(0, 5);
-        tickerContainer.innerHTML = `
-            <div class="flex items-center gap-6 overflow-hidden">
-                ${headlines.map(t => `
-                    <span class="inline-flex items-center gap-2 cursor-pointer hover:text-emerald-800 transition-colors" onclick="openBeritaDetailModal('${t.slug || t.id}')">
-                        <span class="text-amber-500 font-bold">•</span>
-                        <span class="truncate max-w-xs md:max-w-sm">${escapeHTML(t.judul)}</span>
-                    </span>
-                `).join('')}
-            </div>
-        `;
-    }
-
-    // 3. Filter Kategori Dinamis Khas NU Online (Pills Berborder Halus)
+    // 1. Filter Kategori Dinamis Khas NU Online (Kanal Editorial Bergaris Bawah)
     const categoryContainer = document.getElementById('berita-category-filters');
     if (categoryContainer) {
         const defaultPreset = ['Sambang & Organisasi', 'Pesantren Ramah Anak', 'Pendidikan & Madin', 'Advokasi & Kebijakan', 'Ekonomi & Kemandirian'];
@@ -3132,10 +3116,10 @@ function renderBeritaFullPage() {
             const targetCat = (cat === 'Semua Warta') ? 'Semua' : cat;
             return `
                 <button type="button" onclick="filterBeritaCategory('${targetCat}')"
-                    class="whitespace-nowrap px-4 py-1.5 rounded-full font-bold text-xs transition-all shadow-2xs cursor-pointer border ${
+                    class="whitespace-nowrap px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm transition-all cursor-pointer border-b-2 flex-shrink-0 ${
                         isActive
-                            ? 'bg-[#008444] text-white border-[#008444] shadow-xs'
-                            : 'bg-slate-50 text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 border-slate-200'
+                            ? 'text-[#008444] border-[#008444] font-bold'
+                            : 'text-slate-600 border-transparent hover:text-[#008444] hover:border-slate-300 font-semibold'
                     }">
                     ${cat}
                 </button>
