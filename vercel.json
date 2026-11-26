@@ -25,6 +25,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/share", "destination": "/api/share" },
     { "source": "/berita/share", "destination": "/api/share" },
     { "source": "/berita/:slug", "destination": "/api/share?slug=:slug" },

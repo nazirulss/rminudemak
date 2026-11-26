@@ -120,12 +120,79 @@ export default async function handler(req, res) {
     ? `https://rminudemak.org/#berita/${encodeURIComponent(finalSlug)}` 
     : 'https://rminudemak.org/#berita';
 
-  // Deteksi Web Crawler / Bot Pratinjau Medsos (WhatsApp, Facebook, Twitter, Telegram, dll)
+  // Deteksi Web Crawler / Bot Pencari & Pratinjau Medsos (Googlebot, Bingbot, WhatsApp, Facebook, dll)
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
-  const isCrawler = /bot|crawl|spider|whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest/i.test(userAgent);
+  const isCrawler = /bot|crawl|spider|slurp|google-inspectiontool|whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest/i.test(userAgent);
 
   // Format MIME Type gambar
   const imageType = image.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+
+  // Siapkan naskah bersih untuk Googlebot & JSON-LD NewsArticle
+  const rawBodyText = (article && article.isi_lengkap) ? String(article.isi_lengkap) : description;
+  const bodyParagraphs = stripHtmlToParagraphs(rawBodyText);
+  const publishedIso = formatIsoDateTime(article && article.published_at);
+  const modifiedIso = formatIsoDateTime((article && article.updated_at) || (article && article.published_at));
+
+  const newsArticleJsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": canonicalUrl
+    },
+    "headline": title,
+    "description": description,
+    "image": [image],
+    ...(publishedIso ? { "datePublished": publishedIso } : {}),
+    ...(modifiedIso ? { "dateModified": modifiedIso } : {}),
+    "author": {
+      "@type": "Person",
+      "name": penulis
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "RMI PCNU Kabupaten Demak",
+      "url": "https://rminudemak.org/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://rminudemak.org/assets/img/logo_rmi.png"
+      }
+    }
+  }).replace(/</g, '\\u003c');
+
+  const crawlerBodyHtml = `
+  <main style="max-width: 760px; margin: 0 auto; padding: 32px 20px; font-family: system-ui, -apple-system, sans-serif; color: #0f172a; background: #ffffff; line-height: 1.7;">
+    <article>
+      <header style="margin-bottom: 24px;">
+        <p style="font-size: 13px; color: #005c55; font-weight: 700; text-transform: uppercase; margin: 0 0 8px;">Warta RMI PCNU Kabupaten Demak</p>
+        <h1 style="font-size: 28px; line-height: 1.3; margin: 0 0 12px; color: #022c22;">${escapeHtml(title)}</h1>
+        <p style="font-size: 14px; color: #475569; margin: 0;">Oleh ${escapeHtml(penulis)}${publishedIso ? ` &bull; ${escapeHtml(publishedIso.split('T')[0])}` : ''}</p>
+      </header>
+      <figure style="margin: 0 0 24px;">
+        <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" style="width: 100%; max-height: 440px; object-fit: cover; border-radius: 12px;" />
+      </figure>
+      <p style="font-size: 16px; font-weight: 600; color: #1e293b; margin: 0 0 16px;">${escapeHtml(description)}</p>
+      ${bodyParagraphs.map(p => `<p style="font-size: 16px; margin: 0 0 14px;">${escapeHtml(p)}</p>`).join('\n      ')}
+      <p style="margin-top: 28px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+        <a href="${spaRedirectUrl}" style="color: #005c55; font-weight: 700; text-decoration: none;">Buka tampilan interaktif di Portal RMI PCNU Demak &rarr;</a>
+      </p>
+    </article>
+  </main>`;
+
+  const humanBodyHtml = `
+  <div style="max-width: 540px; background: rgba(255,255,255,0.08); padding: 32px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <div style="width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.25); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 18px;"></div>
+    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    <h2 style="font-size: 17px; font-weight: 800; line-height: 1.4; margin-bottom: 10px; color: #f59e0b;">Membuka Berita...</h2>
+    <p style="font-size: 13px; opacity: 0.9; line-height: 1.5; margin-bottom: 20px;">${escapeHtml(title)}</p>
+    <p><a href="${spaRedirectUrl}" style="display: inline-block; background: #c99a2c; color: #003831; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 13px;">Klik di sini jika tidak beralih otomatis &rarr;</a></p>
+  </div>
+  <script>
+    // Cadangan pengalihan jika script head belum dieksekusi
+    setTimeout(function() {
+      window.location.replace("${spaRedirectUrl}");
+    }, 50);
+  </script>`;
 
   const html = `<!DOCTYPE html>
 <html lang="id">
@@ -133,6 +200,7 @@ export default async function handler(req, res) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title)}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
   <meta name="description" content="${escapeHtml(description)}" />
   <meta name="keywords" content="${escapeHtml(keywords)}" />
   <meta name="author" content="${escapeHtml(penulis)}" />
@@ -159,29 +227,19 @@ export default async function handler(req, res) {
 
   <link rel="canonical" href="${canonicalUrl}" />
 
+  <script type="application/ld+json">${newsArticleJsonLd}</script>
+
   ${!isCrawler ? `
   <!-- Pengalihan Otomatis untuk Pengunjung Manusia ke Tampilan Penuh SPA -->
   <meta http-equiv="refresh" content="0;url=${spaRedirectUrl}" />
-  ` : ''}
   <script>
     // Pengalihan instan ke aplikasi SPA (sebelum body dirender)
     window.location.replace("${spaRedirectUrl}");
   </script>
+  ` : ''}
 </head>
-<body onload="window.location.replace('${spaRedirectUrl}')" style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px 20px; background: #005c55; color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-  <div style="max-width: 540px; background: rgba(255,255,255,0.08); padding: 32px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-    <div style="width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.25); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 18px;"></div>
-    <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-    <h2 style="font-size: 17px; font-weight: 800; line-height: 1.4; margin-bottom: 10px; color: #f59e0b;">Membuka Berita...</h2>
-    <p style="font-size: 13px; opacity: 0.9; line-height: 1.5; margin-bottom: 20px;">${escapeHtml(title)}</p>
-    <p><a href="${spaRedirectUrl}" style="display: inline-block; background: #c99a2c; color: #003831; padding: 10px 20px; border-radius: 10px; font-weight: bold; text-decoration: none; font-size: 13px;">Klik di sini jika tidak beralih otomatis &rarr;</a></p>
-  </div>
-  <script>
-    // Cadangan pengalihan jika script head belum dieksekusi
-    setTimeout(function() {
-      window.location.replace("${spaRedirectUrl}");
-    }, 50);
-  </script>
+<body${!isCrawler ? ` onload="window.location.replace('${spaRedirectUrl}')" style="font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px 20px; background: #005c55; color: white; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;"` : ' style="margin: 0; background: #ffffff;"'}>
+  ${isCrawler ? crawlerBodyHtml : humanBodyHtml}
 </body>
 </html>`;
 
@@ -190,6 +248,25 @@ export default async function handler(req, res) {
   res.setHeader('Vary', 'User-Agent');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.status(200).send(html);
+}
+
+function stripHtmlToParagraphs(raw) {
+  if (!raw) return [];
+  const normalized = String(raw)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6])>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ');
+  return normalized
+    .split(/\r?\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function formatIsoDateTime(rawDate) {
+  if (!rawDate) return null;
+  const d = new Date(rawDate);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 function escapeHtml(str) {
