@@ -161,7 +161,7 @@
                         <a href="#verifikasi" onclick="navigateTo('verifikasi')" data-module="verifikasi" title="Ruang Kerja Verifikasi" class="nav-item flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition-all group">
                             <span class="material-symbols-outlined text-[19px] nav-icon text-emerald-300 group-hover:text-white shrink-0">verified</span>
                             <span class="sidebar-text flex-1">Ruang Verifikasi</span>
-                            <span class="sidebar-text text-[10px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full" id="sidebar-verification-badge">12</span>
+                            <span class="sidebar-text text-[10px] font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full" id="sidebar-verification-badge">0</span>
                         </a>
                     </div>
                 </div>
@@ -3768,7 +3768,7 @@
             { id: "kec-03", name: "Guntur", villages: 21, code: "33.21.03", lat: -6.9942, lng: 110.6015, count: 28 },
             { id: "kec-04", name: "Sayung", villages: 20, code: "33.21.04", lat: -6.9189, lng: 110.5218, count: 36 },
             { id: "kec-05", name: "Karangtengah", villages: 17, code: "33.21.05", lat: -6.9147, lng: 110.6274, count: 24 },
-            { id: "kec-06", name: "Wonotunggal/Wonosalam", villages: 21, code: "33.21.06", lat: -6.9242, lng: 110.6811, count: 22 },
+            { id: "kec-06", name: "Wonosalam", villages: 21, code: "33.21.06", lat: -6.9242, lng: 110.6811, count: 22 },
             { id: "kec-07", name: "Demak Kota", villages: 19, code: "33.21.07", lat: -6.8944, lng: 110.6386, count: 42 },
             { id: "kec-08", name: "Bonang", villages: 21, code: "33.21.08", lat: -6.8524, lng: 110.5824, count: 26 },
             { id: "kec-09", name: "Wedung", villages: 20, code: "33.21.09", lat: -6.7824, lng: 110.5614, count: 29 },
@@ -5275,65 +5275,37 @@
             const asatidzSubEl = document.getElementById('dash-stat-asatidz-sub');
 
             const isFiltered = !!districtFilter;
-            const distObj = isFiltered ? DEMAK_DISTRICTS.find(d => d.name.toLowerCase() === districtFilter.toLowerCase()) : null;
+            const normFilter = isFiltered ? normalizeAdminKecamatanName(districtFilter).toLowerCase() : '';
             const filteredPesantren = isFiltered 
-                ? PESANTREN_DATA.filter(p => (p.kecamatan || '').toLowerCase() === districtFilter.toLowerCase())
+                ? PESANTREN_DATA.filter(p => normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase() === normFilter)
                 : PESANTREN_DATA;
 
-            // 1. Total Pesantren
-            let totalCount = 0;
-            if (isFiltered) {
-                totalCount = filteredPesantren.length || (distObj ? distObj.count : 0);
-            } else {
-                totalCount = PESANTREN_DATA.length || 293;
-            }
+            // 1. Total Pesantren (Data Riil)
+            const totalCount = filteredPesantren.length;
 
-            // 2. Kepatuhan NSPP & Antrean
-            let verifiedCount = 0;
-            let pendingCount = 0;
-            if (isFiltered) {
-                verifiedCount = filteredPesantren.filter(p => p.status_verifikasi === 'verified' || p.nspp).length;
-                pendingCount = filteredPesantren.filter(p => p.status_verifikasi === 'under_review' || p.status_verifikasi === 'revision_required').length;
-                if (verifiedCount === 0 && totalCount > 0) {
-                    verifiedCount = Math.round(totalCount * 0.82);
-                }
-            } else {
-                verifiedCount = PESANTREN_DATA.filter(p => p.verificationStatus === 'verified' || p.status === 'Aktif' || p.nspp).length || 284;
-                pendingCount = PESANTREN_DATA.filter(p => p.verificationStatus === 'under_review' || p.status_verifikasi === 'under_review' || p.status === 'Menunggu Verifikasi').length || 12;
-            }
-            const ratioBerizin = totalCount > 0 ? ((verifiedCount / totalCount) * 100).toFixed(1) : '81.6';
+            // 2. Kepatuhan NSPP & Antrean (Data Riil)
+            const verifiedCount = filteredPesantren.filter(p => p.status_verifikasi === 'verified' || (p.nspp && String(p.nspp).trim() !== '')).length;
+            const pendingCount = filteredPesantren.filter(p => p.status_verifikasi === 'under_review' || p.status_verifikasi === 'revision_required').length;
+            const ratioBerizin = totalCount > 0 ? ((verifiedCount / totalCount) * 100).toFixed(1) : '0.0';
 
-            // 3. Salafiyah & Tahfidz
-            let salafiyahCount = 0;
-            if (isFiltered) {
-                salafiyahCount = filteredPesantren.filter(p => {
-                    const jenjang = Array.isArray(p.jenjang_pendidikan) ? p.jenjang_pendidikan.join(' ') : (p.jenjang_pendidikan || '');
-                    const str = `${p.tipe || ''} ${jenjang} ${p.karakteristik || ''}`.toLowerCase();
-                    return str.includes('salaf') || str.includes('tahfidz');
-                }).length;
-                if (salafiyahCount === 0 && totalCount > 0) {
-                    salafiyahCount = Math.round(totalCount * 0.42);
-                }
-            } else {
-                salafiyahCount = PESANTREN_DATA.filter(p => (p.tipe || '').toLowerCase().includes('salaf') || (p.tipe || '').toLowerCase().includes('tahfidz') || p.kurikulumUtama === 'Salafiyah Murni').length || 142;
-            }
+            // 3. Salafiyah & Tahfidz (Data Riil dari klasifikasi / jenjang_pendidikan)
+            const salafiyahCount = filteredPesantren.filter(p => {
+                const jenjang = Array.isArray(p.jenjang_pendidikan) ? p.jenjang_pendidikan.join(' ') : (p.jenjang_pendidikan || '');
+                const str = `${p.klasifikasi || ''} ${p.tipe || ''} ${jenjang} ${p.kategori_atau_metode || ''}`.toLowerCase();
+                return str.includes('salaf') || str.includes('tahfidz') || str.includes('kombinasi');
+            }).length;
 
-            // 4. Dewan Asatidz & Guru
+            // 4. Dewan Asatidz & Guru (Data Riil dari dewan_asatidz / kurikulum_kitab)
             let asatidzCount = 0;
-            if (isFiltered) {
-                filteredPesantren.forEach(p => {
-                    if (Array.isArray(p.dewan_asatidz) && p.dewan_asatidz.length > 0) {
-                        asatidzCount += p.dewan_asatidz.length;
-                    } else {
-                        asatidzCount += 14;
-                    }
-                });
-                if (asatidzCount === 0 && totalCount > 0) {
-                    asatidzCount = totalCount * 12;
+            filteredPesantren.forEach(p => {
+                if (Array.isArray(p.dewan_asatidz) && p.dewan_asatidz.length > 0) {
+                    asatidzCount += p.dewan_asatidz.length;
+                } else if (p.jumlah_ustadz || p.jumlah_asatidz) {
+                    asatidzCount += (parseInt(p.jumlah_ustadz || p.jumlah_asatidz, 10) || 0);
+                } else if (Array.isArray(p.kurikulum_kitab) && p.kurikulum_kitab.length > 0) {
+                    asatidzCount += Math.max(3, Math.round(p.kurikulum_kitab.length * 0.8));
                 }
-            } else {
-                asatidzCount = 3840;
-            }
+            });
 
             // Update Teks & Subteks Kartu KPI
             if (totalEl) totalEl.innerText = totalCount.toLocaleString('id-ID');
@@ -5342,8 +5314,8 @@
             if (salafiyahEl) salafiyahEl.innerText = salafiyahCount.toLocaleString('id-ID');
             if (salafiyahSubEl) salafiyahSubEl.innerText = isFiltered ? `Karakter di Kec. ${districtFilter}` : 'Turots & Kitab Kuning';
 
-            if (asatidzEl) asatidzEl.innerText = asatidzCount.toLocaleString('id-ID');
-            if (asatidzSubEl) asatidzSubEl.innerText = isFiltered ? `SDM Pengajar di ${districtFilter}` : 'Pengajar & Pembina';
+            if (asatidzEl) asatidzEl.innerText = asatidzCount > 0 ? asatidzCount.toLocaleString('id-ID') : '-';
+            if (asatidzSubEl) asatidzSubEl.innerText = isFiltered ? `SDM Terdata di ${districtFilter}` : 'Pengajar & Pembina Terdata';
 
             if (verifiedEl) verifiedEl.innerText = verifiedCount.toLocaleString('id-ID');
             if (pendingEl) pendingEl.innerText = pendingCount.toLocaleString('id-ID');
@@ -5722,13 +5694,40 @@
             const container = document.getElementById('district-bar-chart');
             if (!container) return;
 
-            const topDistricts = DEMAK_DISTRICTS.slice(0, 6);
-            const maxVal = Math.max(...topDistricts.map(d => d.count));
+            if (!Array.isArray(PESANTREN_DATA) || PESANTREN_DATA.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic py-6 text-center">Menghubungi Google Spreadsheet untuk menghitung sebaran riil 14 kecamatan...</p>';
+                return;
+            }
+
+            const countsMap = {};
+            DEMAK_DISTRICTS.forEach(d => {
+                countsMap[normalizeAdminKecamatanName(d.name)] = 0;
+            });
+
+            PESANTREN_DATA.forEach(p => {
+                const k = normalizeAdminKecamatanName(p.kecamatan || '');
+                if (k) {
+                    countsMap[k] = (countsMap[k] || 0) + 1;
+                }
+            });
+
+            const sortedDistricts = Object.entries(countsMap)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count);
+
+            const normSelected = selectedDistrict ? normalizeAdminKecamatanName(selectedDistrict).toLowerCase() : '';
+            let topDistricts = sortedDistricts.slice(0, 6);
+            if (normSelected && !topDistricts.some(d => d.name.toLowerCase() === normSelected)) {
+                const selObj = sortedDistricts.find(d => d.name.toLowerCase() === normSelected);
+                if (selObj) topDistricts[5] = selObj;
+            }
+
+            const maxVal = Math.max(1, ...topDistricts.map(d => d.count));
 
             let html = '';
             topDistricts.forEach(d => {
                 const percentage = Math.round((d.count / maxVal) * 100);
-                const isSelected = selectedDistrict && (d.name.toLowerCase() === selectedDistrict.toLowerCase());
+                const isSelected = normSelected && (d.name.toLowerCase() === normSelected);
                 const barBg = isSelected ? 'bg-emerald-800' : 'bg-emerald-600';
                 const textStyle = isSelected ? 'font-bold text-emerald-950 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-300/80 shadow-2xs' : 'font-semibold text-slate-700';
 
@@ -5737,7 +5736,7 @@
                         <div class="flex justify-between text-xs ${textStyle} mb-1">
                             <span class="flex items-center gap-1.5">
                                 ${isSelected ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-700 animate-pulse"></span>' : ''}
-                                Kecamatan ${d.name}
+                                Kecamatan ${escapeHTML(d.name)}
                             </span>
                             <span>${d.count} Pesantren</span>
                         </div>
@@ -5755,12 +5754,16 @@
             const notifBadge = document.getElementById('notif-badge-dot');
             const notifCounter = document.getElementById('notif-queue-counter');
             const dashPendingStat = document.getElementById('dash-stat-pending');
+            const sidebarVerifBadge = document.getElementById('sidebar-verification-badge');
 
             const pendingItems = PESANTREN_DATA.filter(p => p.status_verifikasi === 'under_review' || p.status_verifikasi === 'revision_required');
             const count = pendingItems.length;
 
             if (dashPendingStat) {
-                dashPendingStat.innerText = count;
+                dashPendingStat.innerText = count.toLocaleString('id-ID');
+            }
+            if (sidebarVerifBadge) {
+                sidebarVerifBadge.innerText = count.toLocaleString('id-ID');
             }
 
             if (notifBadge) {
@@ -6283,6 +6286,7 @@
                     renderPriorityQueue();
                     renderDirektoriTable(PESANTREN_DATA);
                     renderRekapPreview();
+                    renderDistrictCards();
                     renderVerifikasiCards('under_review');
                     populateBukuIndukSelector();
                     loadBukuInduk(PESANTREN_DATA[0].id);
@@ -9674,14 +9678,18 @@
 
             let html = '';
             DEMAK_DISTRICTS.forEach(d => {
+                const normName = normalizeAdminKecamatanName(d.name).toLowerCase();
+                const realCount = Array.isArray(PESANTREN_DATA)
+                    ? PESANTREN_DATA.filter(p => normalizeAdminKecamatanName(p.kecamatan || '').toLowerCase() === normName).length
+                    : 0;
                 html += `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-emerald-600/40 transition-colors">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="font-mono text-[10px] text-slate-400 font-bold">${d.code}</span>
-                                <h4 class="font-bold text-slate-800 text-sm mt-0.5">Kecamatan ${d.name}</h4>
+                                <h4 class="font-bold text-slate-800 text-sm mt-0.5">Kecamatan ${escapeHTML(d.name)}</h4>
                             </div>
-                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">${d.count} Pesantren</span>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">${realCount} Pesantren</span>
                         </div>
                         <p class="text-xs text-slate-500 mt-2">Membawahi: <strong>${d.villages} Desa / Kelurahan</strong></p>
                     </div>
