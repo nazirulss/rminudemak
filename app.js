@@ -556,12 +556,23 @@ function escapeHtml(value) {
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
 // ==================================================================
 const APPS_SCRIPT_PUBLIC_URL = "https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec?action=GET_ALL_PESANTREN";
-const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v6";
-const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v6";
+const CACHE_KEY_LEMBAGA = "rmi_demak_pesantren_cache_v7";
+const CACHE_KEY_TIME = "rmi_demak_pesantren_cache_time_v7";
 const CACHE_TTL_MS = 15 * 60 * 1000; // Cache berlaku 15 menit
 
 let isLivePesantrenDataLoaded = false;
 let loadLembagaPromise = null;
+
+// Validasi apakah logo_url merupakan logo asli valid, bukan gambar placeholder/dummy
+function isValidPesantrenLogoUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    const clean = url.trim();
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) return false;
+    // Filter dummy placeholder image warisan seed awal (1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb)
+    if (clean.includes('1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb')) return false;
+    if (/dummy|placeholder|sample|contoh/i.test(clean)) return false;
+    return true;
+}
 
 function reRenderActiveDetailIfNeeded() {
     const rawHash = (window.location.hash || '').replace('#', '').trim();
@@ -602,7 +613,10 @@ function loadLembagaDariSupabase() {
             if (cachedRaw) {
                 const parsed = JSON.parse(cachedRaw);
                 if (Array.isArray(parsed) && parsed.length > 20) {
-                    allLembagaData = parsed;
+                    allLembagaData = parsed.map(item => ({
+                        ...item,
+                        logo_url: isValidPesantrenLogoUrl(item.logo_url) ? item.logo_url.trim() : ''
+                    }));
                     isLivePesantrenDataLoaded = true;
                     renderLembagaCards(allLembagaData);
                     if (publicMap) loadPublicMapMarkers(currentPublicCategory);
@@ -652,7 +666,7 @@ function loadLembagaDariSupabase() {
                     longitude: (p.longitude !== undefined && p.longitude !== null && p.longitude !== '') ? parseFloat(p.longitude) : null,
                     has_komitmen_pesantren_aman: p.has_komitmen_pesantren_aman === true || p.has_komitmen_pesantren_aman === 'true',
                     foto_url: (p.foto_url && String(p.foto_url).trim().startsWith('http')) ? p.foto_url : getIslamicFallbackPhoto(p.id || p.nama_resmi),
-                    logo_url: (p.logo_url && String(p.logo_url).trim().startsWith('http')) ? p.logo_url : '',
+                    logo_url: (p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? p.logo_url.trim() : '',
                     media_sosial: p.media_sosial || {},
                     dewan_asatidz: p.dewan_asatidz || [],
                     kurikulum_kitab: p.kurikulum_kitab || [],
@@ -1122,8 +1136,8 @@ function getClassificationBadge(klasifikasi) {
 // RENDERER ELEMEN LOGO PESANTREN (DATABASE & GOOGLE DRIVE RESMI, BEBAS LATAR HITAM)
 // =========================================================================
 function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs') {
-    // 1. Ambil langsung dari Database & Google Drive (logo_url) sebagai Single Source of Truth
-    if (item.logo_url && String(item.logo_url).trim().startsWith('http')) {
+    // 1. Ambil langsung dari Database & Google Drive (logo_url) jika valid dan bukan gambar dummy
+    if (item.logo_url && isValidPesantrenLogoUrl(item.logo_url)) {
         const localFallback = getLocalTransparentLogoUrl(item);
         const fallbackAttr = localFallback ? `onerror="this.onerror=null; this.src='${localFallback}';"` : '';
         return `<img src="${escapeHTML(item.logo_url)}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" ${fallbackAttr} />`;
@@ -1135,12 +1149,12 @@ function getPesantrenLogoHtml(item, sizeClass = 'w-12 h-12', textSize = 'text-xs
         return `<img src="${localLogo}" alt="Logo ${escapeHTML(item.nama)}" class="w-full h-full object-contain" style="width: 100%; height: 100%; object-fit: contain; display: block;" />`;
     }
     
-    // Inisial monogram fallback elegan
-    let cleanName = (item.nama || '').replace(/^(Pondok\s+Pesantren|Pondok|Pesantren|PP)\s+/i, '').trim();
-    let words = cleanName.split(/\s+/);
-    let initials = words.length >= 2 
-        ? (words[0][0] + words[1][0]).toUpperCase() 
-        : (cleanName.slice(0, 2)).toUpperCase() || 'PP';
+    // Inisial monogram fallback elegan (jika belum mengupload logo resmi)
+    let cleanName = (item.nama || '').replace(/^(Pondok\s+Pesantren|Pondok|Pesantren|Ponpes|PPTQ|PP)\s+/i, '').trim();
+    let cleanWords = cleanName.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+    let initials = cleanWords.length >= 2 
+        ? (cleanWords[0][0] + cleanWords[1][0]).toUpperCase() 
+        : (cleanWords[0] ? cleanWords[0].slice(0, 2) : 'PP').toUpperCase();
     
     const palettes = [
         'bg-emerald-700 text-white',

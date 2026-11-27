@@ -5847,8 +5847,17 @@
         // ==========================================
         // 8. RENDER DIREKTORI PESANTREN (STANDAR ASNAWIYYAH)
         // ==========================================
+        function isValidPesantrenLogoUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            const clean = url.trim();
+            if (!clean.startsWith('http://') && !clean.startsWith('https://')) return false;
+            if (clean.includes('1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb')) return false;
+            if (/dummy|placeholder|sample|contoh/i.test(clean)) return false;
+            return true;
+        }
+
         function getPesantrenLogoBadge(p) {
-            if (p.logo_url) {
+            if (p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) {
                 const safeName = escapeHTML((p.nama_resmi || '').replace(/'/g, "\\'"));
                 const safeCode = escapeHTML((p.kode_pesantren || '').replace(/'/g, "\\'"));
                 return `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200 p-0.5 shadow-2xs mx-auto" onerror="this.outerHTML=getPesantrenFallbackBadge('${safeName}','${safeCode}')" />`;
@@ -5857,11 +5866,11 @@
         }
 
         function getPesantrenFallbackBadge(namaResmi, kodePesantren) {
-            let cleanName = (namaResmi || '').replace(/^(Pondok\s+Pesantren|Pondok|Pesantren|PP)\s+/i, '').trim();
-            let words = cleanName.split(/\s+/);
-            let initials = words.length >= 2 
-                ? (words[0][0] + words[1][0]).toUpperCase() 
-                : (cleanName.slice(0, 2)).toUpperCase() || 'PP';
+            let cleanName = (namaResmi || '').replace(/^(Pondok\s+Pesantren|Pondok|Pesantren|Ponpes|PPTQ|PP)\s+/i, '').trim();
+            let cleanWords = cleanName.replace(/[^a-zA-Z0-9\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+            let initials = cleanWords.length >= 2 
+                ? (cleanWords[0][0] + cleanWords[1][0]).toUpperCase() 
+                : (cleanWords[0] ? cleanWords[0].slice(0, 2) : 'PP').toUpperCase();
             
             const palettes = [
                 'from-emerald-700 to-teal-800 text-emerald-100 border-emerald-600/40',
@@ -6261,9 +6270,12 @@
                 const result = await response.json();
 
                 if (result && result.success && result.data && result.data.length > 0) {
-                    PESANTREN_DATA = result.data;
+                    PESANTREN_DATA = result.data.map(p => ({
+                        ...p,
+                        logo_url: isValidPesantrenLogoUrl(p.logo_url) ? p.logo_url.trim() : ''
+                    }));
                     try {
-                        localStorage.setItem(RMI_CACHE_KEY_PESANTREN_V2, JSON.stringify(result.data));
+                        localStorage.setItem(RMI_CACHE_KEY_PESANTREN_V2, JSON.stringify(PESANTREN_DATA));
                     } catch (cErr) {
                         console.warn('Gagal menyimpan cache pesantren:', cErr);
                     }
@@ -7074,7 +7086,7 @@
             // Header Pesantren Logo (Kop Dokumen Resmi)
             const logoHeaderBox = document.getElementById('bi-header-pesantren-logo');
             if (logoHeaderBox) {
-                if (p.logo_url) {
+                if (p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) {
                     logoHeaderBox.innerHTML = `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="h-14 w-14 object-contain border-l border-slate-200 pl-3" />`;
                 } else {
                     logoHeaderBox.innerHTML = '';
@@ -7774,11 +7786,11 @@
                                             <span class="material-symbols-outlined text-[15px] text-emerald-700">image</span>
                                             <span>Logo Resmi Pesantren (PNG Transparan)</span>
                                         </label>
-                                        ${p.logo_url ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Drive Cloud</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">Belum Ada</span>'}
+                                        ${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Drive Cloud</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">Belum Ada</span>'}
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <div class="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center relative overflow-hidden bg-white shrink-0" style="background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px); background-size: 10px 10px;">
-                                            ${p.logo_url ? `<img src="${escapeHTML(p.logo_url)}" alt="Logo" class="max-h-14 max-w-[90%] object-contain drop-shadow-xs" />` : '<span class="material-symbols-outlined text-slate-400 text-2xl">image</span>'}
+                                            ${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? `<img src="${escapeHTML(p.logo_url)}" alt="Logo" class="max-h-14 max-w-[90%] object-contain drop-shadow-xs" />` : '<span class="material-symbols-outlined text-slate-400 text-2xl">image</span>'}
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <p class="text-[10px] text-slate-500 leading-tight mb-2">Gunakan format <strong class="text-slate-700">PNG transparan</strong> agar tidak ada latar belakang kotak hitam.</p>
@@ -8447,17 +8459,17 @@
                                 <!-- Logo Lembaga & Aksi Upload/Ganti (Domain 1) -->
                                 <div class="flex items-center gap-3.5 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
                                     <div class="w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 p-1 flex items-center justify-center shrink-0 overflow-hidden shadow-inner">
-                                        ${p.logo_url ? `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-full h-full object-contain" />` : getPesantrenFallbackBadge(p.nama_resmi, p.kode_pesantren)}
+                                        ${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? `<img src="${escapeHTML(p.logo_url)}" alt="Logo ${escapeHTML(p.nama_resmi)}" class="w-full h-full object-contain" />` : getPesantrenFallbackBadge(p.nama_resmi, p.kode_pesantren)}
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Logo Resmi Lembaga</span>
-                                            ${p.logo_url ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Tersimpan di Cloud</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-100 text-amber-800">Monogram Inisial</span>'}
+                                            ${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Tersimpan di Cloud</span>' : '<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-100 text-amber-800">Monogram Inisial</span>'}
                                         </div>
-                                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${p.logo_url ? 'Logo aktif terhubung ke Cloud Drive.' : 'Belum memiliki berkas logo digital.'}</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5 truncate">${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? 'Logo aktif terhubung ke Cloud Drive.' : 'Belum memiliki berkas logo digital.'}</p>
                                         <button type="button" onclick="openModalUploadLogo('${escapeHTML(p.id)}')" class="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[11px] font-bold transition shadow-xs cursor-pointer">
                                             <span class="material-symbols-outlined text-[14px]">upload</span>
-                                            <span>${p.logo_url ? 'Ganti Logo Pesantren' : 'Unggah Logo Pesantren'}</span>
+                                            <span>${(p.logo_url && isValidPesantrenLogoUrl(p.logo_url)) ? 'Ganti Logo Pesantren' : 'Unggah Logo Pesantren'}</span>
                                         </button>
                                     </div>
                                 </div>

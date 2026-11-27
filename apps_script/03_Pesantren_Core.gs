@@ -1023,7 +1023,11 @@ function getAllPesantrenData() {
     });
 
     const pId = obj.id;
-    obj.logo_url = obj.logo_url ? String(obj.logo_url).trim() : '';
+    let rawLogo = obj.logo_url ? String(obj.logo_url).trim() : '';
+    if (rawLogo.indexOf('1XHm7dyyRp6lJ-yFgqxZYxq9qETxQ61Lb') !== -1 || /dummy|placeholder|sample|contoh/i.test(rawLogo)) {
+      rawLogo = '';
+    }
+    obj.logo_url = rawLogo;
 
     // Join Location
     obj.alamat = '';
