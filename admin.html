@@ -5660,6 +5660,7 @@
                     opt.value = d.name;
                     const normName = normalizeAdminKecamatanName(d.name).toLowerCase();
                     const count = realCounts[normName] || 0;
+                    d.count = count; // Sinkronkan referensi statis dengan hitungan riil
 
                     if (select.id === 'dash-filter-kecamatan') {
                         opt.innerText = `Kec. ${d.name} (${count} Pesantren)`;
@@ -7581,9 +7582,47 @@
                 if (btnSave) btnSave.disabled = true;
                 if (btnText) btnText.innerText = 'Menyimpan & Sinkronkan ke Cloud...';
 
+                const soc = p.media_sosial || {};
+                const hotlineStr = soc.hotline_psb || p.hotline_psb || '';
+
                 const payload = {
                     id: p.id,
+                    pesantrenId: p.id,
                     kode_pesantren: p.kode_pesantren,
+                    // Struktur Modular Bersarang (Nested Contracts untuk 03_Pesantren_Core.gs)
+                    identitas: {
+                        nama_resmi: p.nama_resmi,
+                        nama_populer: p.nama_populer || '',
+                        nspp: p.nspp || '',
+                        tahun_berdiri: p.tahun_berdiri,
+                        status_keanggotaan_rmi: p.status_keanggotaan_rmi,
+                        has_komitmen_pesantren_aman: !!p.has_komitmen_pesantren_aman
+                    },
+                    pimpinan: {
+                        pengasuh_utama: p.pengasuh_utama,
+                        wakil_pengasuh: Array.isArray(p.wakil_pengasuh) ? p.wakil_pengasuh.join(', ') : (p.wakil_pengasuh || '')
+                    },
+                    kontak: {
+                        hotline_psb: hotlineStr,
+                        whatsapp_psb: hotlineStr,
+                        website: soc.website || '',
+                        instagram: soc.instagram || '',
+                        youtube: soc.youtube || '',
+                        tiktok: soc.tiktok || ''
+                    },
+                    lokasi: {
+                        alamat: p.alamat || '',
+                        desa: p.desa || '',
+                        kecamatan: p.kecamatan || '',
+                        latitude: p.latitude || -6.8944,
+                        longitude: p.longitude || 110.6385
+                    },
+                    agregat: {
+                        santri_mukim: p.santri_mukim || 0,
+                        santri_nonmukim: p.santri_nonmukim || 0,
+                        total: (Number(p.santri_mukim) || 0) + (Number(p.santri_nonmukim) || 0)
+                    },
+                    // Properti Flat (Fallback Kompatibilitas)
                     nama_resmi: p.nama_resmi,
                     nama_populer: p.nama_populer || '',
                     nspp: p.nspp || '',
@@ -7600,7 +7639,12 @@
                     santri_mukim: p.santri_mukim || 0,
                     santri_nonmukim: p.santri_nonmukim || 0,
                     potensi_kebutuhan: p.potensi_kebutuhan || '',
-                    media_sosial: p.media_sosial || {},
+                    media_sosial: {
+                        ...soc,
+                        hotline_psb: hotlineStr,
+                        tiktok: soc.tiktok || ''
+                    },
+                    hotline_psb: hotlineStr,
                     program_unggulan: p.program_unggulan || [],
                     klasifikasi: p.klasifikasi || 'SALAF',
                     kurikulum_kitab: p.kurikulum_kitab || [],
@@ -7611,16 +7655,24 @@
                 if (p._new_logo_base64) {
                     payload.logo_base64 = p._new_logo_base64;
                     payload.logo_name = p._new_logo_name || `logo_${p.id}.png`;
+                    payload.file_logo = {
+                        base64: p._new_logo_base64,
+                        filename: p._new_logo_name || `logo_${p.id}.png`
+                    };
                 }
                 if (p._new_foto_base64) {
                     payload.foto_base64 = p._new_foto_base64;
                     payload.foto_name = p._new_foto_name || `cover_${p.id}.jpg`;
+                    payload.file_cover = {
+                        base64: p._new_foto_base64,
+                        filename: p._new_foto_name || `cover_${p.id}.jpg`
+                    };
                 }
 
                 let res = null;
                 if (typeof callAppsScript === 'function') {
                     try {
-                        res = await callAppsScript('handleUpdatePesantrenProfile', payload);
+                        res = await callAppsScript('UPDATE_PESANTREN_PROFILE', payload);
                     } catch (e) {
                         console.warn("[saveBukuIndukInPlace] Apps Script offline, fallback update lokal:", e);
                     }
@@ -7673,6 +7725,9 @@
                     updateBukuIndukEditToolbar(false);
 
                     if (typeof handleFilterDirektori === 'function') handleFilterDirektori();
+                    populateDistrictDropdowns();
+                    updateDashboardKPISummary(currentDashboardTimeframe, currentDashboardKecamatan);
+                    renderDashboardBars(currentDashboardKecamatan);
                     loadBukuInduk(p.id);
 
                     showToast('success', `Profil ${p.nama_resmi} berhasil diperbarui, terklasifikasi sebagai "${p.klasifikasi}", dan seluruh 9 domain tersinkronisasi sempurna.`);

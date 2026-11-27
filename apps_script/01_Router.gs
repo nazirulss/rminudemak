@@ -121,7 +121,7 @@ function doPost(e) {
       result = handleUpdatePesantrenLogo(payload);
     } else if (action === 'UPDATE_VERIFIKASI') {
       result = handleUpdateVerifikasi(payload);
-    } else if (action === 'UPDATE_PESANTREN_PROFILE') {
+    } else if (action === 'UPDATE_PESANTREN_PROFILE' || action === 'handleUpdatePesantrenProfile' || action === 'UPDATE_PESANTREN') {
       result = handleUpdatePesantrenProfile(payload, lock);
     } else if (action === 'LOG_AUDIT') {
       result = handleLogAudit(payload);

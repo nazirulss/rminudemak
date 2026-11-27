@@ -2460,6 +2460,7 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
 
     // URLs Aksi
     const soc = item.media_sosial || {};
+    const hotlinePsb = soc.hotline_psb || item.hotline_psb || '';
     const websiteUrl = (soc.website && soc.website.startsWith('http')) ? soc.website : (soc.instagram || `https://www.google.com/search?q=${encodeURIComponent(item.nama + ' Demak')}`);
     const mapsUrl = (item.latitude && item.longitude) 
         ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` 
@@ -2469,15 +2470,32 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
     const shareProfileUrl = `${window.location.origin}/pesantren/${encodeURIComponent(slug)}`;
     const waShareText = `Assalamu'alaikum. Simak profil resmi ${item.nama} (${safeKode}) di Direktori Resmi PC RMI NU Kabupaten Demak:\n${shareProfileUrl}`;
     const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(waShareText)}`;
-    const waPsbUrl = soc.hotline_psb ? `https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Assalamu\'alaikum Panitia PSB ' + item.nama + ', saya ingin bertanya mengenai pendaftaran santri baru.')}` : '';
+    const waPsbCleanNum = hotlinePsb ? String(hotlinePsb).replace(/[^0-9]/g, '') : '';
+    const waPsbUrl = waPsbCleanNum ? `https://wa.me/${waPsbCleanNum}?text=${encodeURIComponent('Assalamu\'alaikum Panitia PSB ' + item.nama + ', saya ingin bertanya mengenai pendaftaran santri baru.')}` : '';
 
-    // Wakil Pengasuh Badge HTML
+    // Wakil Pengasuh Badge HTML (Pecah string koma atau array menjadi badge individu terpisah)
     let wakilPengasuhHtml = '';
-    if (item.wakil_pengasuh && item.wakil_pengasuh.length > 0) {
+    const wakilList = [];
+    if (item.wakil_pengasuh) {
+        if (Array.isArray(item.wakil_pengasuh)) {
+            item.wakil_pengasuh.forEach(w => {
+                if (typeof w === 'string') {
+                    w.split(',').map(s => s.trim()).filter(Boolean).forEach(name => {
+                        if (!wakilList.includes(name)) wakilList.push(name);
+                    });
+                }
+            });
+        } else if (typeof item.wakil_pengasuh === 'string') {
+            item.wakil_pengasuh.split(',').map(s => s.trim()).filter(Boolean).forEach(name => {
+                if (!wakilList.includes(name)) wakilList.push(name);
+            });
+        }
+    }
+    if (wakilList.length > 0) {
         wakilPengasuhHtml = `
             <div class="flex items-center gap-1.5 flex-wrap mt-2">
                 <span class="text-xs font-semibold text-slate-500">Wakil Pengasuh:</span>
-                ${item.wakil_pengasuh.map(w => `<span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-bold">${escapeHTML(w)}</span>`).join('')}
+                ${wakilList.map(w => `<span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full text-xs font-bold">${escapeHTML(w)}</span>`).join('')}
             </div>
         `;
     }
@@ -2597,9 +2615,15 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
             </div>
 
             <!-- ================================================================= -->
-            <!-- SEKSI 3: TIGA TOMBOL AKSI CEPAT                                   -->
+            <!-- SEKSI 3: TOMBOL AKSI CEPAT                                        -->
             <!-- ================================================================= -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-slate-100 mt-6">
+            <div class="grid grid-cols-1 ${waPsbUrl ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3'} gap-3 pt-6 border-t border-slate-100 mt-6">
+                ${waPsbUrl ? `
+                <a href="${waPsbUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs">
+                    <span class="material-symbols-outlined text-[18px]">chat</span>
+                    <span>WhatsApp PSB</span>
+                </a>
+                ` : ''}
                 <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
                     <span class="material-symbols-outlined text-[18px] text-emerald-700">language</span>
                     <span>Kunjungi Laman Resmi</span>
@@ -2608,7 +2632,7 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
                     <span class="material-symbols-outlined text-[18px] text-rose-600">map</span>
                     <span>Buka Google Maps</span>
                 </a>
-                <a href="${waShareUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+                <a href="${waShareUrl}" target="_blank" rel="noopener noreferrer" class="${waPsbUrl ? 'bg-slate-50 hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 border border-slate-200 hover:border-emerald-300' : 'bg-emerald-600 hover:bg-emerald-700 text-white'} rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
                     <span class="material-symbols-outlined text-[18px]">share</span>
                     <span>Bagikan Profil Pesantren</span>
                 </a>
@@ -2656,13 +2680,23 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
                     <p class="text-xs text-slate-500 mb-4">Akses informasi kegiatan harian santri melalui akun resmi pesantren.</p>
                     
                     <div class="space-y-2.5">
-                        ${soc.hotline_psb ? `
-                            <a href="https://wa.me/${String(soc.hotline_psb).replace(/[^0-9]/g, '')}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 transition text-xs font-bold">
+                        ${hotlinePsb ? `
+                            <a href="https://wa.me/${String(hotlinePsb).replace(/[^0-9]/g, '')}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 transition text-xs font-bold">
                                 <span class="flex items-center gap-2">
                                     <span class="material-symbols-outlined text-[16px] text-emerald-700">chat</span>
-                                    <span>WhatsApp Hotline</span>
+                                    <span>WhatsApp Hotline PSB</span>
                                 </span>
-                                <span class="font-mono text-[11px] text-emerald-800">${escapeHTML(soc.hotline_psb)}</span>
+                                <span class="font-mono text-[11px] text-emerald-800">${escapeHTML(hotlinePsb)}</span>
+                            </a>
+                        ` : ''}
+
+                        ${soc.tiktok ? `
+                            <a href="${escapeHTML(soc.tiktok)}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white transition text-xs font-bold shadow-2xs">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-rose-400">music_note</span>
+                                    <span>TikTok Resmi</span>
+                                </span>
+                                <span class="material-symbols-outlined text-[14px] text-slate-300">open_in_new</span>
                             </a>
                         ` : ''}
 
@@ -2696,7 +2730,7 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
                             </a>
                         ` : ''}
 
-                        ${(!soc.hotline_psb && !soc.instagram && !soc.youtube && !soc.website) ? `
+                        ${(!hotlinePsb && !soc.instagram && !soc.youtube && !soc.website && !soc.tiktok) ? `
                             <p class="text-xs text-slate-400 italic py-4 text-center">Tautan media sosial resmi belum ditambahkan oleh pengurus.</p>
                         ` : ''}
                     </div>

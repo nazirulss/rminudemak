@@ -315,7 +315,13 @@ function handleUpdatePesantrenProfile(payload, lock) {
   };
   const foreignKeyId = actualUuid || currentKode || pesantrenId;
 
-  const iden = payload.identitas || {};
+  // Normalisasi Payload Hibrida (Mendukung baik struktur bersarang / nested maupun datar / flat)
+  const iden = payload.identitas || payload;
+  const lok = payload.lokasi || payload;
+  const pim = payload.pimpinan || payload;
+  const kon = payload.kontak || payload.media_sosial || payload;
+  const agr = payload.agregat || payload.santri || payload;
+
   if (iden.nama_resmi && pHeaders.indexOf('nama_resmi') !== -1) {
     sheetPesantren.getRange(pRow, pHeaders.indexOf('nama_resmi') + 1).setValue(iden.nama_resmi);
     currentNama = iden.nama_resmi;
@@ -388,7 +394,6 @@ function handleUpdatePesantrenProfile(payload, lock) {
   }
 
   // 2. UPDATE TABEL pesantren_locations
-  const lok = payload.lokasi || {};
   const sheetLoc = ss.getSheetByName('pesantren_locations');
   if (sheetLoc && (lok.alamat || lok.desa || lok.kecamatan || lok.latitude !== undefined)) {
     const locData = sheetLoc.getDataRange().getValues();
@@ -417,9 +422,13 @@ function handleUpdatePesantrenProfile(payload, lock) {
   }
 
   // 3. UPDATE TABEL pesantren_leaders (Pengasuh Utama & Wakil Pengasuh)
-  const pim = payload.pimpinan || {};
   const sheetLeaders = ss.getSheetByName('pesantren_leaders');
-  if (sheetLeaders && (pim.pengasuh_utama || pim.wakil_pengasuh !== undefined)) {
+  const wakilRaw = pim.wakil_pengasuh;
+  const wakilStr = Array.isArray(wakilRaw) 
+    ? wakilRaw.map(s => String(s).trim()).filter(Boolean).join(', ') 
+    : (wakilRaw !== undefined ? String(wakilRaw).trim() : undefined);
+
+  if (sheetLeaders && (pim.pengasuh_utama || wakilStr !== undefined)) {
     const leadData = sheetLeaders.getDataRange().getValues();
     const leadHeaders = leadData[0];
     
@@ -453,43 +462,51 @@ function handleUpdatePesantrenProfile(payload, lock) {
       }
     }
 
-    if (pim.wakil_pengasuh) {
+    if (wakilStr) {
       if (wakilRow !== -1) {
-        sheetLeaders.getRange(wakilRow, 3).setValue(pim.wakil_pengasuh);
+        sheetLeaders.getRange(wakilRow, 3).setValue(wakilStr);
         sheetLeaders.getRange(wakilRow, 6).setValue('Wakil Pengasuh');
         if (leadHeaders.indexOf('updated_at') !== -1) sheetLeaders.getRange(wakilRow, leadHeaders.indexOf('updated_at') + 1).setValue(now);
       } else {
         sheetLeaders.appendRow([
-          Utilities.getUuid(), foreignKeyId, pim.wakil_pengasuh, '', '', 'Wakil Pengasuh', 'Ustadz', 'Turots & Kitab Kuning', 'Pesantren', 2, true, false, now, now
+          Utilities.getUuid(), foreignKeyId, wakilStr, '', '', 'Wakil Pengasuh', 'Ustadz', 'Turots & Kitab Kuning', 'Pesantren', 2, true, false, now, now
         ]);
       }
-    } else if (pim.wakil_pengasuh === '' && wakilRow !== -1) {
+    } else if (wakilStr === '' && wakilRow !== -1) {
       sheetLeaders.deleteRow(wakilRow);
     }
   }
 
   // 4. UPDATE TABEL pesantren_contacts (Hotline PSB, Medsos)
-  const kon = payload.kontak || {};
   const sheetContacts = ss.getSheetByName('pesantren_contacts');
-  if (sheetContacts && (kon.hotline_psb !== undefined || kon.instagram !== undefined || kon.youtube !== undefined || kon.website !== undefined)) {
+  const hotlineVal = kon.hotline_psb || kon.whatsapp_psb || kon.telepon || '';
+  const contactTypes = ['hotline_psb', 'instagram', 'youtube', 'website', 'tiktok'];
+
+  if (sheetContacts && (hotlineVal || kon.instagram !== undefined || kon.youtube !== undefined || kon.website !== undefined || kon.tiktok !== undefined)) {
     const contactData = sheetContacts.getDataRange().getValues();
-    const contactTypes = ['hotline_psb', 'instagram', 'youtube', 'website'];
 
     contactTypes.forEach(cType => {
-      if (kon[cType] !== undefined) {
+      let valToSet = undefined;
+      if (cType === 'hotline_psb') {
+        if (hotlineVal) valToSet = hotlineVal;
+      } else if (kon[cType] !== undefined) {
+        valToSet = kon[cType];
+      }
+
+      if (valToSet !== undefined) {
         let cRow = -1;
         for (let c = 1; c < contactData.length; c++) {
-          if (isMatchPesantren(contactData[c][1]) && String(contactData[c][2]) === cType) {
+          if (isMatchPesantren(contactData[c][1]) && String(contactData[c][2]).toLowerCase() === cType.toLowerCase()) {
             cRow = c + 1;
             break;
           }
         }
         if (cRow !== -1) {
-          sheetContacts.getRange(cRow, 4).setValue(kon[cType]);
+          sheetContacts.getRange(cRow, 4).setValue(valToSet);
           sheetContacts.getRange(cRow, 9).setValue(now);
-        } else if (kon[cType]) {
+        } else if (valToSet) {
           sheetContacts.appendRow([
-            Utilities.getUuid(), foreignKeyId, cType, kon[cType], cType.toUpperCase(), cType === 'hotline_psb', true, now, now
+            Utilities.getUuid(), foreignKeyId, cType, valToSet, cType.toUpperCase(), cType === 'hotline_psb', true, now, now
           ]);
         }
       }
@@ -497,7 +514,6 @@ function handleUpdatePesantrenProfile(payload, lock) {
   }
 
   // 5. UPDATE TABEL pesantren_santri_aggregates (Santri Mukim & Non-Mukim)
-  const agr = payload.agregat || payload.santri || {};
   const sheetSantri = ss.getSheetByName('pesantren_santri_aggregates');
   if (sheetSantri && (agr.santri_mukim !== undefined || agr.santri_nonmukim !== undefined || agr.total !== undefined || agr.mukim !== undefined)) {
     const santriData = sheetSantri.getDataRange().getValues();
@@ -1082,8 +1098,14 @@ function getAllPesantrenData() {
 
         // 1. Cek apakah ini Wakil Pengasuh
         if (jLower.includes('wakil pengasuh') || jLower.includes('wakil pimpinan')) {
-          if (!obj.wakil_pengasuh.includes(fullNama)) {
-            obj.wakil_pengasuh.push(fullNama);
+          if (fullNama.includes(',')) {
+            fullNama.split(',').map(function(s) { return s.trim(); }).filter(Boolean).forEach(function(wItem) {
+              if (!obj.wakil_pengasuh.includes(wItem)) obj.wakil_pengasuh.push(wItem);
+            });
+          } else {
+            if (!obj.wakil_pengasuh.includes(fullNama)) {
+              obj.wakil_pengasuh.push(fullNama);
+            }
           }
         }
 
@@ -1116,14 +1138,17 @@ function getAllPesantrenData() {
     obj.media_sosial = {};
     for (let c = 1; c < contactValues.length; c++) {
       if (contactValues[c][1] === pId) {
-        const jenis = contactValues[c][2];
+        const jenis = String(contactValues[c][2] || '').trim().toLowerCase();
         const nilai = contactValues[c][3];
         if (jenis === 'hotline_psb') obj.media_sosial.hotline_psb = nilai;
+        if (jenis === 'whatsapp_psb' && !obj.media_sosial.hotline_psb) obj.media_sosial.hotline_psb = nilai;
         if (jenis === 'youtube') obj.media_sosial.youtube = nilai;
         if (jenis === 'instagram') obj.media_sosial.instagram = nilai;
         if (jenis === 'website') obj.media_sosial.website = nilai;
+        if (jenis === 'tiktok') obj.media_sosial.tiktok = nilai;
       }
     }
+    obj.hotline_psb = obj.media_sosial.hotline_psb || '';
 
     // Join Education (Kurikulum Kitab Kuning Marhalah)
     obj.kurikulum_kitab = [];
