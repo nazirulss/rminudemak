@@ -1,5 +1,55 @@
 // Module: Core Utilities, Configuration & Seed Data
 
+// ==================================================================
+// INSTANT HASH PURGE & CLEAN CANONICAL URL NORMALIZER (SEO PRIORITY)
+// Mengonversi otomatis https://rminudemak.org/pesantren#pesantren/:slug
+// menjadi https://rminudemak.org/pesantren/:slug tanpa reload
+// ==================================================================
+(function() {
+    try {
+        if (typeof window === 'undefined') return;
+        const hash = window.location.hash || '';
+        const pathname = window.location.pathname || '/';
+        const cleanPath = pathname.replace(/\.html$/i, '').replace(/\/+$/, '') || '/';
+
+        if (hash.startsWith('#pesantren/')) {
+            const rawSlug = hash.substring('#pesantren/'.length).trim();
+            const slug = rawSlug.split('?')[0].replace(/\/+$/, '');
+            if (slug) {
+                const targetUrl = '/pesantren/' + encodeURIComponent(slug);
+                if (cleanPath === '/pesantren' || cleanPath === '/direktori' || cleanPath.startsWith('/pesantren/')) {
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState({ page: 'pesantren-detail', slug: slug }, '', targetUrl);
+                    }
+                } else {
+                    window.location.replace(targetUrl);
+                }
+            }
+        } else if (hash.startsWith('#berita/')) {
+            const rawSlug = hash.substring('#berita/'.length).trim();
+            const slug = rawSlug.split('?')[0].replace(/\/+$/, '');
+            if (slug) {
+                const targetUrl = '/berita/' + encodeURIComponent(slug);
+                if (cleanPath === '/berita' || cleanPath.startsWith('/berita/')) {
+                    if (window.history && window.history.replaceState) {
+                        window.history.replaceState({ page: 'berita-detail', slug: slug }, '', targetUrl);
+                    }
+                } else {
+                    window.location.replace(targetUrl);
+                }
+            }
+        } else if (hash === '#pesantren') {
+            if (cleanPath === '/pesantren') {
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({ page: 'direktori', category: 'Pesantren' }, '', '/pesantren');
+                }
+            }
+        }
+    } catch (e) {
+        // Silently ignore
+    }
+})();
+
 // ==========================================
 // INISIALISASI SUPABASE CLIENT (ANTI-BENTROK CDN)
 // ==========================================

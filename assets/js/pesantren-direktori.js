@@ -173,7 +173,7 @@ function shareFavoritesViaWhatsApp() {
     let lines = favItems.slice(0, 15).map((p, idx) =>
         `${idx + 1}. *${p.nama}* (Kec. ${p.kecamatan || 'Demak'}) — Pengasuh: ${p.pengasuh_atau_kepala || '-'}`
     );
-    const text = `*DAFTAR PONDOK PESANTREN PILIHAN (RMI PCNU DEMAK)*\n\n${lines.join('\n')}\n\nLihat direktori lengkap di:\n👉 https://rminudemak.org/#pesantren`;
+    const text = `*DAFTAR PONDOK PESANTREN PILIHAN (RMI PCNU DEMAK)*\n\n${lines.join('\n')}\n\nLihat direktori lengkap di:\n👉 https://rminudemak.org/pesantren`;
     window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
 }
 
