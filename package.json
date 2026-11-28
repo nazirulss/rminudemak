@@ -4,6 +4,8 @@
   "description": "Portal Resmi Satu Data & Sistem Informasi Geospasial RMI PCNU Kabupaten Demak",
   "scripts": {
     "build:css": "tailwindcss -i assets/css/input.css -o assets/css/styles.min.css --minify",
+    "build:pages": "node scripts/build-pages.mjs",
+    "build": "npm run build:css && npm run build:pages",
     "compress": "node scratch/compress_images.js"
   },
   "devDependencies": {

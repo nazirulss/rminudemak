@@ -1,0 +1,202 @@
+    <!-- ========================================== -->
+
+    <!-- Preconnect Fonts & CDNs -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin>
+    <!-- Compiled Production CSS (Sub-30ms load, Zero CDN blocking) -->
+    <link rel="stylesheet" href="/assets/css/styles.min.css?v=20261116_1005" />
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'" />
+
+    <!-- Leaflet.js (GIS Map Engine, Non-Blocking) -->
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
+        </noscript>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-amiri {
+            font-family: 'Amiri', serif;
+        }
+
+        /* Efek Animasi Bergerak Zoom Bergantian Antar Kata: Peradaban Santri Kota Wali */
+        @keyframes wordZoomCycle {
+
+            0%,
+            20% {
+                transform: scale(1.18) translateY(-2px);
+                text-shadow: 0 0 16px rgba(164, 241, 178, 0.9), 0 0 30px rgba(251, 191, 36, 0.6);
+                filter: brightness(1.25);
+            }
+
+            25%,
+            95% {
+                transform: scale(1) translateY(0);
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                filter: brightness(1);
+            }
+
+            100% {
+                transform: scale(1.18) translateY(-2px);
+                text-shadow: 0 0 16px rgba(164, 241, 178, 0.9), 0 0 30px rgba(251, 191, 36, 0.6);
+                filter: brightness(1.25);
+            }
+        }
+
+        .zoom-word {
+            display: inline-block;
+            transform-origin: center;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s ease;
+            animation: wordZoomCycle 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, filter;
+        }
+
+        .zoom-word-1 {
+            animation-delay: 0.0s;
+        }
+
+        .zoom-word-2 {
+            animation-delay: 1.25s;
+        }
+
+        .zoom-word-3 {
+            animation-delay: 2.5s;
+        }
+
+        .zoom-word-4 {
+            animation-delay: 3.75s;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        #public-map-container {
+            z-index: 10;
+        }
+
+        /* Master Pattern dari Karakteristik RMI Jepara & Demak */
+
+        .islamic-pattern {
+
+            background-color: #ffffff;
+
+            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+
+            position: relative;
+
+        }
+
+        .islamic-pattern::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 0;
+
+            opacity: 0.04;
+
+            background-image: url("https://www.transparenttextures.com/patterns/islamic-art.png");
+
+            pointer-events: none;
+
+        }
+
+        .glass-card {
+
+            background: rgba(255, 255, 255, 0.12);
+
+            -webkit-backdrop-filter: blur(14px);
+
+            backdrop-filter: blur(14px);
+
+            border: 1px solid rgba(255, 255, 255, 0.18);
+
+        }
+
+        .soft-shadow {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #005c55 0%, #00443f 100%);
+        }
+
+        /* SPA Active Routing System */
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+
+            display: block;
+
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+        }
+
+        @keyframes slideUpFade {
+
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+        /* Efek Transisi Data Swap Direktori */
+
+        @keyframes slideFadeIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+        .animate-slideFadeIn {
+
+            animation: slideFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+        }
+
+        #main-header {
+
+            transition: transform 0.3s ease-in-out, background-color 0.3s, padding 0.3s;
+
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+

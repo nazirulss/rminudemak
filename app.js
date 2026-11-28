@@ -316,6 +316,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     
+    const MULTI_PAGE_ROUTES = {
+        'beranda': '/',
+        'profil': '/profil',
+        'pesantren': '/direktori',
+        'layanan': '/layanan',
+        'panduan': '/panduan',
+        'berita': '/berita',
+        'sambang-pesantren-pwrminu-jateng': '/sambang'
+    };
+
     function navigateTo(targetId, updateHash = true) {
         // Normalisasi alias ramah pengguna
         if (targetId === 'direktori') targetId = 'pesantren';
@@ -325,35 +335,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
-        // 🚀 UPDATE HASH ROUTING (Shareable Link & Browser History Support)
-        sessionStorage.setItem('activePage', targetId);
-        if (updateHash) {
+        const targetPage = document.getElementById('page-' + targetId);
+        // Jika target section berada di halaman HTML terpisah (Multi-Page Clean URL), arahkan langsung
+        if (!targetPage && MULTI_PAGE_ROUTES[targetId]) {
+            window.location.href = MULTI_PAGE_ROUTES[targetId];
+            return;
+        }
+
+        if (updateHash && (targetId === 'pesantren-detail' || targetId === 'berita-detail')) {
             if (window.location.hash.replace('#', '') !== targetId) {
                 history.pushState({ page: targetId }, '', '#' + targetId);
             }
         }
 
         pages.forEach(page => page.classList.remove('active'));
-        const targetPage = document.getElementById('page-' + targetId);
         if(targetPage) {
             targetPage.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        if (targetId !== 'berita-detail') {
-            document.title = 'RMI NU Demak — Portal Resmi PC RMINU Kabupaten Demak';
-        }
-
-        if (targetId === 'sambang-pesantren-pwrminu-jateng') {
+        if (targetId === 'sambang-pesantren-pwrminu-jateng' && typeof initSambangCountdown === 'function') {
             initSambangCountdown();
         }
 
-        if (targetId === 'berita') {
-            if (allBeritaData.length === 0) loadBeritaRMI();
-            else renderBeritaFullPage();
+        if (targetId === 'berita' && typeof loadBeritaRMI === 'function') {
+            if (typeof allBeritaData !== 'undefined' && allBeritaData.length === 0) loadBeritaRMI();
+            else if (typeof renderBeritaFullPage === 'function') renderBeritaFullPage();
         }
 
-        if (targetId === 'beranda') {
+        if (targetId === 'beranda' && typeof initHeroMap === 'function') {
             setTimeout(() => {
                 if (!heroGisMap) initHeroMap();
                 else heroGisMap.invalidateSize();
@@ -365,9 +375,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (targetId === 'pesantren' || targetId === 'pesantren-detail') {
             if (allLembagaData.length === 0) loadLembagaDariSupabase();
-            inisialisasiFiturLacakBerkas();
-            populatePublicKecamatanDropdown(currentPublicCategory);
-            if (targetId === 'pesantren') {
+            if (typeof inisialisasiFiturLacakBerkas === 'function') inisialisasiFiturLacakBerkas();
+            if (typeof populatePublicKecamatanDropdown === 'function') populatePublicKecamatanDropdown(currentPublicCategory);
+            if (targetId === 'pesantren' && typeof initPublicMap === 'function') {
                 setTimeout(() => {
                     if (!publicMap) initPublicMap();
                     else publicMap.invalidateSize();
@@ -695,29 +705,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 🚀 HASH ROUTER INIT: Baca URL Hash terlebih dahulu, jika deep linking delegasikan ke handleHashRouting
-    let activeInitialPage = 'beranda';
+    // 🚀 MULTI-PAGE PATHNAME & LEGACY HASH ROUTER INIT
+    const cleanPath = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/+$/, '') || '/';
+    const PATH_TO_PAGE = {
+        '/': 'beranda',
+        '/index': 'beranda',
+        '/profil': 'profil',
+        '/direktori': 'pesantren',
+        '/layanan': 'layanan',
+        '/panduan': 'panduan',
+        '/sambang': 'sambang-pesantren-pwrminu-jateng',
+        '/berita': 'berita'
+    };
+    let activeInitialPage = PATH_TO_PAGE[cleanPath] || 'beranda';
+
     if (window.location.hash) {
-        activeInitialPage = window.location.hash.replace('#', '').trim().toLowerCase();
+        const rawHash = window.location.hash.replace('#', '').trim();
+        const lowerHash = rawHash.toLowerCase();
+        // Redirect link lama (#profil, #direktori, #pesantren/..., #berita/...) dari beranda ke URL bersih Multi-Page
+        if (cleanPath === '/' || cleanPath === '/index') {
+            if (lowerHash.startsWith('pesantren/') || lowerHash.startsWith('pesantren-detail')) {
+                window.location.replace('/direktori#' + rawHash);
+                return;
+            }
+            if (lowerHash.startsWith('berita/') || lowerHash.startsWith('berita-detail')) {
+                window.location.replace('/berita#' + rawHash);
+                return;
+            }
+            if (MULTI_PAGE_ROUTES[lowerHash] && lowerHash !== 'beranda') {
+                window.location.replace(MULTI_PAGE_ROUTES[lowerHash]);
+                return;
+            }
+            if (lowerHash === 'direktori') { window.location.replace('/direktori'); return; }
+            if (lowerHash === 'sambang' || lowerHash === 'program') { window.location.replace('/sambang'); return; }
+        }
+        activeInitialPage = lowerHash;
         handleHashRouting();
     } else {
-        activeInitialPage = sessionStorage.getItem('activePage') || 'beranda';
-        navigateTo(activeInitialPage, true);
+        navigateTo(activeInitialPage, false);
     }
 
     // 🚀 KUNCI UPDATE: Nyalakan mesin pencatat waktu shalat otomatis
-    startSmartPrayerWidget();
+    if (typeof startSmartPrayerWidget === 'function') startSmartPrayerWidget();
 
     // Eksekusi penarikan data Supabase secara aman
-    loadLembagaDariSupabase();
-    updateAllPlatformStats(allLembagaData);
+    if (typeof loadLembagaDariSupabase === 'function') loadLembagaDariSupabase();
+    if (typeof updateAllPlatformStats === 'function') updateAllPlatformStats(allLembagaData);
 
-    // Memuat arsip warta media RMI Demak terkini
-    loadBeritaRMI();
+    // Memuat arsip warta media RMI Demak terkini hanya pada halaman yang membutuhkannya
+    if (typeof loadBeritaRMI === 'function') loadBeritaRMI();
 
-    if (activeInitialPage === 'pesantren' || activeInitialPage.startsWith('pesantren/')) {
+    if ((activeInitialPage === 'pesantren' || activeInitialPage.startsWith('pesantren/')) && typeof initPublicMap === 'function') {
         setTimeout(initPublicMap, 250);
-        setTimeout(() => { if (publicMap) publicMap.invalidateSize(); }, 600);
+        setTimeout(() => { if (typeof publicMap !== 'undefined' && publicMap) publicMap.invalidateSize(); }, 600);
     }
 });
 

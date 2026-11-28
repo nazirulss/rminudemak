@@ -1,0 +1,803 @@
+        <div id="page-panduan" class="page-section active">
+            
+            <!-- Hero Header Sub Halaman Panduan -->
+            <section class="py-14 px-6 md:px-16 text-center relative overflow-hidden text-white" style="background-color: #005c55;">
+                <div class="absolute inset-0 opacity-10 pointer-events-none"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+                
+                <div class="relative z-10 max-w-3xl mx-auto">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-emerald-200 text-xs font-bold tracking-wider uppercase mb-3">
+                        <span class="material-symbols-outlined text-[16px]">verified_user</span> Standar Digdaya Pesantren PBNU
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">Panduan Masuk Portal Data</h1>
+                    <p class="text-sm md:text-base text-emerald-100/90 font-light leading-relaxed max-w-2xl mx-auto">
+                        Petunjuk resmi pendaftaran akun, tata cara masuk tanpa kata sandi (Email OTP), serta rincian hak akses modul untuk 7 peran pengelola ekosistem pesantren se-Kabupaten Demak.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Konten Lengkap Panduan -->
+            <div class="bg-white">
+                <section id="panduan-portal-layanan" class="py-14 px-6 md:px-16 max-w-[1280px] mx-auto border-t border-slate-200/90 mt-8">
+                
+                <!-- Printable Kop Surat Header Resmi (Standar Dokumen PC RMI NU Demak) -->
+                <div class="print-header hidden pb-3 mb-5 text-center">
+                    <div class="flex items-center justify-center gap-5 mb-2">
+                        <img src="/assets/img/logo_rmi.png" alt="Logo PC RMI NU Demak" class="w-16 h-16 object-contain shrink-0" style="width: 68px; height: 68px; object-fit: contain;" />
+                        <div class="text-center">
+                            <h2 class="text-base sm:text-lg font-black uppercase tracking-wider text-emerald-900 m-0 leading-tight" style="color: #064e3b !important; font-weight: 900;">
+                                PENGURUS CABANG RABITHAH MA'AHID ISLAMIYAH NAHDLATUL ULAMA
+                            </h2>
+                            <h3 class="text-sm sm:text-base font-extrabold uppercase text-slate-900 mt-1 mb-0.5 tracking-wide" style="color: #0f172a !important; font-weight: 800;">
+                                PC RMI NU KABUPATEN DEMAK (KOTA WALI)
+                            </h3>
+                            <p class="text-[11px] text-slate-600 m-0 leading-tight" style="color: #475569 !important;">
+                                Gedung PCNU Demak, Jl. Sultan Fatah No. 63, Kauman, Bintoro, Demak 59511 • Portal: https://rminudemak.org
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Garis Ganda Standar Kop Surat Resmi (Tebal & Tipis) -->
+                    <div class="w-full" style="border-top: 2.5px solid #064e3b; border-bottom: 0.8px solid #064e3b; height: 4px; margin: 8px 0 6px 0;"></div>
+                    <div class="flex items-center justify-between text-[10px] text-slate-500 italic pt-1 px-1" style="color: #64748b !important;">
+                        <span>Dokumen Resmi SOP Autentikasi & Matriks Wewenang Digdaya Pesantren</span>
+                        <span>Dicetak pada: <strong class="print-date text-slate-800" style="color: #0f172a !important;"></strong></span>
+                    </div>
+                </div>
+
+                <!-- Header Visual Layanan Web -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 no-print">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-[11px] font-extrabold tracking-wider uppercase mb-2.5">
+                            <span class="material-symbols-outlined text-[15px]">verified_user</span> Panduan Resmi Tata Kelola Akses
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight text-slate-900">
+                            Panduan Masuk Portal Data (7 Peran)
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                            Standar Operasional Prosedur (SOP) pendaftaran akun, alur autentikasi tanpa sandi, serta matriks kewenangan modul pangkalan data Digdaya Pesantren PC RMI NU Kabupaten Demak.
+                        </p>
+                    </div>
+
+                    <!-- Toolbar Tombol Aksi: Print, Save PDF, Share WA -->
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button type="button" onclick="printPanduanDokumen()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs hover:border-slate-400 transition cursor-pointer" title="Cetak Dokumen Fisik">
+                            <span class="material-symbols-outlined text-[17px] text-slate-600">print</span>
+                            <span>Cetak</span>
+                        </button>
+
+                        <button type="button" onclick="savePanduanAsPdf()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs border border-emerald-300/80 shadow-xs transition cursor-pointer" title="Simpan sebagai berkas PDF">
+                            <span class="material-symbols-outlined text-[17px] text-emerald-700">picture_as_pdf</span>
+                            <span>Simpan PDF</span>
+                        </button>
+
+                        <button type="button" onclick="sharePanduanViaWhatsApp()"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm hover:shadow-emerald-600/30 transition cursor-pointer" title="Bagikan panduan ini ke WhatsApp">
+                            <span class="material-symbols-outlined text-[17px]">share</span>
+                            <span>Bagikan WA</span>
+                        </button>
+
+                        <a href="/admin.html"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition">
+                            <span class="material-symbols-outlined text-[17px]">login</span>
+                            <span>Buka Portal</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Role Selector Tabs (Pills 7 Peran + Semua) -->
+                <div class="mb-8 overflow-x-auto pb-2 scrollbar-none no-print">
+                    <div class="inline-flex p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 gap-1.5 min-w-full sm:min-w-0">
+                        <button type="button" onclick="filterPanduanRole('all')" id="tab-panduan-all"
+                            class="tab-panduan-btn px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 bg-emerald-700 text-white shadow-sm cursor-pointer whitespace-nowrap">
+                            <span class="material-symbols-outlined text-[16px]">visibility</span>
+                            <span>Semua Peran</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('super_admin')" id="tab-panduan-super_admin"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                            <span>Super Admin</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('admin_kabupaten')" id="tab-panduan-admin_kabupaten"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span>Admin Kab.</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('admin_kecamatan')" id="tab-panduan-admin_kecamatan"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span>Admin MWC</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('operator_pesantren')" id="tab-panduan-operator_pesantren"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                            <span>Operator Pondok</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('pengasuh')" id="tab-panduan-pengasuh"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                            <span>Dewan Pengasuh</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('verifikator')" id="tab-panduan-verifikator"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span>Asesor / Verifikator</span>
+                        </button>
+                        <button type="button" onclick="filterPanduanRole('guest')" id="tab-panduan-guest"
+                            class="tab-panduan-btn px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                            <span>Tamu / Peneliti</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Container Kartu Panduan 7 Peran (Grid Detail) -->
+                <div id="container-panduan-cards" class="space-y-6">
+
+                    <!-- ========================================== -->
+                    <!-- 1. KARTU PERAN: SUPER ADMIN                -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-purple-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="super_admin">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">terminal</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">1. Super Admin (PCNU Demak & Core IT)</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">LEVEL 1 • OTORITAS PENUH</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Penanggung jawab teknis basis data, otentikasi global, dan keandalan sistem.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('super_admin')" class="px-3 py-1.5 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-purple-700 text-white font-bold text-xs hover:bg-purple-800 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 4 Kolom Detail Panduan -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Pengurus Cabang NU Demak (Ketua Tanfidziyah, Rais Syuriyah) dan Tim Teknis IT Core yang ditunjuk melalui SK resmi.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Akun diterbitkan secara internal oleh Tim IT melalui entri database aman master spreadsheet, tidak melalui registrasi umum.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Buka menu <strong>1-Klik Akun</strong> (otomatis mengenali akun Google/email resmi terdaftar) atau verifikasi melalui <strong>Email OTP 6-Digit</strong>.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Akses penuh (Full Access) ke seluruh 11 modul: Manajemen Pengguna, Matriks RBAC, Audit Trail, Pengaturan Cabang, dan Basis Data.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 2. KARTU PERAN: ADMIN KABUPATEN            -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-emerald-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="admin_kabupaten">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">account_balance</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">2. Admin Kabupaten (Pengurus Harian PC RMI NU Demak)</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">LEVEL 2 • OPERASIONAL CABANG</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Pengelola utama direktori, persetujuan verifikasi, dan rekapitulasi data tingkat kabupaten.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('admin_kabupaten')" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Ketua, Sekretaris, Bendahara, dan Pengurus Harian PC RMI NU Kabupaten Demak masa khidmat aktif.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Didaftarkan oleh Super Admin di modul Manajemen Pengguna dengan melampirkan email resmi dan nomor kontak dinas.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Masukkan email terdaftar pada tab <strong>Email OTP</strong> di menu Masuk Admin, lalu ketikkan 6 digit OTP yang dikirim ke email.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Menyetujui pendaftaran mandiri di <strong>Ruang Verifikasi</strong>, mengelola direktori pesantren se-Kabupaten, cetak laporan & buku induk.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 3. KARTU PERAN: ADMIN KECAMATAN (MWC)      -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-amber-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="admin_kecamatan">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">share_location</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">3. Admin Kecamatan (Koordinator 14 MWC NU)</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">LEVEL 3 • SUPERVISI MWC WILAYAH</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Penanggung jawab koordinasi pendataan dan verifikasi lapangan pesantren di kecamatannya.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('admin_kecamatan')" class="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-amber-600 text-white font-bold text-xs hover:bg-amber-700 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Pengurus MWC NU (Majelis Wakil Cabang) bidang kepesantrenan di 14 Kecamatan: Bonang, Demak, Dempet, Gajah, Guntur, Karanganyar, Karangawen, Karangtengah, Kebonagung, Mijen, Mranggen, Sayung, Wedung, dan Wonosalam.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Diterbitkan oleh Sekretariat PC RMI NU setelah rapat koordinasi MWC dengan menetapkan satu alamat email koordinator resmi per kecamatan.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Pilih tab <strong>Email OTP</strong> di portal admin, masukkan email koordinator MWC, dan verifikasi dengan kode 6 angka yang masuk di kotak pesan.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Akses terisolasi hanya untuk wilayah kecamatannya: memverifikasi surat rekomendasi MWC, memantau buku induk, dan melihat sebaran GIS kecamatannya.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 4. KARTU PERAN: OPERATOR PESANTREN         -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-cyan-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="operator_pesantren">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">edit_document</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">4. Operator Pesantren (Sekretariat Pondok)</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-100 text-cyan-800">LEVEL 4 • ENTRI DATA MANDIRI</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Ujung tombak pembaruan data buku induk, santri, kurikulum turots, dan sarana pondok.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('operator_pesantren')" class="px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-800 hover:bg-cyan-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html#daftar-mandiri" class="px-3.5 py-1.5 rounded-xl bg-cyan-700 text-white font-bold text-xs hover:bg-cyan-800 transition flex items-center gap-1">
+                                    <span>Daftar Mandiri</span> <span class="material-symbols-outlined text-[14px]">app_registration</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Sekretaris Pondok, Operator EMIS / Data, Lurah Pondok, atau pengurus administrasi yang diberi amanah resmi oleh Pengasuh Pesantren.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    <strong>Pendaftaran Mandiri:</strong> Klik tombol *"Daftarkan Lembaga Pesantren Baru"*, isi form wizard 4 langkah, unggah berkas rekomendasi MWC, lalu tunggu verifikasi cabang.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Setelah akun disetujui, login menggunakan <strong>Email OTP</strong> yang didaftarkan. Kode 6 digit akan masuk ke email pemohon secara aman.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Mengisi & memperbarui <strong>Buku Induk 9 Domain</strong> untuk pesantrennya sendiri (santri, dewan asatidz, kitab kuning marhalah, izin operasional, badan usaha).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 5. KARTU PERAN: DEWAN MASYAYIKH / PENGASUH -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-indigo-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="pengasuh">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">school</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">5. Dewan Masyayikh / Pengasuh Pesantren</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800">LEVEL 5 • EKSEKUTIF & KEILMUAN</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Pemantau keabsahan kurikulum turots, keilmuan, dan laporan eksekutif pesantren.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('pengasuh')" class="px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Khadimul Ma'had, Pimpinan Pondok Pesantren, atau Dewan Masyayikh yang tercantum pada piagam pendirian pondok.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Dibuatkan akun eksekutif oleh PC RMI NU atau otomatis didaftarkan bersamaan saat verifikasi pendaftaran mandiri pesantren disetujui.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Metode mudah tanpa sandi rumit: masukkan email pengasuh pada tab <strong>Email OTP</strong>, periksa 6 angka yang dikirimkan, dan langsung masuk.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Melihat status akreditasi dan verifikasi, memantau buku induk, meninjau kurikulum kitab turots dan rekapitulasi santri tanpa resiko salah ubah data.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 6. KARTU PERAN: VERIFIKATOR & ASESOR       -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-rose-200/90 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="verifikator">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">fact_check</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">6. Tim Asesor & Verifikator Lapangan</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">LEVEL 6 • VALIDASI FAKTUIL</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Penilai kelayakan berkas, survei fisik lokasi, dan pemberian rekomendasi keanggotaan RMI.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('verifikator')" class="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Tim Khusus Asesmen dan Penjaminan Mutu yang dibentuk oleh Pengurus Cabang RMI NU Demak untuk akreditasi lembaga.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Didaftarkan secara terpusat oleh Admin Kabupaten melalui modul Pengguna dengan masa tugas verifikasi aktif.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Masuk melalui <strong>Email OTP</strong> dari browser smartphone maupun laptop saat berada di lokasi peninjauan pesantren.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Akses khusus ke <strong>Ruang Kerja Verifikasi</strong>: memeriksa lampiran piagam Kemenag, rekomendasi MWC, mengisi catatan borang lapangan, dan verifikasi titik koordinat GIS.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- 7. KARTU PERAN: TAMU TERDAFTAR (GUEST)     -->
+                    <!-- ========================================== -->
+                    <div class="card-panduan bg-white rounded-3xl p-6 sm:p-7 border border-slate-300 shadow-sm hover:shadow-md transition-all relative overflow-hidden" data-role="guest">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold shadow-xs shrink-0">
+                                    <span class="material-symbols-outlined text-[26px]">travel_explore</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-black text-slate-900">7. Tamu Terdaftar / Peneliti Eksternal</h3>
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-700">LEVEL 7 • AKSES TERBATAS</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Akses peninjauan data agregat untuk riset akademis, instansi pemerintah, dan publik terdaftar.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 no-print">
+                                <button type="button" onclick="shareSingleRoleWA('guest')" class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs transition flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">share</span> Bagikan Panduan Ini
+                                </button>
+                                <a href="/admin.html" class="px-3.5 py-1.5 rounded-xl bg-slate-700 text-white font-bold text-xs hover:bg-slate-800 transition flex items-center gap-1">
+                                    <span>Masuk</span> <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-5">
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">person</span> Siapa Pemilik Akun?
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Akademisi, peneliti universitas, mitra program beasiswa, instansi pemerintah (Kemenag/Pemkab), atau publik yang membutuhkan data riset.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Alur Pendaftaran
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Mengajukan permohonan akses riset melalui Sekretariat PC RMI NU Demak atau didaftarkan sebagai tamu peninjau.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">key</span> Metode Masuk (Login)
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Menggunakan <strong>Email OTP</strong> yang telah didaftarkan pada sistem izin riset.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 mb-1">
+                                    <span class="material-symbols-outlined text-[14px]">shield</span> Wewenang Modul
+                                </span>
+                                <p class="text-xs text-slate-700 leading-relaxed">
+                                    Hanya dapat melihat (Read Only) data direktori terverifikasi, peta persebaran geospasial, dan referensi wilayah tanpa hak akses ubah data.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Petunjuk Alur Masuk Cepat (Step-by-Step Box) -->
+                <div class="mt-10 p-6 sm:p-8 rounded-3xl shadow-2xl border border-emerald-700/60 relative overflow-hidden text-white" style="background-color: #022c22 !important; color: #ffffff !important;">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider" style="color: #34d399 !important;">
+                            <span class="material-symbols-outlined text-[18px]">bolt</span> Langkah Demi Langkah
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-black mb-4" style="color: #ffffff !important;">Cara Mudah Masuk ke Portal Administrasi RMI NU Demak</h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">1</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Buka Tautan Portal</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Kunjungi alamat <a href="/admin.html" class="underline text-emerald-300 font-semibold">rminudemak.org/admin</a> dari peramban HP atau laptop Anda.</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">2</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Pilih Tab Autentikasi</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Gunakan tab <strong>1-Klik Akun</strong> (Pengurus Terdaftar) atau tab <strong>Email OTP</strong>.</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">3</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Terima Kode 6 Digit</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Buka kotak masuk / spam email Anda untuk menyalin kode OTP resmi yang dikirimkan sistem.</p>
+                            </div>
+
+                            <div class="p-4 rounded-2xl border border-white/20" style="background-color: rgba(255, 255, 255, 0.08) !important; color: #ffffff !important;">
+                                <div class="w-8 h-8 rounded-xl font-black text-sm flex items-center justify-center mb-3" style="background-color: #34d399 !important; color: #022c22 !important;">4</div>
+                                <h4 class="font-bold text-sm mb-1" style="color: #ffffff !important;">Verifikasi & Masuk</h4>
+                                <p class="text-xs leading-relaxed" style="color: #e2e8f0 !important;">Ketikkan 6 digit kode OTP dan sistem otomatis memuat menu sesuai hak akses peran Anda.</p>
+                            </div>
+                        </div>
+
+                        <!-- CTA Bottom Link -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-white/15 no-print">
+                            <p class="text-xs text-slate-300">Belum memiliki akun pengelola atau pondok Anda belum terdaftar?</p>
+                            <div class="flex items-center gap-3">
+                                <a href="/admin.html#daftar-mandiri" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs transition shadow-md flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[17px]">app_registration</span>
+                                    <span>Daftarkan Lembaga Baru</span>
+                                </a>
+                                <a href="/admin.html" class="px-5 py-2.5 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-xs border border-white/20 transition flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[17px]">login</span>
+                                    <span>Masuk Portal Sekarang</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel Matriks Hak Akses RBAC 11 Modul (Printable & Transparan) -->
+                <div class="mt-12 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-2.5">
+                            <span class="material-symbols-outlined text-[24px] text-emerald-700">grid_on</span>
+                            <h3 class="text-lg font-black text-slate-900">Matriks Hak Akses Modul Resmi (Overview RBAC)</h3>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium no-print">Standar Digdaya Pesantren PBNU</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider">
+                                    <th class="p-3 rounded-l-xl">Nama Modul Sistem</th>
+                                    <th class="p-3 text-center">Super Admin</th>
+                                    <th class="p-3 text-center">Admin Kab.</th>
+                                    <th class="p-3 text-center">Admin MWC</th>
+                                    <th class="p-3 text-center">Operator Pondok</th>
+                                    <th class="p-3 text-center">Pengasuh</th>
+                                    <th class="p-3 text-center">Verifikator</th>
+                                    <th class="p-3 text-center rounded-r-xl">Tamu / Riset</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">1. Dashboard Utama & KPI</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">MWC Wilayah</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800">Pondok Sendiri</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Lihat</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">2. Direktori Pesantren</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat Publik</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">3. Inisiasi Record Baru</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Input MWC</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800">Daftar Mandiri</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Input Survei</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">4. Ruang Kerja Verifikasi</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Approval SK</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Validasi MWC</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Lihat Status</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Borang Lapangan</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">5. Buku Induk 9 Domain</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Pondok MWC</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800">Pondok Sendiri</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Lihat</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">6. Peta Geospasial GIS</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">7. Laporan & Statistik Cabang</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Kecamatan</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Eksekutif</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">8. Manajemen Pengguna</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Kelola Akun</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">9. Matriks Peran & RBAC</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">10. Referensi 14 Kecamatan</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/80">
+                                    <td class="p-3 font-bold text-slate-900">11. Riwayat Audit Trail</td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">Full</span></td>
+                                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">Lihat</span></td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                    <td class="p-3 text-center text-slate-400">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+            </div>
+
+        </div>
+
+        
+        <!-- ========================================================================= -->
+        <!-- HALAMAN PUBLIK: SAMBANG PESANTREN PW RMI NU JATENG 2026 (TUAN RUMAH DEMAK) -->
+        <!-- ========================================================================= -->

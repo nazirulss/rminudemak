@@ -1,0 +1,232 @@
+    <header
+        class="fixed top-0 w-full z-50 bg-[#005c55] border-b border-white/15 shadow-md transition-all duration-300 ease-in-out"
+        style="background-color: #005c55;" id="main-header">
+        <nav class="flex justify-between items-center max-w-[1280px] mx-auto px-6 md:px-12 py-2.5 md:py-3 relative">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center gap-3 cursor-pointer spa-link group" data-target="beranda">
+                <div
+                    class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm p-1 flex items-center justify-center shadow-md group-hover:bg-white/20 transition-all flex-shrink-0">
+                    <img src="/assets/img/logo_rmi.png" alt="Logo RMI NU"
+                        class="h-full w-full object-contain drop-shadow" />
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-base md:text-xl font-black text-white tracking-tight leading-tight">RMI PCNU
+                            Demak</span>
+                        <span
+                            class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-amber-400/15 border border-amber-400/30 text-amber-300">Kota
+                            Wali</span>
+                    </div>
+                    <span class="text-[10px] md:text-xs text-white/80 font-medium">Rabithah Ma'ahid Islamiyah</span>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation: Modern Glass Pill Navigation -->
+            <ul
+                class="hidden md:flex gap-1.5 items-center bg-white/10 backdrop-blur-md px-2 py-1.5 rounded-full border border-white/15 shadow-inner">
+                <li><a class="nav-btn spa-link text-xs font-bold text-white bg-white/20 px-3.5 py-1.5 rounded-full border border-white/25 shadow-sm transition-all"
+                        data-target="beranda" href="/">Beranda</a></li>
+                <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
+                        data-target="profil" href="/profil">Profil</a></li>
+                <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
+                        data-target="pesantren" href="/direktori">Direktori</a></li>
+                <!-- Menu Program dengan Dropdown Elegan (Desktop) -->
+                <li class="relative group/nav-dropdown">
+                    <button type="button" id="btn-dropdown-program"
+                        class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer"
+                        data-target="sambang-pesantren-pwrminu-jateng"
+                        onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}">
+                        <span>Program</span>
+                        <span class="material-symbols-outlined text-[15px] group-hover/nav-dropdown:rotate-180 transition-transform">expand_more</span>
+                    </button>
+                    
+                    <!-- Dropdown Box Desktop Program -->
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover/nav-dropdown:block z-50 min-w-[310px] animate-slideFadeIn">
+                        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 text-slate-800 space-y-1">
+                            <!-- Group 1: Agenda Wilayah (PW RMI NU Jateng) -->
+                            <div class="px-2.5 pt-1 pb-1 text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[14px]">stars</span>
+                                <span>Agenda Wilayah (PW RMI NU Jateng)</span>
+                            </div>
+                            
+                            <a href="#sambang-pesantren-pwrminu-jateng" 
+                               onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}"
+                               class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item border border-emerald-100/80 bg-emerald-50/40 cursor-pointer" 
+                               data-target="sambang-pesantren-pwrminu-jateng">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                                    <span class="material-symbols-outlined text-[18px]">handshake</span>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex items-center justify-between gap-1">
+                                        <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Sambang Pesantren Jilid II 2026</div>
+                                        <span class="px-1.5 py-0.5 text-[9px] font-black rounded-md bg-emerald-100 text-emerald-800 uppercase">Tuan Rumah</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-0.5">PP. Futuhiyyah Mranggen • 22 Nov 2026</div>
+                                </div>
+                            </a>
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <!-- Group 2: Program Cabang (PC RMI NU Demak) -->
+                            <div class="px-2.5 pt-1 pb-1 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[14px]">hub</span>
+                                <span>Program Cabang (PC RMI NU Demak)</span>
+                            </div>
+
+                            <div class="flex items-start gap-2.5 p-2.5 rounded-xl text-left opacity-75 bg-slate-50">
+                                <div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">route</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <div class="text-xs font-bold text-slate-700">Sambang Kecamatan se-Demak</div>
+                                        <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-md bg-slate-200 text-slate-600">Segera Hadir</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500">Tur konsolidasi ke 14 MWC & pondok kecamatan</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <!-- Menu Layanan dengan Dropdown Elegan (Desktop) -->
+                <li class="relative group/nav-dropdown">
+                    <button type="button" id="btn-dropdown-layanan"
+                        class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all flex items-center gap-1 cursor-pointer"
+                        data-target="layanan">
+                        <span>Layanan</span>
+                        <span class="material-symbols-outlined text-[15px] group-hover/nav-dropdown:rotate-180 transition-transform">expand_more</span>
+                    </button>
+                    
+                    <!-- Dropdown Box Desktop -->
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 pt-2 hidden group-hover/nav-dropdown:block z-50 min-w-[260px] animate-slideFadeIn">
+                        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-2 text-slate-800 space-y-1">
+                            <a href="/layanan" class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item" data-target="layanan">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">grid_view</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Pusat Layanan & Program</div>
+                                    <div class="text-[10px] text-slate-500">Katalog layanan, program & NSPP</div>
+                                </div>
+                            </a>
+
+                            <a href="/panduan" class="spa-link flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item" data-target="panduan">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">menu_book</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Panduan Portal (7 Peran)</div>
+                                    <div class="text-[10px] text-slate-500">SOP login, hak akses & matriks RBAC</div>
+                                </div>
+                            </a>
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <a href="/admin.html#daftar-mandiri" class="flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-emerald-50 text-left transition group/item">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">app_registration</span>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900 group-hover/item:text-emerald-800">Pendaftaran Pesantren Baru</div>
+                                    <div class="text-[10px] text-slate-500">Registrasi mandiri operator pondok</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li><a class="nav-btn spa-link text-xs font-semibold text-white/80 hover:text-white hover:bg-white/15 px-3.5 py-1.5 rounded-full transition-all"
+                        data-target="berita" href="/berita">Berita</a></li>
+            </ul>
+
+            <!-- Right Action Controls -->
+            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                <button
+                    class="spa-link hidden sm:flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white/90 hover:text-white transition-all shadow-sm"
+                    data-target="pesantren" title="Cari Lembaga">
+                    <span class="material-symbols-outlined text-[19px]">search</span>
+                </button>
+
+                <a class="inline-flex items-center justify-center w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 gap-1.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black rounded-xl sm:rounded-full text-xs md:text-sm shadow-md hover:shadow-emerald-400/30 hover:scale-105 transition-all"
+                    href="/admin.html" title="Portal Data & Admin Center" aria-label="Portal Data">
+                    <span class="material-symbols-outlined text-[20px] sm:text-[16px]">admin_panel_settings</span>
+                    <span class="hidden sm:inline">Portal Data</span>
+                </a>
+
+                <!-- Mobile Menu Toggle -->
+                <button id="mobile-menu-btn"
+                    class="md:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white transition-all"
+                    title="Buka Menu">
+                    <span class="material-symbols-outlined text-[20px]">menu</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-[#005c55] border-t border-white/15 shadow-2xl absolute w-full left-0 top-full"
+            style="background-color: #005c55;">
+            <ul class="flex flex-col px-6 py-4 space-y-2">
+                <li><a class="spa-link mobile-nav-btn text-sm font-bold text-white bg-white/20 px-4 py-2 rounded-xl block border border-white/25"
+                        data-target="beranda" href="/">Beranda</a></li>
+                <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
+                        data-target="profil" href="/profil">Profil</a></li>
+                <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
+                        data-target="pesantren" href="/direktori">Direktori Lembaga</a></li>
+                <!-- Program Dropdown Mobile Accordion -->
+                <li class="space-y-1">
+                    <button type="button" onclick="toggleMobileProgramSubmenu()" id="btn-mobile-program-toggle"
+                        class="w-full flex items-center justify-between mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors text-left cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">event_note</span>
+                            <span>Program</span>
+                        </span>
+                        <span class="material-symbols-outlined text-[18px] transition-transform" id="chevron-mobile-program">expand_more</span>
+                    </button>
+                    <div id="sub-mobile-program" class="hidden pl-4 pr-1 py-1.5 space-y-1 bg-black/20 rounded-xl">
+                        <div class="px-3 pt-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">Agenda PW RMI NU Jateng</div>
+                        <a class="spa-link mobile-nav-btn text-xs font-semibold text-white hover:text-emerald-300 hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2 cursor-pointer"
+                            onclick="if(window.navigateTo){window.navigateTo('sambang-pesantren-pwrminu-jateng');return false;}"
+                            data-target="sambang-pesantren-pwrminu-jateng" href="#sambang-pesantren-pwrminu-jateng">
+                            <span class="material-symbols-outlined text-[16px] text-emerald-400">handshake</span>
+                            <span>Sambang Pesantren 2026 (PP Futuhiyyah)</span>
+                        </a>
+                        <div class="px-3 pt-1.5 text-[9px] font-black uppercase tracking-wider text-white/40">Agenda PC RMI NU Demak</div>
+                        <div class="px-3 py-1.5 text-xs text-white/50 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[15px]">route</span>
+                            <span>Sambang Kecamatan (Segera Hadir)</span>
+                        </div>
+                    </div>
+                </li>
+                <!-- Layanan Dropdown Mobile Accordion -->
+                <li class="space-y-1">
+                    <button type="button" onclick="toggleMobileLayananSubmenu()" id="btn-mobile-layanan-toggle"
+                        class="w-full flex items-center justify-between mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl transition-colors text-left cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">apps</span>
+                            <span>Layanan & Panduan</span>
+                        </span>
+                        <span class="material-symbols-outlined text-[18px] transition-transform" id="chevron-mobile-layanan">expand_more</span>
+                    </button>
+                    <div id="sub-mobile-layanan" class="hidden pl-4 pr-1 py-1 space-y-1 bg-black/15 rounded-xl">
+                        <a class="spa-link mobile-nav-btn text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            data-target="layanan" href="/layanan">
+                            <span class="material-symbols-outlined text-[16px]">grid_view</span>
+                            <span>Katalog Layanan & Program</span>
+                        </a>
+                        <a class="spa-link mobile-nav-btn text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            data-target="panduan" href="/panduan">
+                            <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                            <span>Panduan Portal (7 Peran)</span>
+                        </a>
+                        <a class="text-xs font-medium text-emerald-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg block transition-colors flex items-center gap-2"
+                            href="/admin.html#daftar-mandiri">
+                            <span class="material-symbols-outlined text-[16px]">app_registration</span>
+                            <span>Pendaftaran Mandiri</span>
+                        </a>
+                    </div>
+                </li>
+                <li><a class="spa-link mobile-nav-btn text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 px-4 py-2 rounded-xl block transition-colors"
+                        data-target="berita" href="/berita">Berita & Warta</a></li>
+            </ul>
+        </div>
+    </header>

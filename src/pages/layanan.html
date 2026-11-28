@@ -1,0 +1,398 @@
+        <div id="page-layanan" class="page-section active">
+
+            <section class="bg-primary-container py-16 px-6 md:px-16 text-center relative overflow-hidden">
+
+                <div class="absolute inset-0 opacity-5"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+
+                <div class="relative z-10 max-w-3xl mx-auto">
+
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Pusat Layanan & Program RMI</h1>
+
+                    <p class="text-sm md:text-base text-emerald-100/90 font-light leading-relaxed">
+
+                        Sistem satu pintu pelayanan digital interaktif dan pengembangan program unggulan bagi ekosistem
+                        Pesantren, Madin, dan TPQ se-Kabupaten Demak.
+
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="py-12 px-6 md:px-16 max-w-[1280px] mx-auto -mt-8 relative z-20">
+
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-100 mb-12">
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                        <div class="flex-shrink-0 flex items-center gap-3.5 w-full md:w-auto">
+                            <div
+                                class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+                                <span class="material-symbols-outlined text-[26px]">manage_search</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-on-surface">Lacak Status Lembaga & Berkas</h3>
+                                <p class="text-xs text-on-surface-variant">Cek verifikasi NSPP, izin operasional, atau
+                                    pengajuan RMI</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex-grow w-full flex flex-col sm:flex-row items-center gap-2 bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 focus-within:border-primary focus-within:bg-white transition-all shadow-inner">
+                            <div class="relative w-full flex items-center">
+                                <span
+                                    class="material-symbols-outlined text-slate-400 text-[20px] ml-3 mr-1">search</span>
+                                <input id="input-lacak-berkas" type="text"
+                                    placeholder="Ketik nomor NSPP (cth: 510033210001) atau nama pesantren..."
+                                    class="w-full bg-transparent border-none focus:ring-0 text-sm px-2 py-2 outline-none text-on-surface placeholder:text-slate-400">
+                            </div>
+                            <button id="btn-lacak-berkas" type="button"
+                                class="w-full sm:w-auto bg-primary text-white px-7 py-2.5 rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shrink-0">
+                                <span>Lacak Status</span>
+                                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Container Hasil Pencarian Lacak Berkas (Dinamis) -->
+                    <div id="container-hasil-lacak" class="mt-6 hidden pt-6 border-t border-slate-100"></div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                    <div class="lg:col-span-8">
+
+                        <div class="flex items-center gap-3 mb-6">
+
+                            <span class="material-symbols-outlined text-primary text-[28px]">grid_view</span>
+
+                            <h2 class="text-2xl font-bold text-on-surface tracking-tight">Katalog Layanan Digital</h2>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                            <div
+                                class="md:col-span-2 group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all duration-300 relative overflow-hidden cursor-pointer">
+
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+
+                                <div class="relative z-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+
+                                    <div
+                                        class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform shadow-inner flex-shrink-0">
+
+                                        <span class="material-symbols-outlined text-3xl">database</span>
+
+                                    </div>
+
+                                    <div class="flex-1">
+
+                                        <h3 class="text-lg font-bold text-primary mb-2">Digitalisasi & Pendataan Terpadu
+                                        </h3>
+
+                                        <p class="text-xs text-on-surface-variant leading-relaxed mb-3">
+
+                                            Mengelola ekosistem layanan digital seperti sistem Digdaya Pesantren untuk
+                                            mempermudah akses beasiswa, program, rekomendasi, dan identitas digital pesantren.
+
+                                        </p>
+
+                                        <div class="flex flex-wrap items-center gap-2.5">
+                                            <a href="/admin.html#daftar-mandiri" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition hover:scale-105">
+                                                <span class="material-symbols-outlined text-[16px]">app_registration</span>
+                                                <span>Daftarkan Lembaga Pesantren Baru</span>
+                                            </a>
+                                            <a href="/admin.html" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                                                <span class="material-symbols-outlined text-[16px]">login</span>
+                                                <span>Masuk Portal Admin</span>
+                                            </a>
+                                        </div>
+
+                                    </div>
+
+                                    <a href="/admin.html#daftar-mandiri"
+                                        class="mt-4 sm:mt-0 sm:ml-auto w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors flex-shrink-0" title="Daftarkan Pesantren Baru">
+
+                                        <span
+                                            class="material-symbols-outlined transform -rotate-45 group-hover:rotate-0 transition-transform">arrow_forward</span>
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-secondary/50 transition-all duration-300 relative overflow-hidden cursor-pointer flex flex-col">
+
+                                <div
+                                    class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform">
+
+                                    <span class="material-symbols-outlined text-2xl">account_balance</span>
+
+                                </div>
+
+                                <h3
+                                    class="text-base font-bold text-on-surface mb-2 group-hover:text-secondary transition-colors">
+                                    Pengembangan & Penguatan Pesantren</h3>
+
+                                <p class="text-xs text-on-surface-variant leading-relaxed flex-grow mb-4">
+
+                                    Memfasilitasi pengembangan kapasitas lembaga, kurikulum, dan metode pendidikan agama
+                                    agar relevan dengan perkembangan zaman.
+
+                                </p>
+
+                                <span
+                                    class="text-secondary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Buka
+                                    Layanan <span
+                                        class="material-symbols-outlined text-[14px]">chevron_right</span></span>
+
+                            </div>
+
+                            <div
+                                class="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-tertiary/50 transition-all duration-300 relative overflow-hidden cursor-pointer flex flex-col">
+
+                                <div
+                                    class="w-12 h-12 bg-tertiary/10 rounded-xl flex items-center justify-center text-tertiary mb-4 group-hover:scale-110 transition-transform">
+
+                                    <span class="material-symbols-outlined text-2xl">storefront</span>
+
+                                </div>
+
+                                <h3
+                                    class="text-base font-bold text-on-surface mb-2 group-hover:text-tertiary transition-colors">
+                                    Kemandirian Ekonomi Pesantren</h3>
+
+                                <p class="text-xs text-on-surface-variant leading-relaxed flex-grow mb-4">
+
+                                    Mendorong kewirausahaan and kemandirian finansial pondok pesantren melalui inkubasi
+                                    bisnis and Kopontren.
+
+                                </p>
+
+                                <span
+                                    class="text-tertiary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Buka
+                                    Layanan <span
+                                        class="material-symbols-outlined text-[14px]">chevron_right</span></span>
+
+                            </div>
+
+                            <div
+                                class="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-primary/50 transition-all duration-300 relative overflow-hidden cursor-pointer flex flex-col">
+
+                                <div
+                                    class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+
+                                    <span class="material-symbols-outlined text-2xl">menu_book</span>
+
+                                </div>
+
+                                <h3
+                                    class="text-base font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">
+                                    Pemberdayaan Madrasah Diniyah</h3>
+
+                                <p class="text-xs text-on-surface-variant leading-relaxed flex-grow mb-4">
+
+                                    Menyelenggarakan pekan madaris, forum halaqah, dan evaluasi kegiatan keagamaan untuk
+                                    meningkatkan kualitas pengajar dan santri.
+
+                                </p>
+
+                                <span
+                                    class="text-primary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Buka
+                                    Layanan <span
+                                        class="material-symbols-outlined text-[14px]">chevron_right</span></span>
+
+                            </div>
+
+                            <div
+                                class="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-secondary/50 transition-all duration-300 relative overflow-hidden cursor-pointer flex flex-col">
+
+                                <div
+                                    class="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform">
+
+                                    <span class="material-symbols-outlined text-2xl">record_voice_over</span>
+
+                                </div>
+
+                                <h3
+                                    class="text-base font-bold text-on-surface mb-2 group-hover:text-secondary transition-colors">
+                                    Peningkatan Mutu Guru Ngaji (TPQ)</h3>
+
+                                <p class="text-xs text-on-surface-variant leading-relaxed flex-grow mb-4">
+
+                                    Mengadakan pelatihan, tatar guru, dan pembekalan metode pengajaran Al-Qur'an khas NU
+                                    seperti metode Annahdliyah.
+
+                                </p>
+
+                                <span
+                                    class="text-secondary text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 group-hover:underline">Buka
+                                    Layanan <span
+                                        class="material-symbols-outlined text-[14px]">chevron_right</span></span>
+
+                            </div>
+
+                            <div
+                                class="md:col-span-2 group bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-tertiary/50 transition-all duration-300 relative overflow-hidden cursor-pointer">
+
+                                <div class="relative z-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+
+                                    <div
+                                        class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform shadow-sm flex-shrink-0 border border-slate-100">
+
+                                        <span class="material-symbols-outlined text-3xl">diversity_3</span>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h3
+                                            class="text-lg font-bold text-on-surface mb-2 group-hover:text-tertiary transition-colors">
+                                            Pengkaderan & Jaringan Santri</h3>
+
+                                        <p class="text-xs text-on-surface-variant leading-relaxed">
+
+                                            Menjadi pusat pengkaderan generasi NU yang tangguh melalui pendataan
+                                            kegiatan seperti Hari Santri Nasional, Liga Santri, dan program Ayo Mondok.
+
+                                        </p>
+
+                                    </div>
+
+                                    <button type="button" onclick="navigateTo('pesantren')"
+                                        class="mt-4 sm:mt-0 sm:ml-auto px-6 py-2.5 rounded-lg bg-white border border-slate-200 text-tertiary font-bold text-xs shadow-sm hover:bg-tertiary hover:text-white transition-colors whitespace-nowrap cursor-pointer">
+
+                                        Lihat Jaringan
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="lg:col-span-4">
+
+                        <div class="sticky top-28 space-y-6">
+
+                            <div class="bg-primary rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+
+                                <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+
+                                <h3 class="text-xl font-bold mb-2 relative z-10">Helpdesk Layanan</h3>
+
+                                <p class="text-xs text-white/80 leading-relaxed mb-6 relative z-10">Kendala dalam
+                                    pengajuan berkas digital atau pembaruan data sistem Digdaya Pesantren? Tim kami siap
+                                    membantu.</p>
+
+                                <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Admin%20Helpdesk%20PC%20RMI%20NU%20Demak,%20saya%20memerlukan%20bantuan%20terkait%20layanan%20pendataan%20lembaga."
+                                    target="_blank" rel="noopener noreferrer"
+                                    class="w-full bg-white text-primary font-bold text-sm py-3 rounded-xl shadow-md hover:bg-slate-100 transition-colors flex items-center justify-center gap-2 relative z-10">
+
+                                    <span class="material-symbols-outlined text-[18px]">support_agent</span> Hubungi
+                                    Admin
+
+                                </a>
+
+                            </div>
+
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+
+                                <h3 class="font-bold text-on-surface mb-4 flex items-center gap-2">
+
+                                    <span class="material-symbols-outlined text-tertiary">folder_open</span> Panduan &
+                                    Berkas
+
+                                </h3>
+
+                                <div class="space-y-3">
+
+                                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Sekretariat%20RMI%20Demak,%20mohon%20kirimkan%20dokumen%20SOP%20Pengajuan%20IZOP%20Madin%20Baru."
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+
+                                        <span
+                                            class="material-symbols-outlined text-secondary-container mt-0.5">description</span>
+
+                                        <div>
+
+                                            <h4
+                                                class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">
+                                                SOP Pengajuan IZOP Madin Baru</h4>
+
+                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 2.4 MB (Request via WA)</p>
+
+                                        </div>
+
+                                    </a>
+
+                                    <a href="https://wa.me/6281228224724?text=Assalamu'alaikum%20Sekretariat%20RMI%20Demak,%20mohon%20informasi%20dan%20Formulir%20Pendaftaran%20Beasiswa%202026."
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+
+                                        <span
+                                            class="material-symbols-outlined text-secondary-container mt-0.5">description</span>
+
+                                        <div>
+
+                                            <h4
+                                                class="text-xs font-bold text-on-surface group-hover:text-primary transition-colors">
+                                                Formulir Pendaftaran Beasiswa 2026</h4>
+
+                                            <p class="text-[10px] text-on-surface-variant mt-0.5">PDF • 1.1 MB (Request via WA)</p>
+
+                                        </div>
+
+                                    </a>
+
+                                    <a href="#panduan" data-target="panduan"
+                                        class="spa-link flex items-start gap-3 p-3 rounded-xl bg-emerald-50/60 hover:bg-emerald-100/70 border border-emerald-200/80 transition-all group">
+
+                                        <span
+                                            class="material-symbols-outlined text-emerald-700 mt-0.5">menu_book</span>
+
+                                        <div>
+
+                                            <h4
+                                                class="text-xs font-bold text-emerald-950 group-hover:text-emerald-700 transition-colors">
+                                                Panduan Masuk Portal Data (7 Peran)</h4>
+
+                                            <p class="text-[10px] text-emerald-700 mt-0.5">Interaktif • Cetak & Simpan PDF</p>
+
+                                        </div>
+
+                                    </a>
+
+                                </div>
+
+                                <button type="button" onclick="navigateTo('panduan')"
+                                    class="w-full mt-4 py-2 text-xs font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer">
+
+                                    Lihat Semua Berkas
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- SEKSI KHUSUS: PANDUAN RESMI MASUK PORTAL DATA (7 PERAN)  -->
+            <!-- ======================================================== -->
+            </div>
+
+        <!-- ======================================================== -->
+        <!-- SUB HALAMAN RESMI: PANDUAN MASUK PORTAL DATA (7 PERAN)   -->
+        <!-- ======================================================== -->

@@ -1,7 +1,13 @@
-const CACHE_NAME = 'rmi-demak-pwa-v3';
+const CACHE_NAME = 'rmi-demak-pwa-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/profil',
+  '/direktori',
+  '/layanan',
+  '/panduan',
+  '/sambang',
+  '/berita',
   '/app.js',
   '/assets/js/core-utils.js',
   '/assets/js/gis-map.js',

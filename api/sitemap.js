@@ -123,12 +123,24 @@ export default async function handler(req, res) {
 
   const urlBlocks = [
     `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/profil</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/direktori</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/layanan</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/panduan</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/sambang</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/berita</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>`,
     `  <url>\n    <loc>${baseUrl}/direktori-pesantren</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`,
     `  <url>\n    <loc>${baseUrl}/direktori-madin</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
     `  <url>\n    <loc>${baseUrl}/direktori-tpq</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
   ];
   const seenLocs = new Set([
     `${baseUrl}/`,
+    `${baseUrl}/profil`,
+    `${baseUrl}/direktori`,
+    `${baseUrl}/layanan`,
+    `${baseUrl}/panduan`,
+    `${baseUrl}/sambang`,
+    `${baseUrl}/berita`,
     `${baseUrl}/direktori-pesantren`,
     `${baseUrl}/direktori-madin`,
     `${baseUrl}/direktori-tpq`
