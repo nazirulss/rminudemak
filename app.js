@@ -28,7 +28,11 @@ function reRenderActiveDetailIfNeeded() {
         if (slug && typeof renderPesantrenDetailPage === 'function') {
             const item = findPesantrenBySlugOrId(slug);
             if (item) {
-                renderPesantrenDetailPage(slug, false);
+                const cleanSlug = (typeof generatePesantrenSlug === 'function') ? generatePesantrenSlug(item) : slug;
+                const targetUrl = '/pesantren/' + encodeURIComponent(cleanSlug);
+                history.replaceState({ page: 'pesantren-detail', slug: cleanSlug }, '', targetUrl);
+                renderPesantrenDetailPage(cleanSlug, false);
+                return;
             }
         }
     } else if (rawHash.startsWith('pesantren-detail')) {
@@ -41,7 +45,11 @@ function reRenderActiveDetailIfNeeded() {
         if (pId && typeof renderPesantrenDetailPage === 'function') {
             const item = findPesantrenBySlugOrId(pId);
             if (item) {
-                renderPesantrenDetailPage(pId, false);
+                const cleanSlug = (typeof generatePesantrenSlug === 'function') ? generatePesantrenSlug(item) : pId;
+                const targetUrl = '/pesantren/' + encodeURIComponent(cleanSlug);
+                history.replaceState({ page: 'pesantren-detail', slug: cleanSlug }, '', targetUrl);
+                renderPesantrenDetailPage(cleanSlug, false);
+                return;
             }
         }
     }
@@ -459,14 +467,19 @@ document.addEventListener('DOMContentLoaded', () => {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
         }
 
-        // Deep linking untuk Halaman Pesantren Detail:
-        // 1. Format Bersih & SEO-friendly ala pesantren.nu.id: #pesantren/roudlotul-mubarokah
-        // 2. Format Kompatibilitas Legacy: #pesantren-detail?id=RMI-DMK-000001
+        // Deep linking untuk Halaman Pesantren Detail (Normalisasi instan ke Clean Path /pesantren/:slug)
         if (currentHash.startsWith('pesantren/')) {
             const slugPart = rawHash.substring(rawHash.indexOf('/') + 1).trim();
-            if (slugPart && typeof bukaProfilPesantren === 'function') {
-                bukaProfilPesantren(slugPart, false);
-                return;
+            if (slugPart) {
+                const targetUrl = '/pesantren/' + encodeURIComponent(slugPart);
+                history.replaceState({ page: 'pesantren-detail', slug: slugPart }, '', targetUrl);
+                if (typeof renderPesantrenDetailPage === 'function') {
+                    renderPesantrenDetailPage(slugPart, false);
+                    return;
+                } else if (typeof bukaProfilPesantren === 'function') {
+                    bukaProfilPesantren(slugPart, false);
+                    return;
+                }
             }
         }
         if (currentHash.startsWith('pesantren-detail')) {
@@ -477,9 +490,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (rawHash.includes('/')) {
                 pId = rawHash.split('/')[1];
             }
-            if (pId && typeof bukaProfilPesantren === 'function') {
-                bukaProfilPesantren(pId, true); // Update otomatis ke format baru #pesantren/[slug]
-                return;
+            if (pId) {
+                const item = typeof findPesantrenBySlugOrId === 'function' ? findPesantrenBySlugOrId(pId) : null;
+                const targetSlug = (item && typeof generatePesantrenSlug === 'function') ? generatePesantrenSlug(item) : pId;
+                const targetUrl = '/pesantren/' + encodeURIComponent(targetSlug);
+                history.replaceState({ page: 'pesantren-detail', slug: targetSlug }, '', targetUrl);
+                if (typeof renderPesantrenDetailPage === 'function') {
+                    renderPesantrenDetailPage(targetSlug, false);
+                    return;
+                } else if (typeof bukaProfilPesantren === 'function') {
+                    bukaProfilPesantren(targetSlug, false);
+                    return;
+                }
             } else {
                 navigateTo('pesantren', false);
                 return;
@@ -861,9 +883,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Dukungan Direct Clean URL untuk Pesantren: /pesantren/[slug]
     else if (cleanPath.startsWith('/pesantren/')) {
         const slug = cleanPath.substring('/pesantren/'.length).trim();
-        if (slug && typeof renderPesantrenDetailPage === 'function') {
-            renderPesantrenDetailPage(slug, false);
-            activeInitialPage = 'pesantren-detail';
+        if (slug) {
+            const targetUrl = '/pesantren/' + encodeURIComponent(slug);
+            if (window.location.hash || window.location.search) {
+                history.replaceState({ page: 'pesantren-detail', slug: slug }, '', targetUrl);
+            }
+            if (typeof renderPesantrenDetailPage === 'function') {
+                renderPesantrenDetailPage(slug, false);
+                activeInitialPage = 'pesantren-detail';
+            }
         }
     }
     // 3. Parameter Pengalihan Medsos/Serverless (?b= untuk berita, ?p= untuk pesantren)
@@ -891,9 +919,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     openBeritaDetailModal(targetSlug, false);
                     activeInitialPage = 'berita-detail';
                 }
-            } else if (cleanPath === '/direktori' && lowerHash.startsWith('pesantren/')) {
-                const targetSlug = rawHash.substring('pesantren/'.length);
-                history.replaceState({ page: 'pesantren-detail', slug: targetSlug }, '', '/pesantren/' + encodeURIComponent(targetSlug));
+            } else if (lowerHash.startsWith('pesantren/') || lowerHash.startsWith('pesantren-detail')) {
+                const targetSlug = lowerHash.startsWith('pesantren/') 
+                    ? rawHash.substring('pesantren/'.length).trim() 
+                    : (new URLSearchParams(rawHash.split('?')[1] || '').get('id') || rawHash);
+                const targetUrl = '/pesantren/' + encodeURIComponent(targetSlug);
+                history.replaceState({ page: 'pesantren-detail', slug: targetSlug }, '', targetUrl);
                 if (typeof renderPesantrenDetailPage === 'function') {
                     renderPesantrenDetailPage(targetSlug, false);
                     activeInitialPage = 'pesantren-detail';

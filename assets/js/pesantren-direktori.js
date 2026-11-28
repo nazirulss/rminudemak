@@ -639,7 +639,7 @@ function kembaliKeKatalogPesantren() {
     if (window.history.state && window.history.state.page === 'direktori' && window.history.state.category === 'Semua') {
         targetUrl = '/direktori';
     }
-    if (window.location.pathname !== targetUrl) {
+    if (window.location.pathname !== targetUrl || window.location.hash || window.location.search) {
         history.pushState({ page: 'direktori', category: (targetUrl === '/direktori' ? 'Semua' : 'Pesantren') }, '', targetUrl);
     }
     if (typeof setDirektoriTab === 'function') {
@@ -706,10 +706,14 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
 
     // 🚀 GENERATE TRUE CLEAN PATH (e.g. /pesantren/roudlotul-mubarokah)
     const slug = generatePesantrenSlug(item);
+    const targetUrl = '/pesantren/' + encodeURIComponent(slug);
     if (updateHash) {
-        const targetUrl = '/pesantren/' + encodeURIComponent(slug);
-        if (window.location.pathname !== targetUrl) {
+        if (window.location.pathname !== targetUrl || window.location.hash || window.location.search) {
             history.pushState({ page: 'pesantren-detail', slug: slug, id: item.id }, '', targetUrl);
+        }
+    } else {
+        if (window.location.hash || window.location.search || window.location.pathname !== targetUrl) {
+            history.replaceState({ page: 'pesantren-detail', slug: slug, id: item.id }, '', targetUrl);
         }
     }
     document.title = `${safeNama}${item.kecamatan ? ` (${item.kecamatan})` : ''} — Direktori Pesantren RMI NU Demak`;
