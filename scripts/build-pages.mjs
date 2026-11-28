@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ASSET_VER = '20261128_0925';
+const ASSET_VER = '20261128_0945';
 
-const headAssets = fs.readFileSync('src/partials/head-assets.html', 'utf8');
+const headAssets = fs.readFileSync('src/partials/head-assets.html', 'utf8').replaceAll('{{ASSET_VER}}', ASSET_VER);
 const navbar = fs.readFileSync('src/partials/navbar.html', 'utf8');
 const footer = fs.readFileSync('src/partials/footer.html', 'utf8');
 const modals = fs.readFileSync('src/partials/modals.html', 'utf8');
