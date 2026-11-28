@@ -26,3 +26,8 @@ desktop.ini
 *.swo
 
 .vercel
+
+
+# Remotion Video Generator Render Outputs
+video-tutorial-remotion/out/
+*.mp4
