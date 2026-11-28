@@ -2,8 +2,16 @@
 module.exports = {
   content: [
     "./index.html",
+    "./profil.html",
+    "./direktori.html",
+    "./layanan.html",
+    "./panduan.html",
+    "./sambang.html",
+    "./berita.html",
     "./admin.html",
     "./undangan.html",
+    "./src/**/*.html",
+    "./assets/js/**/*.js",
     "./app.js"
   ],
   darkMode: 'class',
