@@ -515,20 +515,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    mobileMenuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-        if (mobileMenu.classList.contains('hidden')) {
-            mobileMenuBtn.innerHTML = '<span class="material-symbols-outlined">menu</span>';
-        } else {
-            mobileMenuBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
-        }
-    });
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenuBtn.innerHTML = '<span class="material-symbols-outlined">menu</span>';
+            } else {
+                mobileMenuBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+            }
+        });
+    }
 
     // 2. LOGIKA HEADER (HIDE ON SCROLL)
     let lastScrollTop = 0;
     const header = document.getElementById('main-header');
 
     window.addEventListener('scroll', () => {
+        if (!header) return;
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
         if (scrollTop > lastScrollTop && scrollTop > 60) {

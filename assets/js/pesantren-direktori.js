@@ -1292,13 +1292,7 @@ function bukaModalDetailLembaga(lembagaId) {
     bukaProfilPesantren(lembagaId, true);
 }
 
-function tutupModalDetailLembaga() {
-    const modal = document.getElementById('modal-public-detail');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
+// tutupModalDetailLembaga dipindahkan ke core-utils.js agar tersedia di seluruh halaman
 
 
 

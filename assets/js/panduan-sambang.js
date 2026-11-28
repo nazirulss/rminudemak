@@ -67,27 +67,7 @@ function shareSingleRoleWA(roleKey) {
     window.open(waUrl, '_blank');
 }
 
-function toggleMobileLayananSubmenu() {
-    const sub = document.getElementById('sub-mobile-layanan');
-    const chevron = document.getElementById('chevron-mobile-layanan');
-    if (sub) {
-        sub.classList.toggle('hidden');
-        if (chevron) {
-            chevron.classList.toggle('rotate-180');
-        }
-    }
-}
-
-function toggleMobileProgramSubmenu() {
-    const sub = document.getElementById('sub-mobile-program');
-    const chevron = document.getElementById('chevron-mobile-program');
-    if (sub) {
-        sub.classList.toggle('hidden');
-        if (chevron) {
-            chevron.classList.toggle('rotate-180');
-        }
-    }
-}
+// toggleMobileLayananSubmenu & toggleMobileProgramSubmenu dipindahkan ke core-utils.js agar tersedia di seluruh halaman
 
 // =========================================================================
 // SAMBANG PESANTREN PW RMI NU JATENG 2026 (TUAN RUMAH KAB. DEMAK)

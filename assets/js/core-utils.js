@@ -553,6 +553,36 @@ function escapeHtml(value) {
     return escapeHTML(value);
 }
 
+function toggleMobileLayananSubmenu() {
+    const sub = document.getElementById('sub-mobile-layanan');
+    const chevron = document.getElementById('chevron-mobile-layanan');
+    if (sub) {
+        sub.classList.toggle('hidden');
+        if (chevron) chevron.classList.toggle('rotate-180');
+    }
+}
+
+function toggleMobileProgramSubmenu() {
+    const sub = document.getElementById('sub-mobile-program');
+    const chevron = document.getElementById('chevron-mobile-program');
+    if (sub) {
+        sub.classList.toggle('hidden');
+        if (chevron) chevron.classList.toggle('rotate-180');
+    }
+}
+
+function tutupModalDetailLembaga() {
+    const modal = document.getElementById('modal-public-detail');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+window.toggleMobileLayananSubmenu = toggleMobileLayananSubmenu;
+window.toggleMobileProgramSubmenu = toggleMobileProgramSubmenu;
+window.tutupModalDetailLembaga = tutupModalDetailLembaga;
+
 // ==================================================================
 // DATA FETCHER & SMART CACHE (STALE-WHILE-REVALIDATE + TTL)
 // Mencegah request berlebih ke CDN/Google Apps Script saat deploy di Vercel
