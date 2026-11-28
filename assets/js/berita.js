@@ -466,17 +466,18 @@ function incrementBeritaView(idOrSlug) {
     } catch(e) {}
 }
 
-function openBeritaDetailModal(idOrSlug) {
+function openBeritaDetailModal(idOrSlug, updateUrl = true) {
     const item = findBeritaItem(idOrSlug);
     if (item) {
         item.views_count = (Number(item.views_count) || 0) + 1;
         incrementBeritaView(item.id || item.slug || idOrSlug);
     }
     const activeSlug = (item && item.slug) ? item.slug : idOrSlug;
-    const isMultiPageBerita = window.location.pathname.includes('/berita');
-    const targetHash = isMultiPageBerita ? ('#' + encodeURIComponent(activeSlug)) : ('#berita/' + encodeURIComponent(activeSlug));
-    if (window.location.hash !== targetHash) {
-        history.pushState({ page: 'berita-detail', id: (item ? item.id : idOrSlug), slug: activeSlug }, '', targetHash);
+    if (updateUrl) {
+        const targetUrl = '/berita/' + encodeURIComponent(activeSlug);
+        if (window.location.pathname !== targetUrl) {
+            history.pushState({ page: 'berita-detail', id: (item ? item.id : idOrSlug), slug: activeSlug }, '', targetUrl);
+        }
     }
     sessionStorage.setItem('activePage', 'berita-detail');
     
@@ -512,10 +513,11 @@ function openBeritaDetailModal(idOrSlug) {
         loadBeritaRMI().then(() => {
             renderBeritaDetailPage(idOrSlug);
             const found = findBeritaItem(idOrSlug);
-            const isMultiPageBerita = window.location.pathname.includes('/berita');
-            const properHash = isMultiPageBerita ? ('#' + encodeURIComponent(found ? found.slug : idOrSlug)) : ('#berita/' + encodeURIComponent(found ? found.slug : idOrSlug));
-            if (found && found.slug && window.location.hash !== properHash) {
-                history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', properHash);
+            if (found && found.slug && updateUrl) {
+                const targetUrl = '/berita/' + encodeURIComponent(found.slug);
+                if (window.location.pathname !== targetUrl) {
+                    history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', targetUrl);
+                }
             }
         });
     } else {
@@ -624,7 +626,7 @@ function renderBeritaDetailPage(idOrSlug) {
         <!-- Breadcrumb Navigasi Khas NU Online -->
         <nav class="mb-6 flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-2 text-xs text-slate-500 font-medium overflow-x-auto whitespace-nowrap pb-1">
-                <button type="button" onclick="navigateTo('berita')" class="hover:text-emerald-800 font-semibold transition-colors cursor-pointer flex items-center gap-1">
+                <button type="button" onclick="closeBeritaDetailModal()" class="hover:text-emerald-800 font-semibold transition-colors cursor-pointer flex items-center gap-1">
                     <span class="material-symbols-outlined text-[16px]">newspaper</span> Warta
                 </button>
                 <span>&rsaquo;</span>
@@ -633,7 +635,7 @@ function renderBeritaDetailPage(idOrSlug) {
                 <span class="hidden md:inline text-slate-400 truncate max-w-xs">${safeJudul}</span>
             </div>
 
-            <button type="button" onclick="navigateTo('berita')" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer group">
+            <button type="button" onclick="closeBeritaDetailModal()" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer group">
                 <span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 <span>Kembali ke Warta</span>
             </button>
@@ -862,10 +864,19 @@ function renderBeritaDetailPage(idOrSlug) {
 
 function closeBeritaDetailModal() {
     document.title = 'Warta Pesantren & Berita Resmi — PC RMI NU Kabupaten Demak';
-    if (window.location.hash) {
-        history.pushState({ page: 'berita' }, '', window.location.pathname);
+    if (window.location.pathname !== '/berita') {
+        history.pushState({ page: 'berita' }, '', '/berita');
+    } else if (window.location.hash || window.location.search) {
+        history.pushState({ page: 'berita' }, '', '/berita');
     }
-    navigateTo('berita', false);
+    const detailPage = document.getElementById('page-berita-detail');
+    if (detailPage) detailPage.classList.remove('active');
+    const beritaPage = document.getElementById('page-berita');
+    if (beritaPage) {
+        beritaPage.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    sessionStorage.setItem('activePage', 'berita');
 }
 
 function formatTanggalIndonesia(dateStr) {

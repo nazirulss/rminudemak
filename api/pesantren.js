@@ -91,7 +91,7 @@ export default async function handler(req, res) {
     ? `https://rminudemak.org/pesantren/${encodeURIComponent(finalSlug)}`
     : 'https://rminudemak.org/direktori';
   const spaRedirectUrl = finalSlug
-    ? `https://rminudemak.org/direktori#pesantren/${encodeURIComponent(finalSlug)}`
+    ? `https://rminudemak.org/direktori?p=${encodeURIComponent(finalSlug)}`
     : 'https://rminudemak.org/direktori';
 
   const pageTitle = item

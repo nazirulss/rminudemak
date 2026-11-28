@@ -612,7 +612,20 @@ async function bukaProfilPesantren(pesantrenId, updateHash = true) {
 }
 
 function kembaliKeKatalogPesantren() {
-    navigateTo('pesantren', true);
+    document.title = 'Direktori & Peta GIS Pondok Pesantren Demak — RMI NU Demak';
+    if (window.location.pathname !== '/direktori') {
+        history.pushState({ page: 'pesantren' }, '', '/direktori');
+    } else if (window.location.hash || window.location.search) {
+        history.pushState({ page: 'pesantren' }, '', '/direktori');
+    }
+    const detailPage = document.getElementById('page-pesantren-detail');
+    if (detailPage) detailPage.classList.remove('active');
+    const catalogPage = document.getElementById('page-pesantren');
+    if (catalogPage) {
+        catalogPage.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    sessionStorage.setItem('activePage', 'pesantren');
 }
 
 function salinNspp(nspp) {
@@ -672,14 +685,15 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
         ? escapeHTML(item.foto_url) 
         : 'https://lh3.googleusercontent.com/d/1a3ihmmj3mxIwwsci2kFLibHk9xusUT58';
 
-    // 🚀 GENERATE CLEAN SLUG ALA PESANTREN.NU.ID (e.g. #pesantren/roudlotul-mubarokah)
+    // 🚀 GENERATE TRUE CLEAN PATH (e.g. /pesantren/roudlotul-mubarokah)
     const slug = generatePesantrenSlug(item);
     if (updateHash) {
-        const targetHash = '#pesantren/' + slug;
-        if (window.location.hash !== targetHash) {
-            history.pushState({ page: 'pesantren-detail', slug: slug, id: item.id }, '', targetHash);
+        const targetUrl = '/pesantren/' + encodeURIComponent(slug);
+        if (window.location.pathname !== targetUrl) {
+            history.pushState({ page: 'pesantren-detail', slug: slug, id: item.id }, '', targetUrl);
         }
     }
+    document.title = `${safeNama}${item.kecamatan ? ` (${item.kecamatan})` : ''} — Direktori Pesantren RMI NU Demak`;
 
     // Aktifkan view
     const pages = document.querySelectorAll('.page-section');
@@ -791,9 +805,9 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
                 <span>Kembali ke Direktori Pesantren</span>
             </button>
             <div class="flex items-center gap-2 text-xs text-slate-500 flex-wrap">
-                <a href="#beranda" onclick="navigateTo('beranda')" class="hover:text-emerald-700">Beranda</a>
+                <a href="/" class="hover:text-emerald-700">Beranda</a>
                 <span>/</span>
-                <a href="#pesantren" onclick="navigateTo('pesantren')" class="hover:text-emerald-700">Direktori Pesantren</a>
+                <a href="/direktori" onclick="event.preventDefault(); kembaliKeKatalogPesantren();" class="hover:text-emerald-700 cursor-pointer">Direktori Pesantren</a>
                 <span>/</span>
                 <span class="font-bold text-slate-800 truncate max-w-xs">${safeNama}</span>
             </div>

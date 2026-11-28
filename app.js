@@ -11,6 +11,17 @@ function isValidPesantrenLogoUrl(url) {
 }
 
 function reRenderActiveDetailIfNeeded() {
+    const cleanPath = (window.location.pathname || '').replace(/\.html$/i, '').replace(/\/+$/, '') || '/';
+    if (cleanPath.startsWith('/pesantren/')) {
+        const slug = cleanPath.substring('/pesantren/'.length).trim();
+        if (slug && typeof renderPesantrenDetailPage === 'function') {
+            const item = findPesantrenBySlugOrId(slug);
+            if (item) {
+                renderPesantrenDetailPage(slug, false);
+                return;
+            }
+        }
+    }
     const rawHash = (window.location.hash || '').replace('#', '').trim();
     if (rawHash.startsWith('pesantren/')) {
         const slug = rawHash.substring(rawHash.indexOf('/') + 1).trim();
@@ -519,7 +530,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.addEventListener('hashchange', handleHashRouting);
-    window.addEventListener('popstate', handleHashRouting);
+    window.addEventListener('popstate', (e) => {
+        const currentCleanPath = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/+$/, '') || '/';
+        if (currentCleanPath === '/berita') {
+            if (typeof closeBeritaDetailModal === 'function') closeBeritaDetailModal();
+        } else if (currentCleanPath.startsWith('/berita/')) {
+            const slug = currentCleanPath.substring('/berita/'.length).trim();
+            if (slug && typeof openBeritaDetailModal === 'function') openBeritaDetailModal(slug, false);
+        } else if (currentCleanPath === '/direktori') {
+            if (typeof kembaliKeKatalogPesantren === 'function') kembaliKeKatalogPesantren();
+        } else if (currentCleanPath.startsWith('/pesantren/')) {
+            const slug = currentCleanPath.substring('/pesantren/'.length).trim();
+            if (slug && typeof renderPesantrenDetailPage === 'function') renderPesantrenDetailPage(slug, false);
+        } else {
+            handleHashRouting();
+        }
+    });
 
     spaLinks.forEach(link => {
         link.addEventListener('click', (e) => {
@@ -736,33 +762,84 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let activeInitialPage = PATH_TO_PAGE[cleanPath] || 'beranda';
 
-    if (window.location.hash) {
-        const rawHash = window.location.hash.replace('#', '').trim();
-        const lowerHash = rawHash.toLowerCase();
-        // Redirect link lama (#profil, #direktori, #pesantren/..., #berita/...) dari beranda ke URL bersih Multi-Page
-        if (cleanPath === '/' || cleanPath === '/index') {
-            if (lowerHash.startsWith('pesantren/') || lowerHash.startsWith('pesantren-detail')) {
-                window.location.replace('/direktori#' + rawHash);
-                return;
-            }
-            if (lowerHash.startsWith('berita/') || lowerHash.startsWith('berita-detail')) {
-                const targetSlug = lowerHash.startsWith('berita/') 
-                    ? rawHash.substring('berita/'.length).trim() 
-                    : (new URLSearchParams(rawHash.split('?')[1] || '').get('id') || rawHash);
-                window.location.replace('/berita#' + targetSlug);
-                return;
-            }
-            if (MULTI_PAGE_ROUTES[lowerHash] && lowerHash !== 'beranda') {
-                window.location.replace(MULTI_PAGE_ROUTES[lowerHash]);
-                return;
-            }
-            if (lowerHash === 'direktori') { window.location.replace('/direktori'); return; }
-            if (lowerHash === 'sambang' || lowerHash === 'program') { window.location.replace('/sambang'); return; }
+    // 1. Dukungan Direct Clean URL untuk Berita: /berita/[slug]
+    if (cleanPath.startsWith('/berita/')) {
+        const slug = cleanPath.substring('/berita/'.length).trim();
+        if (slug && typeof openBeritaDetailModal === 'function') {
+            openBeritaDetailModal(slug, false);
+            activeInitialPage = 'berita-detail';
         }
-        activeInitialPage = lowerHash;
-        handleHashRouting();
-    } else {
-        navigateTo(activeInitialPage, false);
+    }
+    // 2. Dukungan Direct Clean URL untuk Pesantren: /pesantren/[slug]
+    else if (cleanPath.startsWith('/pesantren/')) {
+        const slug = cleanPath.substring('/pesantren/'.length).trim();
+        if (slug && typeof renderPesantrenDetailPage === 'function') {
+            renderPesantrenDetailPage(slug, false);
+            activeInitialPage = 'pesantren-detail';
+        }
+    }
+    // 3. Parameter Pengalihan Medsos/Serverless (?b= untuk berita, ?p= untuk pesantren)
+    else {
+        const urlParams = new URLSearchParams(window.location.search || '');
+        const bParam = urlParams.get('b');
+        const pParam = urlParams.get('p');
+        if (bParam && typeof openBeritaDetailModal === 'function') {
+            history.replaceState({ page: 'berita-detail', slug: bParam }, '', '/berita/' + encodeURIComponent(bParam));
+            openBeritaDetailModal(bParam, false);
+            activeInitialPage = 'berita-detail';
+        } else if (pParam && typeof renderPesantrenDetailPage === 'function') {
+            history.replaceState({ page: 'pesantren-detail', slug: pParam }, '', '/pesantren/' + encodeURIComponent(pParam));
+            renderPesantrenDetailPage(pParam, false);
+            activeInitialPage = 'pesantren-detail';
+        } else if (window.location.hash) {
+            const rawHash = window.location.hash.replace('#', '').trim();
+            const lowerHash = rawHash.toLowerCase();
+
+            // Normalisasi link lama berbasis hash ke URL bersih
+            if (cleanPath === '/berita' && rawHash && !['berita', 'warta', 'berita-detail'].includes(lowerHash)) {
+                const targetSlug = lowerHash.startsWith('berita/') ? rawHash.substring('berita/'.length) : rawHash;
+                history.replaceState({ page: 'berita-detail', slug: targetSlug }, '', '/berita/' + encodeURIComponent(targetSlug));
+                if (typeof openBeritaDetailModal === 'function') {
+                    openBeritaDetailModal(targetSlug, false);
+                    activeInitialPage = 'berita-detail';
+                }
+            } else if (cleanPath === '/direktori' && lowerHash.startsWith('pesantren/')) {
+                const targetSlug = rawHash.substring('pesantren/'.length);
+                history.replaceState({ page: 'pesantren-detail', slug: targetSlug }, '', '/pesantren/' + encodeURIComponent(targetSlug));
+                if (typeof renderPesantrenDetailPage === 'function') {
+                    renderPesantrenDetailPage(targetSlug, false);
+                    activeInitialPage = 'pesantren-detail';
+                }
+            } else if (cleanPath === '/' || cleanPath === '/index') {
+                if (lowerHash.startsWith('pesantren/') || lowerHash.startsWith('pesantren-detail')) {
+                    const targetSlug = lowerHash.startsWith('pesantren/') 
+                        ? rawHash.substring('pesantren/'.length).trim() 
+                        : (new URLSearchParams(rawHash.split('?')[1] || '').get('id') || rawHash);
+                    window.location.replace('/pesantren/' + encodeURIComponent(targetSlug));
+                    return;
+                }
+                if (lowerHash.startsWith('berita/') || lowerHash.startsWith('berita-detail')) {
+                    const targetSlug = lowerHash.startsWith('berita/') 
+                        ? rawHash.substring('berita/'.length).trim() 
+                        : (new URLSearchParams(rawHash.split('?')[1] || '').get('id') || rawHash);
+                    window.location.replace('/berita/' + encodeURIComponent(targetSlug));
+                    return;
+                }
+                if (MULTI_PAGE_ROUTES[lowerHash] && lowerHash !== 'beranda') {
+                    window.location.replace(MULTI_PAGE_ROUTES[lowerHash]);
+                    return;
+                }
+                if (lowerHash === 'direktori') { window.location.replace('/direktori'); return; }
+                if (lowerHash === 'sambang' || lowerHash === 'program') { window.location.replace('/sambang'); return; }
+                activeInitialPage = lowerHash;
+                handleHashRouting();
+            } else {
+                activeInitialPage = lowerHash;
+                handleHashRouting();
+            }
+        } else {
+            navigateTo(activeInitialPage, false);
+        }
     }
 
     // 🚀 KUNCI UPDATE: Nyalakan mesin pencatat waktu shalat otomatis
