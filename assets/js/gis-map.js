@@ -231,16 +231,18 @@ function recenterPublicMap() {
     publicMap.fitBounds(demakBounds, { padding: [16, 16] });
 }
 
-function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = '') {
+function loadPublicMapMarkers(activeCategory = 'Semua', activeKecamatan = '') {
     if (!publicMap) return;
 
     // Bersihkan marker lama
     publicMapMarkers.forEach(m => publicMap.removeLayer(m));
     publicMapMarkers = [];
 
+    const isSemua = !activeCategory || activeCategory.toLowerCase() === 'semua';
+
     // Filter data berdasarkan kategori aktif
     let filtered = allLembagaData.filter(l => {
-        if (!activeCategory || activeCategory === 'Semua') return true;
+        if (isSemua) return true;
         return (l.jenis || '').toLowerCase() === activeCategory.toLowerCase();
     });
 
@@ -249,7 +251,7 @@ function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = ''
         filtered = filtered.filter(l => normalizeKecamatanName(l.kecamatan).toLowerCase() === normFilter);
     }
 
-    // Tentukan palet warna Asnawiyyah
+    // Tentukan palet warna default Asnawiyyah
     let markerColor = '#005c55'; // Emerald Pesantren
     let badgeBg = 'bg-primary/10 text-primary';
     let btnBg = 'bg-primary hover:bg-primary/90';
@@ -267,9 +269,29 @@ function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = ''
     filtered.forEach((item, index) => {
         const [lat, lng] = resolveLembagaCoordinates(item, index);
 
+        // Jika tab 'Semua', beri warna marker sesuai jenis masing-masing lembaga
+        let itemColor = markerColor;
+        let itemBadgeBg = badgeBg;
+        let itemBtnBg = btnBg;
+        if (isSemua) {
+            if (item.jenis === 'Pesantren') {
+                itemColor = '#005c55';
+                itemBadgeBg = 'bg-primary/10 text-primary';
+                itemBtnBg = 'bg-primary hover:bg-primary/90';
+            } else if (item.jenis === 'Madin') {
+                itemColor = '#1f6c3a';
+                itemBadgeBg = 'bg-secondary/10 text-secondary';
+                itemBtnBg = 'bg-secondary hover:bg-secondary/90';
+            } else if (item.jenis === 'TPQ') {
+                itemColor = '#7f4025';
+                itemBadgeBg = 'bg-tertiary/10 text-tertiary';
+                itemBtnBg = 'bg-tertiary hover:bg-tertiary/90';
+            }
+        }
+
         const marker = L.circleMarker([lat, lng], {
-            radius: 7.5,
-            fillColor: markerColor,
+            radius: isSemua ? 7 : 7.5,
+            fillColor: itemColor,
             color: '#ffffff',
             weight: 2,
             opacity: 1,
@@ -280,13 +302,13 @@ function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = ''
         const popupContent = `
             <div class="font-sans text-xs p-1" style="min-width: 180px;">
                 <div class="flex items-center justify-between gap-1 mb-1">
-                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeBg}">${escapeHTML(item.jenis || activeCategory)}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${itemBadgeBg}">${escapeHTML(item.jenis || activeCategory)}</span>
                     <span class="text-[10px] text-slate-500 font-semibold">Kec. ${escapeHTML(item.kecamatan || 'Demak')}</span>
                 </div>
                 <h4 class="font-bold text-xs text-slate-900 leading-snug">${escapeHTML(item.nama)}</h4>
                 ${item.pengasuh_atau_kepala ? `<p class="text-[11px] text-slate-600 mt-1"><span class="text-slate-400">Pengasuh:</span> ${escapeHTML(item.pengasuh_atau_kepala)}</p>` : ''}
                 ${item.santri_mukim ? `<p class="text-[10px] text-slate-500 mt-0.5"><span class="font-semibold text-slate-700">${(item.santri_mukim + (item.santri_nonmukim || 0)).toLocaleString()}</span> Santri</p>` : ''}
-                <button onclick="bukaModalDetailLembaga('${safeId}')" class="mt-2.5 w-full py-1.5 ${btnBg} text-white rounded-lg text-[10px] font-bold text-center transition-colors shadow-sm flex items-center justify-center gap-1 cursor-pointer">
+                <button onclick="bukaModalDetailLembaga('${safeId}')" class="mt-2.5 w-full py-1.5 ${itemBtnBg} text-white rounded-lg text-[10px] font-bold text-center transition-colors shadow-sm flex items-center justify-center gap-1 cursor-pointer">
                     <span>Lihat Profil Lengkap</span>
                     <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
                 </button>
@@ -299,8 +321,10 @@ function loadPublicMapMarkers(activeCategory = 'Pesantren', activeKecamatan = ''
 
     const statsCountEl = document.getElementById('map-stats-count');
     if (statsCountEl) {
-        if (activeCategory.toLowerCase() === 'pesantren') {
-            statsCountEl.innerText = filtered.length > 5 ? `${filtered.length}` : '380+';
+        if (isSemua) {
+            statsCountEl.innerText = `${filtered.length}`;
+        } else if (activeCategory.toLowerCase() === 'pesantren') {
+            statsCountEl.innerText = filtered.length > 5 ? `${filtered.length}` : '293';
         } else if (activeCategory.toLowerCase() === 'madin') {
             statsCountEl.innerText = filtered.length > 5 ? `${filtered.length}` : '540+';
         } else if (activeCategory.toLowerCase() === 'tpq') {

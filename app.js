@@ -330,7 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const MULTI_PAGE_ROUTES = {
         'beranda': '/',
         'profil': '/profil',
-        'pesantren': '/direktori',
+        'direktori': '/direktori',
+        'pesantren': '/pesantren',
+        'madin': '/madin',
+        'tpq': '/tpq',
         'layanan': '/layanan',
         'panduan': '/panduan',
         'berita': '/berita',
@@ -539,6 +542,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (slug && typeof openBeritaDetailModal === 'function') openBeritaDetailModal(slug, false);
         } else if (currentCleanPath === '/direktori') {
             if (typeof kembaliKeKatalogPesantren === 'function') kembaliKeKatalogPesantren();
+            if (typeof setDirektoriTab === 'function') setDirektoriTab('Semua', false);
+        } else if (currentCleanPath === '/pesantren') {
+            if (typeof kembaliKeKatalogPesantren === 'function') kembaliKeKatalogPesantren();
+            if (typeof setDirektoriTab === 'function') setDirektoriTab('Pesantren', false);
+        } else if (currentCleanPath === '/madin') {
+            if (typeof kembaliKeKatalogPesantren === 'function') kembaliKeKatalogPesantren();
+            if (typeof setDirektoriTab === 'function') setDirektoriTab('Madin', false);
+        } else if (currentCleanPath === '/tpq') {
+            if (typeof kembaliKeKatalogPesantren === 'function') kembaliKeKatalogPesantren();
+            if (typeof setDirektoriTab === 'function') setDirektoriTab('TPQ', false);
         } else if (currentCleanPath.startsWith('/pesantren/')) {
             const slug = currentCleanPath.substring('/pesantren/'.length).trim();
             if (slug && typeof renderPesantrenDetailPage === 'function') renderPesantrenDetailPage(slug, false);
@@ -602,7 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    // 4. TOGGLE DIREKTORI AND LISTENERS FILTER
+    // 4. TOGGLE DIREKTORI AND LISTENERS FILTER (4-TAB SLIDER AGGREGATOR)
+    const btnSemua = document.getElementById('btn-semua');
     const btnPesantren = document.getElementById('btn-pesantren');
     const btnMadin = document.getElementById('btn-madin');
     const btnTpq = document.getElementById('btn-tpq');
@@ -637,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridTpq = document.getElementById('grid-tpq');
 
     function resetAllStates() {
-        [btnPesantren, btnMadin, btnTpq].forEach(btn => {
+        [btnSemua, btnPesantren, btnMadin, btnTpq].forEach(btn => {
             if (btn) btn.classList.replace('text-white', 'text-on-surface-variant');
         });
         [gridPesantren, gridMadin, gridTpq].forEach(grid => {
@@ -651,102 +665,162 @@ document.addEventListener('DOMContentLoaded', () => {
         if(mapIconBg) mapIconBg.className = 'w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-500';
         if(mapIcon) mapIcon.className = 'material-symbols-outlined transition-colors duration-500';
         if(mapTitle) mapTitle.className = 'text-xl font-bold transition-colors duration-500';
-        if(btnSearch) btnSearch.className = 'text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors';
+        if(btnSearch) btnSearch.className = 'text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer';
     }
 
-    if (btnPesantren) {
-        btnPesantren.addEventListener('click', () => {
-            resetAllStates();
-            currentPublicCategory = 'Pesantren';
-            if (!publicMap) initPublicMap(); else loadPublicMapMarkers('Pesantren');
-            populatePublicKecamatanDropdown('Pesantren');
-            if (toggleSlider) {
-                toggleSlider.style.transform = 'translateX(0)';
-                toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(33.333%-4px)] bg-primary rounded-full transition-transform duration-500 ease-in-out shadow-md';
-            }
-            btnPesantren.classList.replace('text-on-surface-variant', 'text-white');
+    function activateTabSemua(updateUrl = true) {
+        resetAllStates();
+        currentPublicCategory = 'Semua';
+        if (!publicMap) initPublicMap(); else loadPublicMapMarkers('Semua');
+        populatePublicKecamatanDropdown('Semua');
+        if (toggleSlider) {
+            toggleSlider.style.transform = 'translateX(0)';
+            toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-primary rounded-full transition-transform duration-500 ease-in-out shadow-md';
+        }
+        if (btnSemua) btnSemua.classList.replace('text-on-surface-variant', 'text-white');
 
-            if(mapOverlay) mapOverlay.classList.add('bg-primary/10');
-            if(mapStatsCard) mapStatsCard.classList.add('border-primary');
-            if(mapIconBg) mapIconBg.classList.add('bg-primary/10');
-            if(mapIcon) mapIcon.classList.add('text-primary');
-            if(mapTitle) mapTitle.classList.add('text-primary');
-            if(mapTitle) mapTitle.innerText = 'Pondok Pesantren';
-            const pesantrenCount = (Array.isArray(allLembagaData) && allLembagaData.filter(l => l.jenis === 'Pesantren').length) || 293;
-            if(mapDesc) mapDesc.innerHTML = `Menampilkan <span class="text-on-surface font-extrabold text-base">${pesantrenCount}</span> titik pesantren di seluruh wilayah Kabupaten Demak.`;
-            
-            if(filterKategori) filterKategori.innerHTML = '<option value="">Klasifikasi (Semua)</option><option value="SALAF">SALAF (Kitab Kuning)</option><option value="TAHFIDZ">TAHFIDZ (Al-Qur\'an)</option><option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option><option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option><option value="MODERN">MODERN (Sistem Modern)</option>';
-            if(btnSearch) btnSearch.classList.add('bg-primary');
+        if(mapOverlay) mapOverlay.classList.add('bg-primary/10');
+        if(mapStatsCard) mapStatsCard.classList.add('border-primary');
+        if(mapIconBg) mapIconBg.classList.add('bg-primary/10');
+        if(mapIcon) { mapIcon.className = 'material-symbols-outlined text-primary text-[20px] transition-colors duration-500'; mapIcon.innerText = 'hub'; }
+        if(mapTitle) { mapTitle.className = 'text-base sm:text-lg font-bold text-primary transition-colors duration-500 truncate'; mapTitle.innerText = 'Satu Data Lembaga'; }
+        const totalCount = (Array.isArray(allLembagaData) && allLembagaData.length) || 293;
+        if(mapDesc) mapDesc.innerHTML = `Menampilkan total <span class="text-on-surface font-extrabold text-sm" id="map-stats-count">${totalCount}</span> titik lembaga (Pesantren, Madin &amp; TPQ) se-Kabupaten Demak.`;
+        
+        if(filterKategori) filterKategori.innerHTML = '<option value="">Semua Lembaga</option><option value="Pesantren">Pesantren</option><option value="Madin">Madrasah Diniyah</option><option value="TPQ">TPQ</option>';
+        if(btnSearch) btnSearch.className = 'bg-primary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer';
 
-            if(gridPesantren) {
-                gridPesantren.classList.remove('hidden');
-                void gridPesantren.offsetWidth; 
-                gridPesantren.classList.add('animate-slideFadeIn');
-            }
-        });
+        if(typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+        if(gridPesantren) {
+            gridPesantren.classList.remove('hidden');
+            void gridPesantren.offsetWidth; 
+            gridPesantren.classList.add('animate-slideFadeIn');
+        }
+
+        if (updateUrl && window.location.pathname !== '/direktori') {
+            history.pushState({ page: 'direktori', category: 'Semua' }, '', '/direktori');
+        }
+        document.title = 'Direktori Lembaga Keagamaan Demak — RMI NU Demak';
     }
 
-    if (btnMadin) {
-        btnMadin.addEventListener('click', () => {
-            resetAllStates();
-            currentPublicCategory = 'Madin';
-            if (!publicMap) initPublicMap(); else loadPublicMapMarkers('Madin');
-            populatePublicKecamatanDropdown('Madin');
-            if (toggleSlider) {
-                toggleSlider.style.transform = 'translateX(100%)';
-                toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(33.333%-4px)] bg-secondary rounded-full transition-transform duration-500 ease-in-out shadow-md';
-            }
-            btnMadin.classList.replace('text-on-surface-variant', 'text-white');
+    function activateTabPesantren(updateUrl = true) {
+        resetAllStates();
+        currentPublicCategory = 'Pesantren';
+        if (!publicMap) initPublicMap(); else loadPublicMapMarkers('Pesantren');
+        populatePublicKecamatanDropdown('Pesantren');
+        if (toggleSlider) {
+            toggleSlider.style.transform = 'translateX(100%)';
+            toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-primary rounded-full transition-transform duration-500 ease-in-out shadow-md';
+        }
+        if (btnPesantren) btnPesantren.classList.replace('text-on-surface-variant', 'text-white');
 
-            if(mapOverlay) mapOverlay.className = 'absolute inset-0 bg-secondary/10 backdrop-blur-[2px] transition-colors duration-500';
-            if(mapStatsCard) mapStatsCard.className = 'absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-sm border-l-4 border-secondary transition-colors duration-500';
-            if(mapIconBg) mapIconBg.className = 'w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center transition-colors duration-500';
-            if(mapIcon) mapIcon.className = 'material-symbols-outlined text-secondary transition-colors duration-500';
-            if(mapTitle) mapTitle.className = 'text-xl font-bold text-secondary transition-colors duration-500';
-            if(mapTitle) mapTitle.innerText = 'Madrasah Diniyah';
-            if(mapDesc) mapDesc.innerHTML = 'Pangkalan data Madrasah Diniyah sedang dalam kurasi & verifikasi bertahap bersama MWC NU.';
-            
-            if(filterKategori) filterKategori.innerHTML = '<option>Jenjang (Semua)</option><option>Ula</option><option>Wustho</option><option>Ulya</option>';
-            if(btnSearch) btnSearch.className = 'bg-secondary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors';
+        if(mapOverlay) mapOverlay.classList.add('bg-primary/10');
+        if(mapStatsCard) mapStatsCard.classList.add('border-primary');
+        if(mapIconBg) mapIconBg.classList.add('bg-primary/10');
+        if(mapIcon) { mapIcon.className = 'material-symbols-outlined text-primary text-[20px] transition-colors duration-500'; mapIcon.innerText = 'location_on'; }
+        if(mapTitle) { mapTitle.className = 'text-base sm:text-lg font-bold text-primary transition-colors duration-500 truncate'; mapTitle.innerText = 'Pondok Pesantren'; }
+        const pesantrenCount = (Array.isArray(allLembagaData) && allLembagaData.filter(l => l.jenis === 'Pesantren').length) || 293;
+        if(mapDesc) mapDesc.innerHTML = `Menampilkan <span class="text-on-surface font-extrabold text-sm" id="map-stats-count">${pesantrenCount}</span> titik pesantren di seluruh wilayah Kabupaten Demak.`;
+        
+        if(filterKategori) filterKategori.innerHTML = '<option value="">Klasifikasi (Semua)</option><option value="SALAF">SALAF (Kitab Kuning)</option><option value="TAHFIDZ">TAHFIDZ (Al-Qur\'an)</option><option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option><option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option><option value="MODERN">MODERN (Sistem Modern)</option>';
+        if(btnSearch) btnSearch.className = 'bg-primary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer';
 
-            if(gridMadin) {
-                gridMadin.classList.remove('hidden');
-                void gridMadin.offsetWidth; 
-                gridMadin.classList.add('animate-slideFadeIn');
-            }
-        });
+        if(typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+        if(gridPesantren) {
+            gridPesantren.classList.remove('hidden');
+            void gridPesantren.offsetWidth; 
+            gridPesantren.classList.add('animate-slideFadeIn');
+        }
+
+        if (updateUrl && window.location.pathname !== '/pesantren') {
+            history.pushState({ page: 'direktori', category: 'Pesantren' }, '', '/pesantren');
+        }
+        document.title = 'Direktori & Peta GIS Pondok Pesantren Demak — RMI NU Demak';
     }
 
-    if (btnTpq) {
-        btnTpq.addEventListener('click', () => {
-            resetAllStates();
-            currentPublicCategory = 'TPQ';
-            if (!publicMap) initPublicMap(); else loadPublicMapMarkers('TPQ');
-            populatePublicKecamatanDropdown('TPQ');
-            if (toggleSlider) {
-                toggleSlider.style.transform = 'translateX(200%)';
-                toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(33.333%-4px)] bg-tertiary rounded-full transition-transform duration-500 ease-in-out shadow-md';
-            }
-            btnTpq.classList.replace('text-on-surface-variant', 'text-white');
+    function activateTabMadin(updateUrl = true) {
+        resetAllStates();
+        currentPublicCategory = 'Madin';
+        if (!publicMap) initPublicMap(); else loadPublicMapMarkers('Madin');
+        populatePublicKecamatanDropdown('Madin');
+        if (toggleSlider) {
+            toggleSlider.style.transform = 'translateX(200%)';
+            toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-secondary rounded-full transition-transform duration-500 ease-in-out shadow-md';
+        }
+        if (btnMadin) btnMadin.classList.replace('text-on-surface-variant', 'text-white');
 
-            if(mapOverlay) mapOverlay.className = 'absolute inset-0 bg-tertiary/10 backdrop-blur-[2px] transition-colors duration-500';
-            if(mapStatsCard) mapStatsCard.className = 'absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-sm border-l-4 border-tertiary transition-colors duration-500';
-            if(mapIconBg) mapIconBg.className = 'w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center transition-colors duration-500';
-            if(mapIcon) mapIcon.className = 'material-symbols-outlined text-tertiary transition-colors duration-500';
-            if(mapTitle) mapTitle.className = 'text-xl font-bold text-tertiary transition-colors duration-500';
-            if(mapTitle) mapTitle.innerText = "Taman Pendidikan Al-Qur'an";
-            if(mapDesc) mapDesc.innerHTML = 'Pangkalan data TPQ sedang dalam kurasi & verifikasi bertahap bersama MWC NU.';
-            
-            if(filterKategori) filterKategori.innerHTML = '<option>Metode (Semua)</option><option>Yanbu\'a</option><option>Qira\'ati</option><option>Iqro\'</option><option>Ummi</option>';
-            if(btnSearch) btnSearch.className = 'bg-tertiary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors';
+        if(mapOverlay) mapOverlay.className = 'absolute inset-0 bg-secondary/10 backdrop-blur-[2px] transition-colors duration-500';
+        if(mapStatsCard) mapStatsCard.className = 'absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-sm border-l-4 border-secondary transition-colors duration-500';
+        if(mapIconBg) mapIconBg.className = 'w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center transition-colors duration-500';
+        if(mapIcon) { mapIcon.className = 'material-symbols-outlined text-secondary text-[20px] transition-colors duration-500'; mapIcon.innerText = 'school'; }
+        if(mapTitle) { mapTitle.className = 'text-base sm:text-lg font-bold text-secondary transition-colors duration-500 truncate'; mapTitle.innerText = 'Madrasah Diniyah'; }
+        if(mapDesc) mapDesc.innerHTML = 'Pangkalan data Madrasah Diniyah sedang dalam kurasi &amp; verifikasi bertahap bersama MWC NU.';
+        
+        if(filterKategori) filterKategori.innerHTML = '<option value="">Jenjang (Semua)</option><option value="Ula">Ula</option><option value="Wustho">Wustho</option><option value="Ulya">Ulya</option>';
+        if(btnSearch) btnSearch.className = 'bg-secondary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer';
 
-            if(gridTpq) {
-                gridTpq.classList.remove('hidden');
-                void gridTpq.offsetWidth; 
-                gridTpq.classList.add('animate-slideFadeIn');
-            }
-        });
+        if(gridMadin) {
+            gridMadin.classList.remove('hidden');
+            void gridMadin.offsetWidth; 
+            gridMadin.classList.add('animate-slideFadeIn');
+        }
+
+        if (updateUrl && window.location.pathname !== '/madin') {
+            history.pushState({ page: 'direktori', category: 'Madin' }, '', '/madin');
+        }
+        document.title = 'Direktori Madrasah Diniyah (Madin) Demak — RMI NU Demak';
     }
+
+    function activateTabTpq(updateUrl = true) {
+        resetAllStates();
+        currentPublicCategory = 'TPQ';
+        if (!publicMap) initPublicMap(); else loadPublicMapMarkers('TPQ');
+        populatePublicKecamatanDropdown('TPQ');
+        if (toggleSlider) {
+            toggleSlider.style.transform = 'translateX(300%)';
+            toggleSlider.className = 'absolute left-1.5 top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-tertiary rounded-full transition-transform duration-500 ease-in-out shadow-md';
+        }
+        if (btnTpq) btnTpq.classList.replace('text-on-surface-variant', 'text-white');
+
+        if(mapOverlay) mapOverlay.className = 'absolute inset-0 bg-tertiary/10 backdrop-blur-[2px] transition-colors duration-500';
+        if(mapStatsCard) mapStatsCard.className = 'absolute bottom-6 left-6 md:bottom-10 md:left-10 bg-white/95 backdrop-blur-md p-6 rounded-2xl shadow-xl max-w-sm border-l-4 border-tertiary transition-colors duration-500';
+        if(mapIconBg) mapIconBg.className = 'w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center transition-colors duration-500';
+        if(mapIcon) { mapIcon.className = 'material-symbols-outlined text-tertiary text-[20px] transition-colors duration-500'; mapIcon.innerText = 'menu_book'; }
+        if(mapTitle) { mapTitle.className = 'text-base sm:text-lg font-bold text-tertiary transition-colors duration-500 truncate'; mapTitle.innerText = "Taman Pendidikan Al-Qur'an"; }
+        if(mapDesc) mapDesc.innerHTML = 'Pangkalan data TPQ sedang dalam kurasi &amp; verifikasi bertahap bersama MWC NU.';
+        
+        if(filterKategori) filterKategori.innerHTML = '<option value="">Metode (Semua)</option><option value="Yanbu\'a">Yanbu\'a</option><option value="Qira\'ati">Qira\'ati</option><option value="Iqro\'">Iqro\'</option><option value="Ummi">Ummi</option>';
+        if(btnSearch) btnSearch.className = 'bg-tertiary text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md hover:opacity-90 transition-colors cursor-pointer';
+
+        if(gridTpq) {
+            gridTpq.classList.remove('hidden');
+            void gridTpq.offsetWidth; 
+            gridTpq.classList.add('animate-slideFadeIn');
+        }
+
+        if (updateUrl && window.location.pathname !== '/tpq') {
+            history.pushState({ page: 'direktori', category: 'TPQ' }, '', '/tpq');
+        }
+        document.title = 'Direktori TPQ (Taman Pendidikan Al-Qur\'an) Demak — RMI NU Demak';
+    }
+
+    function setDirektoriTab(category, updateUrl = true) {
+        if (category === 'Semua') {
+            activateTabSemua(updateUrl);
+        } else if (category === 'Madin') {
+            activateTabMadin(updateUrl);
+        } else if (category === 'TPQ') {
+            activateTabTpq(updateUrl);
+        } else {
+            activateTabPesantren(updateUrl);
+        }
+    }
+    window.setDirektoriTab = setDirektoriTab;
+
+    if (btnSemua) btnSemua.addEventListener('click', () => activateTabSemua(true));
+    if (btnPesantren) btnPesantren.addEventListener('click', () => activateTabPesantren(true));
+    if (btnMadin) btnMadin.addEventListener('click', () => activateTabMadin(true));
+    if (btnTpq) btnTpq.addEventListener('click', () => activateTabTpq(true));
 
     // 🚀 MULTI-PAGE PATHNAME & LEGACY HASH ROUTER INIT
     const cleanPath = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/+$/, '') || '/';
@@ -755,6 +829,9 @@ document.addEventListener('DOMContentLoaded', () => {
         '/index': 'beranda',
         '/profil': 'profil',
         '/direktori': 'pesantren',
+        '/pesantren': 'pesantren',
+        '/madin': 'pesantren',
+        '/tpq': 'pesantren',
         '/layanan': 'layanan',
         '/panduan': 'panduan',
         '/sambang': 'sambang-pesantren-pwrminu-jateng',
@@ -839,6 +916,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             navigateTo(activeInitialPage, false);
+        }
+
+        // Inisialisasi tab aktif direktori sesuai cleanPath
+        if (cleanPath === '/pesantren') {
+            setDirektoriTab('Pesantren', false);
+        } else if (cleanPath === '/madin') {
+            setDirektoriTab('Madin', false);
+        } else if (cleanPath === '/tpq') {
+            setDirektoriTab('TPQ', false);
+        } else if (cleanPath === '/direktori') {
+            setDirektoriTab('Semua', false);
         }
     }
 

@@ -562,20 +562,23 @@
                     </div>
 
                     <div
-                        class="relative flex bg-slate-100 p-1.5 rounded-full w-full lg:w-[480px] shadow-inner border border-slate-200/60">
+                        class="relative flex bg-slate-100 p-1.5 rounded-full w-full lg:w-[560px] shadow-inner border border-slate-200/60">
 
                         <div id="toggle-slider"
-                            class="absolute left-1.5 top-1.5 bottom-1.5 w-[calc(33.333%-4px)] bg-primary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-0">
+                            class="absolute left-1.5 top-1.5 bottom-1.5 w-[calc(25%-3px)] bg-primary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-0">
                         </div>
 
+                        <button id="btn-semua"
+                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Semua</button>
+
                         <button id="btn-pesantren"
-                            class="relative z-10 w-1/3 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Pesantren</button>
+                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Pesantren</button>
 
                         <button id="btn-madin"
-                            class="relative z-10 w-1/3 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Madin</button>
+                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Madin</button>
 
                         <button id="btn-tpq"
-                            class="relative z-10 w-1/3 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">TPQ</button>
+                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">TPQ</button>
 
                     </div>
 
@@ -608,7 +611,7 @@
 
                                 <h3 id="map-title"
                                     class="text-base sm:text-lg font-bold text-primary transition-colors duration-500 truncate">
-                                    Pondok Pesantren</h3>
+                                    Satu Data Lembaga</h3>
 
                                 <span
                                     class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Wilayah
@@ -619,8 +622,7 @@
                         </div>
 
                         <p id="map-desc" class="text-xs text-on-surface-variant font-medium leading-relaxed">Menampilkan
-                            <span class="text-on-surface font-extrabold text-sm" id="map-stats-count">293</span> titik
-                            pesantren di seluruh wilayah Kabupaten Demak.</p>
+                            total titik lembaga (Pesantren, Madin &amp; TPQ) se-Kabupaten Demak.</p>
 
                     </div>
 
@@ -676,12 +678,10 @@
 
                         <select id="filter-kategori"
                             class="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none text-on-surface-variant font-medium">
-                            <option value="">Klasifikasi (Semua)</option>
-                            <option value="SALAF">SALAF (Kitab Kuning)</option>
-                            <option value="TAHFIDZ">TAHFIDZ (Al-Qur'an)</option>
-                            <option value="KOMBINASI">KOMBINASI (Salaf + Tahfidz)</option>
-                            <option value="TERINTEGRASI">TERINTEGRASI (Pondok + Formal)</option>
-                            <option value="MODERN">MODERN (Sistem Modern)</option>
+                            <option value="">Semua Lembaga</option>
+                            <option value="Pesantren">Pesantren</option>
+                            <option value="Madin">Madrasah Diniyah</option>
+                            <option value="TPQ">TPQ</option>
                         </select>
 
                         <button id="btn-search"

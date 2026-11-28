@@ -20,7 +20,7 @@ const supabaseClient = (typeof window !== 'undefined' && window.supabase && type
 // ==========================================
 let publicMap = null;
 let publicMapMarkers = [];
-let currentPublicCategory = 'Pesantren';
+let currentPublicCategory = 'Semua';
 
 const DEMAK_DISTRICT_COORDS = {
     "Mranggen": [-7.0274, 110.5188],
@@ -149,7 +149,10 @@ function updateAllPlatformStats(dataList) {
     // 3. Update Floating Stats Card di Halaman Direktori
     const statsCountEl = document.getElementById('map-stats-count');
     if (statsCountEl) {
-        if (typeof currentPublicCategory === 'undefined' || currentPublicCategory.toLowerCase() === 'pesantren') {
+        if (!currentPublicCategory || currentPublicCategory.toLowerCase() === 'semua') {
+            const totalCount = pCount + (madinList.length || 0) + (tpqList.length || 0);
+            statsCountEl.innerText = `${totalCount}`;
+        } else if (currentPublicCategory.toLowerCase() === 'pesantren') {
             statsCountEl.innerText = `${pCount}`;
         } else if (currentPublicCategory.toLowerCase() === 'madin') {
             statsCountEl.innerText = `${madinList.length || 540}+`;

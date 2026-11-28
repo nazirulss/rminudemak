@@ -89,10 +89,10 @@ export default async function handler(req, res) {
   const finalSlug = item ? generatePesantrenSlug(item) : String(lookupKey).trim();
   const canonicalUrl = finalSlug
     ? `https://rminudemak.org/pesantren/${encodeURIComponent(finalSlug)}`
-    : 'https://rminudemak.org/direktori';
+    : 'https://rminudemak.org/pesantren';
   const spaRedirectUrl = finalSlug
-    ? `https://rminudemak.org/direktori?p=${encodeURIComponent(finalSlug)}`
-    : 'https://rminudemak.org/direktori';
+    ? `https://rminudemak.org/pesantren?p=${encodeURIComponent(finalSlug)}`
+    : 'https://rminudemak.org/pesantren';
 
   const pageTitle = item
     ? `${nama}${kecamatan ? ` (${kecamatan})` : ''} — Direktori Pesantren RMI PCNU Demak`

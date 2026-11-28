@@ -439,14 +439,27 @@ function renderLembagaCards(lembagaList) {
             }
         });
 
-        if (gridPesantren) {
-            gridPesantren.innerHTML = htmlPesantren.length > 0 ? htmlPesantren.join('') : `
-                <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-4">
-                    <span class="material-symbols-outlined text-[40px] text-slate-300 mb-2">search_off</span>
-                    <h3 class="text-base font-bold text-slate-800">Tidak Ada Pesantren Cocok</h3>
-                    <p class="text-xs text-slate-500 mt-1">Coba bersihkan filter kecamatan atau ubah kata kunci pencarian.</p>
-                </div>
-            `;
+        if (currentPublicCategory === 'Semua') {
+            const allCards = [...htmlPesantren, ...htmlMadin, ...htmlTpq];
+            if (gridPesantren) {
+                gridPesantren.innerHTML = allCards.length > 0 ? allCards.join('') : `
+                    <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-4">
+                        <span class="material-symbols-outlined text-[40px] text-slate-300 mb-2">search_off</span>
+                        <h3 class="text-base font-bold text-slate-800">Tidak Ada Lembaga Cocok</h3>
+                        <p class="text-xs text-slate-500 mt-1">Coba bersihkan filter kecamatan atau ubah kata kunci pencarian.</p>
+                    </div>
+                `;
+            }
+        } else {
+            if (gridPesantren) {
+                gridPesantren.innerHTML = htmlPesantren.length > 0 ? htmlPesantren.join('') : `
+                    <div class="col-span-full bg-white rounded-3xl border border-slate-200 p-10 text-center max-w-xl mx-auto my-4">
+                        <span class="material-symbols-outlined text-[40px] text-slate-300 mb-2">search_off</span>
+                        <h3 class="text-base font-bold text-slate-800">Tidak Ada Pesantren Cocok</h3>
+                        <p class="text-xs text-slate-500 mt-1">Coba bersihkan filter kecamatan atau ubah kata kunci pencarian.</p>
+                    </div>
+                `;
+            }
         }
         if (gridMadin) {
             gridMadin.innerHTML = (htmlMadin.length > 2) ? htmlMadin.join('') : buildMadinTpqEmptyNotice('Madrasah Diniyah (Madin)');
@@ -485,6 +498,7 @@ function applyLembagaFilter() {
 
         const matchKategori = !kategoriValue ||
             /\(Semua\)/.test(kategoriValue) ||
+            String(item.jenis || '').toLowerCase() === String(kategoriValue).toLowerCase() ||
             String(item.klasifikasi || '').toUpperCase() === String(kategoriValue).toUpperCase() ||
             String(item.kategori_atau_metode || '').toLowerCase().includes(String(kategoriValue).toLowerCase());
 
@@ -612,12 +626,6 @@ async function bukaProfilPesantren(pesantrenId, updateHash = true) {
 }
 
 function kembaliKeKatalogPesantren() {
-    document.title = 'Direktori & Peta GIS Pondok Pesantren Demak — RMI NU Demak';
-    if (window.location.pathname !== '/direktori') {
-        history.pushState({ page: 'pesantren' }, '', '/direktori');
-    } else if (window.location.hash || window.location.search) {
-        history.pushState({ page: 'pesantren' }, '', '/direktori');
-    }
     const detailPage = document.getElementById('page-pesantren-detail');
     if (detailPage) detailPage.classList.remove('active');
     const catalogPage = document.getElementById('page-pesantren');
@@ -626,6 +634,17 @@ function kembaliKeKatalogPesantren() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     sessionStorage.setItem('activePage', 'pesantren');
+
+    let targetUrl = '/pesantren';
+    if (window.history.state && window.history.state.page === 'direktori' && window.history.state.category === 'Semua') {
+        targetUrl = '/direktori';
+    }
+    if (window.location.pathname !== targetUrl) {
+        history.pushState({ page: 'direktori', category: (targetUrl === '/direktori' ? 'Semua' : 'Pesantren') }, '', targetUrl);
+    }
+    if (typeof setDirektoriTab === 'function') {
+        setDirektoriTab(targetUrl === '/direktori' ? 'Semua' : 'Pesantren', false);
+    }
 }
 
 function salinNspp(nspp) {
