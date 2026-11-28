@@ -1055,10 +1055,10 @@ function startSmartPrayerWidget() {
 // ==========================================
 // FASE 6: PWA SERVICE WORKER & INIT FAVORITE BADGE
 // ==========================================
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch((err) => {
-            console.warn('PWA ServiceWorker registration skipped/failed:', err.message);
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // Diamkan exception saat diuji crawler / headless bot agar tidak mencemari GSC console
         });
     });
 }
