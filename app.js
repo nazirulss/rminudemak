@@ -342,18 +342,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function navigateTo(targetId, updateHash = true) {
         // Normalisasi alias ramah pengguna
-        if (targetId === 'direktori') targetId = 'pesantren';
         if (targetId === 'program' || targetId === 'sambang' || targetId === 'sambang-pesantren' || targetId === 'sambang-pw-jateng' || targetId === 'sambang-jateng') {
             targetId = 'sambang-pesantren-pwrminu-jateng';
         }
-        const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'direktori', 'pesantren', 'pesantren-detail', 'madin', 'tpq', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         if (!validPages.includes(targetId)) targetId = 'beranda';
 
-        const targetPage = document.getElementById('page-' + targetId);
+        const isDirektoriSection = (targetId === 'direktori' || targetId === 'pesantren' || targetId === 'madin' || targetId === 'tpq');
+        const targetPage = document.getElementById('page-' + targetId) || (isDirektoriSection ? document.getElementById('page-pesantren') : null);
+
         // Jika target section berada di halaman HTML terpisah (Multi-Page Clean URL), arahkan langsung
         if (!targetPage && MULTI_PAGE_ROUTES[targetId]) {
             window.location.href = MULTI_PAGE_ROUTES[targetId];
             return;
+        }
+
+        // Jika berada di halaman direktori dan target adalah salah satu sub-kategori lembaga
+        if (isDirektoriSection && typeof setDirektoriTab === 'function') {
+            if (typeof kembaliKeKatalogPesantren === 'function') {
+                kembaliKeKatalogPesantren();
+            }
+            if (targetId === 'direktori') setDirektoriTab('Semua', updateHash);
+            else if (targetId === 'pesantren') setDirektoriTab('Pesantren', updateHash);
+            else if (targetId === 'madin') setDirektoriTab('Madin', updateHash);
+            else if (targetId === 'tpq') setDirektoriTab('TPQ', updateHash);
         }
 
         if (updateHash && (targetId === 'pesantren-detail' || targetId === 'berita-detail')) {
@@ -387,11 +399,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         }
 
-        if (targetId === 'pesantren' || targetId === 'pesantren-detail') {
+        if (isDirektoriSection || targetId === 'pesantren-detail') {
             if (allLembagaData.length === 0) loadLembagaDariSupabase();
             if (typeof inisialisasiFiturLacakBerkas === 'function') inisialisasiFiturLacakBerkas();
             if (typeof populatePublicKecamatanDropdown === 'function') populatePublicKecamatanDropdown(currentPublicCategory);
-            if (targetId === 'pesantren' && typeof initPublicMap === 'function') {
+            if (isDirektoriSection && typeof initPublicMap === 'function') {
                 setTimeout(() => {
                     if (!publicMap) initPublicMap();
                     else publicMap.invalidateSize();
@@ -403,9 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         navBtns.forEach(btn => {
-            const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
+            const btnTarget = btn.dataset.target;
             const isActive = (btnTarget === targetId) || 
-                             (btnTarget === 'pesantren' && targetId === 'pesantren-detail') ||
+                             (btnTarget === 'direktori' && (targetId === 'direktori' || targetId === 'pesantren' || targetId === 'madin' || targetId === 'tpq' || targetId === 'pesantren-detail')) ||
                              (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan')) ||
                              (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng') ||
                              (btnTarget === 'berita' && targetId === 'berita-detail');
@@ -417,9 +429,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         mobileNavBtns.forEach(btn => {
-            const btnTarget = btn.dataset.target === 'direktori' ? 'pesantren' : btn.dataset.target;
+            const btnTarget = btn.dataset.target;
             const isActive = (btnTarget === targetId) || 
-                             (btnTarget === 'pesantren' && targetId === 'pesantren-detail') ||
+                             (btnTarget === 'direktori' && (targetId === 'direktori' || targetId === 'pesantren' || targetId === 'madin' || targetId === 'tpq' || targetId === 'pesantren-detail')) ||
                              (btnTarget === 'layanan' && (targetId === 'layanan' || targetId === 'panduan')) ||
                              (btnTarget === 'program' && targetId === 'sambang-pesantren-pwrminu-jateng') ||
                              (btnTarget === 'berita' && targetId === 'berita-detail');
@@ -443,7 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleHashRouting() {
         let rawHash = window.location.hash.replace('#', '').trim();
         let currentHash = rawHash.toLowerCase();
-        if (currentHash === 'direktori') currentHash = 'pesantren';
         if (currentHash === 'program' || currentHash === 'sambang' || currentHash === 'sambang-pesantren' || currentHash === 'sambang-pw-jateng' || currentHash === 'sambang-jateng') {
             currentHash = 'sambang-pesantren-pwrminu-jateng';
         }
@@ -526,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
+        const validPages = ['beranda', 'profil', 'direktori', 'pesantren', 'pesantren-detail', 'madin', 'tpq', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
         const defaultPageForPath = PATH_TO_PAGE[cleanPath] || 'beranda';
         const targetPage = validPages.includes(currentHash) ? currentHash : defaultPageForPath;
         navigateTo(targetPage, false);
@@ -828,10 +839,10 @@ document.addEventListener('DOMContentLoaded', () => {
         '/': 'beranda',
         '/index': 'beranda',
         '/profil': 'profil',
-        '/direktori': 'pesantren',
+        '/direktori': 'direktori',
         '/pesantren': 'pesantren',
-        '/madin': 'pesantren',
-        '/tpq': 'pesantren',
+        '/madin': 'madin',
+        '/tpq': 'tpq',
         '/layanan': 'layanan',
         '/panduan': 'panduan',
         '/sambang': 'sambang-pesantren-pwrminu-jateng',
@@ -940,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Memuat arsip warta media RMI Demak terkini hanya pada halaman yang membutuhkannya
     if (typeof loadBeritaRMI === 'function') loadBeritaRMI();
 
-    if ((activeInitialPage === 'pesantren' || activeInitialPage.startsWith('pesantren/')) && typeof initPublicMap === 'function') {
+    if ((activeInitialPage === 'direktori' || activeInitialPage === 'pesantren' || activeInitialPage === 'madin' || activeInitialPage === 'tpq' || activeInitialPage.startsWith('pesantren/')) && typeof initPublicMap === 'function') {
         setTimeout(initPublicMap, 250);
         setTimeout(() => { if (typeof publicMap !== 'undefined' && publicMap) publicMap.invalidateSize(); }, 600);
     }

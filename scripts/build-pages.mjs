@@ -37,12 +37,60 @@ const PAGES_CONFIG = [
     outFile: 'direktori.html',
     srcFile: 'src/pages/direktori.html',
     urlPath: '/direktori',
-    title: 'Direktori & Peta GIS Pondok Pesantren Demak — RMI NU Demak',
-    description: 'Pangkalan Satu Data dan Peta Geospasial Pondok Pesantren, Madrasah Diniyah, dan TPQ se-Kabupaten Demak.',
-    ogTitle: 'Direktori & Peta GIS Pesantren Kabupaten Demak',
+    title: 'Direktori Lembaga Keagamaan Demak — RMI NU Demak',
+    description: 'Pangkalan Satu Data dan Peta Geospasial Agregat Pondok Pesantren, Madrasah Diniyah, dan TPQ se-Kabupaten Demak.',
+    ogTitle: 'Direktori Lembaga Keagamaan Demak — RMI NU Demak',
     ogDescription: 'Cari profil pondok pesantren, Madin, dan TPQ di 14 kecamatan Kabupaten Demak secara interaktif.',
     preloadHero: false,
     useLeaflet: true,
+    h1Title: 'Direktori &amp; Peta Lembaga Keagamaan Kabupaten Demak',
+    subtitle: 'Pangkalan Satu Data terpadu Pondok Pesantren, Madin, dan TPQ se-Kabupaten Demak',
+    activeTab: 'Semua',
+    scripts: ['core-utils.js', 'gis-map.js', 'pesantren-direktori.js']
+  },
+  {
+    outFile: 'pesantren.html',
+    srcFile: 'src/pages/direktori.html',
+    urlPath: '/pesantren',
+    title: 'Direktori & Peta GIS Pondok Pesantren Demak — RMI NU Demak',
+    description: 'Pangkalan Satu Data dan Peta Geospasial Pondok Pesantren se-Kabupaten Demak tervalidasi PC RMI NU Demak.',
+    ogTitle: 'Direktori & Peta GIS Pondok Pesantren Demak',
+    ogDescription: 'Cari data lengkap profil 293+ pondok pesantren salaf, tahfidz, dan terintegrasi di Kabupaten Demak.',
+    preloadHero: false,
+    useLeaflet: true,
+    h1Title: 'Direktori &amp; Peta Pondok Pesantren Kabupaten Demak',
+    subtitle: 'Database tervalidasi 293+ pondok pesantren salaf, tahfidz, dan terintegrasi se-Kabupaten Demak',
+    activeTab: 'Pesantren',
+    scripts: ['core-utils.js', 'gis-map.js', 'pesantren-direktori.js']
+  },
+  {
+    outFile: 'madin.html',
+    srcFile: 'src/pages/direktori.html',
+    urlPath: '/madin',
+    title: 'Direktori Madrasah Diniyah Demak — RMI NU Demak',
+    description: 'Pangkalan Data dan Pemetaan Madrasah Diniyah (Madin) se-Kabupaten Demak tervalidasi PC RMI NU Demak.',
+    ogTitle: 'Direktori Madrasah Diniyah (Madin) Kabupaten Demak',
+    ogDescription: 'Katalog pangkalan data Madrasah Diniyah di 14 kecamatan se-Kabupaten Demak.',
+    preloadHero: false,
+    useLeaflet: true,
+    h1Title: 'Direktori &amp; Peta Madrasah Diniyah Kabupaten Demak',
+    subtitle: 'Pangkalan data dan pemetaan Madrasah Diniyah (Madin) tervalidasi PC RMI NU Demak',
+    activeTab: 'Madin',
+    scripts: ['core-utils.js', 'gis-map.js', 'pesantren-direktori.js']
+  },
+  {
+    outFile: 'tpq.html',
+    srcFile: 'src/pages/direktori.html',
+    urlPath: '/tpq',
+    title: 'Direktori Taman Pendidikan Al-Qur\'an (TPQ) Demak — RMI NU Demak',
+    description: 'Pangkalan Data dan Pemetaan Taman Pendidikan Al-Qur\'an (TPQ) se-Kabupaten Demak tervalidasi PC RMI NU Demak.',
+    ogTitle: 'Direktori TPQ Kabupaten Demak — RMI NU Demak',
+    ogDescription: 'Katalog pangkalan data Taman Pendidikan Al-Qur\'an (TPQ) di 14 kecamatan se-Kabupaten Demak.',
+    preloadHero: false,
+    useLeaflet: true,
+    h1Title: 'Direktori &amp; Peta Taman Pendidikan Al-Qur\'an (TPQ) Demak',
+    subtitle: 'Pangkalan data dan pemetaan Taman Pendidikan Al-Qur\'an (TPQ) se-Kabupaten Demak',
+    activeTab: 'TPQ',
     scripts: ['core-utils.js', 'gis-map.js', 'pesantren-direktori.js']
   },
   {
@@ -476,12 +524,58 @@ for (const cfg of PAGES_CONFIG) {
   const canonicalUrl = `https://rminudemak.org${cfg.urlPath}`;
   let pageContent = fs.readFileSync(cfg.srcFile, 'utf8');
 
-  // Injeksi SSR Fallback Cards untuk Halaman Direktori agar Googlebot tidak melihat kontainer kosong
-  if (cfg.outFile === 'direktori.html') {
+  // Injeksi SSR Fallback Cards untuk Halaman Direktori, Pesantren, Madin, dan TPQ agar Googlebot tidak melihat kontainer kosong
+  if (['direktori.html', 'pesantren.html', 'madin.html', 'tpq.html'].includes(cfg.outFile)) {
     pageContent = pageContent.replace(
       '<div id="grid-pesantren" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slideFadeIn"></div>',
       `<div id="grid-pesantren" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-slideFadeIn">\n${buildFallbackPesantrenHtml()}\n</div>`
     );
+
+    if (cfg.h1Title) {
+      pageContent = pageContent.replace(
+        '<h1 class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight mb-2">Direktori &amp; Peta Pondok Pesantren Kabupaten Demak</h1>',
+        `<h1 class="text-3xl md:text-4xl font-extrabold text-on-surface tracking-tight mb-2">${cfg.h1Title}</h1>`
+      );
+    }
+
+    if (cfg.subtitle) {
+      pageContent = pageContent.replace(
+        '<p class="text-sm text-on-surface-variant">Database tervalidasi pendidikan keagamaan\n                            se-Kabupaten Demak</p>',
+        `<p class="text-sm text-on-surface-variant">${cfg.subtitle}</p>`
+      );
+    }
+
+    if (cfg.activeTab === 'Pesantren') {
+      pageContent = pageContent.replace('transform translate-x-0', 'transform translate-x-[100%]');
+      pageContent = pageContent.replace(
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Semua</button>',
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Semua</button>'
+      );
+      pageContent = pageContent.replace(
+        '<button id="btn-pesantren"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Pesantren</button>',
+        '<button id="btn-pesantren"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Pesantren</button>'
+      );
+    } else if (cfg.activeTab === 'Madin') {
+      pageContent = pageContent.replace('bg-primary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-0', 'bg-secondary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-[200%]');
+      pageContent = pageContent.replace(
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Semua</button>',
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Semua</button>'
+      );
+      pageContent = pageContent.replace(
+        '<button id="btn-madin"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Madin</button>',
+        '<button id="btn-madin"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Madin</button>'
+      );
+    } else if (cfg.activeTab === 'TPQ') {
+      pageContent = pageContent.replace('bg-primary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-0', 'bg-tertiary rounded-full transition-all duration-500 ease-in-out shadow-md transform translate-x-[300%]');
+      pageContent = pageContent.replace(
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">Semua</button>',
+        '<button id="btn-semua"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">Semua</button>'
+      );
+      pageContent = pageContent.replace(
+        '<button id="btn-tpq"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-on-surface-variant transition-colors duration-300">TPQ</button>',
+        '<button id="btn-tpq"\n                            class="relative z-10 w-1/4 py-2 md:py-2.5 text-xs md:text-sm font-bold text-white transition-colors duration-300">TPQ</button>'
+      );
+    }
   }
 
   // Injeksi SSR Fallback Articles untuk Halaman Berita
