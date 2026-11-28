@@ -54,11 +54,11 @@ function loadLembagaDariSupabase() {
                         logo_url: isValidPesantrenLogoUrl(item.logo_url) ? item.logo_url.trim() : ''
                     }));
                     isLivePesantrenDataLoaded = true;
-                    renderLembagaCards(allLembagaData);
-                    if (publicMap) loadPublicMapMarkers(currentPublicCategory);
-                    if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
-                    populatePublicKecamatanDropdown(currentPublicCategory);
-                    updateAllPlatformStats(allLembagaData);
+                    if (typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+                    if (publicMap && typeof loadPublicMapMarkers === 'function') loadPublicMapMarkers(currentPublicCategory);
+                    if (heroGisMap && typeof loadHeroMapMarkers === 'function') loadHeroMapMarkers(currentHeroCategory);
+                    if (typeof populatePublicKecamatanDropdown === 'function') populatePublicKecamatanDropdown(currentPublicCategory);
+                    if (typeof updateAllPlatformStats === 'function') updateAllPlatformStats(allLembagaData);
                     reRenderActiveDetailIfNeeded();
 
                     if (isFresh) {
@@ -122,11 +122,11 @@ function loadLembagaDariSupabase() {
                     localStorage.setItem(CACHE_KEY_TIME, String(Date.now()));
                 } catch(e) {}
 
-                renderLembagaCards(allLembagaData);
-                if (publicMap) loadPublicMapMarkers(currentPublicCategory);
-                if (heroGisMap) loadHeroMapMarkers(currentHeroCategory);
-                populatePublicKecamatanDropdown(currentPublicCategory);
-                updateAllPlatformStats(allLembagaData);
+                if (typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+                if (publicMap && typeof loadPublicMapMarkers === 'function') loadPublicMapMarkers(currentPublicCategory);
+                if (heroGisMap && typeof loadHeroMapMarkers === 'function') loadHeroMapMarkers(currentHeroCategory);
+                if (typeof populatePublicKecamatanDropdown === 'function') populatePublicKecamatanDropdown(currentPublicCategory);
+                if (typeof updateAllPlatformStats === 'function') updateAllPlatformStats(allLembagaData);
                 reRenderActiveDetailIfNeeded();
                 return allLembagaData;
             }
@@ -145,8 +145,8 @@ function loadLembagaDariSupabase() {
                 if (!error && lembagaList && lembagaList.length > 0) {
                     allLembagaData = lembagaList;
                     isLivePesantrenDataLoaded = true;
-                    renderLembagaCards(allLembagaData);
-                    updateAllPlatformStats(allLembagaData);
+                    if (typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+                    if (typeof updateAllPlatformStats === 'function') updateAllPlatformStats(allLembagaData);
                     reRenderActiveDetailIfNeeded();
                     return allLembagaData;
                 }
@@ -158,8 +158,8 @@ function loadLembagaDariSupabase() {
         // 3. Fallback Terakhir ke Master Seed Lokal jika belum ada data
         if (allLembagaData.length === 0) {
             allLembagaData = [...DEFAULT_LEMBAGA_DATA];
-            renderLembagaCards(allLembagaData);
-            updateAllPlatformStats(allLembagaData);
+            if (typeof renderLembagaCards === 'function') renderLembagaCards(allLembagaData);
+            if (typeof updateAllPlatformStats === 'function') updateAllPlatformStats(allLembagaData);
         }
         reRenderActiveDetailIfNeeded();
         return allLembagaData;
