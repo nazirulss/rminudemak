@@ -1506,8 +1506,8 @@ function renderLembagaCards(lembagaList) {
 
                         <!-- Area Konten Kartu -->
                         <div class="p-4 flex flex-col flex-grow">
-                            <h3 onclick="bukaModalDetailLembaga('${safeId}')" class="font-extrabold text-[15px] text-slate-900 mb-1 leading-snug line-clamp-1 group-hover:text-emerald-700 transition-colors cursor-pointer" title="${safeNama}">
-                                ${safeNama}
+                            <h3 class="font-extrabold text-[15px] text-slate-900 mb-1 leading-snug line-clamp-1 group-hover:text-emerald-700 transition-colors cursor-pointer" title="${safeNama}">
+                                <a href="/pesantren/${encodeURIComponent(generatePesantrenSlug(item))}" onclick="event.preventDefault(); bukaModalDetailLembaga('${safeId}')" class="text-inherit no-underline">${safeNama}</a>
                             </h3>
                             <p class="text-xs font-medium text-slate-500 flex items-center gap-1 mb-1">
                                 <span class="material-symbols-outlined text-[14px] text-emerald-600 shrink-0">location_on</span>
@@ -1529,10 +1529,10 @@ function renderLembagaCards(lembagaList) {
                                     <span class="material-symbols-outlined text-[14px] text-rose-500">map</span>
                                     <span>Buka Maps</span>
                                 </a>
-                                <button type="button" onclick="bukaModalDetailLembaga('${safeId}')" class="px-2.5 py-2 bg-emerald-50/70 hover:bg-emerald-700 text-emerald-800 hover:text-white border border-emerald-200/80 hover:border-emerald-700 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer">
+                                <a href="/pesantren/${encodeURIComponent(generatePesantrenSlug(item))}" onclick="event.preventDefault(); bukaModalDetailLembaga('${safeId}')" class="px-2.5 py-2 bg-emerald-50/70 hover:bg-emerald-700 text-emerald-800 hover:text-white border border-emerald-200/80 hover:border-emerald-700 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer no-underline">
                                     <span class="material-symbols-outlined text-[14px]">visibility</span>
                                     <span>Detail Profil</span>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -3138,10 +3138,10 @@ function renderBeritaBeranda() {
                     <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">visibility</span> ${viewsCount} Views</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <button type="button" onclick="openBeritaDetailModal('${featured.slug || featured.id}')"
-                        class="bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit cursor-pointer shadow-md">
+                    <a href="/berita/${encodeURIComponent(featured.slug || featured.id)}" onclick="event.preventDefault(); openBeritaDetailModal('${featured.slug || featured.id}')"
+                        class="bg-secondary-container text-on-secondary-container font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 hover:bg-white hover:text-primary transition-colors w-fit cursor-pointer shadow-md no-underline">
                         Lihat Detail Berita <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                    </button>
+                    </a>
                     <button type="button"
                         onclick="event.stopPropagation(); bagikanBeritaKeWA('${featured.slug || featured.id}')"
                         class="px-4 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
@@ -3181,7 +3181,7 @@ function renderBeritaBeranda() {
                                 <span class="text-amber-700 text-[10px] font-bold block">${safeMedia}</span>
                             </div>
                             <h4 class="text-sm md:text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                                ${safeJudul}
+                                <a href="/berita/${encodeURIComponent(art.slug || art.id)}" onclick="event.preventDefault(); event.stopPropagation(); openBeritaDetailModal('${art.slug || art.id}')" class="text-inherit no-underline">${safeJudul}</a>
                             </h4>
                         </div>
                         <div class="flex items-end justify-between mt-2">
@@ -3342,7 +3342,7 @@ function renderBeritaFullPage() {
                 </div>
                 <div class="p-6 md:p-7">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-[#008444] transition-colors">
-                        ${safeJudul}
+                        <a href="/berita/${encodeURIComponent(f1.slug || f1.id)}" onclick="event.preventDefault(); event.stopPropagation(); openBeritaDetailModal('${f1.slug || f1.id}')" class="text-inherit no-underline">${safeJudul}</a>
                     </h2>
                     <p class="text-slate-600 text-sm sm:text-base leading-relaxed line-clamp-2 mb-4 font-normal">
                         ${safeRingkasan}
@@ -3380,7 +3380,7 @@ function renderBeritaFullPage() {
                             </div>
                             <div class="p-4 flex-1 flex flex-col justify-between">
                                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2 mb-3">
-                                    ${subJudul}
+                                    <a href="/berita/${encodeURIComponent(sub.slug || sub.id)}" onclick="event.preventDefault(); event.stopPropagation(); openBeritaDetailModal('${sub.slug || sub.id}')" class="text-inherit no-underline">${subJudul}</a>
                                 </h3>
                                 <div class="flex items-center justify-between text-[10px] text-slate-500 font-medium pt-2 border-t border-slate-100">
                                     <span>${subDate}</span>
@@ -3422,7 +3422,7 @@ function renderBeritaFullPage() {
                             <span>${safeMedia}</span>
                         </div>
                         <h4 class="text-xs sm:text-sm font-bold text-slate-800 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2">
-                            ${safeJudul}
+                            <a href="/berita/${encodeURIComponent(item.slug || item.id)}" onclick="event.preventDefault(); event.stopPropagation(); openBeritaDetailModal('${item.slug || item.id}')" class="text-inherit no-underline">${safeJudul}</a>
                         </h4>
                         <span class="text-[10px] text-slate-400 font-medium mt-1 block">${viewsText} Views</span>
                     </div>
@@ -3469,7 +3469,7 @@ function renderBeritaFullPage() {
                                     <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">${safeMedia}</span>
                                 </div>
                                 <h4 class="text-sm sm:text-base font-bold text-slate-900 mb-2 leading-snug group-hover:text-[#008444] transition-colors line-clamp-2">
-                                    ${safeJudul}
+                                    <a href="/berita/${encodeURIComponent(item.slug || item.id)}" onclick="event.preventDefault(); event.stopPropagation(); openBeritaDetailModal('${item.slug || item.id}')" class="text-inherit no-underline">${safeJudul}</a>
                                 </h4>
                                 <p class="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">
                                     ${safeRingkasan}

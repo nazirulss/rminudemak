@@ -212,8 +212,10 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
+  const isNotFound = Boolean(lookupKey && !item);
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Vary', 'User-Agent');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.status(200).send(html);
+  res.status(isNotFound ? 404 : 200).send(html);
 }

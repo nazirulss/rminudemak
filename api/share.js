@@ -114,6 +114,7 @@ export default async function handler(req, res) {
     }
   }
 
+  const isNotFound = Boolean(lookupKey && !article);
   const title = t || (article && article.judul) || defaultTitle;
   const description = desc || (article && (article.ringkasan || article.isi_lengkap)) || defaultDesc;
   let rawImage = img || (article && article.cover_image_url) || defaultImg;
@@ -214,7 +215,7 @@ export default async function handler(req, res) {
   <meta charset="utf-8" />
   <title>${escapeHtml(title)}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="${isNotFound ? 'noindex, follow' : 'index, follow'}" />
   <meta name="description" content="${escapeHtml(description)}" />
   <meta name="keywords" content="${escapeHtml(keywords)}" />
   <meta name="author" content="${escapeHtml(penulis)}" />
@@ -261,7 +262,7 @@ export default async function handler(req, res) {
   // Pastikan header bervariasi berdasarkan User-Agent dan tidak membuat CDN menyajikan respon bot crawler ke browser biasa
   res.setHeader('Vary', 'User-Agent');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.status(200).send(html);
+  res.status(isNotFound ? 404 : 200).send(html);
 }
 
 function stripHtmlToParagraphs(raw) {
