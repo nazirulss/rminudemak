@@ -462,8 +462,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Deep linking untuk Halaman Berita Detail:
-        // 1. Format Bersih & SEO-friendly berbasis slug: #berita/slug-berita-anda
-        // 2. Format Kompatibilitas Legacy: #berita-detail?id=BRT-2026-001
+        // 1. Format Bersih di halaman /berita: #slug-berita-anda
+        // 2. Format Bersih Legacy: #berita/slug-berita-anda
+        // 3. Format Kompatibilitas Legacy: #berita-detail?id=BRT-2026-001
+        if (cleanPath === '/berita' && currentHash && !['berita', 'warta', 'berita-detail'].includes(currentHash)) {
+            const slugPart = currentHash.startsWith('berita/') 
+                ? rawHash.substring(rawHash.indexOf('/') + 1).trim()
+                : rawHash.trim();
+            if (slugPart && typeof openBeritaDetailModal === 'function') {
+                if (currentHash.startsWith('berita/')) {
+                    history.replaceState({ page: 'berita-detail', slug: slugPart }, '', '#' + encodeURIComponent(slugPart));
+                }
+                openBeritaDetailModal(slugPart);
+                return;
+            }
+        }
         if (currentHash.startsWith('berita/')) {
             const slugPart = rawHash.substring(rawHash.indexOf('/') + 1).trim();
             if (slugPart && typeof openBeritaDetailModal === 'function') {
@@ -500,7 +513,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const validPages = ['beranda', 'profil', 'pesantren', 'pesantren-detail', 'layanan', 'panduan', 'berita', 'berita-detail', 'sambang-pesantren-pwrminu-jateng'];
-        const targetPage = validPages.includes(currentHash) ? currentHash : (sessionStorage.getItem('activePage') || 'beranda');
+        const defaultPageForPath = PATH_TO_PAGE[cleanPath] || 'beranda';
+        const targetPage = validPages.includes(currentHash) ? currentHash : defaultPageForPath;
         navigateTo(targetPage, false);
     }
 
@@ -732,7 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             if (lowerHash.startsWith('berita/') || lowerHash.startsWith('berita-detail')) {
-                window.location.replace('/berita#' + rawHash);
+                const targetSlug = lowerHash.startsWith('berita/') 
+                    ? rawHash.substring('berita/'.length).trim() 
+                    : (new URLSearchParams(rawHash.split('?')[1] || '').get('id') || rawHash);
+                window.location.replace('/berita#' + targetSlug);
                 return;
             }
             if (MULTI_PAGE_ROUTES[lowerHash] && lowerHash !== 'beranda') {

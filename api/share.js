@@ -130,10 +130,10 @@ export default async function handler(req, res) {
   // URL kanonikal bersih berbasis slug dan rute SPA tujuan
   const canonicalUrl = finalSlug 
     ? `https://rminudemak.org/berita/${encodeURIComponent(finalSlug)}` 
-    : 'https://rminudemak.org/#berita';
+    : 'https://rminudemak.org/berita';
   const spaRedirectUrl = finalSlug 
-    ? `https://rminudemak.org/#berita/${encodeURIComponent(finalSlug)}` 
-    : 'https://rminudemak.org/#berita';
+    ? `https://rminudemak.org/berita#${encodeURIComponent(finalSlug)}` 
+    : 'https://rminudemak.org/berita';
 
   // Deteksi Web Crawler / Bot Pencari & Pratinjau Medsos (Googlebot, Bingbot, WhatsApp, Facebook, dll)
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();

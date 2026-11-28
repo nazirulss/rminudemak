@@ -473,7 +473,8 @@ function openBeritaDetailModal(idOrSlug) {
         incrementBeritaView(item.id || item.slug || idOrSlug);
     }
     const activeSlug = (item && item.slug) ? item.slug : idOrSlug;
-    const targetHash = '#berita/' + encodeURIComponent(activeSlug);
+    const isMultiPageBerita = window.location.pathname.includes('/berita');
+    const targetHash = isMultiPageBerita ? ('#' + encodeURIComponent(activeSlug)) : ('#berita/' + encodeURIComponent(activeSlug));
     if (window.location.hash !== targetHash) {
         history.pushState({ page: 'berita-detail', id: (item ? item.id : idOrSlug), slug: activeSlug }, '', targetHash);
     }
@@ -511,8 +512,10 @@ function openBeritaDetailModal(idOrSlug) {
         loadBeritaRMI().then(() => {
             renderBeritaDetailPage(idOrSlug);
             const found = findBeritaItem(idOrSlug);
-            if (found && found.slug && window.location.hash !== '#berita/' + encodeURIComponent(found.slug)) {
-                history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', '#berita/' + encodeURIComponent(found.slug));
+            const isMultiPageBerita = window.location.pathname.includes('/berita');
+            const properHash = isMultiPageBerita ? ('#' + encodeURIComponent(found ? found.slug : idOrSlug)) : ('#berita/' + encodeURIComponent(found ? found.slug : idOrSlug));
+            if (found && found.slug && window.location.hash !== properHash) {
+                history.replaceState({ page: 'berita-detail', id: found.id, slug: found.slug }, '', properHash);
             }
         });
     } else {
@@ -858,8 +861,11 @@ function renderBeritaDetailPage(idOrSlug) {
 }
 
 function closeBeritaDetailModal() {
-    document.title = 'RMI NU Demak — Portal Resmi PC RMINU Kabupaten Demak';
-    navigateTo('berita');
+    document.title = 'Warta Pesantren & Berita Resmi — PC RMI NU Kabupaten Demak';
+    if (window.location.hash) {
+        history.pushState({ page: 'berita' }, '', window.location.pathname);
+    }
+    navigateTo('berita', false);
 }
 
 function formatTanggalIndonesia(dateStr) {
