@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rmi-demak-pwa-v5';
+const CACHE_NAME = 'rmi-demak-pwa-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

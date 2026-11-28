@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const ASSET_VER = '20261128_0945';
+const ASSET_VER = '20261128_1000';
 
 const headAssets = fs.readFileSync('src/partials/head-assets.html', 'utf8').replaceAll('{{ASSET_VER}}', ASSET_VER);
 const navbar = fs.readFileSync('src/partials/navbar.html', 'utf8');
@@ -164,8 +164,7 @@ for (const cfg of PAGES_CONFIG) {
   const pageContent = fs.readFileSync(cfg.srcFile, 'utf8');
 
   const leafletBlock = cfg.useLeaflet
-    ? `    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /></noscript>
+    ? `    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>`
     : '';
 
