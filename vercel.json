@@ -31,6 +31,10 @@
     { "source": "/berita/share", "destination": "/api/share" },
     { "source": "/berita/:slug", "destination": "/api/share?slug=:slug" },
     { "source": "/pesantren/:slug", "destination": "/api/pesantren?slug=:slug" },
+    { "source": "/direktori-pesantren", "destination": "/api/direktori?jenis=pesantren" },
+    { "source": "/direktori-madin", "destination": "/api/direktori?jenis=madin" },
+    { "source": "/direktori-tpq", "destination": "/api/direktori?jenis=tpq" },
+    { "source": "/kecamatan/:slug", "destination": "/api/direktori?kecamatan=:slug" },
     { "source": "/admin", "destination": "/admin.html" }
   ]
 }

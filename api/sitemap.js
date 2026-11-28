@@ -1,6 +1,6 @@
 // Serverless Sitemap Generator untuk Google Search Console (https://rminudemak.org/sitemap.xml)
 
-import { GAS_API_URL, escapeXml, generatePesantrenSlug } from './_utils.js';
+import { GAS_API_URL, DEMAK_KECAMATAN, escapeXml, generatePesantrenSlug } from './_utils.js';
 
 let cachedBerita = null;
 let cachedPesantren = null;
@@ -122,10 +122,20 @@ export default async function handler(req, res) {
   const { berita, pesantren } = await getSitemapEntries();
 
   const urlBlocks = [
-    `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`
+    `  <url>\n    <loc>${baseUrl}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/direktori-pesantren</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/direktori-madin</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
+    `  <url>\n    <loc>${baseUrl}/direktori-tpq</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
   ];
-  const seenLocs = new Set([`${baseUrl}/`]);
+  const seenLocs = new Set([
+    `${baseUrl}/`,
+    `${baseUrl}/direktori-pesantren`,
+    `${baseUrl}/direktori-madin`,
+    `${baseUrl}/direktori-tpq`
+  ]);
 
+  const kecamatanEntries = DEMAK_KECAMATAN.map((k) => ({ slug: k.toLowerCase(), lastmod: null }));
+  appendUrls(urlBlocks, seenLocs, baseUrl, '/kecamatan/', kecamatanEntries, 'weekly', '0.85');
   appendUrls(urlBlocks, seenLocs, baseUrl, '/berita/', berita, 'weekly', '0.8');
   appendUrls(urlBlocks, seenLocs, baseUrl, '/pesantren/', pesantren, 'monthly', '0.7');
 

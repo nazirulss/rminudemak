@@ -2,6 +2,23 @@
 
 export const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbw-0Y0IM-uR326H4bkWAvbQ179Q5NrfgJT8ihOf8lY7C_joVwrT136fPRjRqu8U9jhU/exec';
 
+export const DEMAK_KECAMATAN = [
+  'Demak',
+  'Wonosalam',
+  'Mranggen',
+  'Karangawen',
+  'Guntur',
+  'Sayung',
+  'Karangtengah',
+  'Bonang',
+  'Wedung',
+  'Mijen',
+  'Gajah',
+  'Karanganyar',
+  'Dempet',
+  'Kebonagung'
+];
+
 export function isSearchCrawler(userAgent = '') {
   return /bot|crawl|spider|slurp|google-inspectiontool|whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest/i.test(
     String(userAgent).toLowerCase()
