@@ -376,11 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (targetId === 'tpq') setDirektoriTab('TPQ', updateHash);
         }
 
-        if (updateHash && (targetId === 'pesantren-detail' || targetId === 'berita-detail')) {
-            if (window.location.hash.replace('#', '') !== targetId) {
-                history.pushState({ page: targetId }, '', '#' + targetId);
-            }
-        }
+        // Clean routing: hindari pencemaran hash (#) untuk halaman detail lembaga dan berita
 
         pages.forEach(page => page.classList.remove('active'));
         if(targetPage) {
@@ -503,9 +499,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             } else {
+                history.replaceState({ page: 'direktori', category: 'Pesantren' }, '', '/pesantren');
                 navigateTo('pesantren', false);
                 return;
             }
+        }
+
+        // Pembersihan hash untuk kategori direktori (/pesantren, /madin, /tpq, /direktori)
+        if (currentHash === 'pesantren') {
+            if (window.location.hash) history.replaceState({ page: 'direktori', category: 'Pesantren' }, '', '/pesantren');
+            navigateTo('pesantren', false);
+            return;
+        }
+        if (currentHash === 'madin') {
+            if (window.location.hash) history.replaceState({ page: 'direktori', category: 'Madin' }, '', '/madin');
+            navigateTo('madin', false);
+            return;
+        }
+        if (currentHash === 'tpq') {
+            if (window.location.hash) history.replaceState({ page: 'direktori', category: 'TPQ' }, '', '/tpq');
+            navigateTo('tpq', false);
+            return;
+        }
+        if (currentHash === 'direktori') {
+            if (window.location.hash) history.replaceState({ page: 'direktori', category: 'Semua' }, '', '/direktori');
+            navigateTo('direktori', false);
+            return;
         }
 
         // Deep linking untuk Halaman Berita Detail:
@@ -953,22 +972,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeInitialPage = lowerHash;
                 handleHashRouting();
             } else {
-                activeInitialPage = lowerHash;
-                handleHashRouting();
+                if (cleanPath === '/pesantren' && (lowerHash === 'pesantren' || !lowerHash)) {
+                    history.replaceState({ page: 'direktori', category: 'Pesantren' }, '', '/pesantren');
+                    activeInitialPage = 'pesantren';
+                    navigateTo('pesantren', false);
+                } else if (cleanPath === '/madin' && (lowerHash === 'madin' || !lowerHash)) {
+                    history.replaceState({ page: 'direktori', category: 'Madin' }, '', '/madin');
+                    activeInitialPage = 'madin';
+                    navigateTo('madin', false);
+                } else if (cleanPath === '/tpq' && (lowerHash === 'tpq' || !lowerHash)) {
+                    history.replaceState({ page: 'direktori', category: 'TPQ' }, '', '/tpq');
+                    activeInitialPage = 'tpq';
+                    navigateTo('tpq', false);
+                } else if (cleanPath === '/direktori' && (lowerHash === 'direktori' || !lowerHash)) {
+                    history.replaceState({ page: 'direktori', category: 'Semua' }, '', '/direktori');
+                    activeInitialPage = 'direktori';
+                    navigateTo('direktori', false);
+                } else {
+                    activeInitialPage = lowerHash;
+                    handleHashRouting();
+                }
             }
         } else {
             navigateTo(activeInitialPage, false);
         }
 
-        // Inisialisasi tab aktif direktori sesuai cleanPath
-        if (cleanPath === '/pesantren') {
-            setDirektoriTab('Pesantren', false);
-        } else if (cleanPath === '/madin') {
-            setDirektoriTab('Madin', false);
-        } else if (cleanPath === '/tpq') {
-            setDirektoriTab('TPQ', false);
-        } else if (cleanPath === '/direktori') {
-            setDirektoriTab('Semua', false);
+        // Inisialisasi tab aktif direktori sesuai cleanPath HANYA jika bukan detail page!
+        if (activeInitialPage !== 'pesantren-detail' && activeInitialPage !== 'berita-detail') {
+            if (cleanPath === '/pesantren') {
+                setDirektoriTab('Pesantren', false);
+            } else if (cleanPath === '/madin') {
+                setDirektoriTab('Madin', false);
+            } else if (cleanPath === '/tpq') {
+                setDirektoriTab('TPQ', false);
+            } else if (cleanPath === '/direktori') {
+                setDirektoriTab('Semua', false);
+            }
         }
     }
 
@@ -982,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Memuat arsip warta media RMI Demak terkini hanya pada halaman yang membutuhkannya
     if (typeof loadBeritaRMI === 'function') loadBeritaRMI();
 
-    if ((activeInitialPage === 'direktori' || activeInitialPage === 'pesantren' || activeInitialPage === 'madin' || activeInitialPage === 'tpq' || activeInitialPage.startsWith('pesantren/')) && typeof initPublicMap === 'function') {
+    if (activeInitialPage !== 'pesantren-detail' && activeInitialPage !== 'berita-detail' && (activeInitialPage === 'direktori' || activeInitialPage === 'pesantren' || activeInitialPage === 'madin' || activeInitialPage === 'tpq') && typeof initPublicMap === 'function') {
         setTimeout(initPublicMap, 250);
         setTimeout(() => { if (typeof publicMap !== 'undefined' && publicMap) publicMap.invalidateSize(); }, 600);
     }

@@ -664,11 +664,29 @@ function salinNspp(nspp) {
     }
 }
 
-function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
+async function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
     const container = document.getElementById('pesantren-detail-content');
     if (!container) return;
 
-    const item = findPesantrenBySlugOrId(pesantrenId);
+    let item = findPesantrenBySlugOrId(pesantrenId);
+
+    // Jika data belum ditemukan atau dataset riil (293 pesantren) belum selesai dimuat di memori browser
+    if (!item && !isLivePesantrenDataLoaded && typeof loadLembagaDariSupabase === 'function') {
+        const pages = document.querySelectorAll('.page-section');
+        pages.forEach(p => p.classList.remove('active'));
+        const detailPage = document.getElementById('page-pesantren-detail');
+        if (detailPage) detailPage.classList.add('active');
+
+        container.innerHTML = `
+            <div class="py-24 text-center max-w-lg mx-auto">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent mb-4"></div>
+                <h3 class="text-lg font-extrabold text-slate-800">Memuat Profil Pesantren...</h3>
+                <p class="text-xs text-slate-500 mt-1">Mengambil data resmi dari Pangkalan Data PC RMI NU Kabupaten Demak.</p>
+            </div>
+        `;
+        await loadLembagaDariSupabase();
+        item = findPesantrenBySlugOrId(pesantrenId);
+    }
 
     if (!item) {
         container.innerHTML = `
@@ -682,7 +700,10 @@ function renderPesantrenDetailPage(pesantrenId, updateHash = true) {
                 </button>
             </div>
         `;
-        navigateTo('pesantren-detail', false);
+        const pages = document.querySelectorAll('.page-section');
+        pages.forEach(p => p.classList.remove('active'));
+        const detailPage = document.getElementById('page-pesantren-detail');
+        if (detailPage) detailPage.classList.add('active');
         return;
     }
 
